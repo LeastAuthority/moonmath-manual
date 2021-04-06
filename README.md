@@ -1,8 +1,7 @@
 This repo contains the files needed to typeset the MoonMath Manual in LaTeX. Other relevant docs:
 
--     The planning document with meeting notes can be found [here](https://docs.google.com/document/d/1FrWroya2MWgugYa_44lgdfgy9KD4wXAXhgQWzwHaEl8/edit) (you need to be in the `team@leastauthority.com` Google Group to have access).
--     The document for collecting links to sources for content and inspiration for formatting is [here](moonmath-links.md).
-
+- The planning document with meeting notes can be found [here](https://docs.google.com/document/d/1FrWroya2MWgugYa_44lgdfgy9KD4wXAXhgQWzwHaEl8/edit) (you need to be in the `team@leastauthority.com` Google Group to have access).
+- The document for collecting links to sources for content and inspiration for formatting is [here](moonmath-links.md).
 
 
 ## Folder structure
