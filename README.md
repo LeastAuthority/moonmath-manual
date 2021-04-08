@@ -8,9 +8,11 @@ This repo contains the files needed to typeset the MoonMath Manual in LaTeX. Oth
 
 The main `.tex` file is `main-moonmath.tex`. This should only be used for formatting and front/back matter.
 
-The actual content of the chapters is stored in the folder `chapters`. Each chapter should have its own `.tex` file. Please use the following naming convention for these: `[content]-moonmath.tex `; e.g. `intro-moonmath.tex`, `zoo-moonmath.tex`, etc.
+The actual **content** of the chapters is stored in the folder `chapters`. Each chapter should have its own `.tex` file. Please use the following naming convention for these: `[content]-moonmath.tex `; e.g. `intro-moonmath.tex`, `zoo-moonmath.tex`, etc.
 
-Pre-compiled figures, graphics, logos, etc. should be stored in the `figures` folder. We can split these further if it becomes too messy. Please use a descriptive name for all graphic files. For consistency, use all lowercase letters in the names, with hyphens separating the words, e.g. `overleaf-github-menu.png`.
+**Pre-compiled figures, graphics, logos**, etc. should be stored in the `figures` folder. We can split these further if it becomes too messy. Please use a descriptive name for all graphic files. For consistency, use all lowercase letters in the names, with hyphens separating the words, e.g. `overleaf-github-menu.png`. For brand assets that already exist (e.g. on the company Google Drive), you can keep the original name.
+
+**Bibliography** entries should be collected in the file `moonmath.bib`. We're using `natbib` for **citations and references** (check out [this guide](https://www.overleaf.com/learn/latex/Bibliography_management_with_natbib) for a quick recap of how it works).
 
 ## Git workflow
 
