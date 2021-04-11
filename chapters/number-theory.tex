@@ -8,6 +8,9 @@ We therefore start with a brief introduction to fundamental algebraic terms like
 The motivated reader is then encuraged to do some exercises from  the apendix of this chapter.
 
 \section{Preliminaries}
+
+\subsection{Integer Arithmetics}
+\label{integer_arithmetics}
 We start by a recapitulation of basic arithmetics as most of us will probably recall from school.
 
 In what follows we write $\Z$ for the set $\{\ldots, -3,-2,-1,0,1,2,3,\ldots\}$ of all integers, together with the usual addition, subtraction and multiplication of integers.
@@ -56,13 +59,13 @@ holds. Using a notation that is mostly used in Commonwealth countries we can the
 TO-APPEAR 
 \end{example}
 
-
-
-Another important tool in the theory of integers is the so-called \textit{extended Euclidean algorithm}. This calculates the greatest common divisor $ ggT (a, b) $ of two natural numbers $ a $ and $ b \in \N $, as well as two further integers $ s $ and $ t \in \Z $, see above that's the equation
+Another important algorithm frequently used in computations with integers is the so-called \textit{extended Euclidean algorithm}, which calculates the greatest common divisor $ gcd (a, b) $ of two natural numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the equation
 \begin{equation}
 \label{eq: erw_Eukl_algo}
 gcd (a, b) = s \cdot a + t \cdot b
 \end{equation}
+holds. Two numbers are called \textbf{relative prime}, if their greates common divisor is $1$.
+
 The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm (\cite{JB} chapter 2.9):
 \begin{definition} [Extended Euclidean Algorithm]
 \label{theorem: ext_Euclid}
@@ -78,11 +81,10 @@ r_0: = a, & r_1: = b, & s_0: = 1, & s_1: = 0, & k: = 1
 \State $ k \gets k + 1 $
 \EndWhile
 \end{algorithmic}
-The result provides the integers $ ggT (a, b): = r_k $, as well as $ s: = s_k $ and $ t: = \Zdiv{(r_k-s_k \cdot a)}{b} $, which make up the equation
-$ ggT (a, b) = s \cdot a + t \cdot b $ meet.
+As a result, the algorithm computes the integers $ gcd (a, b): = r_k $, as well as $ s: = s_k $ and $ t: = \Zdiv{(r_k-s_k \cdot a)}{b} $ such that the equation
+$ gcd (a, b) = s \cdot a + t \cdot b $ holds.
 \end{definition}
-\begin{example} To illustrate the algorithm to the reader, we apply it to the pair of numbers $ (12,5) $ in this example.
-We expect:
+\begin{example} To illustrate the algorithm, lets apply it to the numbers $ (12,5) $. We compute
 \begin{center}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ s_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
@@ -92,68 +94,27 @@ We expect:
     3 & 1 & -2 & 5 \\
   \end{tabular}
 \end{center}
-From this one can see that $ 12 $ and $ 5 $ are relatively prime (since their greatest common factor is $ ggT (12.5) = 1 $) and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ applies.
+From this one can see that $ 12 $ and $ 5 $ are relatively prime (since their greatest common divisor is $ gcd (12, 5) = 1 $) and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ holds.
 \end{example}
 
-\section{Galois fields}
-
-the theory of prime numbers and provide few basic properties like the fundamental theorem of arithmetic, which says that every natural number can be represented as a finite product of prime numbers.
-
-Then we describe what congruences are, define residue class rings and develop their arithmetic. We pay special attention to those residual classes where the modulus is a prime number, because the resulting sets are so called prime fields ....
- 
-The classic \cite{HW} is recommended to the interested reader who wants to delve into number theory. In addition, \cite{FO} is a somewhat more application-oriented book, which certainly has a lot to offer the reader interested in cryptology.
- 
-In the following, $\mathbb{Z} $ always denotes the ring of integers, $\mathbb{N}$ the set of positive integers and $\mathbb{N}_0$ the set of non-negative integers.
-
-\subsection{prime numbers}
-A prime number $ p \in \N $ is a natural number $ p \geq 2 $, which is an integer and without a remainder, only divisible by itself and by $ 1 $. Such a prime number is called \textit{odd} if it is not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
-
-As the Greek mathematician Euclid was able to prove by contradiction in the famous \textit{theorem of Euclid}, there can be no largest prime number. The set of all prime numbers is thus infinite \cite{AL}.
-
-Since prime numbers are especially natural numbers, they can be ordered according to size, so that one can get the sequence
-\begin{equation}
-\label{eq: primenumber_sequence}
-p_n: = 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
-\end{equation}
-of all prime numbers (sequence $ A000040 $ in OEIS or \cite{HW} chapter 1.4). In particular, one can speak of small and large prime numbers.
-
-As the following theorem shows, prime numbers are in a certain sense the basic units from which all other natural numbers are composed:
-\begin{theorem}[fundamental theorem of arithmetic]
-\label{def: primfactor_decomposition}
-Let $ n \in \N_{\geq 2} $ be a natural number. Then prime numbers exist
-$ p_1, p_2, \ldots, p_k \in \Prim $, such that:
-\begin{equation}
-n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
-\end{equation}
-Except for the permutation of the factors, this representation is unambiguous and is called the \textit{prime factorization} of $ n $.
-\end{theorem}
-\begin{proof} (\cite{AL} sentence 6.) 
-\end{proof}
-\begin{remark}
-The proof of the previous theorem (\ref{def: primfactor_decomposition}) is not constructive and the question remains how quickly the prime factorization of a natural number can be calculated in principle. This is the famous \textit{factoring problem}. So much for today is known, there is no method on a classical Turing machine that calculates this representation in polynomial time. The fastest algorithms known today run sub-exponentially, ie $\mathcal{O}((1+ \epsilon)^n)$ applies for a $ \epsilon> 0 $. Interested readers can find more on this exciting topic in \cite{JB} Chapter 10.
-\end{remark}
-\begin{remark}
-It should be pointed out at this point that the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer \cite{PS}.
-
-The consequence of this is, of course, that cryosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
-\end{remark} 
-
-\subsection{remainder class arithmetic}
+\subsection{Modular arithmetic}
 Congruence or remainder class arithmetic is of central importance for understanding most modern crypto systems. In this section we will therefore take a closer look at this arithmetic. For the notation of remainder class arithmetic in cryptology see also \cite{JB} Chapter 3, or \cite{AL} Chapter 3.
 
-\paragraph{Congruences and modular arithmetic.}
-
-
-With the help of the whole number division with remainder, the congruence of two whole numbers with respect to a so-called module can be defined as follows
+Utilizing Euklidean division as explained previously (\ref{integer_arithmetics}), congruency of two integers with respect to a so-called modulus can be defined as follows
 (\cite{JB} chapter 3.1):
-\begin{definition} [congruence] Let $ a $, $ b \in \Z $ be two whole numbers and $ n \in \N $ a natural number.
-Then $ a $ and $ b $ \textit{congruent with respect to the module} $ n $, if the equation
+\begin{definition} [congruency] Let $ a $, $ b \in \Z $ be two integers and $ n \in \N $ a natural number.
+Then $ a $ and $ b $ are said to be \textbf{congruent with respect to the modulus} $ n $, if and only if the equation
 \begin{equation}
 \Zmod{a}{n} = \Zmod{b}{n}
 \end{equation}
-is fulfilled. In this case we also write
-$ \kongru{a}{b}{n} $. If two numbers are not congruent with respect to a given module, we also call them \textit{incongruent}.
+holds. In this case we write
+$ \kongru{a}{b}{n} $. If two numbers are not congruent with respect to a given modulus $n$, we call them \textit{incongruent} w.r.t. $n$.
 \end{definition}
+So in other words, if a modulus $n$ is given, then two integers are congruent with respect to this modulus if Euclidean division by $n$ give the same remainder.   
+\begin{example}To give a simple example, lets assume that we choose the modulus $271$. Then we have
+$$ \kongru{7}{2446}{271} $$
+since both $\Zmod{7}{271} = 7$ as well as $\Zmod{2446}{271}=7$
+\end{example}
 The following sentence describes a fundamental property of modulo arithmetic, which is not known from traditional arithmetic in $ \Z $ (\cite{JB} chapter 3.11):
 \begin{theorem} [Fermat's Little Theorem] Let $ p \in \Prim $ be a prime number
 and $ k \in \mathbb{Z} $ is an integer, then:
@@ -212,6 +173,51 @@ $$
 as one solution. Because of $ \Zmod{2398}{1155} = 88 $ the set of all possible solutions of this simultaneous congruence is through
 $ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $ given. In particular, there are infinitely many different solutions.
 \end{example}
+
+\section{Galois fields}
+
+the theory of prime numbers and provide few basic properties like the fundamental theorem of arithmetic, which says that every natural number can be represented as a finite product of prime numbers.
+
+Then we describe what congruences are, define residue class rings and develop their arithmetic. We pay special attention to those residual classes where the modulus is a prime number, because the resulting sets are so called prime fields ....
+ 
+The classic \cite{HW} is recommended to the interested reader who wants to delve into number theory. In addition, \cite{FO} is a somewhat more application-oriented book, which certainly has a lot to offer the reader interested in cryptology.
+ 
+In the following, $\mathbb{Z} $ always denotes the ring of integers, $\mathbb{N}$ the set of positive integers and $\mathbb{N}_0$ the set of non-negative integers.
+
+\subsection{prime numbers}
+A prime number $ p \in \N $ is a natural number $ p \geq 2 $, which is an integer and without a remainder, only divisible by itself and by $ 1 $. Such a prime number is called \textit{odd} if it is not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+
+As the Greek mathematician Euclid was able to prove by contradiction in the famous \textit{theorem of Euclid}, there can be no largest prime number. The set of all prime numbers is thus infinite \cite{AL}.
+
+Since prime numbers are especially natural numbers, they can be ordered according to size, so that one can get the sequence
+\begin{equation}
+\label{eq: primenumber_sequence}
+p_n: = 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
+\end{equation}
+of all prime numbers (sequence $ A000040 $ in OEIS or \cite{HW} chapter 1.4). In particular, one can speak of small and large prime numbers.
+
+As the following theorem shows, prime numbers are in a certain sense the basic units from which all other natural numbers are composed:
+\begin{theorem}[fundamental theorem of arithmetic]
+\label{def: primfactor_decomposition}
+Let $ n \in \N_{\geq 2} $ be a natural number. Then prime numbers exist
+$ p_1, p_2, \ldots, p_k \in \Prim $, such that:
+\begin{equation}
+n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
+\end{equation}
+Except for the permutation of the factors, this representation is unambiguous and is called the \textit{prime factorization} of $ n $.
+\end{theorem}
+\begin{proof} (\cite{AL} sentence 6.) 
+\end{proof}
+\begin{remark}
+The proof of the previous theorem (\ref{def: primfactor_decomposition}) is not constructive and the question remains how quickly the prime factorization of a natural number can be calculated in principle. This is the famous \textit{factoring problem}. So much for today is known, there is no method on a classical Turing machine that calculates this representation in polynomial time. The fastest algorithms known today run sub-exponentially, ie $\mathcal{O}((1+ \epsilon)^n)$ applies for a $ \epsilon> 0 $. Interested readers can find more on this exciting topic in \cite{JB} Chapter 10.
+\end{remark}
+\begin{remark}
+It should be pointed out at this point that the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer \cite{PS}.
+
+The consequence of this is, of course, that cryosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
+\end{remark} 
+
+
 
 \paragraph{Residual class rings and prime fields.}
 Congruence Modulo $ n $ is an \"equivalence relation on the set of integers, whereby there are exactly $ n $ different equivalence classes. In doing so, we identify each equivalence class with the corresponding remainder of the integer division. The addition and multiplication of whole numbers can be continued to an addition and multiplication on the equivalence classes by simply choosing an animated representative from each class. Selects, adds or multiplies them as usual and then selects the equivalence class that contains the result.
