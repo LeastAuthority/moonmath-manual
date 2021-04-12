@@ -8,12 +8,16 @@ We therefore start with a brief introduction to fundamental algebraic terms like
 The motivated reader is then encuraged to do some exercises from  the apendix of this chapter.
 
 \section{Preliminaries}
+INTO-BLA
+
+
+The classic reference \cite{HW} is recommended to. In addition, \cite{FO} is a somewhat more application-oriented book, which certainly has a lot to offer the reader interested in cryptology.
 
 \subsection{Integer Arithmetics}
 \label{integer_arithmetics}
 We start by a recapitulation of basic arithmetics as most of us will probably recall from school.
 
-In what follows we write $\Z$ for the set $\{\ldots, -3,-2,-1,0,1,2,3,\ldots\}$ of all integers, together with the usual addition, subtraction and multiplication of integers.
+In what follows we write $\Z$ for the set $\{\ldots, -3,-2,-1,0,1,2,3,\ldots\}$ of all integers, together with the usual addition, subtraction and multiplication of integers. Moreover we write$\mathbb{N}$ the set of positive integers and $\mathbb{N}_0$ the set of non-negative integers.
 
 Of course division is not well defined for integers and one of the most basic but at the same time highly important technique, that every reader must become familiar with is the following (kind of) replacement for devision of integers called \textit{Euklidean division} (\cite{AL}
 \begin{theorem}[Euklidean Division]
@@ -98,9 +102,11 @@ From this one can see that $ 12 $ and $ 5 $ are relatively prime (since their gr
 \end{example}
 
 \subsection{Modular arithmetic}
-Congruence or remainder class arithmetic is of central importance for understanding most modern crypto systems. In this section we will therefore take a closer look at this arithmetic. For the notation of remainder class arithmetic in cryptology see also \cite{JB} Chapter 3, or \cite{AL} Chapter 3.
+Congruence or modlar arithmetics (sometimes also called residue class arithmetics) is of central importance for understanding most modern crypto systems. In this section we will therefore take a closer look at this arithmetic. For the notation in cryptology see also \cite{JB} Chapter 3, or \cite{AL} Chapter 3.
 
-Utilizing Euklidean division as explained previously (\ref{integer_arithmetics}), congruency of two integers with respect to a so-called modulus can be defined as follows
+MORE-HIGH-LEVEL-DESCRIPTION
+
+Utilizing Euklidean division as explained previously (\ref{integer_arithmetics}), congruency of two integers with respect to a so-called moduli can be defined as follows
 (\cite{JB} chapter 3.1):
 \begin{definition} [congruency] Let $ a $, $ b \in \Z $ be two integers and $ n \in \N $ a natural number.
 Then $ a $ and $ b $ are said to be \textbf{congruent with respect to the modulus} $ n $, if and only if the equation
@@ -110,26 +116,26 @@ Then $ a $ and $ b $ are said to be \textbf{congruent with respect to the modulu
 holds. In this case we write
 $ \kongru{a}{b}{n} $. If two numbers are not congruent with respect to a given modulus $n$, we call them \textit{incongruent} w.r.t. $n$.
 \end{definition}
-So in other words, if a modulus $n$ is given, then two integers are congruent with respect to this modulus if Euclidean division by $n$ give the same remainder.   
+So in other words, if some modulus $n$ is given, then two integers are congruent with respect to this modulus if both Euclidean divisions by $n$ give the same remainder.   
 \begin{example}To give a simple example, lets assume that we choose the modulus $271$. Then we have
 $$ \kongru{7}{2446}{271} $$
 since both $\Zmod{7}{271} = 7$ as well as $\Zmod{2446}{271}=7$
 \end{example}
-The following sentence describes a fundamental property of modulo arithmetic, which is not known from traditional arithmetic in $ \Z $ (\cite{JB} chapter 3.11):
-\begin{theorem} [Fermat's Little Theorem] Let $ p \in \Prim $ be a prime number
-and $ k \in \mathbb{Z} $ is an integer, then:
+The following theorem describes a fundamental property of modulus arithmetic, which is not known in the traditional arithmetics of integers: (\cite{JB} chapter 3.11):
+\begin{theorem} [Fermat's Little Theorem] Let $ p \in \Prim $ be a prime number and $ k \in \mathbb{Z} $ is an integer, then:
 \begin{equation}
 \kongru{k ^ p}{k}{p} \;,
 \end{equation}
 \end{theorem}
 \begin{proof} 
 \end{proof}
+\begin{remark}
+Fermats theorem is also often written as the equivalent equation $\kongru{k ^{p-1}}{1}{p}$, which can be derived from the original equation by dividing both sides of the congruency by $k$. 
+\end{remark}
+Another theorem that is important for doing calculations with congruences is the following Chinese remainder theorem, as it provides a way to solves systems congruency equations (\cite{JB} chapter 3.15).
 
-
-Another theorem that is important for calculating with congruences is the following Chinese remainder sentence. Roughly speaking, he shows us how to use congruence systems (\cite{JB} chapter 3.15).
-
-\begin{theorem} [Chinese remainder sentence]
-For  $ k \in \N $ the coprime natural numbers $ n_1, \ldots n_k \in \N $ and the integers $ a_1, \ldots a_k \in \Z $ are given. Then there exists for the so-called \textit{simultaneous congruence}
+\begin{theorem} [Chinese remainder theorem]
+For any $ k \in \N $ let coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as the integers $ a_1, \ldots a_k \in \Z $ be given. Then the so-called \textit{simultaneous congruency}
 \begin{equation}
 \begin{array}{c}
 \kongru{x}{a_1}{n_1} \\
@@ -138,15 +144,27 @@ For  $ k \in \N $ the coprime natural numbers $ n_1, \ldots n_k \in \N $ and the
 \kongru{x}{a_k}{n_k} \\
 \end{array}
 \end{equation}
-a solution and all possible solutions of this congruence system are congruent modulo
+has a solution and all possible solutions of this congruence system are congruent modulo
 $ n_1 \cdot \ldots \cdot n_k $.
 \end{theorem}
 \begin{proof} (\cite{JB} chapter 3.15)
 \end{proof}
-\begin{remark}
-This is the classic Chinese remainder as it was known in ancient China. Under certain circumstances, this set can be extended to non-coprime modules $ n_1, \ldots, n_k $.
+\begin{remark}From the proof as given in \cite{JB} chapter 3.15, the following algorithm to find all solutions to any given system of congruences can be derived TODO:WRITE IN ALGORITHM STYLE
+\begin{itemize}
+\item Compute $N=n_1 \cdot n_ 2\cdot\ldots\cdot n_k$
+\item For each $1\leq j \leq k$, compute 
+$N_j = \frac{N}{n_j}$
+\item For each $1\leq j \leq k$, use the extended Euklidean algorithm (\ref{theorem: ext_Euclid}) to compute numbers $s_j$ as well as $t_j$, such that $1 = s_j \cdot n_j + t_j \cdot N_j $ holds.
+\item A solution to the congruency system is then given by $x = \sum_{j=1}^k a_j\cdot t_j\cdot N_j$.
+\item Compute $m = \Zmod{x}{N}$. The set of all possible solutions is then given by
+$ x+m\cdot\Z = \{\ldots, x-2m, x-m,x,x+m, x+2m, \ldots \} $.
+\end{itemize} 
 \end{remark}
-\begin{example} To illustrate how to solve simultaneous congruences using the Chinese remainder theorem, let's look at the following simultaneous congruence in this example:
+
+\begin{remark}
+This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $.
+\end{remark}
+\begin{example} To illustrate how to solve simultaneous congruences using the Chinese remainder theorem, let's look at the following system of congruencies:
 $$
 \begin{array}{c}
 \kongru{x}{4}{7} \\
@@ -155,97 +173,145 @@ $$
 \kongru{x}{0}{11} \\
 \end{array}
 $$
-So here is $ N = 7 \times 3 \times 5 \times 11 = 1155 $, as well as
+So here we have $ N = 7 \cdot 3 \cdot 5 \cdot 11 = 1155 $, as well as
 $ N_1 = 165 $, $ N_2 = 385 $, $ N_3 = 231 $ and $ N_4 = 105 $. From this we calculate with the extended Euclidean algorithm
 $$
 \begin{array}{cccc}
- 1 = & -47 \times 7 & + & 2 \times 165 \\
- 1 = & -128 \times 3 & + & 1 \times 385 \\
- 1 = & -46 \times 5 & + & 1 \times 231 \\
- 1 = & -19 \times 11 & + & 2 \times 105 \\
+ 1 = & -47 \cdot 7 & + & 2 \cdot 165 \\
+ 1 = & -128 \cdot 3 & + & 1 \cdot 385 \\
+ 1 = & -46 \cdot 5 & + & 1 \cdot 231 \\
+ 1 = & -19 \cdot 11 & + & 2 \cdot 105 \\
 \end{array}
 $$
 so we have
-$ e_1 = 2 \cdot 165 = 330 $, $ e_2 = 1 \cdot 385 = 385 $, $ e_3 = 1 \cdot 231 = 231 $ and $ e_4 = 2 \cdot 105 = 210 $, from which
+$x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
+as one solution. Because $ \Zmod{2398}{1155} = 88 $ the set of all solutions is
+$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are infinitely many different solutions.
+\end{example}
+
+Congruency modulo $ n $ is an equivalence relation on the set of integers, where each class is the set of all integers that have the same remainder when divided by $n$. If then follows from the properties of Euclidean division,that there are exactly $ n $ different equivalence classes. 
+
+If we go a step further and identify each equivalence class with the corresponding remainder of the Euclidean division, we get a new set, where integer addition and multiplication can be projected to a new kind of addition and multiplication on the equivalence classes. 
+
+Roughly speaking the new rules are computed by taking any element of the firsr equivalence class and and element of the second, then add or multiply them in the usual way and see in which equivalence class the result is contained.
+
+The following theorem makes the idea precises
+\begin{theorem}
+\label{def: residual class ring}
+Let $ n \in \N _{\geq 2} $ be a fixed, natural number and
+$ \Z_n $ the set of equivalence classes of integers with respect to the  congruence modulo $ n $ relation. Then $ \Z_n $ forms a commutative ring with unit with respect to the addition and multiplication defined above.
+\end{theorem}
+\begin{proof} (\cite{AL} sentence 1)  
+\end{proof}
+The following example makes the abstract idea more concrete
+\begin{example} [Arithmetics modulo $6$]
+\label{z_6}
+Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$). We write
 $$
-x = 4 \times 330 + 1 \times 385 + 3 \times 231 + 0 \times 210 = 2398
+\begin{array}{lll}
+0: = \{\ldots, -6,0,6,12, \ldots \}, &
+1: = \{\ldots, -5,1,7,13, \ldots \}, &
+2: = \{\ldots, -4,2,8,14, \ldots \} \\
+3: = \{\ldots, -3,3,9,15, \ldots \}, &
+4: = \{\ldots, -2,4,10,16, \ldots \}, &
+5: = \{\ldots, -1,5,11,17, \ldots \}
+\end{array}
 $$
-as one solution. Because of $ \Zmod{2398}{1155} = 88 $ the set of all possible solutions of this simultaneous congruence is through
-$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $ given. In particular, there are infinitely many different solutions.
+Now to compute the addition of those equivalence classes, say $2+5$, one chooses arbitrary elements from both sets say $14$ and $-1$, adds those numbers in the usual way and then looks in which equivalence class the result will be. 
+
+So we have $14+(-1)=13$ and $13$ is in the equivalence class (of) $1$. Hence in $Z_6$ we have that $2+5=1$!
+
+Applying the same reasoning to all equivalence classes, addition and multiplication can  be transferred to the equivalence classes and the results are summarized in the following addition and multiplication tables for $ \Z_6 $:
+\begin{center}
+  \begin{tabular}{c | c c c c c c}
+    + & 0 & 1 & 2 & 3 & 4 & 5\\\hline
+    0 & 0 & 1 & 2 & 3 & 4 & 5 \\
+    1 & 1 & 2 & 3 & 4 & 5 & 0\\
+    2 & 2 & 3 & 4 & 5 & 0 & 1\\
+    3 & 3 & 4 & 5 & 0 & 1 & 2\\
+    4 & 4 & 5 & 0 & 1 & 2 & 3\\
+    5 & 5 & 0 & 1 & 2 & 3 & 4
+  \end{tabular} \quad \quad \quad \quad
+  \begin{tabular}{c | c c c c c c}
+$ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
+        0 & 0 & 0 & 0 & 0 & 0 & 0\\
+        1 & 0 & 1 & 2 & 3 & 4 & 5\\
+        2 & 0 & 2 & 4 & 0 & 2 & 4\\
+        3 & 0 & 3 & 0 & 3 & 0 & 3\\
+        4 & 0 & 4 & 2 & 0 & 4 & 2\\
+        5 & 0 & 5 & 2 & 3 & 2 & 1
+  \end{tabular}
+\end{center}
+
+These two tables are all you need to be able to calculate in $ \Z_6 $. For example, to determine the multiplicative inverse of a remainder class, look for the entry that results in $ 1 $ in the product table. For example the multiplicative inverse of $ 5 $ is $ 5 $ itself, since $5\cdot 5 = 1$. Similar to the integers not all numbers have inverses. For example there is no element, that when multiplied with $4$ will give $1$. 
+However in contrast to what we know from integers, there are non zero numbers, that, when multiplied gives zero (e.g $4\cdot 4 =0$).
 \end{example}
 
 \section{Galois fields}
+As we have seen in the previous section, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers. But in contrast to arithmetics on integers or rational numbers, we deal with a finite set of elements, which when implemented on computers will not lead to precision problems.
 
-the theory of prime numbers and provide few basic properties like the fundamental theorem of arithmetic, which says that every natural number can be represented as a finite product of prime numbers.
+However as we have seen in the last example modular arithmetics is at the same time very different from integer arithmetics as the product of non zero elements can be zero. In addition it is also different from the arithmetics of rational numbers, as there is often no multiplicative inverse, hence no division defined. 
 
-Then we describe what congruences are, define residue class rings and develop their arithmetic. We pay special attention to those residual classes where the modulus is a prime number, because the resulting sets are so called prime fields ....
- 
-The classic \cite{HW} is recommended to the interested reader who wants to delve into number theory. In addition, \cite{FO} is a somewhat more application-oriented book, which certainly has a lot to offer the reader interested in cryptology.
- 
-In the following, $\mathbb{Z} $ always denotes the ring of integers, $\mathbb{N}$ the set of positive integers and $\mathbb{N}_0$ the set of non-negative integers.
+In this section we will see that modular arithmetics behaves very nicely, whenever the modulus is a prime number. In that case the rules of modular arithmetics exactly parallels exactly the well know rules of rational arithmetics, despite the fact that the actually computed numbers are very different.
 
-\subsection{prime numbers}
-A prime number $ p \in \N $ is a natural number $ p \geq 2 $, which is an integer and without a remainder, only divisible by itself and by $ 1 $. Such a prime number is called \textit{odd} if it is not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+The resulting structures are the so called prime fields and they are the base for many of the contemporary algebra based cryptographic systems.
 
-As the Greek mathematician Euclid was able to prove by contradiction in the famous \textit{theorem of Euclid}, there can be no largest prime number. The set of all prime numbers is thus infinite \cite{AL}.
+
+\begin{proof} (\cite{AL} sentence 1)  THIS WILL GO TO PRIME FIELDS...
+
+To find the multiplicative inverse of an equivalent class $ x \in \mathbb{Z} _n $ with $ x \neq 0 $, we first assume that $ n $ is a prime number. Then $ ggt (x, n) = 1 $ and from the extended Euclidean algorithm it follows that there are integers $ s, t \in \mathbb{Z} $ with $ s \cdot x + t \cdot n = 1 $ gives. But this results in $ s \cdot x = 1 $ in $ \mathbb{Z} _n $, which shows that $ x $ is invertible, with $ x ^{- 1} = s $. So $ \mathbb{Z} _n $ is a field if $ n $ is a prime number.
+
+On the other hand, if $ n $ is not a prime number, then there are natural numbers $ a $ and $ b $ with $ n = a \cdot b $ and $ 0 <a, b <n $. From this it follows that $ a \cdot b = 0 $ in $ \mathbb{Z} _n $. In this case, $ \Z_n $ is not free of zero divisors and therefore not a field.
+\end{proof}
+
+
+Roughly speaking Galois fields are finite sets, that behave similar to the rational numbers in the sese that they have additions, subtraction, multiplication and division, theconcept of zero and one and bracket operations behave as expected.
+
+Since Galois fields are strongly connectedto prime numbers we start with
+a short overview of prime numbers and provide few basic properties like the fundamental theorem of arithmetic, which says that every natural number can be represented as a finite product of prime numbers.
+
+The key insight here, is that when the modulus is a prime number, modular arithmetic has a well defined division, that is absent for general moduli.
+
+A prime number $ p \in \N $ is a natural number $ p \geq 2 $, which is divisible by itself and by $ 1 $ only. Such a prime number is called \textit{odd} if it is not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+
+As the Greek mathematician Euclid was able to prove by contradiction in the famous \textit{theorem of Euclid}, no largest prime number exists. The set of all prime numbers is thus infinite \cite{AL}.
 
 Since prime numbers are especially natural numbers, they can be ordered according to size, so that one can get the sequence
 \begin{equation}
 \label{eq: primenumber_sequence}
 p_n: = 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
 \end{equation}
-of all prime numbers (sequence $ A000040 $ in OEIS or \cite{HW} chapter 1.4). In particular, one can speak of small and large prime numbers.
+of all prime numbers, which is sequence $ A000040 $ in OEIS or \cite{HW} chapter 1.4). In particular, we can talk about small and large prime numbers.
 
 As the following theorem shows, prime numbers are in a certain sense the basic units from which all other natural numbers are composed:
-\begin{theorem}[fundamental theorem of arithmetic]
+\begin{theorem}[The Fundamental Theorem of Arithmetic]
 \label{def: primfactor_decomposition}
-Let $ n \in \N_{\geq 2} $ be a natural number. Then prime numbers exist
+Let $ n \in \N_{\geq 2} $ be a natural number. Then there are prime numbers 
 $ p_1, p_2, \ldots, p_k \in \Prim $, such that:
 \begin{equation}
 n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
 \end{equation}
-Except for the permutation of the factors, this representation is unambiguous and is called the \textit{prime factorization} of $ n $.
+Except for permutations in the factors, this representation is unique and is called the \textbf{prime factorization} of $ n $.
 \end{theorem}
 \begin{proof} (\cite{AL} sentence 6.) 
 \end{proof}
 \begin{remark}
-The proof of the previous theorem (\ref{def: primfactor_decomposition}) is not constructive and the question remains how quickly the prime factorization of a natural number can be calculated in principle. This is the famous \textit{factoring problem}. So much for today is known, there is no method on a classical Turing machine that calculates this representation in polynomial time. The fastest algorithms known today run sub-exponentially, ie $\mathcal{O}((1+ \epsilon)^n)$ applies for a $ \epsilon> 0 $. Interested readers can find more on this exciting topic in \cite{JB} Chapter 10.
+An important question is how fast we can compute the prime factorization of a natural number? This is the famous \textit{factorization problem}. As far as we know, there is no method on a classical Turing machine that is able to compute this representation in polynomial time. The fastest algorithms known today run sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $. THe interested reader can find more on this exciting topic in \cite{JB} Chapter 10.
 \end{remark}
 \begin{remark}
-It should be pointed out at this point that the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer \cite{PS}.
+It should be pointed out however hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer \cite{PS}.
 
 The consequence of this is, of course, that cryosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
 \end{remark} 
 
 
-
-\paragraph{Residual class rings and prime fields.}
-Congruence Modulo $ n $ is an \"equivalence relation on the set of integers, whereby there are exactly $ n $ different equivalence classes. In doing so, we identify each equivalence class with the corresponding remainder of the integer division. The addition and multiplication of whole numbers can be continued to an addition and multiplication on the equivalence classes by simply choosing an animated representative from each class. Selects, adds or multiplies them as usual and then selects the equivalence class that contains the result.
-
-This notation is standard, both in cryptology and in elementary number theory, and is necessary in order to be able to use things like inverses, roots, etc. to be able to speak. See Chapter 3 in \cite{JB} or Chapter 3 in \cite{AL}.
-
-\begin{theorem}
-\label{def: residual class ring}
-Let $ n \in \N _{\geq 2} $ be a fixed, natural number and
-$ \Z_n $ the set of equivalence classes of integers with respect to the  congruence modulo $ n $ relation. Then $ \Z_n $ forms a commutative ring with one element with respect to the addition and multiplication defined above. Besides that, $\Z_n $ is a field if and only if $ n $ is a prime number.
-\end{theorem}
-\begin{proof} (\cite{AL} sentence 1) Associativity, distributivity and commutativity of both addition and multiplication follow directly from the corresponding properties in $ \Z $.
-
-The neutral element of addition is given by the equivalence class of $ 0 $, i.e. by the set $ \{\ldots, -2 \cdot n, -n, 0, n, 2 \cdot n, \ldots \} $ and that is additive The inverse of an equivalence class $ x \in \Z_n $ is given by the equivalence class $ nx \in \Z_n $. $ \Z_n $ is therefore a commutative group with regard to addition.
-
-The neutral element of the multiplication is given by the equivalence class of $ 1 $, i.e. by the set $ \{\ldots, -2 \cdot + 1 n, -n + 1.1, n + 1.2 \cdot n + 1, \ldots \} $ given. So $ \Z_n $ is a commutative ring with one element.
-
-To find the multiplicative inverse of an equivalent class $ x \in \mathbb{Z} _n $ with $ x \neq 0 $, we first assume that $ n $ is a prime number. Then $ ggt (x, n) = 1 $ and from the extended Euclidean algorithm it follows that there are integers $ s, t \in \mathbb{Z} $ with $ s \cdot x + t \cdot n = 1 $ gives. But this results in $ s \cdot x = 1 $ in $ \mathbb{Z} _n $, which shows that $ x $ is invertible, with $ x ^{- 1} = s $. So $ \mathbb{Z} _n $ is a field if $ n $ is a prime number.
-
-On the other hand, if $ n $ is not a prime number, then there are natural numbers $ a $ and $ b $ with $ n = a \cdot b $ and $ 0 <a, b <n $. From this it follows that $ a \cdot b = 0 $ in $ \mathbb{Z} _n $. In this case, $ \Z_n $ is not free of zero divisors and therefore not a field.
-\end{proof}
 \begin{definition} [residue class rings and primes Korper] (\cite{JB} example 3.4.4 or \cite{AL} definition 3.1)
 Let $ n \in \N _{\geq 2} $ be chosen. Then we write $ (\Z_n, +, \cdot) $ for the one described in the sentence (\ref{def: rest class ring}) commutative ring.
 
 If $ n \in \Prim $ is also a prime number, then $ \Z_n $ is also called
 \textit{Primary body for the characteristic} $ n $.
 \end{definition}
-\begin{remark} As can be seen from the proof of the theorem (\ref{def: residue class ring}), inverse elements in prime fields can be calculated as follows: If $ n $ is a prime number and $ x \in \Z_n $ is given, so one calculates $ s \times x + t \times n = 1 $ with the extended Euclidean algorithm and $ s = x ^{- 1} $ applies.
+\begin{remark} As can be seen from the proof of the theorem (\ref{def: residue class ring}), inverse elements in prime fields can be calculated as follows: If $ n $ is a prime number and $ x \in \Z_n $ is given, so one calculates $ s \cdot x + t \cdot n = 1 $ with the extended Euclidean algorithm and $ s = x ^{- 1} $ applies.
 \end{remark}
 The following important property immediately follows from Fermat's little theorem, for arithmetic is prime fields.
 \begin{lemma}
@@ -432,16 +498,16 @@ Because of $ \kongru{1}{4}{3} $, the roots in $ \Z_3 $ result in $ \sqrt{4} _{| 
 
 Next we apply the Chinese remainder theorem. We define
 $ N = 15 $, $ N_1 = 5 $ and $ N_2 = 3 $. With the extended Euclidean algorithm
-we then calculate $ 1 = 2 \times 3 + (-1) \times 5 $, with which one
+we then calculate $ 1 = 2 \cdot 3 + (-1) \cdot 5 $, with which one
 $ e_1 = -5 $ and $ e_2 = 6 $ determined.
 
 With this you can now easily write the roots of $ 4 $ in $ \Z_{15} $ through all combinations of the roots in $ \Z_3 $ and $ \Z_5 $:
 \begin{equation}
 \begin{array}{rcl}
-x_1 = 1 \times (-5) + 2 \times 6 & = & 7 \\
-x_2 = 1 \times (-5) + 3 \times 6 & = & 13 \\
-x_3 = 2 \times (-5) + 2 \times 6 & = & 2 \\
-x_4 = 2 \times (-5) + 3 \times 6 & = & 8 \\
+x_1 = 1 \cdot (-5) + 2 \cdot 6 & = & 7 \\
+x_2 = 1 \cdot (-5) + 3 \cdot 6 & = & 13 \\
+x_3 = 2 \cdot (-5) + 2 \cdot 6 & = & 2 \\
+x_4 = 2 \cdot (-5) + 3 \cdot 6 & = & 8 \\
 \end{array}
 \end{equation}
 In the remainder class ring $ \Z_{15} $, $ 4 $ is a quadratic remainder and it holds
@@ -454,6 +520,8 @@ The computation of all square roots of a square number in a remainder class ring
 \end{theorem}
 \begin{proof}
 \end{proof}
+
+
 
 \subsection{Polynome}
 Following \cite{LK} we want to develop the ring of polynomials or the formal power series. To do this, we first specify the underlying quantities, then describe the corresponding addition and multiplication and finally state some norms on them:
@@ -502,7 +570,7 @@ The distributive laws also result from the corresponding rules in $ R $, so that
 Since bodies, complete bodies and their algebraic closings play a central role in the analogy between Bernoulli and Carlitz-Bernoulli numbers, in the following we want all of the definitions and definitions that are important to us Briefly repeat and summarize the necessary properties on this topic.
 For a detailed consideration of the so-called body theory see for example Chapter 13 in \cite{MA} and for the mentioned analogy see \cite{DG} and \cite{DT}.
 \begin{definition} [body]
-A body $ (\mathbb{K}, +, \cdot) $ is a set $ \mathbb{K} $, provided with two links $ +: \mathbb{K} \times \mathbb{K} \to \mathbb{K} $ and $ \cdot: \mathbb{K} \times \mathbb{K} \to \mathbb{K} $, called \textit{addition} and \textit{multiplication}, so that the following conditions are met :
+A body $ (\mathbb{K}, +, \cdot) $ is a set $ \mathbb{K} $, provided with two links $ +: \mathbb{K} \cdot \mathbb{K} \to \mathbb{K} $ and $ \cdot: \mathbb{K} \cdot \mathbb{K} \to \mathbb{K} $, called \textit{addition} and \textit{multiplication}, so that the following conditions are met :
 \begin{itemize}
 \item $ \left (\mathbb{K}, + \right) $ is an Abelian group, where the neutral element is denoted here with $ 0 $.
 \item $ \left (\mathbb{K} \setminus \left \{0 \right \}, \cdot \right) $ is an Abelian group, where the neutral element is called $ 1 $.

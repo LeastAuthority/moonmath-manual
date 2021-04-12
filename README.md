@@ -6,7 +6,7 @@ This repo contains the files needed to typeset the MoonMath Manual in LaTeX. Oth
 
 ## Folder structure
 
-The main `.tex` file is `main-moonmath.tex`. This should only be used for formatting and front/back matter.
+The main `.tex` file is `main-moonmath.tex`. This should only be used for formatting and front/back matter, including macros and amc theorem definitions.
 
 The actual **content** of the chapters is stored in the folder `chapters`. Each chapter should have its own `.tex` file. Please use the following naming convention for these: `[content]-moonmath.tex `; e.g. `intro-moonmath.tex`, `zoo-moonmath.tex`, etc.
 
