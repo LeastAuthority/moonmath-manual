@@ -1,0 +1,283 @@
+\ProvidesPackage{polydiv}
+\RequirePackage{xparse,expl3}
+\ExplSyntaxOn
+
+\bool_new:N \l__poly_zeros_bool
+\bool_new:N \l__poly_first_bool
+\bool_new:N \l__poly_trailing_bool
+\bool_new:N \l__poly_ptrailing_bool
+\bool_new:N \l__poly_stage_bool
+\bool_set_true:N \l__poly_stage_bool
+\tl_new:N \l__poly_var_tl
+\tl_new:N \l__poly_sep_tl
+\tl_new:N \l__poly_longdiv_sep_tl
+\tl_new:N \l__poly_oline_tl
+\tl_new:N \l__poly_uline_tl
+\tl_set:Nn \l__poly_var_tl {x}
+\tl_set:Nn \l__poly_sep_tl {}
+\tl_set:Nn \l__poly_longdiv_sep_tl {}
+\int_new:N \l__poly_deg_int
+\int_new:N \l__poly_pad_int
+\int_new:N \l__poly_tmpa_int
+\int_new:N \l__poly_tmpb_int
+\int_new:N \l__poly_trailing_int
+\int_new:N \l__poly_stage_int
+\int_new:N \l__poly_cstage_int
+\int_set:Nn \l__poly_pad_int{3}
+\seq_new:N \l__poly_gtmpa_seq
+
+\keys_define:nn { polynomial }
+{
+  stage .code:n = {
+    \bool_set_false:N \l__poly_stage_bool
+    \int_set:Nn \l__poly_stage_int {#1}
+  },
+  zeros .bool_set:N = \l__poly_zeros_bool,
+  separator .tl_set:N = \l__poly_sep_tl,
+  variable .tl_set:N = \l__poly_var_tl,
+  var .tl_set:N = \l__poly_var_tl,
+%  trailing .bool_set:N = \l__poly_trailing_bool
+}
+
+\cs_new_nopar:Npn \poly_print:N #1 {
+  \int_gset:Nn \l__poly_deg_int {\seq_count:N #1}
+  \int_gdecr:N \l__poly_deg_int
+  \int_gset:Nn \l__poly_tmpa_int {\l__poly_deg_int -
+    \l__poly_trailing_int+1}
+  \bool_gset_eq:NN \l__poly_ptrailing_bool \l__poly_trailing_bool
+  \bool_gset_true:N \l__poly_first_bool
+  \int_compare:nT {\l__poly_deg_int < \l__poly_pad_int} {
+    \prg_replicate:nn {2*(\l__poly_pad_int -
+      \l__poly_deg_int)}{\tl_use:N \l__poly_sep_tl}
+  }
+  \seq_map_inline:Nn #1 {
+    \bool_if:nTF {\int_compare_p:n {##1 == 0} && \l__poly_first_bool}
+    {
+      \tl_use:N \l__poly_sep_tl
+      \tl_use:N \l__poly_sep_tl
+    }
+    {
+      \bool_if:nTF {\int_compare_p:n {##1 != 0} || \l__poly_zeros_bool}
+      {
+    \int_compare:nTF {##1 < 0} 
+    {
+          \bool_if:NF \l__poly_first_bool {
+        \tl_use:N \l__poly_sep_tl
+          }
+          - \tl_use:N \l__poly_sep_tl
+      \bool_if:nF {\int_compare_p:n {##1 == -1} && \int_compare_p:n {\l__poly_deg_int > 0}}
+      {
+        \int_eval:n {-##1}
+      }
+    }
+    {
+      \bool_if:NF \l__poly_first_bool {\tl_use:N \l__poly_sep_tl+} \tl_use:N \l__poly_sep_tl
+      \bool_if:nF {\int_compare_p:n {##1 == 1} && \int_compare_p:n {\l__poly_deg_int > 0}}
+      {
+        ##1
+      }
+    }
+    \int_compare:nT {\l__poly_deg_int > 0}
+    {
+      \tl_use:N \l__poly_var_tl
+      \int_compare:nT {\l__poly_deg_int > 1} {^{\int_use:N \l__poly_deg_int}}
+    }
+      }
+      {
+    \tl_use:N \l__poly_sep_tl
+    \tl_use:N \l__poly_sep_tl
+      }
+      \bool_gset_false:N \l__poly_first_bool
+    }
+    \int_gdecr:N \l__poly_deg_int
+    \bool_if:nT {\l__poly_ptrailing_bool && \int_compare_p:n {\l__poly_deg_int < \l__poly_tmpa_int}} {
+      \seq_map_break:
+    }
+  }
+}
+\cs_generate_variant:Nn \poly_print:N {c}
+
+\cs_new_nopar:Npn \poly_add:NNN #1#2#3 {
+  \seq_clear_new:N #1
+  \int_step_inline:nnnn {1} {1} {\int_max:nn {\seq_count:N #2} {\seq_count:N #3}} {
+    \seq_put_left:Nx #1 {\int_eval:n {\seq_item:Nn #2 { - ##1} + \seq_item:Nn #3 { - ##1}+0}}
+  }
+}
+\cs_generate_variant:Nn \poly_add:NNN {Ncc,ccc}
+\cs_new_nopar:Npn \poly_sub:NNN #1#2#3 {
+  \seq_clear_new:N #1
+  \int_step_inline:nnnn {1} {1} {\int_max:nn {\seq_count:N #2} {\seq_count:N #3}} {
+    \seq_put_left:Nx #1 {\int_eval:n {\seq_item:Nn #2 { - ##1} - \seq_item:Nn #3 { - ##1}+0}}
+  }
+}
+\cs_generate_variant:Nn \poly_sub:NNN {Ncc,ccc}
+\cs_new_nopar:Npn \poly_shift:Nn #1#2 {
+  \prg_replicate:nn {#2} {
+    \seq_put_right:Nn #1 {0}
+  }
+}
+\cs_new_nopar:Npn \poly_mul:NNN #1#2#3 {
+  \seq_clear_new:N #1
+  \group_begin:
+  \seq_clear_new:N \l__poly_tmpa_seq    
+  \seq_clear_new:N \l__poly_tmpb_seq    
+  \seq_clear_new:N \l__poly_tmpc_seq    
+  \int_set:Nn \l__poly_tmpa_int {\seq_count:N #2 - 1}
+  \seq_map_inline:Nn #2 {
+    \seq_clear:N \l__poly_tmpa_seq
+    \seq_map_inline:Nn #3 {
+      \seq_put_right:Nx \l__poly_tmpa_seq {\int_eval:n {##1 * ####1}}
+    }
+    \poly_shift:Nn \l__poly_tmpa_seq {\l__poly_tmpa_int}
+    \poly_add:NNN \l__poly_tmpc_seq \l__poly_tmpb_seq \l__poly_tmpa_seq
+    \seq_set_eq:NN \l__poly_tmpb_seq \l__poly_tmpc_seq
+    \int_decr:N \l__poly_tmpa_int
+  }
+  \seq_gset_eq:NN \l__poly_gtmpa_seq \l__poly_tmpb_seq
+  \group_end:
+  \seq_set_eq:NN #1 \l__poly_gtmpa_seq
+  \seq_clear:N \l__poly_gtmpa_seq
+}
+\cs_generate_variant:Nn \poly_mul:NNN {Ncc, ccc}
+\cs_new_nopar:Npn \poly_div:NNN #1#2#3 {
+  \seq_clear_new:N #1
+  \seq_put_left:Nx #1 {\int_eval:n {\seq_item:Nn #2 {1} / \seq_item:Nn #3 {1}}}
+  \poly_shift:Nn #1 {\seq_count:N #2 - \seq_count:N #3}
+}
+\cs_generate_variant:Nn \poly_div:NNN {Ncc, ccc}
+\prg_new_conditional:Npnn \poly_is_divisible:NN #1#2 {p,T,F,TF} {
+  \int_compare:nTF {\seq_count:N #1 < \seq_count:N #2}
+  {
+    \prg_return_false:
+  }
+  {
+    \prg_return_true:
+  }
+}
+\cs_new_nopar:Npn \poly_trim:N #1 {
+  \bool_do_while:nn {\int_compare_p:n {\seq_item:Nn #1 {1} == 0}} {
+    \seq_pop_left:NN #1 \l_tmpa_tl
+  }
+}
+\cs_new_nopar:Npn \poly_longdiv:NN #1#2 {
+  \group_begin:
+  \seq_clear_new:N \l__poly_quotient_seq
+  \seq_clear_new:N \l__poly_remainder_seq
+  \seq_clear_new:N \l__poly_factor_seq
+  \seq_set_eq:NN \l__poly_remainder_seq #1
+  \seq_clear_new:N \l__poly_lines_seq
+  \int_zero:N \l__poly_cstage_int
+  \bool_do_while:nn {
+    \poly_is_divisible_p:NN \l__poly_remainder_seq #2
+    &&
+    (\l__poly_stage_bool || \int_compare_p:n {\l__poly_stage_int > \l__poly_cstage_int})
+  }
+  {
+    \poly_div:NNN \l__poly_factor_seq \l__poly_remainder_seq #2
+    \poly_add:NNN \l__poly_tmpa_seq \l__poly_factor_seq \l__poly_quotient_seq
+    \seq_set_eq:NN \l__poly_quotient_seq \l__poly_tmpa_seq
+    \poly_mul:NNN \l__poly_tmpa_seq \l__poly_factor_seq #2
+    \seq_put_right:NV \l__poly_lines_seq \l__poly_tmpa_seq
+    \int_incr:N \l__poly_cstage_int
+
+    \bool_if:nT {\l__poly_stage_bool || \int_compare_p:n
+      {\l__poly_stage_int > \l__poly_cstage_int}}
+    {
+      \poly_sub:NNN \l__poly_tmpb_seq \l__poly_remainder_seq \l__poly_tmpa_seq
+      \seq_set_eq:NN \l__poly_remainder_seq \l__poly_tmpb_seq
+      \poly_trim:N \l__poly_remainder_seq
+      \seq_put_right:NV \l__poly_lines_seq \l__poly_remainder_seq
+      \int_incr:N \l__poly_cstage_int
+    }
+  }
+  \int_set:Nn \l__poly_pad_int {\seq_count:N #1 + \seq_count:N
+    #2-1}
+  \tl_set:Nn \l__poly_sep_tl {&}
+  \tl_set:Nn \l__poly_longdiv_sep_tl {\cr}
+  \bool_set_true:N \l__poly_zeros_bool
+  \int_set:Nn \l__poly_tmpa_int {2*\seq_count:N #1+1}
+  \tl_set:Nn \l__poly_oline_tl {\multispan}
+  \tl_put_right:Nx \l__poly_oline_tl {{\int_use:N \l__poly_tmpa_int}}
+  \tl_put_right:Nn \l__poly_oline_tl {\hrulefill\cr}
+  \tl_set:Nn \l__poly_uline_tl {\multispan}
+  \tl_put_right:Nx \l__poly_uline_tl {{\int_eval:n {2*\seq_count:N #2 - 1}}}
+  \tl_put_right:Nn \l__poly_uline_tl {\hrulefill\cr}
+  \int_set:Nn \l__poly_trailing_int {\seq_count:N #2}
+  \leavevmode\vbox{\halign {  $##$&&$\>##$ \crcr
+    &
+    \bool_if:NTF \l__poly_stage_bool
+    {
+      \bool_set_false:N \l__poly_trailing_bool
+    }
+    {
+      \bool_set_true:N \l__poly_trailing_bool
+      \int_set:Nn \l__poly_trailing_int {\l__poly_stage_int/2}
+    }
+    \poly_print:N \l__poly_quotient_seq
+    \tl_use:N \l__poly_longdiv_sep_tl
+    \noalign{\vskip-\normalbaselineskip\vskip\jot}
+    \prg_replicate:nn {2*\seq_count:N #2} {&}
+    \tl_use:N \l__poly_oline_tl
+    \int_set:Nn \l__poly_pad_int {0}
+    \bool_set_true:N \l__poly_trailing_bool
+    \poly_print:N #2
+    &
+    \smash{\Bigr)}
+    &
+    \int_set:Nn \l__poly_pad_int {0}
+    \bool_set_false:N \l__poly_trailing_bool
+    \poly_print:N #1
+    \tl_use:N \l__poly_longdiv_sep_tl
+    \int_gzero:N \l__poly_tmpb_int
+    \seq_map_inline:Nn \l__poly_lines_seq {
+      \tl_gset:Nn \l__poly_tmpa_seq {##1}
+      \int_gincr:N \l__poly_tmpb_int
+      &
+      \bool_set_true:N \l__poly_trailing_bool
+      \poly_print:N \l__poly_tmpa_seq
+      \bool_if:nT {\int_compare_p:n
+        {\int_mod:nn{\l__poly_tmpb_int}{2} == 1} &&
+        \int_compare_p:n {
+          \l__poly_tmpb_int < 2*(\seq_count:N #1 - \seq_count:N #2)
+        }
+        &&
+        \int_compare_p:n {
+          \l__poly_tmpb_int != \seq_count:N \l__poly_lines_seq
+        }
+      } {
+        &&\hfill\downarrow\hfill
+      }
+      \tl_use:N \l__poly_longdiv_sep_tl
+      \int_compare:nT {\int_mod:nn{\l__poly_tmpb_int}{2} == 1} {
+        \noalign{\vskip-\normalbaselineskip\vskip\jot}
+        \prg_replicate:nn {2*\seq_count:N #2 + \l__poly_tmpb_int + 1} {&}
+        \tl_use:N \l__poly_uline_tl
+      }
+    }
+    \cr
+  }}
+  \group_end:
+}
+\cs_generate_variant:Nn \poly_longdiv:NN {cc}
+\NewDocumentCommand \PolyPrint { O{} m } {
+  \group_begin:
+  \keys_set:nn { polynomial }
+  {
+    #1
+  }
+  \poly_print:c {polynomial #2}
+  \group_end:
+}
+\NewDocumentCommand \PolySet { m m } {
+  \seq_set_from_clist:cn {polynomial #1} {#2}
+}
+\NewDocumentCommand \PolyLongDiv {O{} m m } {
+  \group_begin:
+  \keys_set:nn { polynomial }
+  {
+    #1
+  }
+  \poly_longdiv:cc {polynomial #2} {polynomial #3}
+  \group_end:
+}
+\ExplSyntaxOff
