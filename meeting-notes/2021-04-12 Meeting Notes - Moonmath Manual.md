@@ -13,7 +13,7 @@
 - Collected papers for ecosystem overview in [`zoo-moonmath.tex`](../chapters/zoo-moonmath.tex)
 - Next: will write historical overview
 
-###Mirco
+### Mirco
 - Writing [number theory chapter](../chapters/number-theory-moonmath.tex) (Google translated from German)
 - Next: add easy examples/exercises
 - Define a 5-bit or 6-bit field and a curve with only cca. 20 elements, so that the reader can do the Muller algorithm by had? Use it as a running example throughout the book "Finding the least secure curve"
