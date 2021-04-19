@@ -10,6 +10,112 @@ The motivated reader is then encuraged to do some exercises from  the apendix of
 \section{Preliminaries}
 INTO-BLA
 
+When you read papers about cryptography or mathematical papers in general, you will frequently stumble across terms like \textit{fields}, \textit{groups},\textit{rings} and similar. As we will use these terms repeatedly, we have to start this chapter with a short introduction to those terms.
+
+In a nutshell, those terms define sets that are in some sense analog to numbers, in that you can add, subtract, multiply or divide. Or more abstractly those sets have certain ways to combine two elements into a new element.
+
+We know many example like the natural numbers, the integers, the ratinal or the real numbers from school and they are in some sense already the most fundamental examples
+
+Lets start with the concept of a group. Remember back in school when we learned about addition and subtraction of integers. We learned that we can always add to integers and that the result is an integer again. We also learned that nothing happens, when we add zero to any integer, that it doesn't matter in which order we add a given set of integers and that for every integer there is always a negative counterpart and if we add both together we get zero. 
+
+Distilling these rules to the smallest list of properties and make rthem abstract we arrive at the definition of a group:
+\begin{definition}[Group]
+A grou $ (\G, \cdot) $ is a set $ \G$, together with a map $ \cdot: \G \cdot \G \to \G $, called the group law (or \textit{addition} respectively \textit{multiplication}), such that the following hold:
+\begin{itemize}
+\item (Existence of a neutral element) There is a $e\in\G$ for all $g\in\G$, such that $e\cdot g=g$ as well as $g\cdot e = g$.
+\item (Existence of an inverse) For every $g\in\G$ there is a $g^{-1}\in\G$, such that $g\cdot g^{-1}=e$ as well as $g^{-1}\cdot g = e$.
+\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation 
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
+\end{itemize}
+In addition a group is called commutative if the equation 
+$g_1\cdot g_2 = g_2 \cdot g_1$ holds for all $g_1,g_2\in\G$.
+
+A group is called finite, if the underlying set of elements is finite.
+\end{definition}
+\begin{example}[Integer Addition and Subtraction]
+As previously described, the set of integers together with integer addition is the archetypical example of a group. In contrast to our definition above the group laws is usually not written as $\cdot$, but as $+$ instead. THe neutral element is the number $0$ and the inverse of a natural number $x\in\Z$ is the negative $-x$. Since $x+y=y+x$ this is an example of a commutative group.
+\end{example}
+\begin{example}[The trivial group]
+The most basic example of a group, is group with just one element $\{0\}$ and the group law $0\cdot 0=0$.
+\end{example}
+Now thinking of integers again, we know, that there are actually two operations addition and multiplication, such that that they interact in a certain way. This is captured by the concept of a ring, where integers are the most basic example in a sense
+\begin{definition}[Ring with Unit]
+A ring $ (R, +, \cdot) $ is a set $R$, provided with two maps $ +: R \cdot R \to R $ and $ \cdot: R \cdot R \to R $, called \textit{addition} and \textit{multiplication}, such that the following conditions hold:
+\begin{itemize}
+\item $ \left (R, + \right) $ is a commutative group, where the neutral element is denoted here with $ 0 $.
+\item (Existence of a unit) There is an element $1\in R$ for all $g\in R$, 
+\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation 
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds. 
+\item (Distributivity) For all $ g_1, g_2, g_3 \in R $ the distributive laws apply:
+$$ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3 \quad \text{and} \quad
+\left (g_1 + g_2 \right) \cdot g_3 = g_1 \cdot g_3 + g_2 \cdot G-3 $$
+\end{itemize}
+\end{definition}
+\begin{example}[The Ring of Integers] The set $\Z$ of integers with the usual addition and multiplication is a ring.
+\end{example}
+\begin{example}[Underlying additive group of a ring] Every ring $(R,+,\cdot)$ gives rise to group, if we just forget about the multiplication
+\end{example}
+The following example is more interesting, as it introduces the concept of so called addition and multiplication table. To understand those tables BLA....
+\begin{example} Let $S:=\{\bullet,\star,\odot,\otimes\}$ be a set that contains four elements and let adiition and multiplication on $S$ be defined as follows:
+\begin{center}
+  \begin{tabular}{c | c c c c c c}
+    $\cup$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\\hline
+    $\bullet$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\
+    $\star$ & $\star$ & $\odot$ & $\otimes$ & $\bullet$ \\
+    $\odot$ & $\odot$ & $\otimes$ & $\bullet$ & $\star$ \\
+    $\otimes$ & $\otimes$ & $\bullet$ & $\star$ & $\odot$ \\
+  \end{tabular} \quad \quad \quad \quad
+  \begin{tabular}{c | c c c c c c}
+$ \circ $ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ & \\\hline
+        $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ &\\
+        $\star$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ &\\
+        $\odot$ & $\bullet$ & $\odot$ & $\bullet$ & $\odot$ &\\
+        $\otimes$ & $\bullet$ & $\otimes$ & $\odot$ & $\star$ &\\
+  \end{tabular}
+\end{center}
+Then $(S,\cup,\circ)$ is a ring with unit $\star$ and zero $\bullet$. It therefore makes sense to ask for solutions to equations like this one:
+Find $x\in S$ such that
+$$
+\otimes \circ (x \cup \odot ) = \star
+$$
+To see how such an "alien equation" can be solved, we have to keep in mind, that rings behaves mostly like normal number when it comes to bracketing and computation rules. The only differences are the symbols and the actual way to add and multiply. With this we solve the equation for $x$ in the "usual way"
+\begin{align*}
+\otimes \circ (x \cup \odot ) &= \star & \text{distributive law}\\
+\otimes \circ x \cup \otimes \circ \odot  &= \star & \otimes \circ \odot = \odot\\
+\otimes \circ x \cup \odot  &= \star & \text{add the additive inverse to both sides}\\
+\otimes \circ x \cup \odot \cup -\odot  &= \star \cup -\odot\\
+\otimes \circ x \cup \bullet &= \star \cup -\odot & \text{inverse property}\\
+\otimes \circ x &= \star \cup -\odot & \text{neutral element can be deleted} \\
+\otimes \circ x &= \star \cup \odot & -\odot = \odot \text{from addition table} \\
+\otimes \circ x &= \otimes  & \star \cup \odot = \otimes \text{from addition table}\\
+(\otimes)^{-1}\circ \otimes \circ x &= (\otimes)^{-1}\circ \otimes & \text{multiply with the multiplicative inverse}\\
+\otimes\circ \otimes \circ x &= \otimes\circ \otimes\\
+\star \circ x &= \star\\
+x &= \star
+\end{align*}
+\end{example}
+It is a good and fundamental exercise in mathematics to understand examples like this in detail as it helps the reader to loosen the connection to what "should be" numbers and what not.
+\begin{definition}[body]
+A body $ (\mathbb{K}, +, \cdot) $ is a set $ \mathbb{K} $, provided with two links $ +: \mathbb{K} \cdot \mathbb{K} \to \mathbb{K} $ and $ \cdot: \mathbb{K} \cdot \mathbb{K} \to \mathbb{K} $, called \textit{addition} and \textit{multiplication}, so that the following conditions are met :
+\begin{itemize}
+\item $ \left (\mathbb{K}, + \right) $ is an Abelian group, where the neutral element is denoted here with $ 0 $.
+\item $ \left (\mathbb{K} \setminus \left \{0 \right \}, \cdot \right) $ is an Abelian group, where the neutral element is called $ 1 $.
+\item For all $ a, b, c \in \mathbb{K} $ the distributive laws apply:
+$$ a \cdot \left (b + c \right) = a \cdot b + a \cdot c \quad \text{and} \quad
+\left (a + b \right) \cdot c = a \cdot c + b \cdot c $$
+\end{itemize}
+The \textit{characteristic} of a body $ \mathbb{K} $ is the smallest natural number $ n \geq 1 $, for which the $ n $ -fold sum of the one $ 1 $ equals zero, ie f \"ur which $ \sum_{i = 1} ^ n 1 = 0 $ applies.
+If such a $ n> 0 $ exists, the body is also called \textit{finite characteristic}. If, on the other hand, every finite sum of ones is not equal to zero, then the body will have the characteristic $ 0 $ and one also speaks of a \textit{vanishing} characteristic.
+
+A body $ \mathbb{K} $ is called \ss{} t \textit{completely \"andig} if
+it is complete as a ring. A complete body
+is also called \textit{non-Archimedean} if it is not Archimedean as a ring.
+
+A body $ \mathbb{K} $ is called \textit{algebraically closed} if every non-constant polynomial $ P (t) \in \mathbb{K} [t] $
+has a root in $ \mathbb{K} $.
+\end{definition}
+\begin{definition}[The finite bodies] Let $ p \in \mathbb{N} $ be a prime number. Then $ \mathbb{K} _p $ denotes the \textit{remainder class body \"orper} $ \mathbb{ Z} / p \mathbb{Z} $ and $ \mathbb{K} _{p ^ n} $, for each $ n \in \mathbb{N} $, the finite K (unique except for isomorphism) \"orper with $ p ^ n $ elements.
+\end{definition} 
 
 The classic reference \cite{HW} is recommended to. In addition, \cite{FO} is a somewhat more application-oriented book, which certainly has a lot to offer the reader interested in cryptology.
 
@@ -478,7 +584,7 @@ The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prim
 \end{remark}
 
 \subsection{Polynome}
-Following \cite{LK} we want to develop the ring of polynomials or the formal power series. To do this, we first specify the underlying quantities, then describe the corresponding addition and multiplication and finally state some norms on them:
+Following \cite{LK} we want to give a brief introduction to polynomials. 
 \begin{definition}[Polynomials]
 Let R be a commutative integrity domain with unit 1.
 Then we name the expression
@@ -521,29 +627,7 @@ For the multiplication one sees immediately that the single polynomial is the ne
 The distributive laws also result from the corresponding rules in $ R $, so that overall it is shown
 
 
-Since bodies, complete bodies and their algebraic closings play a central role in the analogy between Bernoulli and Carlitz-Bernoulli numbers, in the following we want all of the definitions and definitions that are important to us Briefly repeat and summarize the necessary properties on this topic.
-For a detailed consideration of the so-called body theory see for example Chapter 13 in \cite{MA} and for the mentioned analogy see \cite{DG} and \cite{DT}.
-\begin{definition}[body]
-A body $ (\mathbb{K}, +, \cdot) $ is a set $ \mathbb{K} $, provided with two links $ +: \mathbb{K} \cdot \mathbb{K} \to \mathbb{K} $ and $ \cdot: \mathbb{K} \cdot \mathbb{K} \to \mathbb{K} $, called \textit{addition} and \textit{multiplication}, so that the following conditions are met :
-\begin{itemize}
-\item $ \left (\mathbb{K}, + \right) $ is an Abelian group, where the neutral element is denoted here with $ 0 $.
-\item $ \left (\mathbb{K} \setminus \left \{0 \right \}, \cdot \right) $ is an Abelian group, where the neutral element is called $ 1 $.
-\item For all $ a, b, c \in \mathbb{K} $ the distributive laws apply:
-$$ a \cdot \left (b + c \right) = a \cdot b + a \cdot c \quad \text{and} \quad
-\left (a + b \right) \cdot c = a \cdot c + b \cdot c $$
-\end{itemize}
-The \textit{characteristic} of a body $ \mathbb{K} $ is the smallest natural number $ n \geq 1 $, for which the $ n $ -fold sum of the one $ 1 $ equals zero, ie f \"ur which $ \sum_{i = 1} ^ n 1 = 0 $ applies.
-If such a $ n> 0 $ exists, the body is also called \textit{finite characteristic}. If, on the other hand, every finite sum of ones is not equal to zero, then the body will have the characteristic $ 0 $ and one also speaks of a \textit{vanishing} characteristic.
 
-A body $ \mathbb{K} $ is called \ss{} t \textit{completely \"andig} if
-it is complete as a ring. A complete body
-is also called \textit{non-Archimedean} if it is not Archimedean as a ring.
-
-A body $ \mathbb{K} $ is called \textit{algebraically closed} if every non-constant polynomial $ P (t) \in \mathbb{K} [t] $
-has a root in $ \mathbb{K} $.
-\end{definition}
-\begin{definition}[The finite bodies] Let $ p \in \mathbb{N} $ be a prime number. Then $ \mathbb{K} _p $ denotes the \textit{remainder class body \"orper} $ \mathbb{ Z} / p \mathbb{Z} $ and $ \mathbb{K} _{p ^ n} $, for each $ n \in \mathbb{N} $, the finite K (unique except for isomorphism) \"orper with $ p ^ n $ elements.
-\end{definition} 
 
 
 
