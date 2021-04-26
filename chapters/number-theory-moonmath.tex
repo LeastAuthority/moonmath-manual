@@ -717,19 +717,116 @@ In this section we introduce epileptic curves as they are used in cryptography, 
 
 The eliptic curves we consider are all defined over Galoise fields, so the reader should be familiar with the contend of the previous section.
 
-\begin{definition}[Short Weierstraß elliptic Curve] Let $\F_{q}$ be a Galois field and $a,b\in \F_q$ be two field elements. Then a short Weierstrass elliptic curve $E/F_q$ over $F_q$ is defined as the set
+\begin{definition}[Short Weierstraß elliptic Curve] Let $\F_{q}$ be a Galois field and $a,b\in \F_q$ be two field elements with $ 4a^3+ 27b^2 \neq 0 $. Then a short Weierstrass elliptic curve $E/F_q$ over $F_q$ is defined as the set
 $$
 E/\F_q = \{(x,y)\in \F_q\times \F_q\;|\; y^2=x^3+ax+b \} \bigcup \{\Oinf\}
 $$
 of all pairs $(x,y)\in \F_q\times \F_q$ of field elements, that satisfy the short Weierstrass equation $y^2=x^3+ax+b$, together with the "point at infinity $\Oinf$.
 \end{definition}
 If the characteristic of the Galois field is $2$ or $3$, that is if $\F_q$ is of the form $\F_{2^n}$ or $\F_{3^n}$ for some $n\in\N$, then this is not the most general way to describe an elliptic curve. However for our purposes this is al we need.
-\begin{example}Lets consider our prime field $F_3$ from (XXX). If we choose $a=1$ and $b=0$ then the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_3$ such that $y^2=x^3+x$. We can find this set simply by trying all nine combinations of pairs. We get
+
+An interesting question is: How many elements does a curve over a finite contain? Since the curve consists of pairs of elements from $\F_q$ plus the point at infinity and $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. However the following estimation is more precise:
+\begin{theorem}[Hasse bound] Let $E/\F_q$ be an elliptic curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is a number $t$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
 $$
-E/\F_3 = \{(0,0), (1,2), (2,2), \Oinf\}
+|E/\F_q| = q +1 -t
 $$
-So our elliptic curve contains four elements.
+\end{theorem}
+So roughly speaking, the number of elements in an elliptic curve is approximately equal to the sizeq of an underlying field.
+\begin{example}Lets consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=0$ then $4a^3+ 27b^2 = 4 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x$. We can find this set simply by trying all 25 combinations of pairs. We get
+$$
+E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
+$$
+So our elliptic curve contains 4 elements and the trace $t$ is therefore $2$. 
 \end{example}
-\section{Short Weier}
+\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
+$$
+E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
+\end{example}
 
+\section{The group law}
+% http://wwwmayr.informatik.tu-muenchen.de/konferenzen/Jass07/courses/1/Lukyanenko/Lukyanenk_Paper.pdf
+One of the key properties of an elliptic curve is that it is possible to define a group law on the set of its points together with the point at infinity, which serves as the neutral element.
 
+The origin of this law is geometric and known as the chord-and-tangent rule. The  rule can be described in the following way:
+\begin{itemize}
+\item (Point addition) Let $P, Q\in E/\F_q- \{\Oinf\}$ with $P\neq Q$ be two distinct points on an elliptic curve $E/\F_q - \{\Oinf\}$, that are both not the point at infinity. Then one can define the sum of $P$ and $Q$ as follows: Consider the line $l$ which intersects the curve in $P$ and $Q$. If $l$ intersects the elliptic curve at a third point $R'$, define the sum $R=P+Q$ of $P$ and $Q$ as the reflection of $R'$ at the x-axis. If it does not intersect the curve at a third point define the sum to be the point at infinity $\Oinf$.
+\item (Point doubling) Let $P \in E/\F_q$ with $P\neq Q$ be a points on an elliptic curve $E/\F_q - \{\Oinf\}$. Then the double $2P$ of $P$ is defined as follows: Consider the line wich is tangent to the elliptic curve at $P$. It can be shown, that it intersects the elliptic curve at the second point $R'$. $2P$ is then the reflection of this point at the x-axis.
+\item (Point at infinity) We define $P+\Oinf = \Oinf$ for all points of the eliptic curve $P, Q\in E/\F_q$.
+\end{itemize}
+It can be shown that the points of an elliptic curve have a group structure with respect to the tangent and chord rule, with $\Oinf$ as the neutral element. The inverse of any element $P\in E/\F_q$ is the reflection of $P$ on the x-axis.
+
+Translating the chord-and-tanent-rule into algebraic expressions gives the following laws for computing the sum of points on an elliptic curve in short Weierstrass form:
+
+\begin{itemize}
+\item (Commutativity) $P + Q = Q + P$ for all $P,Q \in E/\F_q$.
+\item (The neutral element) $P + \Oinf = P$ for all $P \in E/\F_q$.
+\item (Addition rule )  For $P, Q \in E/\F_q$ with $P=(x_1,y_1)$ and $Q=(x_2,y_2)$ and $x_1 \neq x_2$, the sum $R=P+Q$ is given by $R=(x_3,y_3)$ with
+$$
+\begin{array}{lr}
+x_3 = \left(\frac{y_2-y_1}{x_2-x_1}\right)^2 -x_1-x_2 &
+y_3 = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1
+\end{array} 
+$$
+\item (Doubling rule ) For $P \in E/\F_q$ with $P=(x,y)$ and $y\neq 0$, the double of $P$ (sum of $P$ with itself) is given by $2P=(x',y')$ with
+$$
+\begin{array}{lr}
+x' = \left(\frac{3x^2+a}{2y}\right)^2 -2x &
+y' = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y
+\end{array} 
+$$
+\item (The inverse element) For $P \in E/\F_q$ with $P=(x,y)$, the inverse (negative) element is given by $-P:= (x,-y)$.
+\end{itemize}  
+It can be shown, that when $x_1=x_2$ then $y_1 = -y_2$. This implies that the previous rules are complete, since in doubling the case $y=0$, means that the point is its own inverse and hence doubling gives the point at infinity.
+
+As we can see, it is very efficient to compute inverses on elliptic curves.
+
+\begin{definition}[Elliptic curve exponentiation and generators]
+Let $E/\F_q$ an elliptic curve and $P\in E/\F_q$ a point on that curve. Then the \textbf{elliptic curve exponentiation} with base $P$ is given by
+$$
+[\cdot]P: \Z \to E/\F_q; m \mapsto [m]P
+$$
+where $[m]P = P+P+\ldots + P$ is the $m$-fold sum of $P$ with itself. Moreover the point $P$ is called a \textbf{generator} of the curve, if $[\Z]P = E/\F_q$.
+\end{definition}
+\begin{remark}
+The term exponentiation come from the fact, that if the group law is written in multiplicative notation, then an $m$-fold product $x\cdot x\cdot\ldots \cdot x$ is usually written in as $x^m$. So our exponential map, is an adoptation of that for groups with an additive notation of the group law.
+\end{remark}
+\begin{remark}
+By definition, a generator is a special element, that can generate the entire group, by adding it repeatedly to itself. For example the number $1$ is a generator for the natural numbers, as you can compute any natural number by adding 1 repeatedly to itself.  
+\end{remark}
+\begin{example}Lets consider the curve $E_1/\F_5$ from example XXX again. We have 
+$$
+E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
+$$
+So as always $\Oinf$ is the neutral element. Since all elements have $0$ as their y-coordinate, it follows that all of them are self inverse, that is $-P=P$. To add, say $(2,0)$ and $(3,0)$ we use the addition rule, since their x-coordinates differ, we get 
+\begin{align*}
+(0,0)+(2,0)= \left(3,0\right)\\
+(0,0)+(3,0)= \left(2,0\right)\\
+(2,0)+(3,0)= \left(0,0\right)\\ 
+\end{align*}
+As we can see $(0,2)$ is not a generator of the group since 
+$[1](0,2)=(0,2)$, $[2](0,2)=(0,2)+(0,2)= \Oinf$. HMM I GUESS THERE IS SOMETHING WRONG HERE. THREE TWO ELEMENT SUBGROUPS SHOULDN'T EXIST??
+\end{example}
+\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
+$$
+E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
+\end{example}
+\begin{definition}[The elliptic curve discrete logarithm]. Let $E/\F_q$ be an elliptic curve and $P,Q\in E/\F_q$ be two points. Then the elliptic curve discrete logarithm problem consists of finding a solution $m\in\Z$, such that
+$$
+P = [m]Q
+$$
+Such an equation is also called a discrete logarithm relation between $P$ and $Q$
+\end{definition}
+\begin{remark}
+If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
+\end{remark}
+STUFF ON THE INFEASABILITY TO COMPUTE DISCRETE LOGARITHMS
+
+\paragraph{Cryptographically secure elliptic curves} Not all elliptic curves satisfy the requirements from applied cryptography .... Here is a list of properties a curve should satisfy:
+
+\begin{enumerate}
+\item TECHNOBOB
+\end{enumerate}
