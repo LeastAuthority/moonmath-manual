@@ -1,0 +1,120 @@
+\chapter{Zk-Proof Systems}
+
+Some philosophical stuff about compuational models for snarks. Bounded computability...
+
+% https://docs.zkproof.org/reference.pdf
+
+\section{Zero Knowledge Proofs}
+
+\subsection{Formal Languages}
+Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
+
+In computer science, formal languages are used for defining the grammar of programming languages in which the words of the language represent concepts that are associated with particular meanings or semantics. In computational complexity theory, decision problems are typically defined as formal languages, and complexity classes are defined as the sets of the formal languages that can be parsed by machines with limited computational power. 
+
+\begin{definition}[Formal Language] Let $\Sigma$ be a set and $\Sigma^*$ the set of all finite strings of elements from $\Sigma$. Then a \textbf{formal language} $L$ is a subset of $\Sigma^*$. The set $\Sigma$ is called the \textbf{alphabet} of $L$ and elements from $L$ are called \textbf{words}. The rules that specify which strings from $\Sigma^*$ belong to $L$ are called the \textbf{grammar} of $L$. 
+
+In the context of proofing systems we often call words \textbf{statements}.
+\end{definition}
+
+\begin{example}[Binary strings] If we take the set $\{0,1\}$ as our alphabet $\Sigma$ and imply no rules at all to form words in this set. Then our language $L$ is the set $\{0,1\}^*$ of all finite binary strings. So for example $(0,0,1,0,1,0,1,1,0)$ is a word in this language.
+\end{example}
+
+\begin{example}[Programing Language]
+\end{example}
+
+\begin{example}[Compiler]
+\end{example}
+
+
+
+As we have seen in general not all strings from an alphabet are words in a language. So an important question is, weather a given string belongs to a language or not. 
+
+% https://www.claymath.org/sites/default/files/pvsnp.pdf
+\begin{definition}[Relation, Statement, Instance and Witness] Let $\Sigma_I$ and $\Sigma_W$ be two alphabets. Then the binary relation $R\subset \Sigma_I^* \times \Sigma_W^*$ is called a \textbf{checking relation} for the language 
+$$
+L_R := \{(i,w) \in \Sigma_I^* \times \Sigma_W^*\;| R(i,w)\; \}
+$$ 
+of all \textbf{instances} $i\in \Sigma_I^*$ and \textbf{witnesses} $i\in \Sigma_I^*$, such that the \textbf{statement} $(i,w)$ satisfies the checking relation.
+\end{definition}
+\begin{remark}
+% https://docs.zkproof.org/reference.pdf
+To summarize the definition, a statement is nothing but a membership claim of the form $x\in L$. So statements are really nothing but strings in an alphabet that adhere to the rules of a language. 
+
+However in the context of checking relations, there is another interpretations in terms of a knowledge claim of the form "In the scope of relation R, I know a witness for instance x." This is of particular importance in the context of zero knowledge proofing systems, where the instance represents public knowledge, while the witness represents the data that is hidden (the zero-knowledge part). 
+
+For some cases, the knowledge and membership types of statements can be informally considered interchangeable, but formally there are technical reasons to distinguish between the two notions (See for example XXX
+% https://docs.zkproof.org/reference.pdf
+) 
+\end{remark}
+
+
+\begin{definition}[Zero Knowledge Proof of a relation]
+Let $\Sigma_I$ and $\Sigma_W$ be two alphabets and $R\subset \Sigma_I^* \times \Sigma_W^*$ a checking relation with associated language $L_R$ and 
+$(i,w)\in \Sigma_I^* \times \Sigma_W^*$ a product of two words over the alphabets. Then a \textbf{proof} of $(i,w)$ is 
+\end{definition}
+
+\begin{example}[SHA256 relation]
+ssss
+\end{example}
+
+As the following example shows checking relations and their languages are quite general and able to express in particular the class of all terminating computer programs:
+\begin{example}[Computer Program] Let $A$ be a terminating algorithm that transforms a binary string of inputs in finite execution steps into a binary output string. We can then interpret $A$ as a map 
+$$
+A :\{0,1\}^* \to \{0,1\}^*
+$$
+Algorithm $A$ then defines a relation
+$R\subset \{0,1\}^* \times \{0,1\}^*$ in the following way: instance string $i\in \{0,1\}^*$ and witness string $w\in \{0,1\}^*$ satisfy the relation $R$, that is $R(i,w)$, if and only if $w$ is the result of algorithm $A$ executed on input instance $i$.
+\end{example}
+
+In the context of zero knowledge proving systems definition XXX gets a slight adaptation:
+\begin{itemize}
+\item Instance: Input commonly known to both prover (P) and verifier (V), and used to support the statement of what needs to be proven. This common input may either be local to the prover-verifier interaction, or public in the sense of being known by external parties (Some scientific articles use "instance" and "statement" interchangeably, but we distinguish between the two.).
+\item Witness: Private input to the prover. Others may or may not know something about the witness.
+\item Relation: Specification of relationship between instances and witness. A relation can be viewed as a set of permissible pairs (instance, witness).
+\item Language: Set of statements that appear as a permissible pair in the given relation.
+\item Statement:Defined by instance and relation. Claims the instance has a witness in the relation(which is either true or false).
+\end{itemize}
+
+The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
+\subsection{Circuits} 
+\begin{definition}[Circuits] Let $\Sigma_I$ and $\Sigma_W$ be two alphabets. Then a directed, acyclic graph $C$ is called a \textbf{circuit} over $\Sigma_I \times \Sigma_W$, if the graph has an ordering and every node has a label in the following way:
+\begin{itemize}
+\item Every source node (called input) has a letter from $\Sigma_I \times \Sigma_W$ as label.
+\item Every sink node (called output) has a letter from $\Sigma_I \times \Sigma_W$ as label.
+\item Every other node (called gate) with $j$ incoming edges has a label that consist of a function $f: \left(\Sigma_I \times \Sigma_W\right)^j \to \Sigma_I \times \Sigma_W$.
+\end{itemize}
+\end{definition}
+\begin{remark}[Circuit Satisfiability] Every circuit with $n$ input nodes and $m$ output nodes can be seen a function that transforms strings of size $n$ from $\Sigma_I \times \Sigma_W$ into strings of size $m$ over the same alphabet. The transformation is done by sending the strings from a node along the outgoing edges to other nodes. If those nodes are gates, then the string is transformed according to the label.
+
+By executing the previous transformation, every node of a circuit has an associated letter from $\Sigma_I \times \Sigma_W$ and this defines a checking relation over $\Sigma_I^* \times \Sigma_W^*$. To be more precise, let $C$ be a circuit with $n$ nodes and $(i,w) \in \Sigma_I^j \times \Sigma_W^k$ a string. Then $R_C(i,w)$ iff THE CIRCUIT IS SATISFIED WHEN ALL LABELS ARE ASSOCIATED TO ALL NODES IN THE CIRCUIT.... BUT MORE PRECISE
+
+MODULO ERRORS. TO BE CONTINUED.....
+\end{remark}
+
+
+\begin{example}[Boolean Circuits]
+
+\end{example}
+
+\begin{example}[Algebraic (Aithmetic) Circuits]
+
+\end{example}
+
+\subsection{Rank-1 Constraint Systems}
+
+\begin{definition}[Rank-1 Constraint system]
+Let $\F$ be a Galois field, $i,j,k$ three numbers and $A$, $B$ and $C$ three $(i+j+1) \times k$ matrices with coefficients in $\F$. Then any vector $x= (1,\phi,w)\in \F^{1+i+j}$ that satisfies the \textbf{rank-1 constraint system} (R1CS)
+$$
+Ax \odot Bx = Cx
+$$
+(where $\odot$ is the Hadamard/Schur product) is called a \textbf{statement} of that system, with \textbf{instance} $\phi$ and \textbf{witness} $w$.
+
+We call $k$ the \textbf{number of constraints}, $i$ the \textbf{instance} size and $j$ the \textbf{witness} size.
+\end{definition}
+
+\begin{remark} Any Rank-1 constraint system defines a formal language in the following way: Consider the alphabets $\Sigma_I:= \F$ and $\Sigma_W:\F$. Then a checking relation $R_{R1CS} \subset \Sigma_I^i \times \Sigma_W^j \subset \Sigma_I^* \times \Sigma_W^*$ is defined by 
+$$
+R_{R1CS}(i,w) \Leftrightarrow (i,w)\text{ satisfies the R1CS}
+$$
+As shown in XXX such a checking relation defines a formal language. We call this language \textbf{R1CS satisfiability}.
+\end{remark}
