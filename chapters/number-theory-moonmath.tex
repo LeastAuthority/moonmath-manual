@@ -930,6 +930,10 @@ If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm rela
 \end{remark}
 STUFF ON THE INFEASABILITY TO COMPUTE DISCRETE LOGARITHMS
 
+\begin{definition}[Cofactor Clearing]
+Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
+\end{definition}
+
 \paragraph{Cryptographically secure elliptic curves} Not all elliptic curves satisfy the requirements from applied cryptography .... Here is a list of properties a curve should satisfy:
 
 \begin{enumerate}
@@ -955,25 +959,25 @@ STUFF ON THE INFEASABILITY TO COMPUTE DISCRETE LOGARITHMS
 \item Compute the order of $E/\F_p$. If it divides either $p+1-u$ or $p+1-u$, then $E/\F_p$ is the result.
 \item Otherwise choose $c\in \F_p$ with $c\neq 1$ and $c\neq 0$ and define the elliptic curve $E'/\F_p$ defined by $y^2 = x^3 + 3kc^2x+2kc^3$ for $k= \frac{j}{1728-j}$.
 \end{itemize}
-\subsection{Classes of elliptic curves}
-\paragraph{BLS-Curves}
+\section{Classes of elliptic curves}
+\subsection{BLS6-6 -- our pen\& paper curve}
+% https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
-
-The polynomials for BLS-K curves with $K mod_6 =0$ are given by
-\begin{align*}
-r(x) &= \Phi_k(x)\\
-t(x) &= x+1\\
-q(x) &= \frac{1}{3}(x-1)^2(x^{k/3}-x^{k/6}+1) +x
-\end{align*}
-where $\Phi_k$ is the k-th cyclotomic polynomial. For any $x\in\N$, where $r(x),t(x),q(x)$ are natural numbers, with $q(x)>3$ and $r(x)>3$ those values describe elliptic curves with discriminant $D=3$, characteristic $p(x)$, "large" prime order subgroup $r(x)$ and Frobenious trace $t(x)$. 
-
-\begin{example}[BLS12-6 -- a pen\& paper curve] (NOTE: THERE ARE SOME BUGS IN HERE I GUESS. The [7,7,7] class is not coprime. Will comeback later) In this example we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However we design the curve specifically to be useful in pen\&{}paper examples, which mostly means thatcurve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
+In this example we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
 
 A well understood family of pairing friendly curves are the BLS curves (STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION)
 
-BLS curves are particular useful in our case if the embedding degree $k$ satisfies $congruent{k}{6}{0}$. In this case the system of polynomials from section XXX parameterizes these curves.
+BLS curves are particular useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. In this case the system of polynomials from section XXX parameterizes these curves.
 
-Of course the smallest embedding degree $k$ that satisfies the congruency, is $k=1$. We therefore aim for a BLS6 curve as our main pen\&{}paper example. To find the smallest BLS6 curve, we insert the smallest value for $x$ into XXX, such that all polynomials evaluate to integer values. 
+Of course the smallest embedding degree $k$ that satisfies the congruency, is $k=6$. We therefore aim for a BLS6 curve as our main pen\&{}paper example. 
+
+As explained in XXX, the defining polynomials for any BLS6 curve are given by
+\begin{align*}
+r(x) &= \Phi_6(x)\\
+t(x) &= x+1\\
+q(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
+\end{align*}
+where $\Phi_6$ is the $6$-th cyclotomic polynomial. For any $x\in\N$, where $r(x),t(x),q(x)$ are natural numbers, with $q(x)>3$ and $r(x)>3$ those values describe elliptic curves with discriminant $D=3$, characteristic $p(x)$, prime order subgroup $r(x)$ and Frobenious trace $t(x)$.  
 
 We start by looking-up the $6$-th cyclotomic polynimial which is $\Phi_{6}=x^2-x+1$ and then insert small values for $x$ into the defining polynomials $r,t,q$. This gives the following results:
 $$
@@ -986,48 +990,92 @@ x=4 & (r(x),t(x),q(x)) & (13,5,43)\\
 $$
 Since $q(1)=1$ is not a prime number, the first $x$ that gives a proper curve is $x=2$. However such a curve would be defined over a base field of characteristic $3$ and we would rather like to avoid that. We therefore use $x=4$, which defines a curve of fields of characteristic $43$. Since the prime field $\F_{43}$ has $43$ elements and $43$ has binary representation $101011$, which are $6$ digits, the name of our pen\&{}paper curve should be $BLS6-6$.
 
-From the the defining equations of BLS curves, we can immediately deduce that BLS6-6 has a "large" subgroup of prime order $13$, which is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables. To see how the rest of the curve will look, we use XX and check whether  $q+1-t$ or $q+1+t$ is a prime number. WE get $43+1-5= 39$, which is a prime number and $43+1+5=49$ which is not a prime number. This is expected from the definition of BLS-curves.
+We can check that the embedding degree is indeed $6$, since $k= 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
 
-To compute the defining equation $y^2=x^3 + ax +b$ of BLS6-6, we use the complex multiplication algorithm as described above in XXX. The goal is to find $a,b\in\F_{43}$ representations, that are particulary nice to work with. 
+Strictly speaking BLS6-6 is not pairing friendly according to the definition in XXX, since indeed $r=13 > \sqrt{43}$, but the second requirement is not satisfied. This however is irrelevant as the hole point of constructing this curve is to have a "large" prime oder subgroup that is as small as possible. 
 
-The first step is to compute the discriminant $\Delta$ of any BLS6-6 curve. According to XXX, the discriminant is given by $\Delta = D\cdot v^2$, where $D$ and $v$ are solutions to the equation $4q(x) = t(x)^2 + Dv^2$. (THE BLS PEOPLE computed $D=3$ in PAPER). In our case we therefore have to solve the equation $4\cdot 43 = 5^2 + 3\cdot v^2$
-Using sagemath, we find $v=\pm 7$ and hence the discriminant of BLS6-6 is given by 
-$$\Delta = 147$$
+From the the defining equations of BLS curves, we can immediately deduce that BLS6-6 has a "large" subgroup of prime order $13$, which is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables. 
 
+To see how the rest of the curve will look, we use XX to compute the number of rational points on the curve which is either $q+1-t$ or $q+1+t$. We get $43+1-5= 39$ or $43+1+5=49$. Since our subgroup order $r=13$ must divide the number of points, it follows that our curve has $39$ point and hence a cofactor of $3$, which implies that there is a single non trivial "small" order subgroup that contains three elements.
 
+To compute the defining equation $y^2=x^3 + ax +b$ of BLS6-6, we use the complex multiplication algorithm as described above in XXX. The goal is to find $a,b\in\F_{43}$ representations, that are particulary nice to work with. As shown for example in XXX the discriminant $D$ of all BLS curves is $-3$, which gives them the general form $y^2 = x^3 +b$.
 
-In the next step we have to compute the Hilbert class polynomial of our discriminant $147$. We start by computing the set $CL(147)$. Since in our case $\sqrt{\frac{147}{3}}= 7$, we can easily find all solution to XXX by simply inserting all $a\in\{,\ldots, 7\}$ and all $b$ with $|b|\leq a$. Then we compute $c$ from $b^2-4ac = -147$ and keep the integer solutions. We get $CL(147)=\{[1,1,37], [3,3,13]\}$. So our Hilbert class polynomial is of degree $2$.
-
-Next we approximate Klein's j-invarant $j(\frac{-b+i\sqrt{147}}{2a})$ for every element from $CL(147)$ using sagemath. We get
-\begin{sagecommandline}
-sage: x = (-1+I*sqrt(147))/2 # [1,1,37]
-sage: elliptic_j(x).real().round()
-sage: x = (-3+I*sqrt(147))/6 # [3,3,13]
-sage: elliptic_j(x).real().round()
-\end{sagecommandline}
-This defines the Hilbert class polynomial of our discriminant $\Delta=147$ as
-\begin{align*}
-H_{CL(147)}(x)&= (x+34848505552570276)(x+325891)\\
-&= x^2 + 34848505552896167 x + 11356814323032679815916
-\end{align*}
-Taking the Hilbert class polyinomial modulo $43$ gives
-$H_{CL(147), \F_{43}}(x)= x^2 + 30 x + 42$, which has the roots $6,7\in \F_{43}$. 
-Any of those roots defines a BLS6-6 curve. With $k=\frac{j}{1727-j} mod_{43}$ for any root $j\neq 0$ of $H_{CL(147)}$ we get
-$k_6 =3$ and $k_7=7$. Hence we have to check the following curves
-$BLS6-6\_1: y^2 = x^3 + 3 k_6 x + 2 k_6$ as well as 
-$BLS6-6\_2: y^2 = x^3 + 3 k_7 x + 2 k_7$
-hence we have the candidates (chhosing $c=2$)
+This is because the Hilbert class polynomial $H_3(x)=x$, since $CL(3) = \{[1,1,1]\}$ and in this case $j(\frac{-1 + i \sqrt{3}}{1})=0$. It follows that the general curve equation is given by $y^2 = x^3 +b$ and it only remains to find $b$, such that the curve has the correct number of points which is $39$. Since $b\in \F_{43}$, we can just put values for $b$ into the equation and count points. The smallest value then is $b$ and we get
 $$
-\begin{array}{ll}
-BLS6-6\_{1,1}: & y^2 = x^3 + 9 x + 6 \\
-BLS6-6\_{1,2}: & y^2 = x^3 + 36 x + 5 \\
-BLS6-6\_{2,1}: & y^2 = x^3 + 21 x + 14 \\
-BLS6-6\_{2,2}: & y^2 = x^3 + 41 x + 26
+\begin{array}{lcrr}
+BLS6-6: & y^2 = x^3 + 6& \text{for all } x,y \in \F_{43}
 \end{array}
 $$
+There are other choice for $b$ like $b=10$ or $b=23$, but all these curves are isomorphic and hence represent the same thing really but in different way only.
+
+Since BLS6-6 only contains $39$ points it is possible to give a visual impression of the curve:
+\includegraphics[scale=0.6]{/home/mirco/work/mmm/moonmath-manual/figures/bls6-6.png}
+As we can see our curve is somewhat nice, as it does not contain self inverse points that is points with $y=0$. It follows that the addition law can be optimized, since the branch for those cases can be eliminated. 
+
+Note: Is there a way to printe the entire addition table from https://graui.de/code/elliptic2/ here? Would be nice to have but is a bit large.
+
+Since the order of BLS6-6 is $39= 3\cdot 13$, we know that it has a "large" subgroup of order $13$ and small subgroup of order $3$. We can use XXX to find those groups. We have $BLS6-6(3)=\{\mathcal{O},(0,7),(0,36)\}$.
+
+In addition we have the generator $g_{BLS6}:=(13,15)$ that generates
+\begin{multline}
+BLS6-6(13)=\\
+\{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
+(27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
+\end{multline}
+
+Computations "in the exponent": In cryptography and in particular in snarks a lot HAPPENS IN THE EXPONENT...
+
+To use our example to explain what this means observe that from this representation, we can deduce a map from the scalar field $\F_{13}$ to $BLS6-6(13)$ with respect to our generator. WE have
+$$
+[\cdot]_{(13,15)}: \F_{13} \to BLS6-6(13)\;;\; x \mapsto [x](13,15)
+$$
+
+So for example we have $[1]_{(13,15)}= (13,15)$, $[7]_{(13,15)}= (27,9)$ and $[0]_{(13,15)}= \mathcal{O}$. In particular this map is a homomorphism of groups from the additive group $\F_{13}$ to $BLS6-6(13)$. This means in particular, the the additive neutral element from $\F_{13}$ is mapped to $\mathcal{O}$ and negatives are mapped to inverses. For example $[-2]_{(13,15)}= - [2]_{(13,15)}$, since
+$[-2]_{(13,15)}= [11]_{(13,15)}= (33,9) = (33,-34) = -(33,34)=
+- [2]_{(13,15)}$
+
+The map also give a visualization of the ECDL problem in $BLS6-6(13)$, which is concerned with finding solutions $x\in \F_{13}$ for the equation 
+$[x]_{(13,15)}= (x,y)$ for any $(x,y) \in BLS6-6(13)$. Of course ECDL is not hard in $BLS6-6(13)$, since we can deduce the solutions easily from XXX. For example the solution to $[x]_{(13,15)}= (35,15)$ is $x=9$, since $[9](13,15)=(35,15)$.
+
+Since $[0]_{(13,15)}$ maps the group of cyclic integers modulo $13$ onto our group $BLS6-6(13)$, we can use this to write down the group law in the following way:
+\begingroup
+    \fontsize{5pt}{5pt}\selectfont
+$$
+\begin{array}{c|ccccccccccccc}
+\cdot & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
+\hline
+\\
+\mathcal{O} & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
+\\
+(13,15) & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O}\\
+\\
+(33,34) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15)\\
+\\
+(38,15) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34)\\
+\\
+(35,28) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15)\\
+\\
+(26,34) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28)\\
+\\
+(27,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34)\\
+\\
+(27,9) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34)\\
+\\
+(26,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9)\\
+\\
+(35,15) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9)\\
+\\
+(38,28) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15)\\
+\\
+(33,9) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28)\\
+\\
+(13,28) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9)\\
+\end{array}
+$$
+\endgroup
 
 
-NEED TO FIND THE CORRECT ONE STILL. ALSO HAVENT DOUBLE CHECKED YET.
-\end{example}
+Cofactor clearing: 
 
+Given an arbitrary point on the curve that is not in any of our two subgroups like $(2,33)$, we can project it on both subgroups $BLS6-6(3)$ and $BLS6-6(13)$ respectively, by \textit{multiplication with the cofactor}. Since $39 = 3 \cdot 13$, we have to multiply $(2,33)$ with $13$ to map it onto $BLS6-6(3)$ and we have to multiply $(2,33)$ with $3$ to map it onto $BLS6-6(13)$. Indeed we get $[13](2,33)= (0,36)$ which is an element of $BLS6-6(3)$ and $[3](2,33)= (35,15)$ which is an element of $BLS6-6(13)$
 \paragraph{MNT-Curve Cycles}

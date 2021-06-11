@@ -105,11 +105,4 @@ sage: p + q
 sage: p*q
 sage: p^2
 
-Sage commandline, line 1002::
-
-sage: x = (-1+I*sqrt(147))/2 # [1,1,37]
-sage: elliptic_j(x).real().round()
-sage: x = (-3+I*sqrt(147))/6 # [3,3,13]
-sage: elliptic_j(x).real().round()
-
 """

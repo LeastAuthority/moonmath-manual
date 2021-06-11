@@ -5,6 +5,8 @@ Some philosophical stuff about compuational models for snarks. Bounded computabi
 % https://docs.zkproof.org/reference.pdf
 
 \section{Zero Knowledge Proofs}
+Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
+% from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
 
 \subsection{Formal Languages}
 Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
@@ -47,10 +49,21 @@ For some cases, the knowledge and membership types of statements can be informal
 ) 
 \end{remark}
 
+Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
+\begin{definition}[(Interactive) Proofing System]
+% https://link.springer.com/content/pdf/10.1007/BF00195207.pdf
+Let $L$ be some formal language over an alphabet $\Sigma$. Then an \textbf{interactive proof system} for $L$ is a pair $(P,V)$ of two probabilistic interactive algorithms, where $P$ is called the \textbf{prover} and $V$ is called the \textbf{verifier}. 
 
-\begin{definition}[Zero Knowledge Proof of a relation]
-Let $\Sigma_I$ and $\Sigma_W$ be two alphabets and $R\subset \Sigma_I^* \times \Sigma_W^*$ a checking relation with associated language $L_R$ and 
-$(i,w)\in \Sigma_I^* \times \Sigma_W^*$ a product of two words over the alphabets. Then a \textbf{proof} of $(i,w)$ is 
+Both algorithms are able to send messages to one another. Each algorithm only sees its own state, some shared initial state and the communication messages. 
+
+The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops in an accept state or in a reject state. We impose no restrictions on the local computation conducted by the prover. 
+
+We require that, whenever the verifier is executed the following two conditions hold:
+\begin{itemize}
+\item (Completeness) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and both prover and verifier follow the protocol; the verifier will accept.
+\item (Soundness) If a string $x\in \Sigma^*$ is not a member of language $L$, that is $x\notin L$ and the verifier follows the protocol; the verifier will not be convinced.
+\item (Zero-knowledge) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and the prover follows the protocol; the verifier will not learn anything about $x$ but $x\in L$.
+\end{itemize}
 \end{definition}
 
 \begin{example}[SHA256 relation]
@@ -84,7 +97,7 @@ The following subsections define ways to describe checking relations that are pa
 \item Every other node (called gate) with $j$ incoming edges has a label that consist of a function $f: \left(\Sigma_I \times \Sigma_W\right)^j \to \Sigma_I \times \Sigma_W$.
 \end{itemize}
 \end{definition}
-\begin{remark}[Circuit Satisfiability] Every circuit with $n$ input nodes and $m$ output nodes can be seen a function that transforms strings of size $n$ from $\Sigma_I \times \Sigma_W$ into strings of size $m$ over the same alphabet. The transformation is done by sending the strings from a node along the outgoing edges to other nodes. If those nodes are gates, then the string is transformed according to the label.
+\begin{remark}[Circuit-SAT] Every circuit with $n$ input nodes and $m$ output nodes can be seen a function that transforms strings of size $n$ from $\Sigma_I \times \Sigma_W$ into strings of size $m$ over the same alphabet. The transformation is done by sending the strings from a node along the outgoing edges to other nodes. If those nodes are gates, then the string is transformed according to the label.
 
 By executing the previous transformation, every node of a circuit has an associated letter from $\Sigma_I \times \Sigma_W$ and this defines a checking relation over $\Sigma_I^* \times \Sigma_W^*$. To be more precise, let $C$ be a circuit with $n$ nodes and $(i,w) \in \Sigma_I^j \times \Sigma_W^k$ a string. Then $R_C(i,w)$ iff THE CIRCUIT IS SATISFIED WHEN ALL LABELS ARE ASSOCIATED TO ALL NODES IN THE CIRCUIT.... BUT MORE PRECISE
 
@@ -99,6 +112,8 @@ MODULO ERRORS. TO BE CONTINUED.....
 \begin{example}[Algebraic (Aithmetic) Circuits]
 
 \end{example}
+
+Any program  can be reduced to  an arithmetic circuit  (a circuit that contains only addition and multiplication gates). A particular reduction can be found for example in [BSCG+13]
 
 \subsection{Rank-1 Constraint Systems}
 
@@ -118,3 +133,11 @@ R_{R1CS}(i,w) \Leftrightarrow (i,w)\text{ satisfies the R1CS}
 $$
 As shown in XXX such a checking relation defines a formal language. We call this language \textbf{R1CS satisfiability}.
 \end{remark}
+
+\subsection{Quadratic Arithmetic Programs}
+Is this the same as a R1CS? 
+% https://courses.cs.ut.ee/MTAT.07.022/2013_fall/uploads/Main/alisa-report
+
+\section{Succinct NIZK}
+\subsection{Groth16}
+
