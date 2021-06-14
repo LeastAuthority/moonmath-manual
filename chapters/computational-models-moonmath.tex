@@ -8,15 +8,44 @@ Some philosophical stuff about compuational models for snarks. Bounded computabi
 Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
 % from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
 
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_1}
+As one of our major running examples we want to derive a zk-SNARK for the following generalized factorization problem: 
+
+Given two numbers $a,b\in \mathbb{F}_{13}$, find two additional numbers $x,y\in \mathbb{F}_{13}$, such that
+$$
+(x\cdot y) \cdot a = b 
+$$
+and proof knowledge of those numbers, without actually revealing them.
+
+Of course this example reduces to the classic factorization problem (over $\F_{13}$ by setting $y=1$)
+
+This zero knowledge system deals with the following situation: "Given two publicly known numbers $a,b \in \mathbb{F}_{13}$ a proofer can show that they know two additional numbers $x,y\in \mathbb{F}_{13}$, such that $(x\cdot y) \cdot a = b$, without actually revealing $x$ or $y$." 
+
+Of course our choice of what information to hide and what to reveal was completely arbitrary. Every other split would also be possible, but eventually gives a different problem. 
+
+For example the task could be to not hide any of the variables.  Such 
+a system has no zero knowledge and deals with verifiable computations: "A worker can proof that they multiplied three publicly known numbers $a,b,x \in \mathbb{F}_{13}$ and that the result is $z \in \mathbb{F}_{13}$, in such a way that no verifier has to repeat the computation."
+\end{example}
+
 \subsection{Formal Languages}
 Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
 
 In computer science, formal languages are used for defining the grammar of programming languages in which the words of the language represent concepts that are associated with particular meanings or semantics. In computational complexity theory, decision problems are typically defined as formal languages, and complexity classes are defined as the sets of the formal languages that can be parsed by machines with limited computational power. 
 
-\begin{definition}[Formal Language] Let $\Sigma$ be a set and $\Sigma^*$ the set of all finite strings of elements from $\Sigma$. Then a \textbf{formal language} $L$ is a subset of $\Sigma^*$. The set $\Sigma$ is called the \textbf{alphabet} of $L$ and elements from $L$ are called \textbf{words}. The rules that specify which strings from $\Sigma^*$ belong to $L$ are called the \textbf{grammar} of $L$. 
+\begin{definition}[Formal Language]
+\label{def_formal_language}
+ Let $\Sigma$ be a set and $\Sigma^*$ the set of all finite strings of elements from $\Sigma$. Then a \textbf{formal language} $L$ is a subset of $\Sigma^*$. The set $\Sigma$ is called the \textbf{alphabet} of $L$ and elements from $L$ are called \textbf{words}. The rules that specify which strings from $\Sigma^*$ belong to $L$ are called the \textbf{grammar} of $L$. 
 
 In the context of proofing systems we often call words \textbf{statements}.
 \end{definition}
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_2}
+Consider example \ref{main_example_2_1} again. Definition \ref{def_formal_language} is not quite suitable yet to define the example, since there is not distinction between public input and private input.
+
+However if we assume for the moment that the task in example \ref{main_example_2_1} is to simply find $a,b,x,y\in \F_{13}$ such that that $x\cdot y\cdot a\cdot =b$, then we can define the entire solution set as a language $L_{factor}$ over the alphabet $\Sigma = \F_{13}$. We then say that a string $w\in \Sigma^*$ is a statement in our language $L_{factor}$ if and only if $w$ consists of 4 letters $w_1,w_2,w_3,w_4$ that satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.
+\end{example}
 
 \begin{example}[Binary strings] If we take the set $\{0,1\}$ as our alphabet $\Sigma$ and imply no rules at all to form words in this set. Then our language $L$ is the set $\{0,1\}^*$ of all finite binary strings. So for example $(0,0,1,0,1,0,1,1,0)$ is a word in this language.
 \end{example}
@@ -48,6 +77,15 @@ For some cases, the knowledge and membership types of statements can be informal
 % https://docs.zkproof.org/reference.pdf
 ) 
 \end{remark}
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_3}
+Consider example \ref{main_example_2_1} and our associate formal language \ref{main_example_2_2}. We can define another language $L_{zk-factor}$ for that example by defining the alphabet $\Sigma_I \times \Sigma_W$ to be $\F_{13} \times \F_{13}$ and the checking relation $R_{zk-factor}$ such that
+$R(i,w)$ holds if and only if instance $i$ is a two letter string $i=(a,b)$ and witness $w$ is a two letter string $w=(x,y)$, such that the equation $x\cdot y \cdot a = b$ holds. 
+
+So to summarize four elements $x,y,a,b\in \F_{13}$ form a statement 
+$((x,y),(a,b))$ in $L_{zk-factor}$ with instance $(a,b)$ and witness $x,y$, precisely if, given $a$ and $b$, the values $x$ and $y$ are a solution to the generalized factorization problem $x\cdot y \cdot a = b$.
+\end{example}
+
 
 Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
 \begin{definition}[(Interactive) Proofing System]
@@ -102,8 +140,72 @@ The following subsections define ways to describe checking relations that are pa
 By executing the previous transformation, every node of a circuit has an associated letter from $\Sigma_I \times \Sigma_W$ and this defines a checking relation over $\Sigma_I^* \times \Sigma_W^*$. To be more precise, let $C$ be a circuit with $n$ nodes and $(i,w) \in \Sigma_I^j \times \Sigma_W^k$ a string. Then $R_C(i,w)$ iff THE CIRCUIT IS SATISFIED WHEN ALL LABELS ARE ASSOCIATED TO ALL NODES IN THE CIRCUIT.... BUT MORE PRECISE
 
 MODULO ERRORS. TO BE CONTINUED.....
+
+An Assignment associates field elements to all edges (indices) in an algebraic circuit. An Assignment is valid, if the field element arise from executing the circuit. Every other assignment is invalid.
+
+The checking relation for circuit-SAT then is satidfied if valid asignment (TODO: THE WITNESS/INSTANCE SPLITTING)
+
+Valid assignments are proofs for proper circuit execution.
 \end{remark}
 
+
+
+So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acyclic graphs, that express arbitrary, but bounded computation. Vertices with only outgoing edges (leafs, sources) represent inputs to the computation, vertices with only ingoing edges (roots, sinks) represent outputs from the computation and internal vertices represent field operations (Either addition or multiplication). It should be noted however that there are many circuits that can represent the same laguage...
+
+Circuits have a notion of execution, where input values are send from leafs along edges, through internal vertices to roots.
+
+\begin{remark}
+Algebraic circuits are usually derived by  Compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important.
+\end{remark}
+
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_4}
+Consider our generalized factorization example \ref{main_example_2_1} with associated language \ref{main_example_2_3}.
+
+To write this example in circuit-SAT, consider the following function 
+\[
+f:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
+\]
+
+A valid circuit for $f:\mathbb{F}_{11}\times\mathbb{F}_{11}\times\mathbb{F}_{11}\to\mathbb{F}_{11};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}$ is given by:
+
+\[
+\xymatrix{\star\ar^{in_1}[dr] &  & \star\ar_{in_2}[dl]\\
+ & \star_{m_1}\ar^{mid_1}[drr] &   & & \star\ar_{in_3}[dl]\\
+  &  &  & \star_{m_2}\ar_{out_1}[d]\\
+  &  &  & \star
+}
+\]
+with edge-index set $I:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\}$.
+
+To given a valid assignment, consider the set $I_{valid}:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\} = \{2,3,4,6,10\}$
+
+\[
+\xymatrix{\star\ar^{2}[dr] &  & \star\ar_{3}[dl]\\
+ & \star_{m_1}\ar^{6}[drr] &   & & \star\ar_{4}[dl]\\
+  &  &  & \star_{m_2}\ar_{10}[d]\\
+  &  &  & \star
+}
+\]
+Appears from multiplying the input values at $m_1$, $m_2$ in $\mathbb{F}_{13}$, hence by executing the circuit.
+
+Non valid assignment: $I_{err}:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\} =\{2,3,4,7,8\}$
+\[
+\xymatrix{\star\ar^{2}[dr] &  & \star\ar_{3}[dl]\\
+ & \star_{m_1}\ar^{7}[drr] &   & & \star\ar_{4}[dl]\\
+  &  &  & \star_{m_2}\ar_{8}[d]\\
+  &  &  & \star
+}
+\]
+Can not appear from multiplying the input values at $m_1$, $m_2$ in $\mathbb{F}_{13}$
+
+To match the requirements of the inital task \ref{main_example_2_1}, we have to split the statement into instance and witness. So given index set $I:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\}$, we assume that every step in the computation other then $in_3$ and $out_1$ are part of the witness. So we choose:
+\begin{itemize}
+\item Instance $S=\{in_3, out_1\}$. 
+\item Witness $W=\{in_1, in_2, mid_{1}\}$.
+\end{itemize}
+\end{example}
 
 \begin{example}[Boolean Circuits]
 
@@ -133,6 +235,58 @@ R_{R1CS}(i,w) \Leftrightarrow (i,w)\text{ satisfies the R1CS}
 $$
 As shown in XXX such a checking relation defines a formal language. We call this language \textbf{R1CS satisfiability}.
 \end{remark}
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_4}
+Defining the 5-dimensional affine vector $w =(1,in_1,in_2,in_3,m_1,out_1)$ for $in_1,in_2,in_3,m_1,out_1 \in \F_{13}$ and the $6\times ?$-matrices
+$$
+\begin{array}{lcr}
+A = \begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1 & 0
+\end{pmatrix}, &
+B = \begin{pmatrix}
+0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0
+\end{pmatrix}, &
+C = \begin{pmatrix}
+0 & 0 & 0 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix} 
+\end{array}
+$$
+We can instantiate the general R1CS equation $Aw \odot Bw = Cw$ as
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1 & 0
+\end{pmatrix} 
+\begin{pmatrix}
+1\\ in_1 \\ in_2 \\ in_3 \\ m_1 \\ out_1 
+\end{pmatrix}\odot 
+\begin{pmatrix}
+0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0
+\end{pmatrix} 
+\begin{pmatrix}
+1\\ in_1 \\ in_2 \\ in_3 \\ m_1 \\ out_1 
+\end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix} 
+\begin{pmatrix}
+1\\ in_1 \\ in_2 \\ in_3 \\ m_1 \\ out_1 
+\end{pmatrix}
+$$
+So evaluating all three matrix products and the Hadarmat prodoct we get two constraint equations
+$$
+\begin{array}{rcl}
+in_1 \cdot in_2  &= & m_1 \\
+m_1 \cdot in_3  &= & out_1 \\
+\end{array}
+$$
+\end{example}
 
 \subsection{Quadratic Arithmetic Programs}
 Is this the same as a R1CS? 
