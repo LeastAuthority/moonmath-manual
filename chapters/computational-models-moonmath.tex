@@ -4,7 +4,7 @@ Some philosophical stuff about compuational models for snarks. Bounded computabi
 
 % https://docs.zkproof.org/reference.pdf
 
-\section{Zero Knowledge Proofs}
+\section{Computational Models}
 Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
 % from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
 
@@ -87,22 +87,7 @@ $((x,y),(a,b))$ in $L_{zk-factor}$ with instance $(a,b)$ and witness $x,y$, prec
 \end{example}
 
 
-Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
-\begin{definition}[(Interactive) Proofing System]
-% https://link.springer.com/content/pdf/10.1007/BF00195207.pdf
-Let $L$ be some formal language over an alphabet $\Sigma$. Then an \textbf{interactive proof system} for $L$ is a pair $(P,V)$ of two probabilistic interactive algorithms, where $P$ is called the \textbf{prover} and $V$ is called the \textbf{verifier}. 
 
-Both algorithms are able to send messages to one another. Each algorithm only sees its own state, some shared initial state and the communication messages. 
-
-The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops in an accept state or in a reject state. We impose no restrictions on the local computation conducted by the prover. 
-
-We require that, whenever the verifier is executed the following two conditions hold:
-\begin{itemize}
-\item (Completeness) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and both prover and verifier follow the protocol; the verifier will accept.
-\item (Soundness) If a string $x\in \Sigma^*$ is not a member of language $L$, that is $x\notin L$ and the verifier follows the protocol; the verifier will not be convinced.
-\item (Zero-knowledge) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and the prover follows the protocol; the verifier will not learn anything about $x$ but $x\in L$.
-\end{itemize}
-\end{definition}
 
 \begin{example}[SHA256 relation]
 ssss
@@ -117,16 +102,6 @@ Algorithm $A$ then defines a relation
 $R\subset \{0,1\}^* \times \{0,1\}^*$ in the following way: instance string $i\in \{0,1\}^*$ and witness string $w\in \{0,1\}^*$ satisfy the relation $R$, that is $R(i,w)$, if and only if $w$ is the result of algorithm $A$ executed on input instance $i$.
 \end{example}
 
-In the context of zero knowledge proving systems definition XXX gets a slight adaptation:
-\begin{itemize}
-\item Instance: Input commonly known to both prover (P) and verifier (V), and used to support the statement of what needs to be proven. This common input may either be local to the prover-verifier interaction, or public in the sense of being known by external parties (Some scientific articles use "instance" and "statement" interchangeably, but we distinguish between the two.).
-\item Witness: Private input to the prover. Others may or may not know something about the witness.
-\item Relation: Specification of relationship between instances and witness. A relation can be viewed as a set of permissible pairs (instance, witness).
-\item Language: Set of statements that appear as a permissible pair in the given relation.
-\item Statement:Defined by instance and relation. Claims the instance has a witness in the relation(which is either true or false).
-\end{itemize}
-
-The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
 \subsection{Circuits} 
 \begin{definition}[Circuits] Let $\Sigma_I$ and $\Sigma_W$ be two alphabets. Then a directed, acyclic graph $C$ is called a \textbf{circuit} over $\Sigma_I \times \Sigma_W$, if the graph has an ordering and every node has a label in the following way:
 \begin{itemize}
@@ -292,6 +267,35 @@ $$
 Is this the same as a R1CS? 
 % https://courses.cs.ut.ee/MTAT.07.022/2013_fall/uploads/Main/alisa-report
 
-\section{Succinct NIZK}
-\subsection{Groth16}
+\section{proof system}
+Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
+\begin{definition}[(Interactive) Proofing System]
+% https://link.springer.com/content/pdf/10.1007/BF00195207.pdf
+Let $L$ be some formal language over an alphabet $\Sigma$. Then an \textbf{interactive proof system} for $L$ is a pair $(P,V)$ of two probabilistic interactive algorithms, where $P$ is called the \textbf{prover} and $V$ is called the \textbf{verifier}. 
+
+Both algorithms are able to send messages to one another. Each algorithm only sees its own state, some shared initial state and the communication messages. 
+
+The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops in an accept state or in a reject state. We impose no restrictions on the local computation conducted by the prover. 
+
+We require that, whenever the verifier is executed the following two conditions hold:
+\begin{itemize}
+\item (Completeness) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and both prover and verifier follow the protocol; the verifier will accept.
+\item (Soundness) If a string $x\in \Sigma^*$ is not a member of language $L$, that is $x\notin L$ and the verifier follows the protocol; the verifier will not be convinced.
+\item (Zero-knowledge) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and the prover follows the protocol; the verifier will not learn anything about $x$ but $x\in L$.
+\end{itemize}
+\end{definition}
+
+In the context of zero knowledge proving systems definition XXX gets a slight adaptation:
+\begin{itemize}
+\item Instance: Input commonly known to both prover (P) and verifier (V), and used to support the statement of what needs to be proven. This common input may either be local to the prover-verifier interaction, or public in the sense of being known by external parties (Some scientific articles use "instance" and "statement" interchangeably, but we distinguish between the two.).
+\item Witness: Private input to the prover. Others may or may not know something about the witness.
+\item Relation: Specification of relationship between instances and witness. A relation can be viewed as a set of permissible pairs (instance, witness).
+\item Language: Set of statements that appear as a permissible pair in the given relation.
+\item Statement:Defined by instance and relation. Claims the instance has a witness in the relation(which is either true or false).
+\end{itemize}
+
+The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
+
+\subsection{Succinct NIZK}
+\subsubsection{Groth16}
 
