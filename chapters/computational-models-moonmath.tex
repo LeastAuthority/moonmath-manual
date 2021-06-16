@@ -264,8 +264,148 @@ $$
 \end{example}
 
 \subsection{Quadratic Arithmetic Programs}
-Is this the same as a R1CS? 
+As shown by [Pinocchio] rank-1 constraint systems can be transformed into so called quadratic  arithmetic  programs  assuming $\F$.
+
+taken from the pinocchio paper. For proving arithmetic circuit-sat.  Given a R1CS QAPs transform potential solution vectors into two polynomials $p$ and $t$, such that $p$ is divisible by $t$ if and only if the vector is a solution to the R1CS. 
+
+They are major building blocks for \textbf{succinct} proofs, since with high probability, the divisibility check can be performed in a single point of those polynomials. So computationally expensive polynomial division check is reduced TO WHAT? (IN FIELDS THERE IS ALWAYS DIVISIBILITY) 
 % https://courses.cs.ut.ee/MTAT.07.022/2013_fall/uploads/Main/alisa-report
+
+\begin{definition}[Quadratic Arithmetic Program]
+Assume we have a Galois field $\F$, three numbers $i,j,k$ as well as three $(i+j+1) \times k$ matrices $A$, $B$ and $C$  with coefficients in $\F$ that define the R1CS
+$Ax \odot Bx = Cx $ for some statement $x=(1,i,w)$ and let $m_1,\ldots,m_k\in \F$ be arbitrary field elements. 
+
+Then a \textbf{quadratic arithmetic program} of the R1CS is the following set of polynomials over $\F$
+$$
+QAP = \left\{t\in \F[x],\left\{a_h,b_h,c_h\in \F[x]\right\}_{h=1}^{i+j+1}\right\}
+$$
+where $t(x) := \Pi_{l=1}^k (x- m_l)$ is a polynomial f degree $k$, called the \textbf{target polynomial} of the QAP and $a_h(x)$, $b_h(x)$ as well as $c_h(x)$ are the unique degree $k-1$ polynomials that are defined by the equations
+$$
+\begin{array}{lllr}
+a_h(m_l)=A_{h,l} & b_h(m_l)=B_{h,l} & c_h(m_l)=C_{h,l} & h= 1, \ldots , i+j+1, l=1,\ldots,k 
+\end{array}
+$$  
+\end{definition}
+The major point is that R1CS-sat can be reformulated into the divisibility of a polynomials defined by any QAP.
+\begin{theorem}
+Assume that an R1CS and an associated QAP as defined in XXX are given. Then the affine vector $y=(1,i,w)$ is a solution to the R1CS, if and only if the polynomial
+$$
+p(x) = \left(\sum y_h\cdot a_h(x)\right)\cdot \left(\sum y_h\cdot b_h(x)\right)  - \sum y_h\cdot c_h(x) 
+$$
+is divisible by the target polynomial $t$.
+\end{theorem}
+
+The polynomials $a_h$, $b_h$ and $c_h$ are uniquely defined by the equations in XXX. However to actually compute them we need some algorithm like the Langrange XXX from XXX.
+
+\begin{example}[Generalized factorization snark]
+In this example we want to transform the R1CS from example \ref{main_example_2_3} into an associated QAP.
+
+We start by choosing an arbitrary field element for every constraint in the R1CS, since we have $2$ constraints we choose $m_{1}=5$ and $m_{2}=7$
+
+With this choice we get the target polynomial $t(x)=(x-m_1)(x-m_2)= (x-5)(x-7)= (x+8)(x+6)= x^2 + x +9$.
+
+Since our statement has structure $w=(1, in_1,in_2,in_3,m_1,out_1)$ we have to compute the following degree $1$ polynomials
+
+$\{a_{c},a_{in_{1}},a_{in_{2}},a_{in_{3}},a_{mid_{1}},a_{out}\}$
+$\{b_{c},b_{in_{1}},b_{in_{2}},b_{in_{3}},b_{mid_{1}},b_{out}\}$
+$\{c_{c},c_{in_{1}},c_{in_{2}},c_{in_{3}},c_{mid_{1}},c_{out}\}$
+
+\item Apply QAP rule XXX to the $a_{k\in I}$ polynomials gives
+$$
+\begin{array}{llllll}
+a_{c}(5)=0, & a_{in_{1}}(5)=1, & a_{in_{2}}(5)=0, & a_{in_{3}}(5)=0, & a_{mid_{1}}(5)=0, & a_{out}(5)=0 \\
+a_{c}(7)=0, & a_{in_{1}}(7)=0, & a_{in_{2}}(7)=0, & a_{in_{3}}(7)=0, & a_{mid_{1}}(7)=1, & a_{out}(7)=0\\
+\\
+b_{c}(5)=0, & b_{in_{1}}(5)=0, & b_{in_{2}}(5)=1, & b_{in_{3}}(5)=0, & b_{mid_{1}}(5)=0, & b_{out}(5)=0 \\
+b_{c}(7)=0, & b_{in_{1}}(7)=0, & b_{in_{2}}(7)=0, & b_{in_{3}}(7)=1, & b_{mid_{1}}(7)=0, & b_{out}(7)=0\\
+\\
+c_{c}(5)=0, & c_{in_{1}}(5)=0, & c_{in_{2}}(5)=0, & c_{in_{3}}(5)=0, & c_{mid_{1}}(5)=1, & c_{out}(5)=0 \\
+c_{c}(7)=0, & c_{in_{1}}(7)=0, & c_{in_{2}}(7)=0, & c_{in_{3}}(7)=0, & c_{mid_{1}}(7)=0, & c_{out}(7)=1
+\end{array}
+$$
+
+Since our polynomials are of degree $1$ only we don't have to invoke Langrange method but can deduce the solutions right away. 
+
+Polynomials are defined on the two values $5$ and $7$ here.
+Linear Polynomial $f(x)=m\cdot x + b$ is fully determined by this. Derive the general equation:
+\begin{itemize}                        
+\item  $5m+b=f(5)$  and $7m+b=f(7)$  
+\item  $b=f(5)-5m$ and  $b=f(7)-7m$   
+\item  $b=f(5)+8m$ and  $b=f(7)+6m$  
+\item  $f(5)+8m=f(7)+6m$              
+\item  $8m-6m=f(7)-f(5)$               
+\item  $2m=f(7)+ 12f(5)$              
+\item  $7\cdot 2m=7(f(7)+12f(5))$              
+\item  $m=7(f(7)+12f(5))$ 
+\item             
+\item  $b=f(5)+8m$                   
+\item  $b=f(5)+8\cdot(7(f(7)+12f(5)))$
+\item  $b=f(5)+4(f(7)+12f(5))$ 
+\item  $b=f(5)+4f(7)+9f(5)$ 
+\item  $b= 10f(5)+4f(7)$ 
+\end{itemize}
+Gives the general equation: $f(x)=7(f(7)+12f(5))x+10f(5)+4f(7)$
+
+For $a_{in_1}$ the computation looks like this:
+\begin{itemize}
+\item $ a_{in_{1}}(x) = 7(a_{in_{1}}(7)+12a_{in_{1}}(5))x+ 
+10a_{in_{1}}(5)+4a_{in_{1}}(7)=$
+\item $7(0 + 12\cdot 1)x+ 
+10\cdot 1 +4\cdot 0 =$
+\item $7\cdot 12 x + 10=$
+\item $6x+10$
+\end{itemize}
+\begin{itemize}
+\item $ a_{mid_{1}}(x) = 7(a_{mid_{1}}(7)+12a_{mid_{1}}(5))x+ 
+10a_{mid_{1}}(5)+4a_{mid_{1}}(7)=$
+\item $7(1 + 12\cdot 0)x+ 10\cdot 0 +4\cdot 1=$
+\item $7\cdot 1x +4=$
+\item $7x+4 $
+\end{itemize}
+
+
+\begin{tabular}{|l|l|l|}\hline 
+$a_{c}(x)=0 $ &$ b_{c}(x)=0   $ & $c_{c}(x)=0$ \tabularnewline\hline 
+$a_{in_{1}}(x)=6x+10 $ &$ b_{in_{1}}(x)=0   $ & $c_{in_1}(x)=0$ \tabularnewline\hline 
+$a_{in_{2}}(x)=0    $ &$ b_{in_{2}}(x)=6x+10$ & $c_{in_2}(x)=0$ \tabularnewline\hline 
+$a_{in_{3}}(x)=0    $ &$ b_{in_{3}}(x)=7x+4$ & $c_{in_{3}}(x)=0$ \tabularnewline\hline 
+$a_{mid_{1}}(x)=7x+4$ &$ b_{mid_{1}}(x)=0  $ & $c_{mid_{1}}(x)=6x+10$ \tabularnewline\hline 
+$a_{out}(x)=0       $ &$ b_{out}(x)=0      $ & $c_{out}(x)=7x+4$ \tabularnewline\hline 
+\end{tabular}
+This gives the quadratic arithmetic program for our generalized factorization snark as
+$$QAP=\{x^{2}+x+9,\{0,6x+10,0,0,7x+4,0\},\{0,0,6x+10,7x+4,0,0\},\{0,0,0,0,6x+10,7x+4\}\}$$
+
+Now as we recall, the main point for using QAPs in snarks is the fact, that solutions to R1CS are in 1:1 correspondence to the divisibility of a polynomial $p$, constructed from a R1CS solution and the polynomials of the QAP and the target polynomial.
+
+So lets see this in our example. We already know from example XXX, that 
+$I=\{1,2,3,4,6,11\}$ is a solution to the R1CS XXX of our problem. To see how this translates to polyinomial divisibility we compute the polynomial $p_I$ by
+\begin{align*}
+p_I(x)& = (\sum_{h\in |I|} I_h\cdot a_h(x))\cdot 
+(\sum_{h\in |I|} I_h\cdot b_h(x)) - 
+(\sum_{h\in |I|} I_h\cdot c_h(x)) \\
+= & (2(6x+10)+6(7x+4))\cdot(3(6x+10)+4(7x+4))-(6(6x+10)+11(7x+4)) \\
+= & ((12x+7)+(3x+11))\cdot((5x+4)+(2x+3))-((10x+8)+(12x+5)) \\
+= & (2x+5)\cdot(7x+7)-(9x) \\
+= & (x^{2}+2\cdot7x+5\cdot7x+5\cdot7)-(9x) \\
+= & (x^{2}+x+9x+9)-(9x) \\
+= & x^{2}+x+9
+\end{align*}
+And as we can see in this particular example $p_I(x)$ is equal to the target polynomial $t(x)$ and hence it is divisible by $t$ with $p/t=1$.
+
+To give a counter example we already know from XXX that $I=\{1,2,3,4,8, 2\}$ is not a solution to our R1CS. To see how this translates to polyinomial divisibility we compute the polynomial $p_I$ by
+\begin{align*}
+p_I(x)& = (\sum_{h\in |I|} I_h\cdot a_h(x))\cdot 
+(\sum_{h\in |I|} I_h\cdot b_h(x)) - 
+(\sum_{h\in |I|} I_h\cdot c_h(x)) \\
+= & (2(6x+10)+6(7x+4))\cdot(3(6x+10)+4(7x+4))-(6(6x+10)+11(7x+4)) \\
+= & 8x^{2}+11x+3
+\end{align*}
+This polynomial is not divisible by the target polynomial $t$ since
+Not divisible by $t$: $(8x^{2}+11x+3)/(x^{2}+x+9) =8+\frac{3x+8}{x^{2}+x+9} $
+\end{example}
+
+
+\subsection{Quadratic span programs}
 
 \section{proof system}
 Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
@@ -297,5 +437,43 @@ In the context of zero knowledge proving systems definition XXX gets a slight ad
 The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
 
 \subsection{Succinct NIZK}
+Blum, Feldman and Micali
+% Manuel  Blum,  Paul  Feldman,  and  Silvio  Micali.   Non-interactive  zero-knowledge  and  itsapplications.  InSTOC, pages 103–112, 1988.
+ extended the notion tonon-interactivezero-knowledge(NIZK)  proofs in the  common  reference  string  model.  NIZK  proofs  are  useful  in  theconstruction of non-interactive cryptographic schemes, e.g., digital signatures and CCA-secure public key encryption.
+ 
+\begin{definition} 
+Let $\mathcal{R}$ be a relation generator that given a security parameter $\lambda$ in unary returns a polynomial time decidable binary relation $R$. For pairs $(i,w)\in R$ we call $i$ the instance\footnote{Note that in Groth16 this is called the statement. We think the term instance is more consistent with SOMETHING. } and $w$ the witness. We define $R_\lambda$ to be the set of possible relations $R$ the relation generator may output given $1^\lambda$. We will in the following for notational simplicity assume $\lambda$ can be deduced from the description of $R$. The relation generator may also output some side information, an auxiliary input $z$, which will be given to the adversary. An efficient prover publicly verifiable non-interactive argument for $R$ is a quadruple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Prove},\textsc{Vfy},\textsc{Sim})$ such 
+\begin{itemize}
+\item Setup: $(CRS,\tau)\rightarrow Setup(R)$: The setup produces a common reference string $CRS$ and a simulation trapdoor $\tau$ for the relation $R$.
+\item Proof: $\pi\rightarrow Prove(R,CRS,i,w)$: The prover algorithm takes as input a common reference string $CRS$ and a statement $(i,w)\in R$ and returns an argument $\pi$.
+\item Verify: $0/1\rightarrow Vfy(R,CRS,i,\pi)$: The  verification algorithm  takes as input a common reference string $CRS$, an instance $i$ and an argument $\pi$ and returns 0 (reject) or 1 (accept).
+\item $\pi\rightarrow Sim(R,\tau,i)$: The simulator takes as input a simulation trapdoor $\tau$ and instance $i$ and returns an argument $\pi$. 
+\end{itemize}
+\end{definition}
+
 \subsubsection{Groth16}
+Groth’s  constant  size  NIZK  argument  is  based  on  constructing  a  set  of  polynomial equations and using pairings to efficiently verify these equations. Gennaro, Gentry,Parno and Raykova [Pinocchio] found an insightful construction of polynomial equations based on Lagrange interpolation polynomials yielding a pairing-based NIZK argumentwith a common reference string size proportional to the size of the statement and wit-ness.
+
+It constructs a snark  for arithmetic circuit satisfiability, where a proof consists of only 3 group elements. In addition to being small, the proof is also easy to verify. The verifier just needs to compute a number of exponentiations proportional to the instance size and check a single pairing product equation, which only  has  3  pairings.  
+
+
+The  construction  can  be  instantiated  with  any  type  of  pairings including Type III pairings, which are the most efficient pairings. The argument has perfect completeness and perfect zero-knowledge. For soundness ?? 
+
+In the common reference string model.
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_5}
+In this example we want to compile our main example in Groth16. Input is the R1CS from example \ref{main_example_2_4}. We choose the following parameters
+
+\begin{tabular}{ccccc}
+\\
+curve = BLS6-6 & $\mathbb{G}_1=$ BLS6-6(13) & $g_1 = (13,15) $
+& $\mathbb{G}_2=$ & $g_2=$
+\end{tabular} 
+
+Setup phase: 
+
+Our pipeline starts by computing the polynomial 
+
+\end{example}
 
