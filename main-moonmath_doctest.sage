@@ -105,4 +105,9 @@ sage: p + q
 sage: p*q
 sage: p^2
 
+Sage commandline, line 852::
+
+sage: EllipticCurve(GF(5),[1,0])
+sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
+
 """

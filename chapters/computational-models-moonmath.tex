@@ -182,6 +182,19 @@ To match the requirements of the inital task \ref{main_example_2_1}, we have to 
 \end{itemize}
 \end{example}
 
+\begin{example}[Baby JubJub for BLS6-6]
+
+\end{example}
+
+\begin{example}[ECDH as a circuit]
+over BLS6
+\end{example}
+
+\begin{example}[BLS Signature]
+example of one layer recursion over MNT4 and MNT6
+\end{example}
+
+
 \begin{example}[Boolean Circuits]
 
 \end{example}
@@ -191,6 +204,8 @@ To match the requirements of the inital task \ref{main_example_2_1}, we have to 
 \end{example}
 
 Any program  can be reduced to  an arithmetic circuit  (a circuit that contains only addition and multiplication gates). A particular reduction can be found for example in [BSCG+13]
+
+
 
 \subsection{Rank-1 Constraint Systems}
 
@@ -456,10 +471,25 @@ Groth’s  constant  size  NIZK  argument  is  based  on  constructing  a  set  
 
 It constructs a snark  for arithmetic circuit satisfiability, where a proof consists of only 3 group elements. In addition to being small, the proof is also easy to verify. The verifier just needs to compute a number of exponentiations proportional to the instance size and check a single pairing product equation, which only  has  3  pairings.  
 
-
 The  construction  can  be  instantiated  with  any  type  of  pairings including Type III pairings, which are the most efficient pairings. The argument has perfect completeness and perfect zero-knowledge. For soundness ?? 
 
 In the common reference string model.
+
+Setup: 
+\begin{itemize}
+\item random elements $\alpha,\beta,\gamma, \delta, s \in \mathbb{F}_{scalar}$ 
+\item Common reference string $CRS_{QAP}$, specific to the $QAP$ and the choice of statement and witness $CRS_{QAP}= (CRS_{\mathbb{G}_1},CRS_{\mathbb{G}_2})$, with $n=deg(t)$: 
+$$
+CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
+[\alpha]g,[\beta]g,[\delta]g,\left\{ [s^{k}]g\right\} _{k=0}^{n-1},\left\{ [\frac{\beta a_{k}(s)+\alpha b_{k}(s)+c_{k}(s)}{\gamma}]g\right\} _{k\in I}\\
+\left\{ [\frac{\beta a_{k}(s)+\alpha b_{k}(s)+c_{k}(s)}{\delta}]g\right\} _{k\in W},\left\{ [\frac{s^{k}t(s)}{\delta}]g\right\} _{k=0}^{n-2}
+\end{array}\right\} 
+$$
+$$
+CRS_{\mathbb{G}_{2}}=\left\{ [\beta]h ,[\gamma]h,[\delta]h,\left\{[s^k]h\right\} _{k=0}^{n-1}\right\} 
+$$
+\item Toxic waste: Must delete random elements after $CRS_{QAP}$ generation.
+\end{itemize} 
 
 \begin{example}[Generalized factorization snark]
 \label{main_example_2_5}
@@ -471,9 +501,76 @@ curve = BLS6-6 & $\mathbb{G}_1=$ BLS6-6(13) & $g_1 = (13,15) $
 & $\mathbb{G}_2=$ & $g_2=$
 \end{tabular} 
 
-Setup phase: 
+Setup phase: Recall the quadratic arithmetic program of example XXX. 
 
-Our pipeline starts by computing the polynomial 
+For our example we choose the following elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$
+$$
+CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
+[6](13,15),[5](13,15),[3](13,15),\left\{ [s^{k}](13,15)\right\} _{k=0}^{1},\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{4}](13,15)\right\} _{k\in S}\\
+\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{3}](13,15)\right\} _{k\in W},\left\{ [\frac{s^{k}t(2)}{3}](13,15)\right\} _{k=0}^{0}
+\end{array}\right\}
+$$
+Since we have instance indices $I=\{1, in_1,in_2\}$ and witness indices $W=\{in_3,mid_1,out_1\}$ we have 
+The instance parts.
+\begin{multline*}
+\left[\frac{5 a_{c}(2)+6 b_{c}(2)+c_{c}(2)}{4}\right](13,15) = 
+\left[\frac{5\cdot 0 +6\cdot 0 + 0 }{4}\right](13,15) =
+\left[0\right](13,15) = \mathcal{O}
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{in_3}(2)+6 b_{in_3}(2)+c_{in_3}(2)}{4}\right](13,15) =
+\left[(5\cdot 0+6\cdot(7\cdot 2 +4)+0)\cdot 10\right](13,15) =\\
+\left[(6\cdot 5 )\cdot 10\right](13,15) =
+\left[1\right](13,15) =
+(13,15)
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{out}(2)+6 b_{out}(2)+c_{out}(2)}{4}\right](13,15) = 
+\left[(5\cdot 0 +6\cdot 0 + (7\cdot 2 + 4))\cdot 10 \right](13,15) =\\
+\left[5\cdot 10 \right](13,15) =
+\left[11\right](13,15) = 
+(33,9)
+\end{multline*}
+
+Witness part:
+\begin{multline*}
+\left[\frac{5 a_{in_1}(2)+6 b_{in_1}(2)+c_{in_1}(2)}{3}\right](13,15) = 
+\left[(5\cdot (6\cdot 2 +10) +6\cdot 0 +0 )\cdot 9\right](13,15) = \\
+\left[(5\cdot 9)\cdot 9\right](13,15) =
+\left[2\right](13,15) = (33,34)
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{in_2}(2)+6 b_{in_2}(2)+c_{in_2}(2)}{3}\right](13,15) = 
+\left[(5\cdot 0 +6\cdot (6\cdot 2 + 10) + 0 )\cdot 9\right](13,15) = \\
+\left[(6\cdot 9)\cdot 9\right](13,15) =
+\left[5\right](13,15) =
+(26,34)
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{mid_1}(2)+6 b_{mid_1}(2)+c_{mid_1}(2)}{3}\right](13,15) = 
+\left[(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 0 )\cdot 9\right](13,15) = \\
+\left[(5\cdot 5)\cdot 9\right](13,15) =
+\left[4\right](13,15) =
+(35,28)
+\end{multline*}
+For $\left\{\left[\frac{s^{k}t(2)}{3}\right](13,15)\right\} _{k=0}^{0}$ we get
+\begin{multline*}
+\left[\frac{2^{0}t(2)}{3}\right](13,15)=
+[t(2)\cdot 9](13,15)= 
+[(2^2+2+9)\cdot 9](13,15)= 
+[5](13,15) =
+(26,34)
+\end{multline*}
+All together, the key is:
+$$
+CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
+(27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
+\left\{\mathcal{O}, (13,15), (33,9)\right\}\\
+\left\{(33,34),(26,34),(35,28)\right\},
+\left\{(26,34)\right\}
+\end{array}\right\}
+$$
+
 
 \end{example}
 

@@ -844,11 +844,15 @@ $$
 $$
 \end{theorem}
 So roughly speaking, the number of elements in an elliptic curve is approximately equal to the sizeq of an underlying field.
-\begin{example}Lets consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=0$ then $4a^3+ 27b^2 = 4 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x$. We can find this set simply by trying all 25 combinations of pairs. We get
+\begin{example}Lets consider our prime field $\F_5$ from (XXX). If we choose $a=1$ and $b=0$ then $4a^3+ 27b^2 = 4 \neq  0 $ and the corresponding elliptic curve $E/\F_{5}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x$. We can find this set simply by trying all 25 combinations of pairs. We get
 $$
 E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
 $$
-So our elliptic curve contains 4 elements and the trace $t$ is therefore $2$. 
+So our elliptic curve contains 4 elements and the trace $t$ is therefore $2$. Sage code for this curve:
+\begin{sagecommandline}
+sage: EllipticCurve(GF(5),[1,0])
+sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
+\end{sagecommandline}
 \end{example}
 \begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
 $$
@@ -1083,4 +1087,86 @@ $$
 Cofactor clearing: 
 
 Given an arbitrary point on the curve that is not in any of our two subgroups like $(2,33)$, we can project it on both subgroups $BLS6-6(3)$ and $BLS6-6(13)$ respectively, by \textit{multiplication with the cofactor}. Since $39 = 3 \cdot 13$, we have to multiply $(2,33)$ with $13$ to map it onto $BLS6-6(3)$ and we have to multiply $(2,33)$ with $3$ to map it onto $BLS6-6(13)$. Indeed we get $[13](2,33)= (0,36)$ which is an element of $BLS6-6(3)$ and $[3](2,33)= (35,15)$ which is an element of $BLS6-6(13)$
-\paragraph{MNT-Curve Cycles}
+\subsection{MNT4 MNT6 Cycles}
+% https://eprint.iacr.org/2006/372.pdf theorem 5.2
+\begin{theorem}
+Let $q$ be a prime and $E/\F_q$ be an ordinary elliptic curve such that $r= |E(Fq)|$ is a prime greater than $3$.  
+\begin{itemize}
+\item $E$ has embedding  degree $k= 4$ if and only if there  exists $x\in \mathbb{Z}$ such  that $t=-x$ or $t=x+1$, and $q=x^2+x+1$.\item $E$ has  embedding  degree $k= 6$ if and only if there  exists $x\in \Z$ such that $t= 1\pm 2x$ and $q=4x^2+1$.
+\item There is an elliptic curve $E/\F_q$ with embedding degree $6$, discriminant $D$, and $|E(Fq)| = r$ if and only if there is an elliptic curve $E'/\F_r$ with embedding degree $4$, discriminant $D$, and $|E'(\F_r)| =q$.
+\end{itemize}
+\end{theorem}
+
+We can use this theorem to find an MNT6-MNT4 cycle over very small prime fields with characteristics $>3$: 
+
+For our MNT4 curve, we can choose $x=2$. Then $q=7$ and if we choose $t= x+1 $ then $r = q + 1 - t = 7 + 1 -3 = 5$. Therefore our MNT4 curve is a curve $y^2=x^3+ax+b$ defined over $\F_7$ that consists of $5$ points. 
+
+To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_7$ there are only $48$ possibilities so we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $5$ rational points. We get
+$$
+y^2 = x^3 + 4x + 1
+$$
+defined over $\F_7$, with scalar field $\F_5$. Since $7= 2^2+2+1$, we know from theorem XXX, that this curve has embedding degree $4$ and hence qualifies as a pen\&{}paper pairing friendly elliptic curve. Since the curve's order is a prime and therefore has no non trivial factors, it has no non trivial subgroups. The curve has the following set of elements
+$$MNT4=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$ 
+The multiplication table is
+\begingroup
+    \fontsize{10pt}{10pt}\selectfont
+$$
+\begin{array}{c|ccccc}
+\cdot & \mathcal{O} & (0,1) & (4,5) & (4,2) & (0,6)\\
+\hline
+\\
+\mathcal{O} & \mathcal{O} & (0,1) & (4,5) & (4,2) & (0,6)\\
+\\
+(0,1) & (0,1) & (4,5) & (4,2) & (0,6) & \mathcal{O}\\
+\\
+(4,5) & (4,5) & (4,2) & (0,6) & \mathcal{O} & (0,1)\\
+\\
+(4,2) & (4,2) & (0,6) & \mathcal{O} & (0,1) & (4,5)\\
+\\
+(0,6) & (0,6) & \mathcal{O} & (0,1) & (4,5) & (4,2)\\
+\end{array}
+$$
+\endgroup
+In what follows we choose our generator to be $g_{MNT4}=(0,1)$.
+
+For our MNT6 curve, we can choose $x=1$. Then $q=5$ and if we choose $t= 1 + 2x $ then $r= q + 1 - t = 5 + 1 + 1 = 7$. Therefore our MNT6 curve is a curve $y^2=x^3+ax+b$ defined over $\F_5$ that consists of $7$ points. 
+
+To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_5$ there are only $24$ possibilities, we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $7$ rational points. We get
+$$
+y^2 = x^3 + 2x + 1
+$$
+defined over $\F_5$. Since $5= 4\cdot 1 + 1$, we know from theorem XXX, that this curve has embedding degree $6$ and hence qualifies as a pen\&{}paper pairing friendly elliptic curve. 
+
+The curve has the following set of elements
+$$MNT6=\{(1,2)\to (3,3)\to (0,1)\to (0,4)\to (3,2)\to (1,3)\to \mathcal{O}\}$$
+The multiplication table is
+\begingroup
+    \fontsize{10pt}{10pt}\selectfont
+$$
+\begin{array}{c|ccccccc}
+\cdot & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3)\\
+\hline
+\\
+\mathcal{O} & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3)\\
+\\
+(1,2) & (1,2) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3) & \mathcal{O}\\
+\\
+(3,3) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3) & \mathcal{O} & (1,2)\\
+\\
+(0,1) & (0,1) & (0,4) & (3,2) & (1,3) & \mathcal{O} & (1,2) & (3,3)\\
+\\
+(0,4) & (0,4) & (3,2) & (1,3) & \mathcal{O} & (1,2) & (3,3) & (0,1)\\
+\\
+(3,2) & (3,2) & (1,3) & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4)\\
+\\
+(1,3) & (1,3) & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4) & (3,2)\\
+\end{array}
+$$
+\endgroup
+
+In what follows we choose our generator to be $g_{MNT6}=(1,2)$.
+
+Note however that our MNT6 curve discriminant $D=-16(4a^3 + 27 b^2)= -16(4\cdot 2^3 + 27\cdot 1^2)=-944$, while our MNT4 curve has discriminsnt XXX. Hence our example curves are not those guranteed by theorem XXX. Those curve are both given by $y^2= x^3 + 2x +1$ over $\F_5$ and $\F_7$, respectively. However as both curves have the same defining equation, we rather choose examples that are visually distinguishable by their defining equations.
+
+
+
