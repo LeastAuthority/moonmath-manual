@@ -822,6 +822,20 @@ $\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
 \end{center}
 From this table, we can deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
 \end{example}
+As we can see from the previous example, it can become quite messy to write elements of extension fields. Especially for larger extension degrees. In the literature we therefore find two ways to have a nicer description.
+
+The most obvious one is to observe that polynomials of maximal degree $m$ are in one to one correspondence with $m+1$-dimensional vectors by
+$$
+\sum_{j=0}^m a_j x^j \Leftrightarrow \left(a_0,a_1,\ldots,a_m\right)
+$$
+so the coordinate vector associated to a given polynomial is given by its coefficients and vice versa. This way $\F_{q^m}$ can be seen as an $m$-dimensional vector space over the prime field $\F_q$. Addition is the usual component wise addition of vectors. However multiplication is not obvious and must be computed from the polynomial OR SUBSTITUTION.
+
+\begin{example}
+In this example the set $\F_{3^2}$ can be written as 
+$\{[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]\}$ and we get for example $[1,1]+ [2,1]= [0,2]$ by adding component wise. 
+\end{example}
+
+Power representation
 
 \section{Epileptic Curves}
 %references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
@@ -1107,6 +1121,11 @@ y^2 = x^3 + 4x + 1
 $$
 defined over $\F_7$, with scalar field $\F_5$. Since $7= 2^2+2+1$, we know from theorem XXX, that this curve has embedding degree $4$ and hence qualifies as a pen\&{}paper pairing friendly elliptic curve. Since the curve's order is a prime and therefore has no non trivial factors, it has no non trivial subgroups. The curve has the following set of elements
 $$MNT4=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$ 
+\begin{sagecommandline}
+sage: G.<x> = GF(7)
+sage: MNT4 = EllipticCurve (G,[4 ,1])
+sage: [P.xy() for P in MNT4.points() if P.order() > 1]
+\end{sagecommandline}
 The multiplication table is
 \begingroup
     \fontsize{10pt}{10pt}\selectfont
@@ -1128,6 +1147,35 @@ $$
 $$
 \endgroup
 In what follows we choose our generator to be $g_{MNT4}=(0,1)$.
+
+In what follows we want to compute type 2 pairings on our MNT4 curve. We therefore need to extract the subgroup $\mathbb{G}_1$ as well as $\mathbb{G}_2$ from the full $5$-torsion group. Since the order of MNT4 is a prime number, we already know from XXX that $\mathbb{G}_1$ is given by  
+$$\mathbb{G}_1=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$ 
+
+In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $5$-torsion group, that are mapped to $7\cdot P$ under the Frobenius endomorphism XXX. Since $MNT4/\F_{7^4}$ only contains $2475$ elements, we can  loop through all elements, to find the full $5$-torsion group and extract all elements from $\mathbb{G}_2$:
+\begin{sagecommandline}
+sage: G.<x> = GF(7^4) # embedding degree is 4
+sage: MNT4 = EllipticCurve (G,[4 ,1])
+sage: for P in MNT4.points(): # PI(P) == [q]P
+....:     if P.order() == 5: # exclude point at infinity
+....:         PiP = MNT4([a.frobenius() for a in P])
+....:         qP = 7*P
+....:         if PiP == qP:
+....:             print(P.xy())
+\end{sagecommandline}
+
+Choose $g_2=(2x^3 + 6x^2 + 2x + 4, x^3 + 3x^2 + 6x)$ as generator of $\mathbb{G}_2$, we get
+\begin{multline*}
+\mathbb{G}_2=\{ 
+(2x^3 + 6x^2 + 2x + 4, x^3 + 3x^2 + 6x) \to 
+(5x^3 + x^2 + 5x + 4, 4x^3 + x^2 + 4) \to\\
+(5x^3 + x^2 + 5x + 4, 3x^3 + 6x^2 + 3) \to
+(2x^3 + 6x^2 + 2x + 4, 6x^3 + 4x^2 + x) \to
+\mathcal{O}\}
+\end{multline*}
+e.g. $[3]g_2= (5x^3 + x^2 + 5x + 4, 3x^3 + 6x^2 + 3)$.
+
+
+===
 
 For our MNT6 curve, we can choose $x=1$. Then $q=5$ and if we choose $t= 1 + 2x $ then $r= q + 1 - t = 5 + 1 + 1 = 7$. Therefore our MNT6 curve is a curve $y^2=x^3+ax+b$ defined over $\F_5$ that consists of $7$ points. 
 

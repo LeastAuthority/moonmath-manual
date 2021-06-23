@@ -105,9 +105,26 @@ sage: p + q
 sage: p*q
 sage: p^2
 
-Sage commandline, line 852::
+Sage commandline, line 866::
 
 sage: EllipticCurve(GF(5),[1,0])
 sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
+
+Sage commandline, line 1124::
+
+sage: G.<x> = GF(7)
+sage: MNT4 = EllipticCurve (G,[4 ,1])
+sage: [P.xy() for P in MNT4.points() if P.order() > 1]
+
+Sage commandline, line 1155::
+
+sage: G.<x> = GF(7^4) # embedding degree is 4
+sage: MNT4 = EllipticCurve (G,[4 ,1])
+sage: for P in MNT4.points(): # PI(P) == [q]P
+....:     if P.order() == 5: # exclude point at infinity
+....:         PiP = MNT4([a.frobenius() for a in P])
+....:         qP = 7*P
+....:         if PiP == qP:
+....:             print(P.xy())
 
 """
