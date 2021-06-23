@@ -1112,7 +1112,7 @@ Let $q$ be a prime and $E/\F_q$ be an ordinary elliptic curve such that $r= |E(F
 \end{theorem}
 
 We can use this theorem to find an MNT6-MNT4 cycle over very small prime fields with characteristics $>3$: 
-
+\paragraph{MNT4}
 For our MNT4 curve, we can choose $x=2$. Then $q=7$ and if we choose $t= x+1 $ then $r = q + 1 - t = 7 + 1 -3 = 5$. Therefore our MNT4 curve is a curve $y^2=x^3+ax+b$ defined over $\F_7$ that consists of $5$ points. 
 
 To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_7$ there are only $48$ possibilities so we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $5$ rational points. We get
@@ -1174,9 +1174,37 @@ Choose $g_2=(2x^3 + 6x^2 + 2x + 4, x^3 + 3x^2 + 6x)$ as generator of $\mathbb{G}
 \end{multline*}
 e.g. $[3]g_2= (5x^3 + x^2 + 5x + 4, 3x^3 + 6x^2 + 3)$.
 
+Having those groups we can do pairings. We choose the Weil pairing and invoke sagemath. For example the Weil pairing between our two generators is
+$$
+e(g_1,g_2)= 4*x^2 + 2*x + 1
+$$
+\begin{sagecommandline}
+sage: g1 = MNT4([0,1])
+sage: g2 = MNT4(2*x^3 + 6*x^2 + 2*x + 4, x^3 + 3*x^2 + 6*x)
+sage: g1.weil_pairing(g2,5)
+\end{sagecommandline}
+The full pairing table can the be written as
+\begingroup
+    \fontsize{10pt}{10pt}\selectfont
+$$
+\begin{array}{c|lllll}
+e(\cdot,\cdot)    & \mathcal{O} & g_1            & [2]g_1         & [3]g_1         & [4]g_1\\
+\hline
+\\
+      \mathcal{O} & 1           & 1              & 1              & 1              & 1\\
+\\
+              g_2 & 1           & 4x^2+2x+1      & 2x^3+2x^2+3x+2 & 6x^3+x^2+5x+1  & 6x^3+4x+2\\
+\\
+\left[2\right]g_2 & 1           & 2x^3+2x^2+3x+2 & 6x^3+4x+2      & 4x^2+2x+1      & 6x^3+x^2+5x+1\\
+\\
+\left[3\right]g_2 & 1           & 6x^3+x^2+5x+1  & 4x^2+2x+1      & 6x^3+4x+2      & 2x^3+2x^2+3x+2\\
+\\
+\left[4\right]g_2 & 1           & 6x^3+4x+2      & 6x^3+x^2+5x+1  & 2x^3+2x^2+3x+2 & 4x^2+2x+1\\
+\end{array}
+$$
+\endgroup
 
-===
-
+\paragraph{MNT6}
 For our MNT6 curve, we can choose $x=1$. Then $q=5$ and if we choose $t= 1 + 2x $ then $r= q + 1 - t = 5 + 1 + 1 = 7$. Therefore our MNT6 curve is a curve $y^2=x^3+ax+b$ defined over $\F_5$ that consists of $7$ points. 
 
 To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_5$ there are only $24$ possibilities, we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $7$ rational points. We get

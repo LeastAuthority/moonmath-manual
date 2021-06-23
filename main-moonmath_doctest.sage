@@ -127,4 +127,10 @@ sage: for P in MNT4.points(): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
+Sage commandline, line 1181::
+
+sage: g1 = MNT4([0,1])
+sage: g2 = MNT4(2*x^3 + 6*x^2 + 2*x + 4, x^3 + 3*x^2 + 6*x)
+sage: g1.weil_pairing(g2,5)
+
 """
