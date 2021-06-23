@@ -133,4 +133,15 @@ sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*x^3 + 6*x^2 + 2*x + 4, x^3 + 3*x^2 + 6*x)
 sage: g1.weil_pairing(g2,5)
 
+Sage commandline, line 1249::
+
+sage: G.<x> = GF(5^6) # embedding degree is 6
+sage: MNT6 = EllipticCurve (G,[2 ,1])
+sage: for P in MNT6.points(): # PI(P) == [q]P
+....:     if P.order() == 7: # exclude point at infinity
+....:         PiP = MNT6([a.frobenius() for a in P])
+....:         qP = 5*P
+....:         if PiP == qP:
+....:             print(P.xy())
+
 """
