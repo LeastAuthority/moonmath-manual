@@ -105,39 +105,62 @@ sage: p + q
 sage: p*q
 sage: p^2
 
-Sage commandline, line 866::
+Sage commandline, line 895::
 
 sage: EllipticCurve(GF(5),[1,0])
 sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
 
-Sage commandline, line 1124::
+Sage commandline, line 1143::
 
-sage: G.<x> = GF(7)
-sage: MNT4 = EllipticCurve (G,[4 ,1])
+sage: F43 = GF(43)
+sage: F43t.<t> = F43[]
+sage: F43_6.<v> = GF(43^6, name='v', modulus=t^6+6) # t^6+6 irreducible
+sage: BLS6 = EllipticCurve (F43_6,[0 ,6])
+sage: INF = BLS6(0) # point at infinity
+sage: for P in INF.division_points(13): # PI(P) == [q]P
+....:     if P.order() == 13: # exclude point at infinity
+....:         PiP = BLS6([a.frobenius() for a in P])
+....:         qP = 43*P
+....:         if PiP == qP:
+....:             print(P.xy())
+
+Sage commandline, line 1181::
+
+sage: g1 = BLS6([13,15])
+sage: g2 = BLS6([7*v^2, 16*v^3])
+sage: g1.weil_pairing(g2,13)
+
+Sage commandline, line 1219::
+
+sage: F7 = GF(7)
+sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 1155::
+Sage commandline, line 1250::
 
-sage: G.<x> = GF(7^4) # embedding degree is 4
-sage: MNT4 = EllipticCurve (G,[4 ,1])
-sage: for P in MNT4.points(): # PI(P) == [q]P
+sage: F7t.<t> = F7[]
+sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
+sage: MNT4 = EllipticCurve (F7_4,[4 ,1])
+sage: INF = MNT4(0) # point at infinity
+sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:     if P.order() == 5: # exclude point at infinity
 ....:         PiP = MNT4([a.frobenius() for a in P])
 ....:         qP = 7*P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1181::
+Sage commandline, line 1278::
 
 sage: g1 = MNT4([0,1])
-sage: g2 = MNT4(2*x^3 + 6*x^2 + 2*x + 4, x^3 + 3*x^2 + 6*x)
+sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 1249::
+Sage commandline, line 1354::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])
-sage: for P in MNT6.points(): # PI(P) == [q]P
+sage: INF = MNT6(0) # point at infinity
+sage: for P in INF.division_points(7): # PI(P) == [q]P
 ....:     if P.order() == 7: # exclude point at infinity
 ....:         PiP = MNT6([a.frobenius() for a in P])
 ....:         qP = 5*P

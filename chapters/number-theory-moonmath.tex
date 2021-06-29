@@ -659,7 +659,36 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 \\\hline
 These two tables are all you need to be able to calculate in $ \Z_5 $. For example, to determine the multiplicative inverse of an element, look for the entry that results in $ 1 $ in the product table. This is the multiplicative inverse. For example the multiplicative inverse of $ 2 $ is $ 3 $ and the multiplicative inverse of $4$ is $4$ itself, since $4\cdot 4=1$.
 \end{example}
 
-\begin{definition}[The finite bodies] Let $ p \in \mathbb{N} $ be a prime number. Then $ \mathbb{K} _p $ denotes the \textit{remainder class body \"orper} $ \mathbb{ Z} / p \mathbb{Z} $ and $ \mathbb{K} _{p ^ n} $, for each $ n \in \mathbb{N} $, the finite K (unique except for isomorphism) \"orper with $ p ^ n $ elements.
+\paragraph{Hash to Prime fields} 
+% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
+An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
+
+In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$. 
+
+If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
+
+For example in the extreme case $k=1$, $H$ only maps to $\{0,1\}\subset \F_q$. The best possible case is therefore $k=m-1$. In that case only the highest XXX numbers (DO THE COMPUTATION) are missing from the distribution.
+
+On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
+
+The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY). 
+
+\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
+Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
+$$
+\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}
+$$
+Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
+\end{example}
+
+\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.  
+
+Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.  
+
+As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
+\end{example}
+
+\begin{definition}[The finite field] Let $ p \in \mathbb{N} $ be a prime number. Then $ \mathbb{K} _p $ denotes the \textit{remainder class body \"orper} $ \mathbb{ Z} / p \mathbb{Z} $ and $ \mathbb{K} _{p ^ n} $, for each $ n \in \mathbb{N} $, the finite K (unique except for isomorphism) \"orper with $ p ^ n $ elements.
 \end{definition} 
 
 \subsection{Square Roots}
@@ -962,6 +991,8 @@ Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the s
 \item TECHNOBOB
 \end{enumerate}
 
+\subsection{twists}
+
 \section{Constructing Elliptic curves}
 \subsection{The Complex Multiplication Method}
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
@@ -1101,6 +1132,70 @@ $$
 Cofactor clearing: 
 
 Given an arbitrary point on the curve that is not in any of our two subgroups like $(2,33)$, we can project it on both subgroups $BLS6-6(3)$ and $BLS6-6(13)$ respectively, by \textit{multiplication with the cofactor}. Since $39 = 3 \cdot 13$, we have to multiply $(2,33)$ with $13$ to map it onto $BLS6-6(3)$ and we have to multiply $(2,33)$ with $3$ to map it onto $BLS6-6(13)$. Indeed we get $[13](2,33)= (0,36)$ which is an element of $BLS6-6(3)$ and $[3](2,33)= (35,15)$ which is an element of $BLS6-6(13)$
+
+In what follows we want to compute type 2 pairings on our BLS6 curve. We therefore need to extract the subgroup $\mathbb{G}_1$ as well as $\mathbb{G}_2$ from the full $13$-torsion group. We already know from XXX that $\mathbb{G}_1$ is given by  
+\begin{multline*}
+\mathbb{G}_1=\{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
+(27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
+\end{multline*}
+
+In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $13$-torsion group, that are mapped to $43\cdot P$ under the Frobenius endomorphism XXX. Since $BLS6/\F_{13^6}$ contains $6321251664$ elements, we can not simply loop through all elements, to find the full $13$-torsion group and extract all elements from $\mathbb{G}_2$. However we can derive the full $13$-torsion as the set of all $13$-division points and then extract $G_2$ from this
+\begin{sagecommandline}
+sage: F43 = GF(43)
+sage: F43t.<t> = F43[]
+sage: F43_6.<v> = GF(43^6, name='v', modulus=t^6+6) # t^6+6 irreducible
+sage: BLS6 = EllipticCurve (F43_6,[0 ,6])
+sage: INF = BLS6(0) # point at infinity
+sage: for P in INF.division_points(13): # PI(P) == [q]P
+....:     if P.order() == 13: # exclude point at infinity
+....:         PiP = BLS6([a.frobenius() for a in P])
+....:         qP = 43*P
+....:         if PiP == qP:
+....:             print(P.xy())
+\end{sagecommandline}
+
+Choose $g_2=(7v^2, 16v^3)$ as generator of $\mathbb{G}_2$, we get
+\begin{multline*}
+\mathbb{G}_2=\{
+(7v^2, 16v^3) \to
+(10v^2, 28v^3)\to
+(42v^2, 16v^3)\to
+(37v^2, 27v^3)\to\\
+(16v^2, 28v^3)\to
+(17v^2, 28v^3)\to
+(17v^2, 15v^3)\to
+(16v^2, 15v^3)\to\\
+(37v^2, 16v^3)\to
+(42v^2, 27v^3)\to
+(10v^2, 15v^3)\to
+(7v^2, 27v^3)\to
+\mathcal{O}\}
+\end{multline*}
+e.g. $[3]g_2= (42v^2, 16v^3)$.
+
+Having those groups we can do pairings. We choose the Weil pairing and invoke sagemath. For example the Weil pairing between our two generators is
+$$
+e(g_1,g_2)= 5v^5 + 16v^4 + 16v^3 + 15v^2 + 3v + 41
+$$
+
+\begin{sagecommandline}
+sage: g1 = BLS6([13,15])
+sage: g2 = BLS6([7*v^2, 16*v^3])
+sage: g1.weil_pairing(g2,13)
+\end{sagecommandline}
+
+As we have seen, $\mathbb{G}_2$ needs quite a bit more storage space then $\mathbb{G}_1$, since elements in $\mathbb{G}_2$ are pairs of polynomials of degree $<6$ with coefficients in $\F_{43}$, while elements from $\mathbb{G}_1$ are just pairs of elements from $\F_{43}$. 
+
+As we know from XXX it is possible to reduce the space needed to store $\mathbb{G}_2$ by using the concept of a twist. In our case $BLS6$ has embedding degree $6$ and the curve parameter $a$ in $y^2 = x^3 +ax + b$ is zero. We therefore know from XXX, that BLS6 has three different twist: A quadratic twist, a cubic twist and a sextic twist. We want to compute all of these twist:
+
+The quadratic twisted BLS6-6 curve: Consider our BLS6-6 curve $BLS6-6/\F_{43^6}$. A quadratic twist is then another curve $BLS6-6_{2-twist}$ over $\F_{43^3}$ isomorphic to the original curve. We use XXX. The task is to find an $\omega\in \F_{43^6}$, such that $\omega^2 \in \F_{43^3}$. 
+We choose $\omega = x^4 + 7x^3 + 9x^2 + 11x + 8$. Then we interpret $\delta = \omega^2 = 27x^2 + 17x + 35$ as an element from $\F_{43^3}$. So our twisted curve is
+$y^2 = x^3+a\delta^2 x+b \delta^3 = x^3+6\cdot(27t^2+17t+35)$
+so we get
+$$
+BLS6-6_{2-twist}/\F_{43^3}: y^2 = x^3+(10t^2+14t+15)
+$$
+
 \subsection{MNT4 MNT6 Cycles}
 % https://eprint.iacr.org/2006/372.pdf theorem 5.2
 \begin{theorem}
@@ -1122,8 +1217,8 @@ $$
 defined over $\F_7$, with scalar field $\F_5$. Since $7= 2^2+2+1$, we know from theorem XXX, that this curve has embedding degree $4$ and hence qualifies as a pen\&{}paper pairing friendly elliptic curve. Since the curve's order is a prime and therefore has no non trivial factors, it has no non trivial subgroups. The curve has the following set of elements
 $$MNT4=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$ 
 \begin{sagecommandline}
-sage: G.<x> = GF(7)
-sage: MNT4 = EllipticCurve (G,[4 ,1])
+sage: F7 = GF(7)
+sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 \end{sagecommandline}
 The multiplication table is
@@ -1153,9 +1248,11 @@ $$\mathbb{G}_1=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$
 
 In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $5$-torsion group, that are mapped to $7\cdot P$ under the Frobenius endomorphism XXX. Since $MNT4/\F_{7^4}$ only contains $2475$ elements, we can  loop through all elements, to find the full $5$-torsion group and extract all elements from $\mathbb{G}_2$:
 \begin{sagecommandline}
-sage: G.<x> = GF(7^4) # embedding degree is 4
-sage: MNT4 = EllipticCurve (G,[4 ,1])
-sage: for P in MNT4.points(): # PI(P) == [q]P
+sage: F7t.<t> = F7[]
+sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
+sage: MNT4 = EllipticCurve (F7_4,[4 ,1])
+sage: INF = MNT4(0) # point at infinity
+sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:     if P.order() == 5: # exclude point at infinity
 ....:         PiP = MNT4([a.frobenius() for a in P])
 ....:         qP = 7*P
@@ -1163,29 +1260,37 @@ sage: for P in MNT4.points(): # PI(P) == [q]P
 ....:             print(P.xy())
 \end{sagecommandline}
 
-Choose $g_2=(2x^3 + 6x^2 + 2x + 4, x^3 + 3x^2 + 6x)$ as generator of $\mathbb{G}_2$, we get
+Choose $g_2=(2u^3 + 5u^2 + 4u + 2, 2u^3 + 3u + 5)$ as generator of $\mathbb{G}_2$, we get
 \begin{multline*}
 \mathbb{G}_2=\{ 
-(2x^3 + 6x^2 + 2x + 4, x^3 + 3x^2 + 6x) \to 
-(5x^3 + x^2 + 5x + 4, 4x^3 + x^2 + 4) \to\\
-(5x^3 + x^2 + 5x + 4, 3x^3 + 6x^2 + 3) \to
-(2x^3 + 6x^2 + 2x + 4, 6x^3 + 4x^2 + x) \to
+(2u^3 + 5u^2 + 4u + 2, 2u^3 + 3u + 5) \to
+(5u^3 + 2u^2 + 3u + 6, 2u^2 + 3u) \to \\
+(5u^3 + 2u^2 + 3u + 6, 5u^2 + 4u) \to
+(2u^3 + 5u^2 + 4u + 2, 5u^3 + 4u + 2)\to
 \mathcal{O}\}
 \end{multline*}
-e.g. $[3]g_2= (5x^3 + x^2 + 5x + 4, 3x^3 + 6x^2 + 3)$.
+e.g. $[3]g_2= (5u^3 + 2u^2 + 3u + 6, 5u^2 + 4u)$.
 
 Having those groups we can do pairings. We choose the Weil pairing and invoke sagemath. For example the Weil pairing between our two generators is
 $$
-e(g_1,g_2)= 4*x^2 + 2*x + 1
+e(g_1,g_2)= 5u^3 + 2u^2 + 6u
 $$
 \begin{sagecommandline}
 sage: g1 = MNT4([0,1])
-sage: g2 = MNT4(2*x^3 + 6*x^2 + 2*x + 4, x^3 + 3*x^2 + 6*x)
+sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 \end{sagecommandline}
 The full pairing table can the be written as
 \begingroup
     \fontsize{10pt}{10pt}\selectfont
+    
+% generate the table entries as:
+% sage: for i in range(5):
+% ....:     for j in range(5):
+% ....:         p = (i*g1).weil_pairing((j*g2),5)
+% ....:         print('e([',i,']g1,[',j,']g2=',p)         
+    
+    
 $$
 \begin{array}{c|lllll}
 e(\cdot,\cdot)    & \mathcal{O} & g_1            & [2]g_1         & [3]g_1         & [4]g_1\\
@@ -1193,13 +1298,13 @@ e(\cdot,\cdot)    & \mathcal{O} & g_1            & [2]g_1         & [3]g_1      
 \\
       \mathcal{O} & 1           & 1              & 1              & 1              & 1\\
 \\
-              g_2 & 1           & 4x^2+2x+1      & 2x^3+2x^2+3x+2 & 6x^3+x^2+5x+1  & 6x^3+4x+2\\
+              g_2 & 1           & 5u^3+2u^2+6u   & 6u^3+5u^2+6    & 2u^3+u^2+2u+3  & u^3+6u^2+6u+4\\
 \\
-\left[2\right]g_2 & 1           & 2x^3+2x^2+3x+2 & 6x^3+4x+2      & 4x^2+2x+1      & 6x^3+x^2+5x+1\\
+\left[2\right]g_2 & 1           & 6u^3+5u^2+6    & u^3+6u^2+6u+4  & 5u^3+2u^2+6u   & 2u^3+u^2+2u+3\\
 \\
-\left[3\right]g_2 & 1           & 6x^3+x^2+5x+1  & 4x^2+2x+1      & 6x^3+4x+2      & 2x^3+2x^2+3x+2\\
+\left[3\right]g_2 & 1           & 2u^3+u^2+2u+3  & 5u^3+2u^2+6u   & u^3+6u^2+6u+4  & 6u^3+5u^2+6\\
 \\
-\left[4\right]g_2 & 1           & 6x^3+4x+2      & 6x^3+x^2+5x+1  & 2x^3+2x^2+3x+2 & 4x^2+2x+1\\
+\left[4\right]g_2 & 1           & u^3+6u^2+6u+4  & 2u^3+u^2+2u+3  & 6u^3+5u^2+6    & 5u^3+2u^2+6u\\
 \end{array}
 $$
 \endgroup
@@ -1249,13 +1354,15 @@ In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of
 \begin{sagecommandline}
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])
-sage: for P in MNT6.points(): # PI(P) == [q]P
+sage: INF = MNT6(0) # point at infinity
+sage: for P in INF.division_points(7): # PI(P) == [q]P
 ....:     if P.order() == 7: # exclude point at infinity
 ....:         PiP = MNT6([a.frobenius() for a in P])
 ....:         qP = 5*P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 \end{sagecommandline}
+
 \begin{multline*}
 \mathbb{G}_2=\{ 
 (x^3+2x^2+4x,x^5+2x^4+4x^3+3x^2+3)\to

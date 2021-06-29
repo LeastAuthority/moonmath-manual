@@ -42,6 +42,28 @@ Since the time complexity of a mathematical problem is concerned with the runtim
 
 For us, the time complexity of the so-called discrete logarithm problem will be important. This is a problem for which we only know slow algorithms on classical computers at the moment, but for which at the same time we cannot rule out that faster algorithms also exist.
 
+\section{Hash functions}
+We assume that $H: \{0,1\}^* \to {0,1}^k$ is a \textbf{hash function} that maps binary strings of arbitrary length onto strings of length $k$. In addition we define a hash function to be $l$-bounded if it is only able to map from binary strings of length $l$ to binary strings of length $k$. 
+
+STUFF ON CRYPTOGRAPHIC HASH FUNCTIOND
+
+\paragraph{p\&{}p-hash}
+In this example we define a $16$-bounded pen\&{}paper hash function that is simple enough to be computed without a computer. We call it the PaP-Hash and will use it throughout the book as a basic example whenever hashing is involved in other example.
+
+The PaP-Hash $\mathcal{H}_{PaP}: \{0,1\}^{16}\to \{0,1\}^4$ is defined in the following way:
+\begin{itemize}
+\item Decompose the $16$-bit preimage $S=(s_0,s_1,\ldots,s_{15})$ into $4$ chunks $S_i=(s_{4i+0},\ldots,s_{4i+3})$ for $i\in \{0,1,2,3\}$.
+\item For each chunk $S_i$ do a circular bitshift $\Zmod{s_{j}\to s_{j+1}}{4}$ for all $s_j\in S_i$
+\item Xor all four chunks together $S = S_1\; XOR \; S_2\; XOR \; S_3\; XOR \; S_3$
+\item Compute the result $\mathcal{H}_{PaP}(S) = S \; XOR\; (1001)$
+\end{itemize}
+
+\begin{example}
+Lets compute our PaP-Hash on a concrete example string $S=(1110011101110011)$. Then the decomposition is $S_0=(1110)$, $S_1=(0111)$, $S_2=(0111)$ and $S_3=(0011)$ and after a circular bitshift we get $S'_0=(0111)$, $S'_1=(1011)$, $S'_2=(1011)$ and $S'_3=(1001)$. Xoring everything together we get $S= (0111) \; XOR \; (1011)\; XOR \; (1011)\; XOR \; (1001) = (1100) \; XOR\;
+(0010) = (1110)$. So we get $\mathcal{H}_{PaP}(1010 0111 0110 0011) = (1110)$.
+\end{example}
+
+
 \section{Software Used in This Book}
 
 It order to provide an interactive learning experience, and to allow getting hands-on with the concepts described in this book, we give examples for how to program them in the Sage programming language. Sage is a dialect of the learning-friendly programming language Python, which was extended and optimized for computing with, in and over algebraic objects. Therefore, we recommend installing Sage before diving into the following chapters.
