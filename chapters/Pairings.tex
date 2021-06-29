@@ -379,7 +379,7 @@ qed=\qedsymbol%
 
 In this chapter, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
 
-We start out by defining pairings and discussing a simple application. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes pairings practical.
+We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes pairings practical.
 
 
 \subsection{\fontsize{11}{11}\selectfont Bilinear Pairings}
@@ -401,7 +401,7 @@ In pairing-based cryptography, we typically work in settings where the groups $\
 
 \noindent - Type $\mr{III}$: There is no \textit{efficiently computable} isomorphism between $\mb{G}_1$ and $\mb{G}_2$.
 
-In particular, for elements $x_1,y_1\in \mb{G}_1$, $x_2,y_2\in \mb{G}_2$, we have $ e(x_1,y_1) = e(x_2,y_1)\in \mb{G}_T$ if and only if there exists an integer $s\in [0,p-1]$ such that $y_1 = x_1^s$ and $y_2 = x_2^s$. This simple fact is deceptively powerful and lies at the heart of several zero-knowledge proof schemes. In all of the existing pairing based SNARKs and zero knowledge proof systems, the pairings are performed by the \textit{Verifier} rather than the Prover. Thus, it is fundamentally important for the pairings to be efficient. 
+In particular, for elements $x_1,y_1\in \mb{G}_1$, $x_2,y_2\in \mb{G}_2$, we have $\ e(x_1,y_1) = \e(x_2,y_1)\in \mb{G}_T$ if and only if there exists an integer $s\in [0,p-1]$ such that $y_1 = x_1^s$ and $y_2 = x_2^s$. This simple fact is deceptively powerful and lies at the heart of several zero-knowledge proof schemes. In all of the existing pairing based SNARKs and zero knowledge proof systems, the pairings are performed by the \textit{Verifier} rather than the Prover. Thus, it is fundamentally important for the pairings to be efficient. 
 
 
 At present, the only efficient pairings that we know of are those arising from (Jacobians of) hyperelliptic curves over finite fields. The most efficient of these are the ones arising from elliptic curves, i.e. hyperelliptic curves of genus one. The fact that elliptic curves - which were pivotal to cryptography even before pairings gained traction - are the best known source of pairings seems to be a happy coincidence.
@@ -429,16 +429,20 @@ We now discuss a simple example of an application of pairings, namely set member
 
 \noin - the Verifier's work is dominated by elliptic curve pairings
 
+\noin - the scheme requires a trusted setup for the common reference string (CRS), which in practice is generated via a multi-party computation
+
+\noin - the security hinges on the KEA and strong Diffie-Hellman assumptions
+
 We describe the setup in this section. Let $\mb{G}_1, \mb{G}_2, \mb{G}_T$ be cyclic groups of order $p$ for some prime $p$ such that there exists a pairing ${\bf{e}}:\mb{G}_1\times \mb{G}_2\lra \mb{G}_T$ which is \textit{bilinear}, \textit{non-degenerate} and \textit{efficiently computable}. Fix generators $g_1, g_2$ of the cyclic groups $\mb{G}_1, \mb{G}_2$ respectively. Then ${\bf{e}}(g_1,g_2)$ is a generator of $\mb{G}_T$. Unlike in the case of accumulators based on groups of unknown order, the (common) order of the groups is public. Instead, the secret trapdoor is an integer $s$ in the range $[1, p-1]$ which will serve as the private key. Unfortunately, the generation of the private key requires a trusted setup. This can be partially mitigated by using a secure multi-party computation. A Verifier needs to assume that at least one of the parties involved in the MPC is honest enough not to collude with the other participants. 
 
 For a data set $\mc{D} = \{d_1,\cdots, d_n\}$, we define the accumulated digest \vs $$\mr{Acc}(\mc{D}):= g_1^{\prod\limits_{d\in \mc{D}} (d+s)} \in \mb{G}_1. \vs $$ For a subset $\mc{D}_0\sub \mc{D}$, the witness for $\mc{D}_0$ is defined by \vs $$\mr{Wit}(\mc{D}_0) := g_1^{\prod\limits_{d\in \mc{D}\setminus \mc{D}_0} (d+s)}. \vs $$ The Verifier then needs to check whether \vs $$\mr{Wit}(\mc{D}_0)^{\prod\limits_{d_0\in \mc{D}_0} (d_0+s)} = \mr{Acc}(\mc{D}).$$ Because of the bilinearity of the pairing, it is equivalent and usually more efficient to verify the following equation: \vs $${\bf{e}}\Big(\mr{Wit}(\mc{D}_0)\;,\; g_2^{\prod\limits_{d_0\in \mc{D}_0} (d_0+s)}\Big) = {\bf{e}}(\mr{Acc}(\mc{D}), g_2). \vs $$ Since none of the parties are aware of the value of $s$, it is necessary to broadcast the sets $\{g_1, g_1^s,\cdots , g_1^{s^n}\}$ and $\{g_2, g_2^s,\cdots , g_2^{s^n}\}$ to the Prover.
 
-In the orignal bilinear accumulator, the Verifier needs access to the sets $\{g_1, g_1^s,\cdots , g_1^{s^n}\}$ and $\{g_2, g_2^s,\cdots , g_2^{s^n}\}$. But we can modify the scheme so that the Verifier only needs the four points $\{g_1,g_1^s, g_2, g_2^s \}$ to verify membership or non-membership.
+In the orignal bilinear accumulator scheme, the Verifier needs access to the sets $\{g_1, g_1^s,\cdots , g_1^{s^n}\}$ and $\{g_2, g_2^s,\cdots , g_2^{s^n}\}$. But we can modify the scheme so that the Verifier only needs the four points $\{g_1,g_1^s, g_2, g_2^s \}$ to verify membership or non-membership.
 
 The exponent $\prod\limits_{d\in \mc{D}} (d+s)$ can be interpreted as a degree $n$ polynomial in the variable $s$. The coefficients of the polynomial are computed with a run time of ${\bf{O}} (n\log(n))$ using the Fast Fourier transform. Furthermore, the set $\bFp[X]$ of polynomials with $\bFp$-coefficients is a principal ideal domain whose maximal ideals are those generated by the irreducible polynomials. For a data set $\mc{D}$, the polynomial $f(X) = \prod\limits_{d\in \mc{D}}(X+d)$ is monic of degree $n = |\mc{D}|$. Let $c_i$ denote the coefficient of $X^i$, i.e. $f(X) = \sum\limits_{i=0}^n c_iX^i$. The coefficients can be computed in run time ${\bf{O}}(n\log(n))$ using the Fast Fourier transform. The elements \vs $$g_1^{f(s)} = \prod\limits_{i=0}^n (g_1^{s^i})^{c_i}\;\in\mb{G}_1\;\;,\;\;g_2^{f(s)} = \prod\limits_{i=0}^n (g_2^{s^i})^{c_i}\;\in\mb{G}_2 \vs $$ can then be computed by any party that possesses the elements $\{g_1^{s^i}, g_2^{s^i} :\; 0\leq i \leq n  \}$. The collision-resistance of the bilinear accumulator hinges on the $n$-Strong Diffie Hellman assumption. 
 
 
-\begin{Prot} \hypertarget{PoE}{ \textit{Proof of exponent for pairings} $(\tt{PoE})$}:\end{Prot} \vspace{-0.3cm}
+\begin{mdframed}\begin{Prot} \hypertarget{PoE}{ \textit{Proof of exponent for pairings} $(\tt{PoE})$}:\end{Prot} 
 
 \noindent \textbf{Parameters :} A pairing ${\bf{e}}: \mb{G}_1\times \mb{G}_2\lra \mb{G}_T$ of groups of prime order $p$; generators $g_1, g_2$ of $\mb{G}_1$, $\mb{G}_2$ respectively; a secret element $s\in \bFp^*$ such that the Prover possesses the elements $\{g_1^{s^i}, g_2^{s^i}:\; 0\leq i\leq n \}$ 
 
@@ -450,13 +454,17 @@ The exponent $\prod\limits_{d\in \mc{D}} (d+s)$ can be interpreted as a degree $
 
 \noindent 2. The Prover computes a polynomial $h(X)\in  \bFp[X]$ and an element $\be\in \bFp^*$ such that $f(X) = (X+\al)h(X)+ \be$. The Prover sends $Q:= a^{h(s)}$ to the Verifier.
 
-\noindent 3. The Verifier computes $\be:= f(X)\Mod{(X+\al)}$ and accepts if and only if the equation \vs $$\mathbf{e}(Q, g_2^{s+\al})\cdot\mathbf{e}(a, g_2^{\be})  = \mathbf{e}(b, g_2)$$ holds.\qed \end{enumerate}
+\noindent 3. The Verifier computes $\be:= f(X)\Mod{(X+\al)}$ and accepts if and only if the equation \vs $$\mathbf{e}(Q, g_2^{s+\al})\cdot\mathbf{e}(a, g_2^{\be})  = \mathbf{e}(b, g_2)$$ holds.\qed \end{enumerate}\end{mdframed}
 
+
+\bigskip
 
 
 \noin We use the last protocol to modify the proof of membership for a data set.
 
-\begin{Prot} Protocol for set membership.\end{Prot} \vspace{-0.3cm}
+
+
+\begin{mdframed} \begin{Prot} Protocol for set membership.\end{Prot} 
 
 \noindent \textbf{Parameters :} A pairing ${\bf{e}}: \mb{G}_1\times \mb{G}_2\lra \mb{G}_T$ of groups of prime order $p$; generators $g_1, g_2$ of $\mb{G}_1$, $\mb{G}_2$ respectively; a trapdoor $s\in \bFp^*$ such that the Prover possesses the elements $\{g_1^{s^i}, g_2^{s^i}:\; 0\leq i\leq n \}$ and the Verifier possesses the set $\{g_1, g_2, g_1^s, g_2^s \}$ 
 
@@ -470,57 +478,69 @@ The exponent $\prod\limits_{d\in \mc{D}} (d+s)$ can be interpreted as a degree $
 
 \noindent 3. The Prover sends the Verifier a non-interactive \verb|PoE| for the equation $\mr{Wit}(\mc{D}_0)^{f_0(s)} = \mr{Acc}(\mc{D})$.
 
-\noindent 4. The Verifier computes $f_0(X)$ and accepts if and only if the \verb|PoE| is valid.\qed \\
+\noindent 4. The Verifier computes $f_0(X)$ and accepts if and only if the \verb|PoE| is valid.\qed \end{mdframed}
+
+\bigskip
 
 
 \subsection{\fontsize{11}{11}\selectfont Pairings from elliptic curves}
 
 
 
-\noin \textbf{The Weil number:} An elliptic curvce over a finite field $\bF _q$ of characteristic $p$ is endowed with the endomorphism \vs $$\mr{Fr}_{_E} : E\lra E\;\;,\;\;(x,y)\lra (x^p, y^p) .$$ This endomorphism is called the \textit{Frobenius} endomorphism of $E$ and satisfies a quadratic equation $X^2 - tX + q$ for some integer $t$. Furthermore, this endomorphism commutes with every endomorphism of $E$.
+\noin \textbf{The Weil number:} An elliptic curve over a finite field $\bF _q$ of characteristic $p$ is endowed with the endomorphism \vs $$\mr{Fr}_{_E} : E\lra E\;\;,\;\;(x,y)\lra (x^p, y^p) .$$ This endomorphism is called the \textit{Frobenius} endomorphism of $E$ and satisfies a quadratic equation $X^2 - tX + q$ for some integer $t$. This endomorphism commutes with every endomorphism of $E$. Furthermore, the Frobenius of any elliptic curve isogenous to $E$ satisfies the same quadratic equation.
 
 A Weil $q$-integer is an algebraic integer $\al$ such that $\sigma(\al)\cdot \ov{\sigma(\al}) = q$ for every automorphism $\sigma\in \absq$. Thus, the Frobenius of an elliptic curve is a Weil $q$-integer $\pi$ such that $[\bq(\pi):\bq]\leq 2$. From Honda-Tate theory, we know that the map $E\lra \mr{Fr}_{_E}$ yields a bijection \vspace{-5mm}
 
 \[
   \{ \text{Elliptic curves } \bFq \text{ up to isogeny}  \} \;\;\lra\;\; \left\{\begin{array}{l}
-    \text{Weil } q\text{-integers } \pi \text{ up to } \absq\text{-conjugacy}\\ 
-    \text{such that } [\bq(\pi):\bq]\leq 2
+    \text{Weil } q\text{-integers } \pi \text{ such that } [\bq(\pi):\bq]\leq 2 \\ 
+     \text{ up to conjugacy} 
   \end{array}\right\}
 \]
 
 \noin \textbf{Torsion subgroups:} For any integer $n$ prime to $p$, the $n$-torsion subgroup $E(\bFP)[n]$ is isomorphic to $\bz/n\bz\times \bz/n\bz$. For any prime power $p^k$, the $p^k$-torsion is either trivial or cyclic of order $p^k$. In the former case, $E$ is said to be \textit{supersingular} while in the latter case it is said to be \textit{ordinary}. 
 
-As the etymology suggests, most elliptic curves are ordinary. In fact, up to isogeny, there is a unique supersingular elliptic curve over the algebraic closure $\bFP$. In fact, for $E$ is supersingular if and only if:
+As the etymology suggests, most elliptic curves are ordinary. In fact, up to isogeny, there is a unique supersingular elliptic curve over the algebraic closure $\bFP$. In fact, $E$ is supersingular if and only if:
 
 \noin - its Weil number $\pi$ is an algebraic integer of degree $\leq 2$  
 
 \noin - $\pi^k\in \bz$ for some integer $k\geq 1$. 
 
-Clearly, such Weil numbers - and consequently supersingular curves - are rare. Since Type I pairings require supersingular elliptic curves, this is yet another reason to use type III pairings instead. \\
+Clearly, such Weil numbers - and consequently supersingular curves - are rare. Since Type I and II pairings require supersingular elliptic curves, this is yet another reason to use type III pairings instead. \\
   
 
-\noin \textbf{Endomorphisms:} For an elliptic curve $E$, an endomorphism $\phi$ of $E$ is an algebraic map $\phi:E\lra E$. The set of endomorphisms of $E$ is called the endomorphism ring of $E$ (denoted by $\End(E)$). It has the structure of a ring with no zero-divisors that is finite dimensional over $\bz$-module. The tensor product $\End^0(E):= \End(E)\otimes_{\bz}\bq$ is called the endomorphism algebra. The center of $\End(E)$ is the subring $\bz[\pi_E]$. Similarly, the field $\bq(\pi_E)$ is the center of the division algebra $\End^0(E)$. For simplicity, we assume the field $\bFq$ has been enlarged to endure that $\End(E) = \End(E\times_{\bFq} \bFQ)$. Broadly, $\End^0(E)$ has one of two possible structures:
+\noin \textbf{Endomorphisms:} For an elliptic curve $E$, an endomorphism $\phi$ of $E$ is an algebraic map $\phi:E\lra E$. The set of endomorphisms of $E$ is called the endomorphism ring of $E$ (denoted by $\End(E)$). It has the structure of a ring with no zero-divisors that is finite dimensional over $\bz$-module. The tensor product $\End^0(E):= \End(E)\otimes_{\bz}\bq$ is called the endomorphism algebra. The center of $\End(E)$ is the subring $\bz[\pi_E]$. Similarly, the field $\bq(\pi_E)$ is the center of the division algebra $\End^0(E)$. For simplicity, we assume the field $\bFq$ has been enlarged to endure that $\End(E) = \End(E\times_{\bFq} \bFQ)$. Broadly, $\End^0(E)$ has one of two possible structures:\vspace{1mm}
 
-\noin 1. If $E$ is ordinary, $\End^0(E) = \bq(\pi_E)$ and is an imaginary quadratic field in which the prime $p$ splits. Thus, $\End(E)$ is an order in this imaginary quadratic field.
+\noin 1. If $E$ is ordinary, $\End^0(E) = \bq(\pi_E)$ and is an imaginary quadratic field in which the prime $p$ splits. Thus, $\End(E)$ is an order (not necessarily maximal) in this imaginary quadratic field.
 
-\noin 2. If $E$ is supersingular, $\pi_E = \sqrt{q} \in \bz$ and $\End^0(E)$ is the quaternion algebra $\bq_{p.\infty_{_E}}$ ramified exclusively at $p$ and $\infty_{_E}$. The endomorphism ring $\End(E)$ is a maximal order in $\bq_{p,\infty}$.\\
 
-\noin \textbf{Examples:} 1. Consider an elliptic curve \vs $$E:y^2 = x^3 + ax \vs $$ over a prime field $\bFp$ for some $a\in \bFp^*$. In addition to the endomorphisms \vs $$E\lra E\;\,\;,\; P\mapsto [n]P\;(n\in\bz),    \vs $$ the curve is endowed with the endomorphism \vs $$(x_1,y_1)\mapsto (x_1,y_1\cdot\sqrt{-1}). \vs $$ Thus, $E$ has action by $\bz[\sqrt{-1}]$.\vspace{1.5mm}
+\noin 2. If $E$ is supersingular, $\pi_E = \sqrt{q} \in \bz$ and $\End^0(E)$ is the quaternion algebra $\bq_{p,\infty}$ ramified exclusively at $p$ and $\infty_{_E}$. The endomorphism ring $\End(E)$ is a maximal order in $\bq_{p,\infty}$.\\
 
-\noin 2. Consider an elliptic curve \vs $$E:y^2 = x^3 + a  $$ over a prime field $\bFp$ for some $a\in \bFp^*$. In addition to the endomorphisms \vs $$E\lra E\;\,\;,\; P\mapsto [n]P\;(n\in\bz),    \vs $$ the curve is endowed with the endomorphism \vs $$(x_1,y_1)\mapsto (x_1,y_1\cdot\zeta_3). \vs $$ Thus, $E$ has action by $\bz[\zeta_3]$. \vspace{1.5mm}
+\noin \textbf{Examples:} 1. Consider an elliptic curve \vs $$E:y^2 = x^3 + ax \vs $$ over a prime field $\bFp$ for some $a\in \bFp^*$. In addition to the endomorphisms \vs $$E\lra E\;\,\;,\; P\mapsto [n]P\;\;\;\;(n\in\bz),    \vs $$ the curve is endowed with the endomorphism \vs $$(x_1,y_1)\mapsto (x_1,y_1\cdot\sqrt{-1}). \vs $$ Thus, $E$ has action by $\bz[\sqrt{-1}]$.\vspace{1.5mm}
+
+\noin 2. Consider an elliptic curve \vs $$E:y^2 = x^3 + a  $$ over a prime field $\bFp$ for some $a\in \bFp^*$. In addition to the scalar multiplication endomorphisms, the curve is endowed with the endomorphism \vs $$(x_1,y_1)\mapsto (x_1,y_1\cdot\zeta_3). \vs $$ Thus, $E$ has action by $\bz[\zeta_3]$. \vspace{1.5mm}
 
 We note that we are abusing notation by using $\sqrt{-1}$ for a square root of $-1$ in $\ov{\bq}$ as well as $\bFP$. Likewise, we have denoted a cube root of unity in $\ov{\bq}$ and $\bFP$ by $\zeta_3$.\\
 
 \noin \textbf{The embedding degree:} Let $E$ be an elliptic curve over a finite field $\bFq$  of characteristic $p$. Let $\pi$ be the Weil number associated to $E$. Then $\pi$ is an algebraic integer such that $\pi\cdot \ov{\pi} = q$ and $\pi+\ov{\pi}\in \bz$. Furthermore, the number of $\bFqk$-points on $E$ is given by $|(1-\pi^k)(1-\ov{\pi}^k)|$.
 
 
-Now, suppose $\ell\neq p$ is a prime dividing $\# E(\bFq)$. For simplicity, assume $\ell^2$ does not divide $\# E(\bFq)$. The $\ell$-torsion group $E(\bFP)[\ell]$ is isomorphic to $\bz/\ell\bz \times \bz/\ell\bz$. The \textit{embedding degree} of $E$ with respect to $\ell$ is the integer $k$ that satisfies one of the following equivalent conditions: \vspace{0.1cm}
+Now, suppose $\ell\neq p$ is a prime dividing $\# E(\bFq)$. This is equivalent to there existing a prime $\mfl$ of $\bq(\pi)$ lying over $\ell$ such that $\pi-1\in \mfl$. For simplicity, assume $\ell^2$ does not divide $\# E(\bFq)$, which means:
+
+\noin - $\ell$ splits into two distinct prime ideals $\mfl$, $\ov{\mfl}$ in $\bq(\pi)$.
+
+\noin - $\pi-1\notin \mfl^2\cup \ov{\mfl}$. 
+
+The $\ell$-torsion group $E(\bFP)[\ell]$ is given by \vs $$ E(\bFP)[\ell] = E(\bFP)[\mfl] \oplus E(\bFP)[\ov{\mfl}] \cong \bz/\ell\bz \times \bz/\ell\bz . \vs $$ The \textit{embedding degree} of $E$ with respect to $\ell$ is the integer $k$ that satisfies one of the following equivalent conditions: \vspace{0.1cm}
 
 \noin 1. $k$ is the smallest integer such that $q^k\equiv 1\Mod{\ell}$.
 
-\noin 2. $\Phi_k(q)\equiv 0\Mod{\ell}$ where $\Phi_k(X)$ is the $k$-th cyclotomic polynomial.
+\noin 2. $k$ is the smallest integer such that $\ov{\pi}^k\equiv 1\Mod{\mfl}$ \vspace{0.5mm}
 
-\noin 3. $k$ is the smallest integer such that all $\ell$-torsion points of $E$ are defined over the extension $\bFqk$. \vspace{0.05cm}
+
+\noin 3. $k$ is the smallest integer such that all $\ell$-torsion points of $E$ are defined over the extension $\bFqk$. 
+
+\noin 4. $\Phi_k(q)\equiv 0\Mod{\ell}$ where $\Phi_k(X)$ is the $k$-th cyclotomic polynomial.
 
 
 We denote by $\mu_{\ell}(\bF _{q^k})$ the unique cyclic subgroup of $\bF _{q^k}^*$ of order $\ell$. For a randomly chosen elliptic curve $E$, the embedding degree with respect to any prime dividing $\# E(\bFq)$ is quite large. In fact, the embedding degree is of the same order of magnitude as $q$. Elliptic curves that are amenable to pairings (aka pairing-friendly curves) are rare.
@@ -529,7 +549,7 @@ We now briefly describe the pairings associated with an elliptic curve over a fi
 
 \subsection{\fontsize{11}{11}\selectfont Divisors}
 
-We start out by defining divisors on elliptic curves. Most of the concepts here generalize to arbitrary smooth curves over fields. But we will confine our focus to divisors on elliptic curves over finite fields.
+We start out by defining divisors on elliptic curves. Most of the concepts here generalize to arbitrary smooth curves over perfect fields. But we will confine our focus to divisors on elliptic curves over finite fields.
 
 Let $E$ be an elliptic curve over a finite $F$ with Weierstrass equation $r(X,Y) = 0$. Let $\ov{F}$ denote the algebraic closure of $F$. We denote by $E(\ov{F})$ the group of $\ov{F}$-points of $E$. 
 
@@ -539,7 +559,7 @@ The divisor $\epsilon(D):= \slim_{P\in E, n_{D,P}\geq 0} n_{D,P}P $ is called th
 
 Thus, the set of divisors on $E$ has the structure of an abelian group and is naturally endowed with an action by $\absf$. We say a divisor $D$ is defined over $K$ if $D = \sigma(D)$ for every $\sigma\in \absf$. The set of divisors defined over $F$ is denoted by $\mr{Div}_F(E)$. This is a subgroup of $\mr{Div}(E)$.
 
-The degree zero divisors defined over $F$ form a subgroup of $\mr{Div}_K(E)$. We denote this subgroup by $\mr{Div}_F^0(E)$. The \textit{function field} of $E$ over $F$ is the field of fractions $F(E)$ of the integral domain $F[X,Y]/r(X,Y).$ The divisor of a function $f\in F(E)$ is given by $\divv(f):= \slim_{P} m_{f,P}(P)$ where $m_{f,P}$ is the multiplicity of $P$ as a zero of $f$. 
+The degree zero divisors defined over $F$ form a subgroup of $\mr{Div}_F(E)$. We denote this subgroup by $\mr{Div}_F^0(E)$. The \textit{function field} of $E$ over $F$ is the field of fractions $F(E)$ of the integral domain $F[X,Y]/r(X,Y).$ The divisor of a function $f\in F(E)$ is given by $\divv(f):= \slim_{P} m_{f,P}(P)$ where $m_{f,P}$ is the multiplicity of $P$ as a zero of $f$. 
 
 A divisor is said to be \textit{principal} if it occurs as the divisor of some rational function. The set of divisors of functions has the structure of a group. Furthermore, a divisor $D= \slim_{P\in E}m_{D,P}(P)$ is principal if and only if $\slim_{P\in E}m_{D,P} = 0$ and $\slim_{P\in E}n_{D,P}(P) = \infty_{_E}$. Thus, every principal divisor has degree zero. We denote the set of principal divisors by $\mr{Prin}(E)$. This is a subgroup of $\mr{Div}^0(E)$.
 
@@ -559,7 +579,7 @@ Now, suppose $\ell\neq p$ is a prime such that $\# E(\bFq)\in \ell\bz\setminus \
 
 \noin \textbf{The Tate pairing:} Let $P\in E(\bFq)[\ell]$. Then there exists a rational function $f_{\ell,P}$ with divisor $(f_{\ell,P}) = \ell(P) - \ell(\infty_{_E})$. Let $Q\in E(\bFq)$ be any representative in the equivalence class\\ $E(\bF _ {q^k})/\ell \cdot E(\bF _ {q^k})$. Let $D_Q$ be a degree zero divisor defined over $\bF _ {q^k}$ that is equivalent to $(Q)-(\infty_{_E})$ but whose support is disjoint from that of $(f_{\ell,P})$. The (intermediate) Tate pairing $t_{\ell}$ is a map \vs $$t_{\ell}: E(\bF _ {q^k})[\ell]\times E(\bF _ {q^k})/\ell \cdot E(\bF _ {q^k})\;\lra\; \bF _ {q^k}^*/(\bF _ {q^k}^*)^{\ell}\;\;,\;\;(P,Q)\mapsto f_{\ell,P}(D_Q) \vs .$$ This pairing is bilinear and non-degenerate and the target group is the quotient group $\bF _ {q^k}^*/(\bF _ {q^k}^*)^{\ell}$ which is cyclic of order $\ell$. 
 
-A shortcoming of this pairing is that it is not entirely deterministic. Different parties may compute values that coincide under this notion of equivalence   but are distinct in a stricter sense. To this end, we modify the definition by defining \vs $$T_{\ell} : E(\bF _ {q^k})[\ell]\times E(\bF _ {q^k})/\ell \cdot E(\bF _ {q^k})\;\;\lra\;\; \mu_{\ell}(\bF _ {q^k})\vs $$ \vs $$(P,Q)\;\;\mapsto\;\; t_{\ell}(P,Q)^{(q^k-1)/\ell} = f_{\ell, P}(D_Q)^{(q^k-1)/\ell}. \vs $$  
+A shortcoming of this pairing is that it is not entirely deterministic. Different parties may compute values that coincide under this notion of equivalence   but are distinct in a stricter sense. To this end, we modify the definition by defining \vs $$T_{\ell} : E(\bF _ {q^k})[\ell]\times E(\bF _ {q^k})/\ell \cdot E(\bF _ {q^k})\;\;\lra\;\; \mu_{\ell}(\bF _ {q^k})\vs $$ \vs $$(P,Q)\;\;\mapsto\;\; t_{\ell}(P,Q)^{(q^k-1)/\ell} = f_{\ell, P}(D_Q)^{(q^k-1)/\ell}. $$  
 
 \noin The last part is a (rather expensive) exponentiation in the finite field $\bF _ {q^k}$ and is called the \textit{final exponentiation} for Tate pairings. It is one of the two components of a Tate pairing, the other being the Miller loops which we describe below. 
 
@@ -589,14 +609,14 @@ The curve $E$ is said to be \textit{pairing-friendly} if $\# E(\bFq)$ has a prim
 
 In practice, the curve most widely used for SNARKs is the BLS12-381, thus named because it is defined over a $381$-bit prime field $\bFp$ and $\# E(\bFp)$ has a $256$-bit prime divisor $\ell$ such that $E$ has embedding degree $12$ with respect to $\ell$.
 
-The BLS12-381 curve is given by the equation \vs $$ y^2 = x^3+4 \vs $$ over a certain prime field $\bFp$ of bit-size $381$. The group $E(\bFp)$ is cyclic of order $\ell$ for a $255$-bit prime $\ell$ such that the embedding degree of $E$ with respect to $\ell$ is $12$.    The curve $E$ is ordinary and has endomorphism algebra $\bq(\sqrt{-3})$.\\
+The BLS12-381 curve is given by the equation \vs $$E: y^2 = x^3+4 \vs $$ over a certain prime field $\bFp$ of bit-size $381$. The group $E(\bFp)$ is cyclic of order $\ell$ for a $255$-bit prime $\ell$ such that the embedding degree of $E$ with respect to $\ell$ is $12$.    The curve $E$ is ordinary and has endomorphism algebra $\bq(\sqrt{-3})$.\\
 
 
 \noin \textbf{Miller's algorithm:} We now describe Miller's algorithm which allows us to compute pairings \textit{efficiently}. This elegant algorithm is the reason pairings are of practical value rather than purely of theoretical interest. A naive approach would mean $\bO(\ell)$ operations in the elliptic curve over a finite field $\bFp$, which would be impractical when $\ell \approx 2^{256}$ and $p\approx 2^{381}$. Miller's algorithm allows us to compute the parings with $\bO(\log(\ell))$  elliptic curve scalar multiplications and a final exponentiation in $\bFqk^*$.
 
-In practice, the best optimized Tate pairing is substantially faster than the best optimized Weil pairing. Hence, we typically use Tate pairings when the     effective runtime is crucial, as is the case with SNARKs.
+In practice, the best optimized Tate pairing is substantially faster than the best optimized Weil pairing. Hence, we typically use Tate pairings when the     effective runtime is crucial, as is the case with blockchains.
 
-As before, let $P$ be a point on the elliptic curve $E$. The key ingredient is to determine a function $f_{P}$ with divisor $\ell(P)-\ell(\infty_{_E})$. For every integer $i\geq 1$, the $f_{i,P}$ be a function whose divisor is \vs $$\divv(f_i) = i(P)	- ([i]P) - (i-1)(\infty_{_E}). $$ In particular, $f_{1,P} = 1$ and $f_{\ell,P} = f_{P}$. The following relation enables efficient computation of $f_{\ell,P}$
+As before, let $P$ be a point on the elliptic curve $E$. The key ingredient is to determine a function $f_{P}$ with divisor $\ell(P)-\ell(\infty_{_E})$. For every integer $i\geq 1$, the $f_{i,P}$ be a function whose divisor is \vs $$\divv(f_i) = i(P)	- ([i]P) - (i-1)(\infty_{_E}). $$ In particular, $f_{1,P} = 1$ and $f_{\ell,P} = f_{P}$. The following relation enables efficient computation of $f_{\ell,P}(D_Q)$
 
 
 \begin{Lem} Let $P\in E[\ell]$ and let $i$, $j$ be integers $\geq 1$. Let $\mc{L}_{[i]P, [j]P}$ be the line through $[i]P$ and $[j]P$. Let $\mc{V}_{[i+j]P}$ be the vertical line through $[i+j]P$. Then $f_{i+j,P} = f_{i,P}f_{j,P}\frac{\mc{L}_{[i]P, [j]P}}{\mc{V}_{[i+j]P}}$.\end{Lem}
@@ -609,9 +629,13 @@ It is important to note that the degree of $f_{n,P}$ grows linearly with $n$ (en
 
 \bigskip
 
-\begin{mdframed} \textbf{Miller's algorithm to compute  the Tate pairing $\e(P,Q)$} \vspace{0.15cm}
+\begin{mdframed} \textbf{Miller's algorithm to compute  the Tate pairing $T_{\ell}(P,Q)$} \vspace{0.15cm}
 
-\noin \textbf{Input:} $P\in E(\bFqk)[\ell]$; $D_Q\sim (Q)-(\infty_{_E})$ with support disjoint from $(f_{\ell,P})$; the binary representation $\ell = (r_{n-1}\cdots r_1 r_0)_2$ with $r_{n-1} = 1$ \vspace{0.15cm}
+\noin \textbf{Input:} $P\in E(\bFqk)[\ell]$;\hspace{1mm} $Q  =\wti{Q}+ \ell \cdot E(\bF _ {q^k})\in E(\bF _ {q^k})/\ell \cdot E(\bF _ {q^k}) $; 
+
+\noin $D_{Q}\sim (Q)-(\infty_{_E})$ with support disjoint from $(f_{\ell,P})$; 
+
+\noin the binary representation $\ell = (r_{n-1}\cdots r_1 r_0)_2$ with $r_{n-1} = 1$ \vspace{0.15cm}
 
 \noin \textbf{Output:} $f_{\ell,P}(D_Q)\gets f$ \vspace{0.15cm}
 
@@ -641,7 +665,7 @@ It is important to note that the degree of $f_{n,P}$ grows linearly with $n$ (en
 
 \bigskip
 
-Miller's algorithm to compute the Weil pairing has a similar structure. We can simulate Steps 1-11 to compute the pair $(f_{\ell,P}(D_Q), g_{\ell,Q}(D_P))$ and then compute $\frac{f_{\ell,P}(D_Q)}{g_{\ell,Q}(D_P)} \in \mule(\bFqk^*).$
+Miller's algorithm to compute the Weil pairing has a similar structure. We can simulate Steps 1-11 to compute $f_{\ell,P}(D_Q)$, $g_{\ell,Q}(D_P))$ and then compute $\frac{f_{\ell,P}(D_Q)}{g_{\ell,Q}(D_P)} \in \mule(\bFqk^*).$
 
 
 
@@ -650,9 +674,9 @@ Miller's algorithm to compute the Weil pairing has a similar structure. We can s
 
 \subsection{\fontsize{11}{11}\selectfont Summary}
 
-There is consensus that type III pairings are faster than type I and type II pairings. Furthermore, Tate pairings are faster than Weil pairings. Hence, it is optimal to use a Tate pairing for an ordinary pairing-friendly elliptic curve. The curve most suitable for this purpose seems to be the BLS12-381 curve.
+There is consensus that type III pairings are faster than type I and type II pairings and that Tate pairings are faster than Weil pairings. Hence, it is optimal to use a Tate pairing for an ordinary pairing-friendly elliptic curve. The curve most suitable for this purpose seems to be the BLS12-381 curve.
 
-The fundamental computation in elliptic curve cryptography is the scalar multiplication $m\cdot P$ for an integer $m$ and an elliptic curve point $P$. This point is computed in runtime $\bO(\log(m))$ via a sequence of point doublings and point additions. One of the components of a Tate pairing is the Miller loop, which largely an extension of the scalar multiplication computation. The other key component in a Tate pairing is the final exponentiation which is a rather expensive exponentiation operation in a finite field of size $p^k$ .  
+The fundamental computation in elliptic curve cryptography is the scalar multiplication $m\cdot P$ for an integer $m$ and an elliptic curve point $P$. This point is computed in runtime $\bO(\log(m))$ via a sequence of point doublings and point additions. One of the components of a Tate pairing is the Miller loop, which is largely an extension of the scalar multiplication computation. The other key component in a Tate pairing is the final exponentiation which is a rather expensive exponentiation operation in a finite field of size $p^k$ .  
 
 In pairing-based SNARKs such as PLONK, Groth16 etc, the Verifier's work is dominated by pairing computations. Thus, optimizing pairings is crucial for applications of SNARKs to blockchains.
 
@@ -707,5 +731,7 @@ In pairing-based SNARKs such as PLONK, Groth16 etc, the Verifier's work is domin
 \noin $f_{n,P}$: A function with divisor $n(P)-([n]P)- (n-1)(\infty_{_E})$ \hspace{2mm} ($n\in \bz$, $P\in E(\bFqk)$) \vspace{2mm}
 
 \noin $\mr{supp}(f)$: the support of a function $f$ \vspace{2mm}
+
+\noin $\Phi_k(X):$ The $k$-th cyclotomic polynomial
 
 \end{document}
