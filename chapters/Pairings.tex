@@ -379,13 +379,13 @@ qed=\qedsymbol%
 
 In this chapter, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
 
-We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes pairings practical.
+We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
 
 
 \subsection{\fontsize{11}{11}\selectfont Bilinear Pairings}
 
 
-\begin{Def} \normalfont For abelian groups $\mb{G}_1$, $\mb{G}_2$, $\mb{G}_T$, a \textit{pairing} $$\mathbf{e}:\mb{G}_1\times \mb{G}_2 \lra \mb{G}_T$$ is a map with the following properties.
+\begin{Def} \normalfont For finite abelian groups $\mb{G}_1$, $\mb{G}_2$, $\mb{G}_T$, a \textit{pairing} $$\mathbf{e}:\mb{G}_1\times \mb{G}_2 \lra \mb{G}_T$$ is a map with the following properties.
 
 \noindent 1. Bilinearity: $\mathbf{e}(x_1+x_2,y_1+y_2) = \mathbf{e}(x_1, y_2)\cdot\mathbf{e}(x_1, y_2)\cdot\mathbf{e}(x_2, y_1)\cdot\mathbf{e}(x_2, y_2)$\\ $\forall\; x_1,x_2\in \mb{G}_1,\; y_1,y_2\in \mb{G}_2$.
 
@@ -423,7 +423,7 @@ The $n$-strong Diffie Hellman is a stronger assumption than the older and more b
 \subsubsection{\fontsize{11}{11}\selectfont Membership proofs}
 
 
-We now discuss a simple example of an application of pairings, namely set membership proofs. This could be though of as an application specific SNARK and is substantially simpler than the Groth16 Snark which we will discuss in subsequent chapters. But it shares a common structure with the more advanced SNARKs in that 
+As a warmup, we discuss a simple example of an application of pairings, namely set membership proofs. This could be though of as an application specific SNARK and is substantially simpler than the Groth16 Snark which we will discuss in subsequent chapters. But it shares a common structure with the more advanced SNARKs in that 
 
 \noin - the Prover's work is dominated by elliptic curve operations and Fast Fourier transforms
 
@@ -509,12 +509,12 @@ As the etymology suggests, most elliptic curves are ordinary. In fact, up to iso
 Clearly, such Weil numbers - and consequently supersingular curves - are rare. Since Type I and II pairings require supersingular elliptic curves, this is yet another reason to use type III pairings instead. \\
   
 
-\noin \textbf{Endomorphisms:} For an elliptic curve $E$, an endomorphism $\phi$ of $E$ is an algebraic map $\phi:E\lra E$. The set of endomorphisms of $E$ is called the endomorphism ring of $E$ (denoted by $\End(E)$). It has the structure of a ring with no zero-divisors that is finite dimensional over $\bz$-module. The tensor product $\End^0(E):= \End(E)\otimes_{\bz}\bq$ is called the endomorphism algebra. The center of $\End(E)$ is the subring $\bz[\pi_E]$. Similarly, the field $\bq(\pi_E)$ is the center of the division algebra $\End^0(E)$. For simplicity, we assume the field $\bFq$ has been enlarged to endure that $\End(E) = \End(E\times_{\bFq} \bFQ)$. Broadly, $\End^0(E)$ has one of two possible structures:\vspace{1mm}
+\noin \textbf{Endomorphisms:} For an elliptic curve $E$, an endomorphism $\phi$ of $E$ is an algebraic map $\phi:E\lra E$. The set of endomorphisms of $E$ is called the endomorphism ring of $E$ (denoted by $\End(E)$). It has the structure of a ring with no zero-divisors that is finite dimensional over $\bz$-module. The tensor product $\End^0(E):= \End(E)\otimes_{\bz}\bq$ is called the endomorphism algebra. The center of $\End(E)$ is the subring $\bz[\pi_{_E}]$. Similarly, the field $\bq(\pi_{_E})$ is the center of the division algebra $\End^0(E)$. For simplicity, we assume the field $\bFq$ has been enlarged to endure that $\End(E) = \End(E\times_{\bFq} \bFQ)$. Broadly, $\End^0(E)$ has one of two possible structures:\vspace{1mm}
 
-\noin 1. If $E$ is ordinary, $\End^0(E) = \bq(\pi_E)$ and is an imaginary quadratic field in which the prime $p$ splits. Thus, $\End(E)$ is an order (not necessarily maximal) in this imaginary quadratic field.
+\noin 1. If $E$ is ordinary, $\End^0(E) = \bq(\pi_{_E})$ and is an imaginary quadratic field in which the prime $p$ splits. Thus, $\End(E)$ is an order (not necessarily maximal) in this imaginary quadratic field.
 
 
-\noin 2. If $E$ is supersingular, $\pi_E = \sqrt{q} \in \bz$ and $\End^0(E)$ is the quaternion algebra $\bq_{p,\infty}$ ramified exclusively at $p$ and $\infty_{_E}$. The endomorphism ring $\End(E)$ is a maximal order in $\bq_{p,\infty}$.\\
+\noin 2. If $E$ is supersingular, $\pi_{_E} = \sqrt{q} \in \bz$ and $\End^0(E)$ is the quaternion algebra $\bq_{p,\infty}$ ramified exclusively at $p$ and $\infty_{_E}$. The endomorphism ring $\End(E)$ is a maximal order in $\bq_{p,\infty}$.\\
 
 \noin \textbf{Examples:} 1. Consider an elliptic curve \vs $$E:y^2 = x^3 + ax \vs $$ over a prime field $\bFp$ for some $a\in \bFp^*$. In addition to the endomorphisms \vs $$E\lra E\;\,\;,\; P\mapsto [n]P\;\;\;\;(n\in\bz),    \vs $$ the curve is endowed with the endomorphism \vs $$(x_1,y_1)\mapsto (x_1,y_1\cdot\sqrt{-1}). \vs $$ Thus, $E$ has action by $\bz[\sqrt{-1}]$.\vspace{1.5mm}
 
@@ -676,7 +676,7 @@ Miller's algorithm to compute the Weil pairing has a similar structure. We can s
 
 There is consensus that type III pairings are faster than type I and type II pairings and that Tate pairings are faster than Weil pairings. Hence, it is optimal to use a Tate pairing for an ordinary pairing-friendly elliptic curve. The curve most suitable for this purpose seems to be the BLS12-381 curve.
 
-The fundamental computation in elliptic curve cryptography is the scalar multiplication $m\cdot P$ for an integer $m$ and an elliptic curve point $P$. This point is computed in runtime $\bO(\log(m))$ via a sequence of point doublings and point additions. One of the components of a Tate pairing is the Miller loop, which is largely an extension of the scalar multiplication computation. The other key component in a Tate pairing is the final exponentiation which is a rather expensive exponentiation operation in a finite field of size $p^k$ .  
+The fundamental computation in elliptic curve cryptography is the scalar multiplication $m\cdot P$ for an integer $m$ and an elliptic curve point $P$. This point is computed in runtime $\bO(\log(m))$ via a sequence of point doublings and point additions. One of the components of a Tate pairing is the Miller loop, which is largely an extension of the scalar multiplication computation. The other key component in a Tate pairing is the final exponentiation which is a rather expensive exponentiation operation in a finite field of size $q^k$, where $k$ is the embedding degree.  
 
 In pairing-based SNARKs such as PLONK, Groth16 etc, the Verifier's work is dominated by pairing computations. Thus, optimizing pairings is crucial for applications of SNARKs to blockchains.
 
@@ -694,7 +694,7 @@ In pairing-based SNARKs such as PLONK, Groth16 etc, the Verifier's work is domin
 
 \noin $(f)$: divisor of a rational function $f\in \bFP(E)$ \vspace{2mm}
 
-\noin $\infty_{_E}$: The point at infinity \vspace{2mm}
+\noin $\infty_{_E}$: The $E$-point at infinity \vspace{2mm}
 
 \noin $D_P$: the divisor $(P)-(\infty_{_E})$ \vspace{2mm}
 
@@ -702,7 +702,7 @@ In pairing-based SNARKs such as PLONK, Groth16 etc, the Verifier's work is domin
 
 \noin $E[n]$: the $n$-torsion subgroup of $E$ \vspace{2mm}
 
-\noin $\mc{L}_{P,Q}$: the line passing through $P$ and $Q$ if $P\neq Q$; the tangent line at $P$ if $P = Q$ \vspace{2mm}
+\noin $\mc{L}_{P,Q}: \begin{cases} \text{the line passing through } P \text{ and } Q \text{ if } P\neq Q\\ \text{the tangent line at } P \text{ if } P = Q \end{cases}$\vspace{2mm}
 
 \noin $\mc{V}_{P}$: the vertical line passing through $P$ (and $-P$) \vspace{2mm}
 
@@ -716,7 +716,11 @@ In pairing-based SNARKs such as PLONK, Groth16 etc, the Verifier's work is domin
 
 \noin $\mr{Div}(E)$: group of divisors on $E$ \vspace{2mm}
 
+\noin $\mr{Div}_F(E)$: group of divisors on $E$ defined over $F$ \vspace{2mm}
+
 \noin $\mr{Div}^0(E)$: group of degree zero dvisors on $E$ \vspace{2mm}
+
+\noin $\mr{Div}^0_F(E)$: group of degree zero divisors on $E$ defined over $F$ \vspace{2mm}
 
 \noin $\mr{ord}_P(f)$: the multiplicity of $f$ at $P$ on $E$ \vspace{2mm}
 
