@@ -912,6 +912,10 @@ $$
 So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
 \end{example}
 
+\paragraph{Keys}
+- Keys on elliptic curves
+- compressed keys
+
 \section{The group law}
 % http://wwwmayr.informatik.tu-muenchen.de/konferenzen/Jass07/courses/1/Lukyanenko/Lukyanenk_Paper.pdf
 One of the key properties of an elliptic curve is that it is possible to define a group law on the set of its points together with the point at infinity, which serves as the neutral element.
@@ -1001,6 +1005,9 @@ Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the s
 
 \subsection{twists}
 
+\subsection{Hashing to Curve}
+
+
 \section{Constructing Elliptic curves}
 \subsection{The Complex Multiplication Method}
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
@@ -1022,6 +1029,71 @@ Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the s
 \item Otherwise choose $c\in \F_p$ with $c\neq 1$ and $c\neq 0$ and define the elliptic curve $E'/\F_p$ defined by $y^2 = x^3 + 3kc^2x+2kc^3$ for $k= \frac{j}{1728-j}$.
 \end{itemize}
 \section{Classes of elliptic curves}
+In this section we describes ways to describe elliptic curves different from the general Weierstrass form. Alternative descriptions are sometimes useful because of DIFFERENT ways to express the group laws
+\subsection{Montgomery Form}
+Let $\F$ be a finite field with characteristic $\neq 2$. A Montgomery curve over $\F$ is defined by the equation
+$$
+M: B y^2 = x^3 + A x^2 + x 
+$$
+for certain $A, B \in \F$, with $A\neq \pm 2$, $b\neq 0$ and $B(A^2 - 4)\neq 0$. 
+
+The Montgomery form is just another form to define an elliptic curve. In fact every curve in Montgomery form can be transformed into an elliptic curve in Weierstrass form and vice versa. To see that assume that a curve in Montgomery form $B y^2 = x^3 + A x^2 + x$ is given. The associated Weierstrass form is then
+$$
+y^2 = x^3 + \frac{3-A^2}{3B^2}\cdot x + \frac{2A^3-9A}{27B^3}
+$$
+ 
+On the other hand, an elliptic curve over base field $\F$ in Weierstrass form $E: v^2 = t^3 + a t + b$ can be converted to Montgomery form if and only if the following conditions hold:
+\begin{itemize}
+\item $E$ has order divisible by $4$
+\item The polynomial $z^3 + a z + b \in \F[]$ has at least one root $\alpha\in\F$
+\item $3\alpha^2 + a$ is a quadratic residue in $\F$.
+\end{itemize}
+
+When these conditions are satisfied, then for $s=({\sqrt{3\alpha^{2}+a}})^{-1}$ the equivalent Montgomery curve is given by
+$$
+sy^{2}=x^{3}+(3\alpha s)x^{2}+x
+$$
+
+\subsection{Twisted Edwards Form}
+% https://eprint.iacr.org/2008/013.pdf
+In this section we describe curves, that are defined over Galois fields of characteristics $\neq 2$. 
+A \textbf{twisted Edwards curve} over a Galois field $\F$ is a curve, defined by the equation
+$$E/\F:a\cdot x^2+y^2= 1+d\cdot x^2y^2$$ 
+where $x,y\in \F$ and $d\in \F\backslash\{0,1\}$ and $d\in \F\backslash\{1\}$ with $a\neq d$. Such a curve is called an Edwards curve (non twisted), if $a=1$.
+
+The most remarkable fact about twisted Edwards curves is their simple addition law. Assuming that $a$ has a root in $\F$ and $d$ has no root in $\F$, the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
+$$
+(x_1, y_1) + (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
+$$
+The point $(0,1)$ is the neutral element of the addition law. The inverse of a point $(x_1, y_1)$ on $E$ is $(-x_1, y1)$. The addition law is very simple to implement and it can also be used for point doubling. It also works for the neutral element, for inverses..
+
+As Edwards curves have such simple non branching addition laws that work for all points, including the neutral element and inverses, they are a interesting for snarks as they can be implemented with only a few constraints in circuits.
+
+%\begin{example}[Non twisted Edwards curves have order 4 points]
+%In this example, we will show that every Edwards curve has a point of order $4$. To see that let $E$ be an arbitrary Edwards curve ($a=1$). Then the point $(1,0)$ is on that curve, since $1^2+0^2= 1+d 1^2 0^2$. We compute 
+%\begin{align*}
+%[4](1,0) = \\
+%[2]([2](1,0))=\\
+%[2]\left(\frac{1 0 +1 0}{1 +d 1 1 0 0},\frac{00-1\cdot 1}{1-d1 1 00}\right)=\\
+%[2](0,-1)=\\
+%\left(\frac{0(-1)+(-1)0}{1 +d 0 0 (-1)(-1)},\frac{(-1)(-1)-00}{1-d00(-1)(-1)}\right) =\\
+(0,1)
+%\end{align*} 
+
+%Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
+%\end{example}
+
+The twisted Edwards form is just another form to define an elliptic curve. In fact every curve in twisted Edwards form can be transformed into an elliptic curve in Montgomery form and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery form is then
+$$
+\frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
+$$
+On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ (WITH STUFF) can be transformed into a twisted Edwards curve 
+$$
+(\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
+$$
+
+
+\section{Pend and Paper example curves}
 \subsection{BLS6-6 -- our pen\& paper curve}
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
@@ -1203,6 +1275,35 @@ so we get
 $$
 BLS6-6_{2-twist}/\F_{43^3}: y^2 = x^3+(10t^2+14t+15)
 $$
+\subsubsection{Baby JubJub}
+% As we talk about R1CS already may write elliptic curves chapter after circuits/r1cs?
+
+On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
+
+As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
+
+Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. As with the original large Baby-JubJub curve we apply the method from
+%https://www.hjp.at/doc/rfc/rfc7748.html#page_19 (Appendinx A)
+to define a pen\& paper Baby-JubJub-like curve over the scalar field of the "large" BLS6 prime order subgroup, which is $\F_{13}$. 
+
+Since $\Zmod{13}{4}=1$ we would go with A.1. The algorithm only needs to check a few elements and in fact all potential curves either have order $8$ or $12$. This is not very useful as a pen and paper example as those curves have extremely small prime order subgroups of size $3$.
+
+We will follow the process that lead to the original baby jubjub curve. However the resulting curves have either order $12$ or $16$ and hence have prime order subgroups that are too small even for pen and paper. We therefore use the equivalence between Montgomery curves and twisted Edwards curves to give a baby-jubjub-like twisted Edwards curve with order $20$. 
+
+We start with an ordinary Weierstrass curve of order 20 over $\F_{13}$, given by
+$BJJ: y^2 = x^3 + x$. 
+
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: BJJ = EllipticCurve(F13,[1,0])
+sage: BJJ.order()
+\end{sagecommandline}
+To see that this curve can be transformed into Montgomery form, we first observe that its order is divisible by $4$. Moreover $z^3 + 3z$ has root $\alpha=-5=8$ in $\F_{13}$ and $3\alpha^2+1=3\cdot 8^2+1=3 3 12 +1 =$ 
+\begin{sagecommandline}
+sage: F13t.<s> = F13[]
+sage: p = F13t(s^3+ 1*s +0)
+sage: p.factor()
+\end{sagecommandline}
 
 \subsection{MNT4 MNT6 Cycles}
 % https://eprint.iacr.org/2006/372.pdf theorem 5.2
