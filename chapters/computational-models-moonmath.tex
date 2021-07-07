@@ -277,6 +277,10 @@ m_1 \cdot in_3  &= & out_1 \\
 \end{array}
 $$
 \end{example}
+So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+$$
+\{(0,0,0), (0,1,0), (1,0,0), (1,1,1)\}
+$$
 
 \subsection{Quadratic Arithmetic Programs}
 As shown by [Pinocchio] rank-1 constraint systems can be transformed into so called quadratic  arithmetic  programs  assuming $\F$.
@@ -419,6 +423,136 @@ This polynomial is not divisible by the target polynomial $t$ since
 Not divisible by $t$: $(8x^{2}+11x+3)/(x^{2}+x+9) =8+\frac{3x+8}{x^{2}+x+9} $
 \end{example}
 
+\subsubsection{Boolean Algebra} 
+% implementations can be found here: https://github.com/filecoin-project/zexe/tree/master/snark-gadgets/src/bits
+
+Sometimes it is necessary to assume that a statement describes boolean variables. However by definition the alphabet of a statement is a finite field, which is often the scalar field of a large prime order cyclic group. So developers need a way to simulate boolean algebra inside other finite fields.
+
+The most common way to do this, is to interpret the additive and multiplicate neutral element $\{0,1\}\subset F$ as boolean values. This is convinient because they are defined in any field. 
+
+\paragraph{Boolean Constraint}
+So when a developer needs boolean variables as part of their statement, a R1CS is required on those variables, that enforces the variable to be either $1$ or $0$. So to "constrain a field element $x\in \F$ to be $1$ or $0$ what we need is a system of equation $(A_ix)\cdot (B_ix) = C_ix$ for some $A_i,B_i,C_i\in \F$, such that the only possible solutions for $x$ are $0$ or $1$.
+As it turns out such a system can be realized by a single equation
+$x \cdot (1-x) =0$
+We see that indeed $0$ and $1$ are the only solutions here, since for the right side to be zero, at least one factor on the left side needs to be zero and this only happens for $0$ and $1$. 
+
+So now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
+$$
+\begin{pmatrix}0 & 1 \end{pmatrix} \begin{pmatrix} 1 \\ x \end{pmatrix}\odot
+\begin{pmatrix}1 & -1 \end{pmatrix} \begin{pmatrix} 1 \\ x \end{pmatrix} =
+\begin{pmatrix}0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \end{pmatrix}
+$$
+So we get $w = \begin{pmatrix} 1 \\ x\end{pmatrix}$ as well as
+$A=\begin{pmatrix}0 & 1\end{pmatrix}$, $B=\begin{pmatrix}1 & -1\end{pmatrix}$ and $C=\begin{pmatrix}0 & 0\end{pmatrix}$.
+
+Once field elements are boolean constraint, we need constraints that are able to enforce boolean algebra on them. We therefore give constraints for the functionally complete set of Boolean operators give by $AND$ and $NOT$. As all other boolean operations can be constructed from $AND$ and $NOT$, this sufficies. However in actual implementations it is of high importance to limit the number of constraints as much as possible. In reality it is therefor advantageous to implement all logic operators in constraints.   
+
+\paragraph{AND-constraints} Given three field elements $x,y,z\in\F$ that represent boolean variables, we want to find a R1CS, such that $w=(1,x,y,z)$ satisfies the constraint system if and only if $x\; AND \; y =z$. 
+
+So first we have to constrain $x$, $y$ and $z$ to be boolean as explained in XXX. The next thin is we need to find a R1CS that enforces the $AND$ logic. We can simply choose $x\cdot y =z$, since (for boolean constraint values) $x\cdot y$ equals $1$ if and only if both $x$ and $y$ are $1$.  
+
+Now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
+$$
+\begin{pmatrix}0 & 1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}\odot
+\begin{pmatrix}0 & 0 & 1 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix}0 & 0 & 0 & 1 \end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}
+$$
+Combining this R1CS with the required fthree boolean constraints for $x$, $y$ and $z$ we get
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 \\
+\hline
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}\odot
+\begin{pmatrix}
+0 & 0 & 1 & 0 \\
+\hline
+1 & -1 & 0 & 0 \\
+1 & 0  & -1 & 0 \\
+1 & 0 & 0 & -1 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 1 \\
+\hline
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 
+\end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}
+$$
+So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+$$
+\{(0,0,0), (0,1,0), (1,0,0), (1,1,1)\}
+$$
+which is the set of all $(x,y,z)\in\{0,1\}^3$ such that $x\; AND\; y = z$.
+\paragraph{NOT constraint}
+Given two field elements $x,y\in\F$ that represent boolean variables, we want to find a R1CS, such that $w=(1,x,y)$ satisfies the constraint system if and only if $x=\lnot y$. 
+
+So again we have to constrain $x$ and $y$ to be boolean as explained in XXX. The next think is we need to find a R1CS that enforces the $NOT$ logic. We can simply choose $(1-x) =y$, since (for boolean constraint values) this enforces that $y$ is always the boolean opposite of $x$. 
+
+Now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
+$$
+\begin{pmatrix}1 & -1 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix}\odot
+\begin{pmatrix}1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix} =
+\begin{pmatrix}0 & 0 & 1 \end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \end{pmatrix}
+$$
+So actually we wrote the linear equation $1-x=y$ like $(1-x)\cdot 1 = y$ and translated that into the matrix equation.
+
+Combining this R1CS with the required fthree boolean constraints for $x$, $y$ and $z$ we get
+$$
+\begin{pmatrix}
+1 & -1 & 0 \\
+\hline
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix}\odot
+\begin{pmatrix}
+1 & 0 & 0 \\
+\hline
+1 & -1 & 0 \\
+1 & 0  & -1 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+\end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \end{pmatrix}
+$$
+So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+$$
+\{(0,1), (1,0)\}
+$$
+which is the set of all $(x,y)\in\{0,1\}^2$ such that $x=\lnot y$.
+
+EXERCISE: DO OR; XOR; NAND
+
+More complicated logical constraints can then be optained by combining all sub-R1CS together. For example if the task is to enforce $(in_1\; AND \lnot in_2 ) AND in_3 = out_1$ we first apply the FLATTENING technique from XXX, which gives is
+$$
+\begin{array}{lcr}
+\lnot in_2 &=& mid_1\\
+in_1\; AND \; mid_1 &=& mid_2\\
+mid_2 \; AND \; in_3 &=& out_1
+\end{array}
+$$
+So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
+
+\subsubsection{UintX}
+As we know circuits are not defined over integers but over finite fields instead. We therefore have no notation of integers in circuits. However on computers we also not use integers natively but Uint's instead.
+
+\subsubsection{Curves}
+Sometimes it required to do elliptic curve cryptography "inside of a circuit". This means that we have to implement the algebraic operations (addition, scalar multiplication) of an elliptic curve as a R1CS. To do this efficiently the curve that we want to implement must be defined over the same base field as the field that is used in the R1CS. 
+
+\begin{example}
+So for example when we consider an R1CS over the field $\F_{13}$ as we did in example XXX, then we need a curve that is also defined over $\F_{13}$. Moreover it is advantegous to use a (twisted) Edwards curve inside a circuit, as the addition law contains no branching (See XXX). As we have seen in XXX our Baby-Jubjub curve is an Edwards curve defined over $\F_{13}$. So it is well suited for elliptic curve cryptography in our pend and paper examples
+\end{example}
+
+\paragraph{Twisted Edwards curve addition constraints}
+
+
+\paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
+
 
 \subsection{Quadratic span programs}
 
@@ -497,8 +631,8 @@ In this example we want to compile our main example in Groth16. Input is the R1C
 
 \begin{tabular}{ccccc}
 \\
-curve = BLS6-6 & $\mathbb{G}_1=$ BLS6-6(13) & $g_1 = (13,15) $
-& $\mathbb{G}_2=$ & $g_2=$
+curve = BLS6-6 & $\mathbb{G}_1=$ BLS6-6(13) & $g = (13,15) $
+& $\mathbb{G}_2=$ & $h=(7v^2,16v^3)$
 \end{tabular} 
 
 Setup phase: Recall the quadratic arithmetic program of example XXX. 
@@ -561,7 +695,7 @@ For $\left\{\left[\frac{s^{k}t(2)}{3}\right](13,15)\right\} _{k=0}^{0}$ we get
 [5](13,15) =
 (26,34)
 \end{multline*}
-All together, the key is:
+All together, the $\mathbb{G}_1$ part of the CRS is:
 $$
 CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
 (27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
@@ -570,7 +704,31 @@ CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
 \left\{(26,34)\right\}
 \end{array}\right\}
 $$
+To compute the $\mathbb{G}_2$ part 
+$$
+CRS_{\mathbb{G}_{2}}=\left\{ [5](7v^2,16v^3) ,[4](7v^2,16v^3),[3](7v^2,16v^3),\left\{[2^k](7v^2,16v^3)\right\} _{k=0}^{1}\right\} 
+$$
+$$
+CRS_{\mathbb{G}_{2}}=\left\{ [5](7v^2,16v^3) ,[4](7v^2,16v^3),[3](7v^2,16v^3),\left\{[1](7v^2,16v^3), [2](7v^2,16v^3)\right\}\right\} 
+$$
+$$
+CRS_{\mathbb{G}_{2}}=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\} 
+$$
 
+So alltogether our common reference string is 
+$$
+\begin{pmatrix}
+\left\{ \begin{array}{c}
+(27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
+\left\{\mathcal{O}, (13,15), (33,9)\right\}\\
+\left\{(33,34),(26,34),(35,28)\right\},
+\left\{(26,34)\right\}
+\end{array}\right\}\\
+\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\}
+\end{pmatrix}
+$$
+
+The proofer phase: 
 
 \end{example}
 

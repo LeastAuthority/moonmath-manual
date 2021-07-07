@@ -1007,6 +1007,11 @@ Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the s
 
 \subsection{Hashing to Curve}
 
+\section{Pairings}
+In this section, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
+
+We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
+
 
 \section{Constructing Elliptic curves}
 \subsection{The Complex Multiplication Method}
@@ -1060,6 +1065,12 @@ In this section we describe curves, that are defined over Galois fields of chara
 A \textbf{twisted Edwards curve} over a Galois field $\F$ is a curve, defined by the equation
 $$E/\F:a\cdot x^2+y^2= 1+d\cdot x^2y^2$$ 
 where $x,y\in \F$ and $d\in \F\backslash\{0,1\}$ and $d\in \F\backslash\{1\}$ with $a\neq d$. Such a curve is called an Edwards curve (non twisted), if $a=1$.
+
+On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
+
+As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
+
+Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. 
 
 The most remarkable fact about twisted Edwards curves is their simple addition law. Assuming that $a$ has a root in $\F$ and $d$ has no root in $\F$, the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
 $$
@@ -1277,33 +1288,93 @@ BLS6-6_{2-twist}/\F_{43^3}: y^2 = x^3+(10t^2+14t+15)
 $$
 \subsubsection{Baby JubJub}
 % As we talk about R1CS already may write elliptic curves chapter after circuits/r1cs?
+To give an understanding what the Baby-JubJub curve is, we want to parallel its development here to find a Baby-Jubjub like curve for pen and paper.
 
-On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
-
-As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
-
-Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. As with the original large Baby-JubJub curve we apply the method from
+As with the original large Baby-JubJub curve we apply the method from
 %https://www.hjp.at/doc/rfc/rfc7748.html#page_19 (Appendinx A)
 to define a pen\& paper Baby-JubJub-like curve over the scalar field of the "large" BLS6 prime order subgroup, which is $\F_{13}$. 
 
-Since $\Zmod{13}{4}=1$ we would go with A.1. The algorithm only needs to check a few elements and in fact all potential curves either have order $8$ or $12$. This is not very useful as a pen and paper example as those curves have extremely small prime order subgroups of size $3$.
-
-We will follow the process that lead to the original baby jubjub curve. However the resulting curves have either order $12$ or $16$ and hence have prime order subgroups that are too small even for pen and paper. We therefore use the equivalence between Montgomery curves and twisted Edwards curves to give a baby-jubjub-like twisted Edwards curve with order $20$. 
-
-We start with an ordinary Weierstrass curve of order 20 over $\F_{13}$, given by
-$BJJ: y^2 = x^3 + x$. 
-
+Since $\Zmod{13}{4}=1$ we would go with A.1. As we will only find a few curves, we will tweak the algorithm and run
 \begin{sagecommandline}
-sage: F13 = GF(13)
-sage: BJJ = EllipticCurve(F13,[1,0])
-sage: BJJ.order()
+sage: F13 = GF(13) 
+sage: for A in xrange(3, 13):
+....:     if (A-2) % 4 != 0:
+....:         continue
+....:     try:
+....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
+....:         E
+....:         E.order()
+....:     except:               
+....:         continue      
 \end{sagecommandline}
-To see that this curve can be transformed into Montgomery form, we first observe that its order is divisible by $4$. Moreover $z^3 + 3z$ has root $\alpha=-5=8$ in $\F_{13}$ and $3\alpha^2+1=3\cdot 8^2+1=3 3 12 +1 =$ 
+So we get two curves in Montgomery form $y^2 = x^3 + 6*x^2 + x$ which has order $8$ and  $y^2 = x^3 + 10*x^2 + x$, which has order $16$. We could transform one of them into an Edwards curve, however   
+
+So to find our Edwards curve, we will do exhaustive search rather 
 \begin{sagecommandline}
-sage: F13t.<s> = F13[]
-sage: p = F13t(s^3+ 1*s +0)
-sage: p.factor()
+sage: for d in F13:          
+....:     j= ZZ(0)          
+....:     for x in F13:
+....:         for y in F13:                        
+....:             if x^2+y^2 == 1+d*x^2*y^2:                           
+....:                 j=j+1        
+....:     print('d=',d)                
+....:     print('order=',j)     
 \end{sagecommandline}
+and get $x^2+y^2= 1+7\cdot x^2y^2$ which has $20$ points. The associated Montgomery curve is then using XXX given by $8y^2 = x^3 + 6\cdot x^2 + x$.
+
+So we define our Baby-JubJub Edwards curve to be
+$$
+EdBJJ/\F_{13}: x^2+y^2= 1+7\cdot x^2y^2
+$$
+with associated Montgomery form to be
+$$
+MBJJ/\F_{13}:8y^2 = x^3 + 6\cdot x^2 + x
+$$
+As $20=2\cdot 2\cdot 5$, we have a "large" prime order subgroup of order $5$ and a cofactor $4$. The group of rational points is
+\begin{sagecommandline}
+sage: for x in F13:                                   
+....:     for y in F13:                                                                                
+....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:                                                     
+....:             print(x,y)
+\end{sagecommandline}
+
+$$
+(0, 1),
+(0, 12),
+(1, 0),
+(2, 4),
+(2, 9),
+(4, 2),
+(4, 11),
+(5, 6),
+(5, 7),
+(6, 5),
+(6, 8),
+(7, 5),
+(7, 8),
+(8, 6),
+(8, 7),
+(9, 2),
+(9, 11),
+(11, 4),
+(11, 9),
+(12, 0)
+$$
+with neutral element $(0,12)$
+
+As expected we have a prime order subgroup of size $5$, which can be generated by $(11,9)$. We get $\{(11,9)\to (6,8)\to (7,8) \to (2,9) \to (0,1))\}$.
+
+% rewrite into something nice
+\begin{sagecommandline}
+sage: def Edwards_add((x1,y1),(x2,y2),d):
+....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
+....: (x2)*F13(y1)*F13(y2))))
+....:     y3 = F13((F13(y1)*F13(y2)-F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13
+....: (x2)*F13(y1)*F13(y2))))
+....:     return (x3,y3)
+\end{sagecommandline}
+
+
 
 \subsection{MNT4 MNT6 Cycles}
 % https://eprint.iacr.org/2006/372.pdf theorem 5.2
@@ -1488,4 +1559,4 @@ We choose the generator $g_2 = (x^3+2x^2+4x,x^5+2x^4+4x^3+3x^2+3)$
 Note however that our MNT6 curve discriminant $D=-16(4a^3 + 27 b^2)= -16(4\cdot 2^3 + 27\cdot 1^2)=-944$, while our MNT4 curve has discriminsnt XXX. Hence our example curves are not those guranteed by theorem XXX. Those curve are both given by $y^2= x^3 + 2x +1$ over $\F_5$ and $\F_7$, respectively. However as both curves have the same defining equation, we rather choose examples that are visually distinguishable by their defining equations.
 \end{remark}
 
-
+\subsection{Edwards curve cycles}
