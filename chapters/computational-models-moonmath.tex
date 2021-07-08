@@ -537,6 +537,7 @@ mid_2 \; AND \; in_3 &=& out_1
 \end{array}
 $$
 So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
+\subsection{Conditional branching}
 
 \subsubsection{UintX}
 As we know circuits are not defined over integers but over finite fields instead. We therefore have no notation of integers in circuits. However on computers we also not use integers natively but Uint's instead.
@@ -548,8 +549,119 @@ Sometimes it required to do elliptic curve cryptography "inside of a circuit". T
 So for example when we consider an R1CS over the field $\F_{13}$ as we did in example XXX, then we need a curve that is also defined over $\F_{13}$. Moreover it is advantegous to use a (twisted) Edwards curve inside a circuit, as the addition law contains no branching (See XXX). As we have seen in XXX our Baby-Jubjub curve is an Edwards curve defined over $\F_{13}$. So it is well suited for elliptic curve cryptography in our pend and paper examples
 \end{example}
 
-\paragraph{Twisted Edwards curve addition constraints}
+\paragraph{Twisted Edwards curves constraints} As we have seen in XXX, an Edwards curve over a finite field $F$ is the set of all pairs of points $(x,y)\in \F\times \F$, such that $x$ and $y$ satisfy the equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$. 
 
+We can interpret this equation as a constraint on $x$ and $y$ and rewrite it as a R1CS by applying the flattenin technique from XXX.
+$$
+\begin{array}{lcr}
+x \cdot x &=& x\_sq\\
+y \cdot y &=& y\_sq\\
+x\_sq \cdot y\_sq &=& xy\_sq\\
+(a\cdot x\_sq+y\_sq)\cdot 1 &=& 1+d\cdot xy\_sq
+\end{array}
+$$
+So we have the statement $w=(1,x,y,x\_sq, y\_sq, xy\_sq)$ and we need 4 constraints to enforce that $x$ and $y$ are points on the Edwards curve $x^2+y^2= 1+d\cdot x^2y^2$. Writing the constraint system in matrix form, we get:
+\begingroup
+    \fontsize{9pt}{9pt}\selectfont
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & a & 1 & 0 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix}\odot
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 
+\end{pmatrix}  \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 0 & d 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix}
+$$
+\endgroup
+EXERCISE: WRITE THE R1CS FOR WEIERSTRASS CURVE POINTS 
+\begin{example}[Baby-JubJub]
+Considering our pen and paper Baby JubJub curve over from XXX, we know that the curve is defined over $\F_{13}$ and that $(11,9)$ is a curve point, while $(2,3)$ is not a curve point. 
+
+Starting with $(11,9)$, we can compute the statement $w=(1,11,9,4,3,12)$. Substituting this into the constraints we get
+$$
+\begin{array}{lcr}
+11 \cdot 11 &=& 4\\
+9 \cdot 9 &=& 3\\
+4 \cdot 3 &=& 12\\
+(1\cdot 4+3)\cdot 1 &=& 1+7\cdot 12
+\end{array}
+$$
+which is true in $\F_{13}$. So our statement is indeed a valid assignment to the twisted Edwards curve constraining system.
+
+Now considering the non valid point $(2,3)$, we can still come up with some kind of statement $w$ that will satisfy some of the constraints. But fixing $x=2$ and $y=3$, we can never satisfy all constraints. For example $w=(1,2,3,4,9,10)$ will satisfy the first three constraints, but the last constrain can not be satisfied. Or $w=(1,2,3,4,3,12)$ will satisfy the first and the last constrain, but not the others.
+\end{example}
+\paragraph{Twisted Edwards curves addition} As we have seen in XXX one the major advantages of working with (twisted) Edwards curves is the existence of an addition law, that contains no branching and is valid for all curve points. Moreover the neutral element is not "at infinity" but the actual curve poin $(0,1)$.
+
+As we know from XXX, give two points $(x_1,y_1)$ and $(x_2,y_2)$ on a twisted Edwards curve their sum is given by
+$$
+(x_3,y_3) = \left(\frac{x_1y_2+y_1x_2}{1+d\cdot x_1x_2y_1y_2}, \frac{y_1y_2-a\cdot x_1x_2}{1-d\cdot x_1x_2y_1y_2}\right)
+$$
+% https://z.cash/technology/jubjub/
+We can realize this equation as a R1CS as follows: First not that we can rewrite the addition law as
+$$
+\begin{array}{lcl}
+x_1\cdot x_2 &=& x_{12}\\
+y_1\cdot y_2 &=& y_{12}\\
+x_1\cdot y_2 &=& xy_{12}\\
+y_1\cdot x_2 &=& yx_{12}\\
+x_{12}\cdot y_{12} &=& xy_{1212}\\
+x_3\cdot (1+d\cdot xy_{1212}) &=& xy_{12}+yx_{12}\\
+y_3\cdot (1-d\cdot xy_{1212}) &=& y_{12}-a\cdot x_{12}
+\end{array}
+$$
+So we have the statement $w=(1,x_1,y_1,x_2,y_2,x_3,y_3,x_{12},y_{12},xy_{12},yx_{12},xy_{1212})$ and we need 7 constraints to enforce that $(x_1,y_1)+(x_2,y_2)=(x_3,y_3)$ 
+\begin{example}[Baby-JubJub]
+Considering our pen and paper Baby JubJub curve over from XXX. We recall from XXX that $(11,9)$ is a generator for the large prime order subgroup. We therefor already know from XXX that
+$(11,9) + (7,8) = (11,9) + [3](11,9) = [4](11,9) = (2,9)$. So we compute a valid statement as 
+$w=(1,11,9,7,8,2,9,12,7,10,11,6)$. Indeed
+$$
+\begin{array}{lcl}
+11\cdot 7 &=& 12\\
+9\cdot 8 &=& 7\\
+11\cdot 8 &=& 10\\
+9\cdot 7 &=& 11\\
+10\cdot 11 &=& 6\\
+2\cdot (1+7\cdot 6) &=& 10 + 11\\
+9\cdot (1-7\cdot 6) &=& 7 -1\cdot 12
+\end{array}
+$$
+\end{example}
+
+\paragraph{Twisted Edwards curves inversion} Similar to elliptic curves in Weierstrass form, inversion is cheap on Edwards curve as the negative of a curve point $-(x,y)$ is given by $(-x,y)$. So a curve point $(x_2,y_2)$ is the additive inverse of another curve point $(x_1,y_1)$ precisely if the equation $(x_1,y_1) = (-x_2,y_2)$ holds. We can write this as
+$$
+\begin{array}{lcl}
+x_1 \cdot 1 &=& -x_2 \\
+y_1 \cdot 1 &=& y_2
+\end{array}
+$$
+We therefor have a statement of the form $w=(1,x_1,y_1,x_2,y_2)$ and can write the constraints into a matrix equation as
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}\odot
+\begin{pmatrix}
+1 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0 & 0
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & -1 & 0\\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}
+$$
+
+\paragraph{Twisted Edwards curves scalar multiplication} 
 
 \paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
 
