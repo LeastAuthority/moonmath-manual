@@ -537,13 +537,15 @@ mid_2 \; AND \; in_3 &=& out_1
 \end{array}
 $$
 So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
-\subsection{Conditional branching}
+\subsubsection{Conditional branching}
 
 \subsubsection{UintX}
 As we know circuits are not defined over integers but over finite fields instead. We therefore have no notation of integers in circuits. However on computers we also not use integers natively but Uint's instead.
 
-\subsubsection{Curves}
+\subsubsection{Twisted Edwards curves}
 Sometimes it required to do elliptic curve cryptography "inside of a circuit". This means that we have to implement the algebraic operations (addition, scalar multiplication) of an elliptic curve as a R1CS. To do this efficiently the curve that we want to implement must be defined over the same base field as the field that is used in the R1CS. 
+
+% implmentations https://github.com/iden3/circomlib/blob/master/circuits/babyjub.circom
 
 \begin{example}
 So for example when we consider an R1CS over the field $\F_{13}$ as we did in example XXX, then we need a curve that is also defined over $\F_{13}$. Moreover it is advantegous to use a (twisted) Edwards curve inside a circuit, as the addition law contains no branching (See XXX). As we have seen in XXX our Baby-Jubjub curve is an Edwards curve defined over $\F_{13}$. So it is well suited for elliptic curve cryptography in our pend and paper examples
@@ -665,6 +667,9 @@ $$
 
 \paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
 
+\subsubsection{Generalizations}
+many circuits can be found here:
+% https://github.com/iden3/circomlib
 
 \subsection{Quadratic span programs}
 
