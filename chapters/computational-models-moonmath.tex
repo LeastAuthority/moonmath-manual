@@ -537,10 +537,110 @@ mid_2 \; AND \; in_3 &=& out_1
 \end{array}
 $$
 So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
-\subsubsection{Conditional branching}
 
-\subsubsection{UintX}
+\subsubsection{Binary representations}
+In circuit computations its is often necessary to use the binary representation of a prime field element. Binary representations of prime field elements work execactly like binary representations of ordinary unsigned integers. Only the algebraic operations are different. To compute the binary representation of some number $x\in \F_p$ we need to know the number of bits in the binary representation of $p$ first. We write this as $m= |p_{bin}|$. 
+
+Then a bitstring $(b_0,\ldots,b_m)\in \{0,1\}^m$ is the binary representation of the field element $x$, if and only if
+$$
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^m
+$$ 
+Note that, since $p$ is a prime number that has a leading bit $1$ at position $m$. Moreover every prime number $p>2$ is odd and hence has least significat bit set to $1$. Hence all numbers $2^j$ for $0\leq j \leq m$ are elements of $\F_p$ and the equation is well defined. We can therefore enforce this equation as a R1CS, by flattening the equation: 
+$$
+\begin{array}{lcl}
+b_0 \cdot 1 &=& mid_0\\
+b_1 \cdot 2 &=& mid_1\\
+\cdots & = & \cdots \\
+b_m \cdot 2^m &=& mid_m\\
+(mid_0 + mid_1 + \ldots + mid_m)\cdot 1 &=& x
+\end{array}
+$$
+So we have the statement $w = (1, x, b_0,\ldots,b_m, mid_0,\ldots,mid_m)$ and we need $(m+1)$ constraints to enforce the binary representation in addition to the $m$ constraints that enforce booleanness.
+
+At this point we see, that writing more complex R1CS becomes clumbsy and in actual implementations people therefore use languages to makes the constraint system more readable. In this example we could write for example something like this:
+\begin{algorithmic}
+\Require $m$ Bitlength of modulus
+\Statement $w \gets [x,b[m],mid[m]]$
+\State $tmp \gets 0$
+\For{$j\gets 1,\ldots, m$}
+	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+	\State $tmp = tmp + mid[j]$
+\EndFor
+\State \textbf{Constrain:} $tmp \cdot 1 == x$
+\end{algorithmic}
+
+keeping in mind that this is a meta level algorith to \textbf{generate} the R1CS, not the R1CS itself, as constructs like for loops have not direct meening on the level of the R1CS itself.
+
+
+\begin{example} Considering the prime field $\F_{13}$, we want to enforce the binary representation of $7\in \F_{13}$. To find the number of bits that we need to consider in our R1Cs, we start with the binary representation of $13$, which is $(1,0,1,1)$ since 
+$13= 1\cdot 2^0 + 0\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3$. So $m=4$ and we have to enforce a $4$-bit representation for $7$, which is $(1,1,1,0)$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$.
+
+A valid statement is then given by $w=(1,7,1,1,1,0,1,2,4,0)$ and indeed we satify the $9$ required constraints 
+$$
+\begin{array}{lclr}
+1\cdot (1-1) &=& 0 & \text{// boolean constraints}\\
+1\cdot (1-1) &=& 0 &\\
+1\cdot (1-1) &=& 0 &\\
+0\cdot (1-0) &=& 0  &\\
+\\
+1 \cdot 1 &=& 1\\
+1 \cdot 2 &=& 2\\
+1 \cdot 4 &=& 4\\
+0 \cdot 8 &=& 0\\
+(1 + 2 + 4 + 0)\cdot 1 &=& 7
+\end{array}
+$$
+\end{example}
+
+\subsubsection{Conditional (ternary) operator}
+It is often required to implement the terniary conditional operator $?:$ as a R1CS. In general this operator takes three arguments, a boolean value $b$ and two expressions $if\_true$ and $if\_false$, usually written as $b\;?\; c\; :\; d$ and executes $c$ and $d$ according to the value of $b$.
+
+If we assume all three arguments to be values from a finite field, such that $b$ is boolean constraint (XXX), we can enforce a field element $x$ to be the result of the conditional operator as 
+$$
+x = b\cdot c + (1-b)\cdot d
+$$
+Flattening the code gives
+$$
+\begin{array}{lcl}
+b \cdot c &=& mid_0\\
+(1-b) \cdot d &=& mid_1\\
+(mid_0 + mid_1)\cdot 1 &=& x
+\end{array}
+$$
+So we have the statement $w = (1, x, b,c,d, mid_0,mid_1)$ and we need $3$ constraints to enforce the conditional operator in addition to $1$ constraint that enforces booleanness of $b$.
+
+
+NOTE: THERE WAS THIS PODCAST WITH ANNA AND THE GUY JAN TALKE TO WHERE HE SAID; CONDITIONALS CAN BE IMPLEMENTED SUCH THAT NOT BOTH BRANCHES ARE EXCUTED: LOOK THAT UP
+
+\subsubsection{Range Proofs}
+$x>5$...
+
+\subsubsection{UintN}
+STUFF ABOUT HOW UINTN COMPUTATIONS ARE NOT STANDARDIZED AND THAT THERE ARE IMPLEMENTATIONS OTHER THEN MOD-N.... WE FIX ON MOD-N. WHAT DO ZEXE CIRCOM ECT FIX ON?
+
 As we know circuits are not defined over integers but over finite fields instead. We therefore have no notation of integers in circuits. However on computers we also not use integers natively but Uint's instead.
+
+As we know a UintN type is a representation of integers in the range of $0 \ldots 2^N$ with the exception that algebraic operations like addition and multiplication deviate from actual integers, whenever the result exceeds the largest representable number $2^N-1$. 
+
+In circuit design it is therefore important to distinguish between various things tht might look like integers, but are actually not. For example Haskells type NAT is an actual implementation of natural numbers. In particular this means ....
+
+\begin{example}[Uint8]
+What is $0xFFF0 + 0xFFF0$ and so on...
+\end{example}
+
+\paragraph{Bit constraints}
+In prime fields, addition and multiplication behaves exactly like addition and multiplication with integers as long as the result does not exceed the modulus. 
+
+This makes the representation of UintNs in a prime field $\F_{p}$ potentially ambigious, as there are two possible representations, whenever $2^N-1 < p$. In that case any element of $UintN$ could be interpreted as an element of $\F_{p}$. This however is dangerous as the algebraic laws like addition and multiplication behave very different in general.  
+
+It is therefore common to represent UintN types in circuits as binary constraints strings of field elements of length $N$.
+
+\begin{example}
+Consider the Uint4 type over the prime field $\F_{17}$. Since $2^4=16$, Uint4 can represent the numbers $0,\ldots, 15$ and it would be possible to interpret them as elements in $\F_{17}$. However addition 
+\end{example} 
+
+
 
 \subsubsection{Twisted Edwards curves}
 Sometimes it required to do elliptic curve cryptography "inside of a circuit". This means that we have to implement the algebraic operations (addition, scalar multiplication) of an elliptic curve as a R1CS. To do this efficiently the curve that we want to implement must be defined over the same base field as the field that is used in the R1CS. 
@@ -639,6 +739,8 @@ $$
 \end{array}
 $$
 \end{example}
+There are optimizations for this using only 6 constraints, available:
+% https://github.com/filecoin-project/zexe/blob/master/snark-gadgets/src/groups/curves/twisted_edwards/mod.rs#L129
 
 \paragraph{Twisted Edwards curves inversion} Similar to elliptic curves in Weierstrass form, inversion is cheap on Edwards curve as the negative of a curve point $-(x,y)$ is given by $(-x,y)$. So a curve point $(x_2,y_2)$ is the additive inverse of another curve point $(x_1,y_1)$ precisely if the equation $(x_1,y_1) = (-x_2,y_2)$ holds. We can write this as
 $$
@@ -663,9 +765,56 @@ $$
 \end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}
 $$
 
+In addition we need the following constraints:
+$$
+\begin{array}{lcl}
+x_1 \cdot 1 &=& -x_2 \\
+y_1 \cdot 1 &=& y_2
+\end{array}
+$$
+
 \paragraph{Twisted Edwards curves scalar multiplication} 
+% original circuit is here https://iden3-docs.readthedocs.io/en/latest/_downloads/33717d75ab84e11313cc0d8a090b636f/Baby-Jubjub.pdf
+
+Although there are highly optimzed R1CS implementations for scal multiplication on elliptic curves, the basic idea is somewhat simple: Given an elliptic curve $E/\F_r$, a scalar $x\in \F_r$ with binary representation $(b_0,\ldots,b_m)$ and a curve point $P\in E/\F_r$, the scalar multiplication $[x]P$ can be written as
+$$
+[x]P = [b_0]P + [b_1]([2]P) + [b_2]([4]P) + \ldots + [b_m]([2^m] P)
+$$
+and since $b_j$ is either $0$ or $1$, $[b_j](kP)$ is either the neutral element of the curve or $[2^j]P$. However $[2^j]P$ can be computed inductively by curve point doubling, since $[2^j]P= [2]([2^{j-1}]P)$.
+
+So scalar multiplication can be reduced to a loop of length $m$, where the original curve point is repeadedly douled and added to the result, whenever the appropriate bit in the scalar is equal to one.
+
+So to enforce that a curve point $(x_2,y_2)$ is the scalar product $[k](x_1,y_1)$ of a scalar $x\in F_r$ and a curve point $(x_1,y_1)$, we need an R1CS the defines point doubling on the curve (XXX) and an R1CS that enforces the binary representation of $x$ (XXX). 
+
+In case of twisted Edwards curve, we can use ordinary addition for doubling, as the constraints works for both cases (doublin is addition, where both arguments are equal). Moreover $[b](x,y)=(b\cdot x, b\cdot y)$ for boolean $b$. Hence flattening equation XXX gives
+$$
+\begin{array}{lclr}
+b_0\cdot x_1 &=& x_{0,1} & // [b_0]P\\
+b_0\cdot y_1 &=& y_{0,1}\\
+
+\end{array}
+$$
+In addition we need to constrain $(b_0,\ldots, b_N)$ to be the binary representation of $x$ and we need to constrain each $b_j$ to be boolean.
+
+As we can see a R1CS for scalar multiplication utilizes many R1CS that we have introduced before. For efficiency and readability it is therefore useful to apply the concept of a gadget (XXX). A pseudocode method to derive the associated R1CS could look like this:
+\begin{algorithmic}
+\Require $m$ Bitlength of modulus
+\Statement $w \gets [x,b[m],mid[m]]$
+\State $tmp \gets 0$
+\For{$j\gets 1,\ldots, m$}
+	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+	\State $tmp = tmp + mid[j]$
+\EndFor
+\State \textbf{Constrain:} $tmp \cdot 1 == x$
+\end{algorithmic}
+
 
 \paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
+
+\subsubsection{The RAM Model}
+FROM THE PODCAST WITH ANNA R. AND THE GUY FROM JAN....
+
 
 \subsubsection{Generalizations}
 many circuits can be found here:
@@ -703,6 +852,8 @@ In the context of zero knowledge proving systems definition XXX gets a slight ad
 The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
 
 \subsection{Succinct NIZK}
+Preprocessing style: trusted setup, multi party ceremony
+
 Blum, Feldman and Micali
 % Manuel  Blum,  Paul  Feldman,  and  Silvio  Micali.   Non-interactive  zero-knowledge  and  itsapplications.  InSTOC, pages 103–112, 1988.
  extended the notion tonon-interactivezero-knowledge(NIZK)  proofs in the  common  reference  string  model.  NIZK  proofs  are  useful  in  theconstruction of non-interactive cryptographic schemes, e.g., digital signatures and CCA-secure public key encryption.
