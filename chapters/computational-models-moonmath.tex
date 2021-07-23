@@ -1,0 +1,1382 @@
+\chapter{Zk-Proof Systems}
+
+Some philosophical stuff about compuational models for snarks. Bounded computability...
+
+% https://docs.zkproof.org/reference.pdf
+
+\section{Computational Models}
+Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
+% from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_1}
+As one of our major running examples we want to derive a zk-SNARK for the following generalized factorization problem: 
+
+Given two numbers $a,b\in \mathbb{F}_{13}$, find two additional numbers $x,y\in \mathbb{F}_{13}$, such that
+$$
+(x\cdot y) \cdot a = b 
+$$
+and proof knowledge of those numbers, without actually revealing them.
+
+Of course this example reduces to the classic factorization problem (over $\F_{13}$ by setting $y=1$)
+
+This zero knowledge system deals with the following situation: "Given two publicly known numbers $a,b \in \mathbb{F}_{13}$ a proofer can show that they know two additional numbers $x,y\in \mathbb{F}_{13}$, such that $(x\cdot y) \cdot a = b$, without actually revealing $x$ or $y$." 
+
+Of course our choice of what information to hide and what to reveal was completely arbitrary. Every other split would also be possible, but eventually gives a different problem. 
+
+For example the task could be to not hide any of the variables.  Such 
+a system has no zero knowledge and deals with verifiable computations: "A worker can proof that they multiplied three publicly known numbers $a,b,x \in \mathbb{F}_{13}$ and that the result is $z \in \mathbb{F}_{13}$, in such a way that no verifier has to repeat the computation."
+\end{example}
+
+\subsection{Formal Languages}
+Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
+
+In computer science, formal languages are used for defining the grammar of programming languages in which the words of the language represent concepts that are associated with particular meanings or semantics. In computational complexity theory, decision problems are typically defined as formal languages, and complexity classes are defined as the sets of the formal languages that can be parsed by machines with limited computational power. 
+
+\begin{definition}[Formal Language]
+\label{def_formal_language}
+ Let $\Sigma$ be a set and $\Sigma^*$ the set of all finite strings of elements from $\Sigma$. Then a \textbf{formal language} $L$ is a subset of $\Sigma^*$. The set $\Sigma$ is called the \textbf{alphabet} of $L$ and elements from $L$ are called \textbf{words}. The rules that specify which strings from $\Sigma^*$ belong to $L$ are called the \textbf{grammar} of $L$. 
+
+In the context of proofing systems we often call words \textbf{statements}.
+\end{definition}
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_2}
+Consider example \ref{main_example_2_1} again. Definition \ref{def_formal_language} is not quite suitable yet to define the example, since there is not distinction between public input and private input.
+
+However if we assume for the moment that the task in example \ref{main_example_2_1} is to simply find $a,b,x,y\in \F_{13}$ such that that $x\cdot y\cdot a\cdot =b$, then we can define the entire solution set as a language $L_{factor}$ over the alphabet $\Sigma = \F_{13}$. We then say that a string $w\in \Sigma^*$ is a statement in our language $L_{factor}$ if and only if $w$ consists of 4 letters $w_1,w_2,w_3,w_4$ that satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.
+\end{example}
+
+\begin{example}[Binary strings] If we take the set $\{0,1\}$ as our alphabet $\Sigma$ and imply no rules at all to form words in this set. Then our language $L$ is the set $\{0,1\}^*$ of all finite binary strings. So for example $(0,0,1,0,1,0,1,1,0)$ is a word in this language.
+\end{example}
+
+\begin{example}[Programing Language]
+\end{example}
+
+\begin{example}[Compiler]
+\end{example}
+
+
+
+As we have seen in general not all strings from an alphabet are words in a language. So an important question is, weather a given string belongs to a language or not. 
+
+% https://www.claymath.org/sites/default/files/pvsnp.pdf
+\begin{definition}[Relation, Statement, Instance and Witness] Let $\Sigma_I$ and $\Sigma_W$ be two alphabets. Then the binary relation $R\subset \Sigma_I^* \times \Sigma_W^*$ is called a \textbf{checking relation} for the language 
+$$
+L_R := \{(i,w) \in \Sigma_I^* \times \Sigma_W^*\;| R(i,w)\; \}
+$$ 
+of all \textbf{instances} $i\in \Sigma_I^*$ and \textbf{witnesses} $i\in \Sigma_I^*$, such that the \textbf{statement} $(i,w)$ satisfies the checking relation.
+\end{definition}
+\begin{remark}
+% https://docs.zkproof.org/reference.pdf
+To summarize the definition, a statement is nothing but a membership claim of the form $x\in L$. So statements are really nothing but strings in an alphabet that adhere to the rules of a language. 
+
+However in the context of checking relations, there is another interpretations in terms of a knowledge claim of the form "In the scope of relation R, I know a witness for instance x." This is of particular importance in the context of zero knowledge proofing systems, where the instance represents public knowledge, while the witness represents the data that is hidden (the zero-knowledge part). 
+
+For some cases, the knowledge and membership types of statements can be informally considered interchangeable, but formally there are technical reasons to distinguish between the two notions (See for example XXX
+% https://docs.zkproof.org/reference.pdf
+) 
+\end{remark}
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_3}
+Consider example \ref{main_example_2_1} and our associate formal language \ref{main_example_2_2}. We can define another language $L_{zk-factor}$ for that example by defining the alphabet $\Sigma_I \times \Sigma_W$ to be $\F_{13} \times \F_{13}$ and the checking relation $R_{zk-factor}$ such that
+$R(i,w)$ holds if and only if instance $i$ is a two letter string $i=(a,b)$ and witness $w$ is a two letter string $w=(x,y)$, such that the equation $x\cdot y \cdot a = b$ holds. 
+
+So to summarize four elements $x,y,a,b\in \F_{13}$ form a statement 
+$((x,y),(a,b))$ in $L_{zk-factor}$ with instance $(a,b)$ and witness $x,y$, precisely if, given $a$ and $b$, the values $x$ and $y$ are a solution to the generalized factorization problem $x\cdot y \cdot a = b$.
+\end{example}
+
+
+
+
+\begin{example}[SHA256 relation]
+ssss
+\end{example}
+
+As the following example shows checking relations and their languages are quite general and able to express in particular the class of all terminating computer programs:
+\begin{example}[Computer Program] Let $A$ be a terminating algorithm that transforms a binary string of inputs in finite execution steps into a binary output string. We can then interpret $A$ as a map 
+$$
+A :\{0,1\}^* \to \{0,1\}^*
+$$
+Algorithm $A$ then defines a relation
+$R\subset \{0,1\}^* \times \{0,1\}^*$ in the following way: instance string $i\in \{0,1\}^*$ and witness string $w\in \{0,1\}^*$ satisfy the relation $R$, that is $R(i,w)$, if and only if $w$ is the result of algorithm $A$ executed on input instance $i$.
+\end{example}
+
+\subsection{Circuits} 
+\begin{definition}[Circuits] Let $\Sigma_I$ and $\Sigma_W$ be two alphabets. Then a directed, acyclic graph $C$ is called a \textbf{circuit} over $\Sigma_I \times \Sigma_W$, if the graph has an ordering and every node has a label in the following way:
+\begin{itemize}
+\item Every source node (called input) has a letter from $\Sigma_I \times \Sigma_W$ as label.
+\item Every sink node (called output) has a letter from $\Sigma_I \times \Sigma_W$ as label.
+\item Every other node (called gate) with $j$ incoming edges has a label that consist of a function $f: \left(\Sigma_I \times \Sigma_W\right)^j \to \Sigma_I \times \Sigma_W$.
+\end{itemize}
+\end{definition}
+\begin{remark}[Circuit-SAT] Every circuit with $n$ input nodes and $m$ output nodes can be seen a function that transforms strings of size $n$ from $\Sigma_I \times \Sigma_W$ into strings of size $m$ over the same alphabet. The transformation is done by sending the strings from a node along the outgoing edges to other nodes. If those nodes are gates, then the string is transformed according to the label.
+
+By executing the previous transformation, every node of a circuit has an associated letter from $\Sigma_I \times \Sigma_W$ and this defines a checking relation over $\Sigma_I^* \times \Sigma_W^*$. To be more precise, let $C$ be a circuit with $n$ nodes and $(i,w) \in \Sigma_I^j \times \Sigma_W^k$ a string. Then $R_C(i,w)$ iff THE CIRCUIT IS SATISFIED WHEN ALL LABELS ARE ASSOCIATED TO ALL NODES IN THE CIRCUIT.... BUT MORE PRECISE
+
+MODULO ERRORS. TO BE CONTINUED.....
+
+An Assignment associates field elements to all edges (indices) in an algebraic circuit. An Assignment is valid, if the field element arise from executing the circuit. Every other assignment is invalid.
+
+The checking relation for circuit-SAT then is satidfied if valid asignment (TODO: THE WITNESS/INSTANCE SPLITTING)
+
+Valid assignments are proofs for proper circuit execution.
+\end{remark}
+
+
+
+So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acyclic graphs, that express arbitrary, but bounded computation. Vertices with only outgoing edges (leafs, sources) represent inputs to the computation, vertices with only ingoing edges (roots, sinks) represent outputs from the computation and internal vertices represent field operations (Either addition or multiplication). It should be noted however that there are many circuits that can represent the same laguage...
+
+Circuits have a notion of execution, where input values are send from leafs along edges, through internal vertices to roots.
+
+\begin{remark}
+Algebraic circuits are usually derived by  Compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important.
+\end{remark}
+
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_4}
+Consider our generalized factorization example \ref{main_example_2_1} with associated language \ref{main_example_2_3}.
+
+To write this example in circuit-SAT, consider the following function 
+\[
+f:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
+\]
+
+A valid circuit for $f:\mathbb{F}_{11}\times\mathbb{F}_{11}\times\mathbb{F}_{11}\to\mathbb{F}_{11};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}$ is given by:
+
+\[
+\xymatrix{\star\ar^{in_1}[dr] &  & \star\ar_{in_2}[dl]\\
+ & \star_{m_1}\ar^{mid_1}[drr] &   & & \star\ar_{in_3}[dl]\\
+  &  &  & \star_{m_2}\ar_{out_1}[d]\\
+  &  &  & \star
+}
+\]
+with edge-index set $I:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\}$.
+
+To given a valid assignment, consider the set $I_{valid}:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\} = \{2,3,4,6,10\}$
+
+\[
+\xymatrix{\star\ar^{2}[dr] &  & \star\ar_{3}[dl]\\
+ & \star_{m_1}\ar^{6}[drr] &   & & \star\ar_{4}[dl]\\
+  &  &  & \star_{m_2}\ar_{10}[d]\\
+  &  &  & \star
+}
+\]
+Appears from multiplying the input values at $m_1$, $m_2$ in $\mathbb{F}_{13}$, hence by executing the circuit.
+
+Non valid assignment: $I_{err}:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\} =\{2,3,4,7,8\}$
+\[
+\xymatrix{\star\ar^{2}[dr] &  & \star\ar_{3}[dl]\\
+ & \star_{m_1}\ar^{7}[drr] &   & & \star\ar_{4}[dl]\\
+  &  &  & \star_{m_2}\ar_{8}[d]\\
+  &  &  & \star
+}
+\]
+Can not appear from multiplying the input values at $m_1$, $m_2$ in $\mathbb{F}_{13}$
+
+To match the requirements of the inital task \ref{main_example_2_1}, we have to split the statement into instance and witness. So given index set $I:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\}$, we assume that every step in the computation other then $in_3$ and $out_1$ are part of the witness. So we choose:
+\begin{itemize}
+\item Instance $S=\{in_3, out_1\}$. 
+\item Witness $W=\{in_1, in_2, mid_{1}\}$.
+\end{itemize}
+\end{example}
+
+\begin{example}[Baby JubJub for BLS6-6]
+
+\end{example}
+
+\begin{example}[ECDH as a circuit]
+over BLS6
+\end{example}
+
+\begin{example}[BLS Signature]
+example of one layer recursion over MNT4 and MNT6
+\end{example}
+
+
+\begin{example}[Boolean Circuits]
+
+\end{example}
+
+\begin{example}[Algebraic (Aithmetic) Circuits]
+
+\end{example}
+
+Any program  can be reduced to  an arithmetic circuit  (a circuit that contains only addition and multiplication gates). A particular reduction can be found for example in [BSCG+13]
+
+
+
+\subsection{Rank-1 Constraint Systems}
+
+\begin{definition}[Rank-1 Constraint system]
+Let $\F$ be a Galois field, $i,j,k$ three numbers and $A$, $B$ and $C$ three $(i+j+1) \times k$ matrices with coefficients in $\F$. Then any vector $x= (1,\phi,w)\in \F^{1+i+j}$ that satisfies the \textbf{rank-1 constraint system} (R1CS)
+$$
+Ax \odot Bx = Cx
+$$
+(where $\odot$ is the Hadamard/Schur product) is called a \textbf{statement} of that system, with \textbf{instance} $\phi$ and \textbf{witness} $w$.
+
+We call $k$ the \textbf{number of constraints}, $i$ the \textbf{instance} size and $j$ the \textbf{witness} size.
+\end{definition}
+
+\begin{remark} Any Rank-1 constraint system defines a formal language in the following way: Consider the alphabets $\Sigma_I:= \F$ and $\Sigma_W:\F$. Then a checking relation $R_{R1CS} \subset \Sigma_I^i \times \Sigma_W^j \subset \Sigma_I^* \times \Sigma_W^*$ is defined by 
+$$
+R_{R1CS}(i,w) \Leftrightarrow (i,w)\text{ satisfies the R1CS}
+$$
+As shown in XXX such a checking relation defines a formal language. We call this language \textbf{R1CS satisfiability}.
+\end{remark}
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_4}
+Defining the 5-dimensional affine vector $w =(1,in_1,in_2,in_3,m_1,out_1)$ for $in_1,in_2,in_3,m_1,out_1 \in \F_{13}$ and the $6\times ?$-matrices
+$$
+\begin{array}{lcr}
+A = \begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1 & 0
+\end{pmatrix}, &
+B = \begin{pmatrix}
+0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0
+\end{pmatrix}, &
+C = \begin{pmatrix}
+0 & 0 & 0 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix} 
+\end{array}
+$$
+We can instantiate the general R1CS equation $Aw \odot Bw = Cw$ as
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 1 & 0
+\end{pmatrix} 
+\begin{pmatrix}
+1\\ in_1 \\ in_2 \\ in_3 \\ m_1 \\ out_1 
+\end{pmatrix}\odot 
+\begin{pmatrix}
+0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0
+\end{pmatrix} 
+\begin{pmatrix}
+1\\ in_1 \\ in_2 \\ in_3 \\ m_1 \\ out_1 
+\end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix} 
+\begin{pmatrix}
+1\\ in_1 \\ in_2 \\ in_3 \\ m_1 \\ out_1 
+\end{pmatrix}
+$$
+So evaluating all three matrix products and the Hadarmat prodoct we get two constraint equations
+$$
+\begin{array}{rcl}
+in_1 \cdot in_2  &= & m_1 \\
+m_1 \cdot in_3  &= & out_1 \\
+\end{array}
+$$
+\end{example}
+So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+$$
+\{(0,0,0), (0,1,0), (1,0,0), (1,1,1)\}
+$$
+\paragraph{Gadgets}
+Rank $1$ contraints systems can become very large ....
+
+\subsubsection{Boolean Algebra} 
+% implementations can be found here: https://github.com/filecoin-project/zexe/tree/master/snark-gadgets/src/bits
+
+Sometimes it is necessary to assume that a statement describes boolean variables. However by definition the alphabet of a statement is a finite field, which is often the scalar field of a large prime order cyclic group. So developers need a way to simulate boolean algebra inside other finite fields.
+
+The most common way to do this, is to interpret the additive and multiplicate neutral element $\{0,1\}\subset F$ as boolean values. This is convinient because they are defined in any field. 
+
+In what follows we will define a few of the most basic R1CS to check boolean expressions in R1CS satidfyability. We will leave other basic constructions as exercises to the reader. 
+
+We start with actually constraining field elements to boolean values then   
+Once field elements are boolean constraint, we need constraints that are able to enforce boolean algebra on them. We therefore give constraints for the functionally complete set of Boolean operators give by $AND$ and $NOT$. As all other boolean operations can be constructed from $AND$ and $NOT$, this sufficies. However in actual implementations it is of high importance to limit the number of constraints as much as possible. In reality it is therefor advantageous to implement all logic operators in constraints.
+
+\paragraph{Boolean Constraint}
+So when a developer needs boolean variables as part of their statement, a R1CS is required on those variables, that enforces the variable to be either $1$ or $0$. So to "constrain a field element $x\in \F$ to be $1$ or $0$ what we need is a system of equation $(A_ix)\cdot (B_ix) = C_ix$ for some $A_i,B_i,C_i\in \F$, such that the only possible solutions for $x$ are $0$ or $1$.
+As it turns out such a system can be realized by a single equation
+$x \cdot (1-x) =0$
+We see that indeed $0$ and $1$ are the only solutions here, since for the right side to be zero, at least one factor on the left side needs to be zero and this only happens for $0$ and $1$. 
+
+So now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
+$$
+\begin{pmatrix}0 & 1 \end{pmatrix} \begin{pmatrix} 1 \\ x \end{pmatrix}\odot
+\begin{pmatrix}1 & -1 \end{pmatrix} \begin{pmatrix} 1 \\ x \end{pmatrix} =
+\begin{pmatrix}0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \end{pmatrix}
+$$
+So we get the following statement $\phi = (1,i,w) = (1, x)$, with instance (public input) $i=x$ and now witness (private input) $w$. In addition we get the matrices
+$A=\begin{pmatrix}0 & 1\end{pmatrix}$, $B=\begin{pmatrix}1 & -1\end{pmatrix}$ and $C=\begin{pmatrix}0 & 0\end{pmatrix}$.
+
+To make those constraints easily accesable for R1CS developers, a gadget is convinient:
+
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $\phi \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 0,\ldots, m-1$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $(mid[0]+\ldots+mid[m-1])\cdot 1 == x$
+%\end{algorithmic}
+   
+
+\paragraph{AND-constraints} Given three field elements $x,y,z\in\F$ that represent boolean variables, we want to find a R1CS, such that $w=(1,x,y,z)$ satisfies the constraint system if and only if $x\; AND \; y =z$. 
+
+So first we have to constrain $x$, $y$ and $z$ to be boolean as explained in XXX. The next thin is we need to find a R1CS that enforces the $AND$ logic. We can simply choose $x\cdot y =z$, since (for boolean constraint values) $x\cdot y$ equals $1$ if and only if both $x$ and $y$ are $1$.  
+
+Now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
+$$
+\begin{pmatrix}0 & 1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}\odot
+\begin{pmatrix}0 & 0 & 1 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix}0 & 0 & 0 & 1 \end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}
+$$
+Combining this R1CS with the required fthree boolean constraints for $x$, $y$ and $z$ we get
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 \\
+\hline
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}\odot
+\begin{pmatrix}
+0 & 0 & 1 & 0 \\
+\hline
+1 & -1 & 0 & 0 \\
+1 & 0  & -1 & 0 \\
+1 & 0 & 0 & -1 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 1 \\
+\hline
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 
+\end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \\ z \end{pmatrix}
+$$
+So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+$$
+\{(0,0,0), (0,1,0), (1,0,0), (1,1,1)\}
+$$
+which is the set of all $(x,y,z)\in\{0,1\}^3$ such that $x\; AND\; y = z$.
+\paragraph{NOT constraint}
+Given two field elements $x,y\in\F$ that represent boolean variables, we want to find a R1CS, such that $w=(1,x,y)$ satisfies the constraint system if and only if $x=\lnot y$. 
+
+So again we have to constrain $x$ and $y$ to be boolean as explained in XXX. The next think is we need to find a R1CS that enforces the $NOT$ logic. We can simply choose $(1-x) =y$, since (for boolean constraint values) this enforces that $y$ is always the boolean opposite of $x$. 
+
+Now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
+$$
+\begin{pmatrix}1 & -1 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix}\odot
+\begin{pmatrix}1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix} =
+\begin{pmatrix}0 & 0 & 1 \end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \end{pmatrix}
+$$
+So actually we wrote the linear equation $1-x=y$ like $(1-x)\cdot 1 = y$ and translated that into the matrix equation.
+
+Combining this R1CS with the required fthree boolean constraints for $x$, $y$ and $z$ we get
+$$
+\begin{pmatrix}
+1 & -1 & 0 \\
+\hline
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix}\odot
+\begin{pmatrix}
+1 & 0 & 0 \\
+\hline
+1 & -1 & 0 \\
+1 & 0  & -1 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+\end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \end{pmatrix}
+$$
+So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+$$
+\{(0,1), (1,0)\}
+$$
+which is the set of all $(x,y)\in\{0,1\}^2$ such that $x=\lnot y$.
+
+EXERCISE: DO OR; XOR; NAND
+
+More complicated logical constraints can then be optained by combining all sub-R1CS together. For example if the task is to enforce $(in_1\; AND \lnot in_2 ) AND in_3 = out_1$ we first apply the FLATTENING technique from XXX, which gives is
+$$
+\begin{array}{lcr}
+\lnot in_2 &=& mid_1\\
+in_1\; AND \; mid_1 &=& mid_2\\
+mid_2 \; AND \; in_3 &=& out_1
+\end{array}
+$$
+So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
+
+\subsubsection{Binary representations}
+In circuit computations its is often necessary to use the binary representation of a prime field element. Binary representations of prime field elements work execactly like binary representations of ordinary unsigned integers. Only the algebraic operations are different. To compute the binary representation of some number $x\in \F_p$ we need to know the number of bits in the binary representation of $p$ first. We write this as $m= |p_{bin}|$. 
+
+Then a bitstring $(b_0,\ldots,b_m)\in \{0,1\}^m$ is the binary representation of the field element $x$, if and only if
+$$
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^m
+$$ 
+Note that, since $p$ is a prime number that has a leading bit $1$ at position $m$. Moreover every prime number $p>2$ is odd and hence has least significat bit set to $1$. Hence all numbers $2^j$ for $0\leq j \leq m$ are elements of $\F_p$ and the equation is well defined. We can therefore enforce this equation as a R1CS, by flattening the equation: 
+$$
+\begin{array}{lcl}
+b_0 \cdot 1 &=& mid_0\\
+b_1 \cdot 2 &=& mid_1\\
+\cdots & = & \cdots \\
+b_m \cdot 2^m &=& mid_m\\
+(mid_0 + mid_1 + \ldots + mid_m)\cdot 1 &=& x
+\end{array}
+$$
+So we have the statement $w = (1, x, b_0,\ldots,b_m, mid_0,\ldots,mid_m)$ and we need $(m+1)$ constraints to enforce the binary representation in addition to the $m$ constraints that enforce booleanness.
+
+At this point we see, that writing more complex R1CS becomes clumbsy and in actual implementations people therefore use languages to makes the constraint system more readable. In this example we could write for example something like this:
+
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $w \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 1,\ldots, m$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%	\State $tmp = tmp + mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $tmp \cdot 1 == x$
+%\end{algorithmic}
+
+keeping in mind that this is a meta level algorith to \textbf{generate} the R1CS, not the R1CS itself, as constructs like for loops have not direct meening on the level of the R1CS itself.
+
+
+\begin{example} Considering the prime field $\F_{13}$, we want to enforce the binary representation of $7\in \F_{13}$. To find the number of bits that we need to consider in our R1Cs, we start with the binary representation of $13$, which is $(1,0,1,1)$ since 
+$13= 1\cdot 2^0 + 0\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3$. So $m=4$ and we have to enforce a $4$-bit representation for $7$, which is $(1,1,1,0)$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$.
+
+A valid statement is then given by $w=(1,7,1,1,1,0,1,2,4,0)$ and indeed we satify the $9$ required constraints 
+$$
+\begin{array}{lclr}
+1\cdot (1-1) &=& 0 & \text{// boolean constraints}\\
+1\cdot (1-1) &=& 0 &\\
+1\cdot (1-1) &=& 0 &\\
+0\cdot (1-0) &=& 0  &\\
+\\
+1 \cdot 1 &=& 1\\
+1 \cdot 2 &=& 2\\
+1 \cdot 4 &=& 4\\
+0 \cdot 8 &=& 0\\
+(1 + 2 + 4 + 0)\cdot 1 &=& 7
+\end{array}
+$$
+\end{example}
+
+\subsubsection{Conditional (ternary) operator}
+It is often required to implement the terniary conditional operator $?:$ as a R1CS. In general this operator takes three arguments, a boolean value $b$ and two expressions $if\_true$ and $if\_false$, usually written as $b\;?\; c\; :\; d$ and executes $c$ and $d$ according to the value of $b$.
+
+If we assume all three arguments to be values from a finite field, such that $b$ is boolean constraint (XXX), we can enforce a field element $x$ to be the result of the conditional operator as 
+$$
+x = b\cdot c + (1-b)\cdot d
+$$
+Flattening the code gives
+$$
+\begin{array}{lcl}
+b \cdot c &=& mid_0\\
+(1-b) \cdot d &=& mid_1\\
+(mid_0 + mid_1)\cdot 1 &=& x
+\end{array}
+$$
+So we have the statement $w = (1, x, b,c,d, mid_0,mid_1)$ and we need $3$ constraints to enforce the conditional operator in addition to $1$ constraint that enforces booleanness of $b$.
+
+
+NOTE: THERE WAS THIS PODCAST WITH ANNA AND THE GUY JAN TALKE TO WHERE HE SAID; CONDITIONALS CAN BE IMPLEMENTED SUCH THAT NOT BOTH BRANCHES ARE EXCUTED: LOOK THAT UP
+
+\subsubsection{Range Proofs}
+$x>5$...
+
+\subsubsection{UintN}
+STUFF ABOUT HOW UINTN COMPUTATIONS ARE NOT STANDARDIZED AND THAT THERE ARE IMPLEMENTATIONS OTHER THEN MOD-N.... WE FIX ON MOD-N. WHAT DO ZEXE CIRCOM ECT FIX ON?
+
+As we know circuits are not defined over integers but over finite fields instead. We therefore have no notation of integers in circuits. However on computers we also not use integers natively but Uint's instead.
+
+As we know a UintN type is a representation of integers in the range of $0 \ldots 2^N$ with the exception that algebraic operations like addition and multiplication deviate from actual integers, whenever the result exceeds the largest representable number $2^N-1$. 
+
+In circuit design it is therefore important to distinguish between various things tht might look like integers, but are actually not. For example Haskells type NAT is an actual implementation of natural numbers. In particular this means ....
+
+\begin{example}[Uint8]
+What is $0xFFF0 + 0xFFF0$ and so on...
+\end{example}
+
+\paragraph{Bit constraints}
+In prime fields, addition and multiplication behaves exactly like addition and multiplication with integers as long as the result does not exceed the modulus. 
+
+This makes the representation of UintNs in a prime field $\F_{p}$ potentially ambigious, as there are two possible representations, whenever $2^N-1 < p$. In that case any element of $UintN$ could be interpreted as an element of $\F_{p}$. This however is dangerous as the algebraic laws like addition and multiplication behave very different in general.  
+
+It is therefore common to represent UintN types in circuits as binary constraints strings of field elements of length $N$.
+
+\begin{example}
+Consider the Uint4 type over the prime field $\F_{17}$. Since $2^4=16$, Uint4 can represent the numbers $0,\ldots, 15$ and it would be possible to interpret them as elements in $\F_{17}$. However addition 
+\end{example} 
+
+
+
+\subsubsection{Twisted Edwards curves}
+Sometimes it required to do elliptic curve cryptography "inside of a circuit". This means that we have to implement the algebraic operations (addition, scalar multiplication) of an elliptic curve as a R1CS. To do this efficiently the curve that we want to implement must be defined over the same base field as the field that is used in the R1CS. 
+
+% implmentations https://github.com/iden3/circomlib/blob/master/circuits/babyjub.circom
+
+\begin{example}
+So for example when we consider an R1CS over the field $\F_{13}$ as we did in example XXX, then we need a curve that is also defined over $\F_{13}$. Moreover it is advantegous to use a (twisted) Edwards curve inside a circuit, as the addition law contains no branching (See XXX). As we have seen in XXX our Baby-Jubjub curve is an Edwards curve defined over $\F_{13}$. So it is well suited for elliptic curve cryptography in our pend and paper examples
+\end{example}
+
+\paragraph{Twisted Edwards curves constraints} As we have seen in XXX, an Edwards curve over a finite field $F$ is the set of all pairs of points $(x,y)\in \F\times \F$, such that $x$ and $y$ satisfy the equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$. 
+
+We can interpret this equation as a constraint on $x$ and $y$ and rewrite it as a R1CS by applying the flattenin technique from XXX.
+$$
+\begin{array}{lcr}
+x \cdot x &=& x\_sq\\
+y \cdot y &=& y\_sq\\
+x\_sq \cdot y\_sq &=& xy\_sq\\
+(a\cdot x\_sq+y\_sq)\cdot 1 &=& 1+d\cdot xy\_sq
+\end{array}
+$$
+So we have the statement $w=(1,x,y,x\_sq, y\_sq, xy\_sq)$ and we need 4 constraints to enforce that $x$ and $y$ are points on the Edwards curve $x^2+y^2= 1+d\cdot x^2y^2$. Writing the constraint system in matrix form, we get:
+\begingroup
+    \fontsize{9pt}{9pt}\selectfont
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & a & 1 & 0 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix}\odot
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 
+\end{pmatrix}  \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 0 & d 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix}
+$$
+\endgroup
+EXERCISE: WRITE THE R1CS FOR WEIERSTRASS CURVE POINTS 
+\begin{example}[Baby-JubJub]
+Considering our pen and paper Baby JubJub curve over from XXX, we know that the curve is defined over $\F_{13}$ and that $(11,9)$ is a curve point, while $(2,3)$ is not a curve point. 
+
+Starting with $(11,9)$, we can compute the statement $w=(1,11,9,4,3,12)$. Substituting this into the constraints we get
+$$
+\begin{array}{lcr}
+11 \cdot 11 &=& 4\\
+9 \cdot 9 &=& 3\\
+4 \cdot 3 &=& 12\\
+(1\cdot 4+3)\cdot 1 &=& 1+7\cdot 12
+\end{array}
+$$
+which is true in $\F_{13}$. So our statement is indeed a valid assignment to the twisted Edwards curve constraining system.
+
+Now considering the non valid point $(2,3)$, we can still come up with some kind of statement $w$ that will satisfy some of the constraints. But fixing $x=2$ and $y=3$, we can never satisfy all constraints. For example $w=(1,2,3,4,9,10)$ will satisfy the first three constraints, but the last constrain can not be satisfied. Or $w=(1,2,3,4,3,12)$ will satisfy the first and the last constrain, but not the others.
+\end{example}
+\paragraph{Twisted Edwards curves addition} As we have seen in XXX one the major advantages of working with (twisted) Edwards curves is the existence of an addition law, that contains no branching and is valid for all curve points. Moreover the neutral element is not "at infinity" but the actual curve poin $(0,1)$.
+
+As we know from XXX, give two points $(x_1,y_1)$ and $(x_2,y_2)$ on a twisted Edwards curve their sum is given by
+$$
+(x_3,y_3) = \left(\frac{x_1y_2+y_1x_2}{1+d\cdot x_1x_2y_1y_2}, \frac{y_1y_2-a\cdot x_1x_2}{1-d\cdot x_1x_2y_1y_2}\right)
+$$
+% https://z.cash/technology/jubjub/
+We can realize this equation as a R1CS as follows: First not that we can rewrite the addition law as
+$$
+\begin{array}{lcl}
+x_1\cdot x_2 &=& x_{12}\\
+y_1\cdot y_2 &=& y_{12}\\
+x_1\cdot y_2 &=& xy_{12}\\
+y_1\cdot x_2 &=& yx_{12}\\
+x_{12}\cdot y_{12} &=& xy_{1212}\\
+x_3\cdot (1+d\cdot xy_{1212}) &=& xy_{12}+yx_{12}\\
+y_3\cdot (1-d\cdot xy_{1212}) &=& y_{12}-a\cdot x_{12}
+\end{array}
+$$
+So we have the statement $w=(1,x_1,y_1,x_2,y_2,x_3,y_3,x_{12},y_{12},xy_{12},yx_{12},xy_{1212})$ and we need 7 constraints to enforce that $(x_1,y_1)+(x_2,y_2)=(x_3,y_3)$ 
+\begin{example}[Baby-JubJub]
+Considering our pen and paper Baby JubJub curve over from XXX. We recall from XXX that $(11,9)$ is a generator for the large prime order subgroup. We therefor already know from XXX that
+$(11,9) + (7,8) = (11,9) + [3](11,9) = [4](11,9) = (2,9)$. So we compute a valid statement as 
+$w=(1,11,9,7,8,2,9,12,7,10,11,6)$. Indeed
+$$
+\begin{array}{lcl}
+11\cdot 7 &=& 12\\
+9\cdot 8 &=& 7\\
+11\cdot 8 &=& 10\\
+9\cdot 7 &=& 11\\
+10\cdot 11 &=& 6\\
+2\cdot (1+7\cdot 6) &=& 10 + 11\\
+9\cdot (1-7\cdot 6) &=& 7 -1\cdot 12
+\end{array}
+$$
+\end{example}
+There are optimizations for this using only 6 constraints, available:
+% https://github.com/filecoin-project/zexe/blob/master/snark-gadgets/src/groups/curves/twisted_edwards/mod.rs#L129
+
+\paragraph{Twisted Edwards curves inversion} Similar to elliptic curves in Weierstrass form, inversion is cheap on Edwards curve as the negative of a curve point $-(x,y)$ is given by $(-x,y)$. So a curve point $(x_2,y_2)$ is the additive inverse of another curve point $(x_1,y_1)$ precisely if the equation $(x_1,y_1) = (-x_2,y_2)$ holds. We can write this as
+$$
+\begin{array}{lcl}
+x_1 \cdot 1 &=& -x_2 \\
+y_1 \cdot 1 &=& y_2
+\end{array}
+$$
+We therefor have a statement of the form $w=(1,x_1,y_1,x_2,y_2)$ and can write the constraints into a matrix equation as
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}\odot
+\begin{pmatrix}
+1 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0 & 0
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & -1 & 0\\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}
+$$
+
+In addition we need the following constraints:
+$$
+\begin{array}{lcl}
+x_1 \cdot 1 &=& -x_2 \\
+y_1 \cdot 1 &=& y_2
+\end{array}
+$$
+
+\paragraph{Twisted Edwards curves scalar multiplication} 
+% original circuit is here https://iden3-docs.readthedocs.io/en/latest/_downloads/33717d75ab84e11313cc0d8a090b636f/Baby-Jubjub.pdf
+
+Although there are highly optimzed R1CS implementations for scal multiplication on elliptic curves, the basic idea is somewhat simple: Given an elliptic curve $E/\F_r$, a scalar $x\in \F_r$ with binary representation $(b_0,\ldots,b_m)$ and a curve point $P\in E/\F_r$, the scalar multiplication $[x]P$ can be written as
+$$
+[x]P = [b_0]P + [b_1]([2]P) + [b_2]([4]P) + \ldots + [b_m]([2^m] P)
+$$
+and since $b_j$ is either $0$ or $1$, $[b_j](kP)$ is either the neutral element of the curve or $[2^j]P$. However $[2^j]P$ can be computed inductively by curve point doubling, since $[2^j]P= [2]([2^{j-1}]P)$.
+
+So scalar multiplication can be reduced to a loop of length $m$, where the original curve point is repeadedly douled and added to the result, whenever the appropriate bit in the scalar is equal to one.
+
+So to enforce that a curve point $(x_2,y_2)$ is the scalar product $[k](x_1,y_1)$ of a scalar $x\in F_r$ and a curve point $(x_1,y_1)$, we need an R1CS the defines point doubling on the curve (XXX) and an R1CS that enforces the binary representation of $x$ (XXX). 
+
+In case of twisted Edwards curve, we can use ordinary addition for doubling, as the constraints works for both cases (doublin is addition, where both arguments are equal). Moreover $[b](x,y)=(b\cdot x, b\cdot y)$ for boolean $b$. Hence flattening equation XXX gives
+$$
+\begin{array}{lclr}
+b_0\cdot x_1 &=& x_{0,1} & // [b_0]P\\
+b_0\cdot y_1 &=& y_{0,1}\\
+
+\end{array}
+$$
+In addition we need to constrain $(b_0,\ldots, b_N)$ to be the binary representation of $x$ and we need to constrain each $b_j$ to be boolean.
+
+As we can see a R1CS for scalar multiplication utilizes many R1CS that we have introduced before. For efficiency and readability it is therefore useful to apply the concept of a gadget (XXX). A pseudocode method to derive the associated R1CS could look like this:
+
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $w \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 1,\ldots, m$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%	\State $tmp = tmp + mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $tmp \cdot 1 == x$
+%\end{algorithmic}
+
+\begin{codebox}
+\Procname{$\proc{Insertion-Sort}(A)$}
+\li \For $j \gets 2$ \To $\id{length}[A]$
+\li     \Do$\id{key} \gets A[j]$
+\li         \Comment Insert $A[j]$ into the sorted sequence $A[1 \twodots j-1]$.
+\li         $i \gets j-1$\li         \While $i > 0$ and $A[i] > \id{key}$
+\li             \Do$A[i+1] \gets A[i]$
+\li                 $i \gets i-1$\End
+\li         $A[i+1] \gets \id{key}$\End
+\end{codebox}
+
+\paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
+
+\subsubsection{The RAM Model}
+FROM THE PODCAST WITH ANNA R. AND THE GUY FROM JAN....
+
+
+\subsubsection{Generalizations}
+many circuits can be found here:
+% https://github.com/iden3/circomlib
+
+\subsection{Quadratic Arithmetic Programs}
+As shown by [Pinocchio] rank-1 constraint systems can be transformed into so called quadratic  arithmetic  programs  assuming $\F$.
+
+taken from the pinocchio paper. For proving arithmetic circuit-sat.  Given a R1CS QAPs transform potential solution vectors into two polynomials $p$ and $t$, such that $p$ is divisible by $t$ if and only if the vector is a solution to the R1CS. 
+
+They are major building blocks for \textbf{succinct} proofs, since with high probability, the divisibility check can be performed in a single point of those polynomials. So computationally expensive polynomial division check is reduced TO WHAT? (IN FIELDS THERE IS ALWAYS DIVISIBILITY) 
+% https://courses.cs.ut.ee/MTAT.07.022/2013_fall/uploads/Main/alisa-report
+
+\begin{definition}[Quadratic Arithmetic Program]
+Assume we have a Galois field $\F$, three numbers $i,j,k$ as well as three $(i+j+1) \times k$ matrices $A$, $B$ and $C$  with coefficients in $\F$ that define the R1CS
+$Ax \odot Bx = Cx $ for some statement $x=(1,i,w)$ and let $m_1,\ldots,m_k\in \F$ be arbitrary field elements. 
+
+Then a \textbf{quadratic arithmetic program} of the R1CS is the following set of polynomials over $\F$
+$$
+QAP = \left\{t\in \F[x],\left\{a_h,b_h,c_h\in \F[x]\right\}_{h=1}^{i+j+1}\right\}
+$$
+where $t(x) := \Pi_{l=1}^k (x- m_l)$ is a polynomial f degree $k$, called the \textbf{target polynomial} of the QAP and $a_h(x)$, $b_h(x)$ as well as $c_h(x)$ are the unique degree $k-1$ polynomials that are defined by the equations
+$$
+\begin{array}{lllr}
+a_h(m_l)=A_{h,l} & b_h(m_l)=B_{h,l} & c_h(m_l)=C_{h,l} & h= 1, \ldots , i+j+1, l=1,\ldots,k 
+\end{array}
+$$  
+\end{definition}
+The major point is that R1CS-sat can be reformulated into the divisibility of a polynomials defined by any QAP.
+\begin{theorem}
+Assume that an R1CS and an associated QAP as defined in XXX are given. Then the affine vector $y=(1,i,w)$ is a solution to the R1CS, if and only if the polynomial
+$$
+p(x) = \left(\sum y_h\cdot a_h(x)\right)\cdot \left(\sum y_h\cdot b_h(x)\right)  - \sum y_h\cdot c_h(x) 
+$$
+is divisible by the target polynomial $t$.
+\end{theorem}
+
+The polynomials $a_h$, $b_h$ and $c_h$ are uniquely defined by the equations in XXX. However to actually compute them we need some algorithm like the Langrange XXX from XXX.
+
+\begin{example}[Generalized factorization snark]
+In this example we want to transform the R1CS from example \ref{main_example_2_3} into an associated QAP.
+
+We start by choosing an arbitrary field element for every constraint in the R1CS, since we have $2$ constraints we choose $m_{1}=5$ and $m_{2}=7$
+
+With this choice we get the target polynomial $t(x)=(x-m_1)(x-m_2)= (x-5)(x-7)= (x+8)(x+6)= x^2 + x +9$.
+
+Since our statement has structure $w=(1, in_1,in_2,in_3,m_1,out_1)$ we have to compute the following degree $1$ polynomials
+
+$\{a_{c},a_{in_{1}},a_{in_{2}},a_{in_{3}},a_{mid_{1}},a_{out}\}$
+$\{b_{c},b_{in_{1}},b_{in_{2}},b_{in_{3}},b_{mid_{1}},b_{out}\}$
+$\{c_{c},c_{in_{1}},c_{in_{2}},c_{in_{3}},c_{mid_{1}},c_{out}\}$
+
+\item Apply QAP rule XXX to the $a_{k\in I}$ polynomials gives
+$$
+\begin{array}{llllll}
+a_{c}(5)=0, & a_{in_{1}}(5)=1, & a_{in_{2}}(5)=0, & a_{in_{3}}(5)=0, & a_{mid_{1}}(5)=0, & a_{out}(5)=0 \\
+a_{c}(7)=0, & a_{in_{1}}(7)=0, & a_{in_{2}}(7)=0, & a_{in_{3}}(7)=0, & a_{mid_{1}}(7)=1, & a_{out}(7)=0\\
+\\
+b_{c}(5)=0, & b_{in_{1}}(5)=0, & b_{in_{2}}(5)=1, & b_{in_{3}}(5)=0, & b_{mid_{1}}(5)=0, & b_{out}(5)=0 \\
+b_{c}(7)=0, & b_{in_{1}}(7)=0, & b_{in_{2}}(7)=0, & b_{in_{3}}(7)=1, & b_{mid_{1}}(7)=0, & b_{out}(7)=0\\
+\\
+c_{c}(5)=0, & c_{in_{1}}(5)=0, & c_{in_{2}}(5)=0, & c_{in_{3}}(5)=0, & c_{mid_{1}}(5)=1, & c_{out}(5)=0 \\
+c_{c}(7)=0, & c_{in_{1}}(7)=0, & c_{in_{2}}(7)=0, & c_{in_{3}}(7)=0, & c_{mid_{1}}(7)=0, & c_{out}(7)=1
+\end{array}
+$$
+
+Since our polynomials are of degree $1$ only we don't have to invoke Langrange method but can deduce the solutions right away. 
+
+Polynomials are defined on the two values $5$ and $7$ here.
+Linear Polynomial $f(x)=m\cdot x + b$ is fully determined by this. Derive the general equation:
+\begin{itemize}                        
+\item  $5m+b=f(5)$  and $7m+b=f(7)$  
+\item  $b=f(5)-5m$ and  $b=f(7)-7m$   
+\item  $b=f(5)+8m$ and  $b=f(7)+6m$  
+\item  $f(5)+8m=f(7)+6m$              
+\item  $8m-6m=f(7)-f(5)$               
+\item  $2m=f(7)+ 12f(5)$              
+\item  $7\cdot 2m=7(f(7)+12f(5))$              
+\item  $m=7(f(7)+12f(5))$ 
+\item             
+\item  $b=f(5)+8m$                   
+\item  $b=f(5)+8\cdot(7(f(7)+12f(5)))$
+\item  $b=f(5)+4(f(7)+12f(5))$ 
+\item  $b=f(5)+4f(7)+9f(5)$ 
+\item  $b= 10f(5)+4f(7)$ 
+\end{itemize}
+Gives the general equation: $f(x)=7(f(7)+12f(5))x+10f(5)+4f(7)$
+
+For $a_{in_1}$ the computation looks like this:
+\begin{itemize}
+\item $ a_{in_{1}}(x) = 7(a_{in_{1}}(7)+12a_{in_{1}}(5))x+ 
+10a_{in_{1}}(5)+4a_{in_{1}}(7)=$
+\item $7(0 + 12\cdot 1)x+ 
+10\cdot 1 +4\cdot 0 =$
+\item $7\cdot 12 x + 10=$
+\item $6x+10$
+\end{itemize}
+\begin{itemize}
+\item $ a_{mid_{1}}(x) = 7(a_{mid_{1}}(7)+12a_{mid_{1}}(5))x+ 
+10a_{mid_{1}}(5)+4a_{mid_{1}}(7)=$
+\item $7(1 + 12\cdot 0)x+ 10\cdot 0 +4\cdot 1=$
+\item $7\cdot 1x +4=$
+\item $7x+4 $
+\end{itemize}
+
+
+\begin{tabular}{|l|l|l|}\hline 
+$a_{c}(x)=0 $ &$ b_{c}(x)=0   $ & $c_{c}(x)=0$ \tabularnewline\hline 
+$a_{in_{1}}(x)=6x+10 $ &$ b_{in_{1}}(x)=0   $ & $c_{in_1}(x)=0$ \tabularnewline\hline 
+$a_{in_{2}}(x)=0    $ &$ b_{in_{2}}(x)=6x+10$ & $c_{in_2}(x)=0$ \tabularnewline\hline 
+$a_{in_{3}}(x)=0    $ &$ b_{in_{3}}(x)=7x+4$ & $c_{in_{3}}(x)=0$ \tabularnewline\hline 
+$a_{mid_{1}}(x)=7x+4$ &$ b_{mid_{1}}(x)=0  $ & $c_{mid_{1}}(x)=6x+10$ \tabularnewline\hline 
+$a_{out}(x)=0       $ &$ b_{out}(x)=0      $ & $c_{out}(x)=7x+4$ \tabularnewline\hline 
+\end{tabular}
+This gives the quadratic arithmetic program for our generalized factorization snark as
+$$QAP=\{x^{2}+x+9,\{0,6x+10,0,0,7x+4,0\},\{0,0,6x+10,7x+4,0,0\},\{0,0,0,0,6x+10,7x+4\}\}$$
+
+Now as we recall, the main point for using QAPs in snarks is the fact, that solutions to R1CS are in 1:1 correspondence to the divisibility of a polynomial $p$, constructed from a R1CS solution and the polynomials of the QAP and the target polynomial.
+
+So lets see this in our example. We already know from example XXX, that 
+$I=\{1,2,3,4,6,11\}$ is a solution to the R1CS XXX of our problem. To see how this translates to polyinomial divisibility we compute the polynomial $p_I$ by
+\begin{align*}
+p_I(x)& = (\sum_{h\in |I|} I_h\cdot a_h(x))\cdot 
+(\sum_{h\in |I|} I_h\cdot b_h(x)) - 
+(\sum_{h\in |I|} I_h\cdot c_h(x)) \\
+= & (2(6x+10)+6(7x+4))\cdot(3(6x+10)+4(7x+4))-(6(6x+10)+11(7x+4)) \\
+= & ((12x+7)+(3x+11))\cdot((5x+4)+(2x+3))-((10x+8)+(12x+5)) \\
+= & (2x+5)\cdot(7x+7)-(9x) \\
+= & (x^{2}+2\cdot7x+5\cdot7x+5\cdot7)-(9x) \\
+= & (x^{2}+x+9x+9)-(9x) \\
+= & x^{2}+x+9
+\end{align*}
+And as we can see in this particular example $p_I(x)$ is equal to the target polynomial $t(x)$ and hence it is divisible by $t$ with $p/t=1$.
+
+To give a counter example we already know from XXX that $I=\{1,2,3,4,8, 2\}$ is not a solution to our R1CS. To see how this translates to polyinomial divisibility we compute the polynomial $p_I$ by
+\begin{align*}
+p_I(x)& = (\sum_{h\in |I|} I_h\cdot a_h(x))\cdot 
+(\sum_{h\in |I|} I_h\cdot b_h(x)) - 
+(\sum_{h\in |I|} I_h\cdot c_h(x)) \\
+= & (2(6x+10)+6(7x+4))\cdot(3(6x+10)+4(7x+4))-(6(6x+10)+11(7x+4)) \\
+= & 8x^{2}+11x+3
+\end{align*}
+This polynomial is not divisible by the target polynomial $t$ since
+Not divisible by $t$: $(8x^{2}+11x+3)/(x^{2}+x+9) =8+\frac{3x+8}{x^{2}+x+9} $
+\end{example}
+
+
+
+\subsection{Quadratic span programs}
+
+\section{proof system}
+Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
+\begin{definition}[(Interactive) Proofing System]
+% https://link.springer.com/content/pdf/10.1007/BF00195207.pdf
+Let $L$ be some formal language over an alphabet $\Sigma$. Then an \textbf{interactive proof system} for $L$ is a pair $(P,V)$ of two probabilistic interactive algorithms, where $P$ is called the \textbf{prover} and $V$ is called the \textbf{verifier}. 
+
+Both algorithms are able to send messages to one another. Each algorithm only sees its own state, some shared initial state and the communication messages. 
+
+The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops in an accept state or in a reject state. We impose no restrictions on the local computation conducted by the prover. 
+
+We require that, whenever the verifier is executed the following two conditions hold:
+\begin{itemize}
+\item (Completeness) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and both prover and verifier follow the protocol; the verifier will accept.
+\item (Soundness) If a string $x\in \Sigma^*$ is not a member of language $L$, that is $x\notin L$ and the verifier follows the protocol; the verifier will not be convinced.
+\item (Zero-knowledge) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and the prover follows the protocol; the verifier will not learn anything about $x$ but $x\in L$.
+\end{itemize}
+\end{definition}
+
+In the context of zero knowledge proving systems definition XXX gets a slight adaptation:
+\begin{itemize}
+\item Instance: Input commonly known to both prover (P) and verifier (V), and used to support the statement of what needs to be proven. This common input may either be local to the prover-verifier interaction, or public in the sense of being known by external parties (Some scientific articles use "instance" and "statement" interchangeably, but we distinguish between the two.).
+\item Witness: Private input to the prover. Others may or may not know something about the witness.
+\item Relation: Specification of relationship between instances and witness. A relation can be viewed as a set of permissible pairs (instance, witness).
+\item Language: Set of statements that appear as a permissible pair in the given relation.
+\item Statement:Defined by instance and relation. Claims the instance has a witness in the relation(which is either true or false).
+\end{itemize}
+
+The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
+
+\subsection{Succinct NIZK}
+Preprocessing style: trusted setup, multi party ceremony
+
+Blum, Feldman and Micali
+% Manuel  Blum,  Paul  Feldman,  and  Silvio  Micali.   Non-interactive  zero-knowledge  and  itsapplications.  InSTOC, pages 103–112, 1988.
+ extended the notion tonon-interactivezero-knowledge(NIZK)  proofs in the  common  reference  string  model.  NIZK  proofs  are  useful  in  theconstruction of non-interactive cryptographic schemes, e.g., digital signatures and CCA-secure public key encryption.
+ 
+\begin{definition} 
+Let $\mathcal{R}$ be a relation generator that given a security parameter $\lambda$ in unary returns a polynomial time decidable binary relation $R$. For pairs $(i,w)\in R$ we call $i$ the instance\footnote{Note that in Groth16 this is called the statement. We think the term instance is more consistent with SOMETHING. } and $w$ the witness. We define $R_\lambda$ to be the set of possible relations $R$ the relation generator may output given $1^\lambda$. We will in the following for notational simplicity assume $\lambda$ can be deduced from the description of $R$. The relation generator may also output some side information, an auxiliary input $z$, which will be given to the adversary. An efficient prover publicly verifiable non-interactive argument for $R$ is a quadruple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Prove},\textsc{Vfy},\textsc{Sim})$ such 
+\begin{itemize}
+\item Setup: $(CRS,\tau)\rightarrow Setup(R)$: The setup produces a common reference string $CRS$ and a simulation trapdoor $\tau$ for the relation $R$.
+\item Proof: $\pi\rightarrow Prove(R,CRS,i,w)$: The prover algorithm takes as input a common reference string $CRS$ and a statement $(i,w)\in R$ and returns an argument $\pi$.
+\item Verify: $0/1\rightarrow Vfy(R,CRS,i,\pi)$: The  verification algorithm  takes as input a common reference string $CRS$, an instance $i$ and an argument $\pi$ and returns 0 (reject) or 1 (accept).
+\item $\pi\rightarrow Sim(R,\tau,i)$: The simulator takes as input a simulation trapdoor $\tau$ and instance $i$ and returns an argument $\pi$. 
+\end{itemize}
+\end{definition}
+
+\paragraph{Common Reference String Generation}
+Also called trusted setup phase. The field elements needed in this step are called toxic waste ...
+
+\subparagraph{Trusted third party} The most simple approach to generate a common reference string is a so called \textit{trusted third party}. By assumption the entire systems trusts this party to generate the common reference string exactly accoring to the rules and the party will delete all traces of the toxic waste after CRS generation.
+
+\subparagraph{Player exchangeable Multi Party Ceremonies}
+
+Achive soundness if only a single party is honest and correctly deletes toxix waste. Is always zero knowledge.
+
+State of the art
+%https://eprint.iacr.org/2017/1050.pdf
+works in the random beacon model. 
+
+A random beacon produces publicly available and verifyable random values at fixed intervals. The difference between random beacons and random oracles, is that random beacons are not available until certain time slots. Random beacons can be instanciated for example by evaluation of say $2^{40}$ iterations of SHA256 on some high entropy, publically available data like the closing value of the stock market on a certain date, the output of a selected set of national lotteries and so on. 
+
+The assumption is that any given random beacon value contains large amounts of entropy that is independent from the influence of an adversary in previous time slots. 
+
+
+
+
+\subsubsection{Groth16}
+Groth’s  constant  size  NIZK  argument  is  based  on  constructing  a  set  of  polynomial equations and using pairings to efficiently verify these equations. Gennaro, Gentry,Parno and Raykova [Pinocchio] found an insightful construction of polynomial equations based on Lagrange interpolation polynomials yielding a pairing-based NIZK argumentwith a common reference string size proportional to the size of the statement and wit-ness.
+
+It constructs a snark  for arithmetic circuit satisfiability, where a proof consists of only 3 group elements. In addition to being small, the proof is also easy to verify. The verifier just needs to compute a number of exponentiations proportional to the instance size and check a single pairing product equation, which only  has  3  pairings.  
+
+The  construction  can  be  instantiated  with  any  type  of  pairings including Type III pairings, which are the most efficient pairings. The argument has perfect completeness and perfect zero-knowledge. For soundness ?? 
+
+In the common reference string model.
+
+Setup: 
+\begin{itemize}
+\item random elements $\alpha,\beta,\gamma, \delta, s \in \mathbb{F}_{scalar}$ 
+\item Common reference string $CRS_{QAP}$, specific to the $QAP$ and the choice of statement and witness $CRS_{QAP}= (CRS_{\mathbb{G}_1},CRS_{\mathbb{G}_2})$, with $n=deg(t)$: 
+$$
+CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
+[\alpha]g,[\beta]g,[\delta]g,\left\{ [s^{k}]g\right\} _{k=0}^{n-1},\left\{ [\frac{\beta a_{k}(s)+\alpha b_{k}(s)+c_{k}(s)}{\gamma}]g\right\} _{k\in I}\\
+\left\{ [\frac{\beta a_{k}(s)+\alpha b_{k}(s)+c_{k}(s)}{\delta}]g\right\} _{k\in W},\left\{ [\frac{s^{k}t(s)}{\delta}]g\right\} _{k=0}^{n-2}
+\end{array}\right\} 
+$$
+$$
+CRS_{\mathbb{G}_{2}}=\left\{ [\beta]h ,[\gamma]h,[\delta]h,\left\{[s^k]h\right\} _{k=0}^{n-1}\right\} 
+$$
+\item Toxic waste: Must delete random elements after $CRS_{QAP}$ generation.
+\end{itemize} 
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_5}
+In this example we want to compile our main example in Groth16. Input is the R1CS from example \ref{main_example_2_4}. We choose the following global parameters
+
+\begin{tabular}{ccccc}
+\\
+curve = BLS6-6 & $\mathbb{G}_1=$ BLS6-6(13) & $g = (13,15) $
+& $\mathbb{G}_2=$ & $h=(7v^2,16v^3)$ and $\mathbb{G}_T = \F_{43^6}^*$.
+\end{tabular} 
+\end{example}
+\begin{example}[Trusted third party for the factorization snark]
+We consider ourself as a trusted third part to generate the common reference string for our generalized factorization snark. We therefore choose the following secret field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$ and are very careful to hide them from anyone how hasn't read this book. From those values we can then instantiate the common reference string XXX:
+$$
+CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
+[6](13,15),[5](13,15),[3](13,15),\left\{ [s^{k}](13,15)\right\} _{k=0}^{1},\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{4}](13,15)\right\} _{k\in S}\\
+\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{3}](13,15)\right\} _{k\in W},\left\{ [\frac{s^{k}t(2)}{3}](13,15)\right\} _{k=0}^{0}
+\end{array}\right\}
+$$
+Since we have instance indices $I=\{1, in_1,in_2\}$ and witness indices $W=\{in_3,mid_1,out_1\}$ we have 
+The instance parts.
+\begin{multline*}
+\left[\frac{5 a_{c}(2)+6 b_{c}(2)+c_{c}(2)}{4}\right](13,15) = 
+\left[\frac{5\cdot 0 +6\cdot 0 + 0 }{4}\right](13,15) =
+\left[0\right](13,15) = \mathcal{O}
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{in_3}(2)+6 b_{in_3}(2)+c_{in_3}(2)}{4}\right](13,15) =
+\left[(5\cdot 0+6\cdot(7\cdot 2 +4)+0)\cdot 10\right](13,15) =\\
+\left[(6\cdot 5 )\cdot 10\right](13,15) =
+\left[1\right](13,15) =
+(13,15)
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{out}(2)+6 b_{out}(2)+c_{out}(2)}{4}\right](13,15) = 
+\left[(5\cdot 0 +6\cdot 0 + (7\cdot 2 + 4))\cdot 10 \right](13,15) =\\
+\left[5\cdot 10 \right](13,15) =
+\left[11\right](13,15) = 
+(33,9)
+\end{multline*}
+
+Witness part:
+\begin{multline*}
+\left[\frac{5 a_{in_1}(2)+6 b_{in_1}(2)+c_{in_1}(2)}{3}\right](13,15) = 
+\left[(5\cdot (6\cdot 2 +10) +6\cdot 0 +0 )\cdot 9\right](13,15) = \\
+\left[(5\cdot 9)\cdot 9\right](13,15) =
+\left[2\right](13,15) = (33,34)
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{in_2}(2)+6 b_{in_2}(2)+c_{in_2}(2)}{3}\right](13,15) = 
+\left[(5\cdot 0 +6\cdot (6\cdot 2 + 10) + 0 )\cdot 9\right](13,15) = \\
+\left[(6\cdot 9)\cdot 9\right](13,15) =
+\left[5\right](13,15) =
+(26,34)
+\end{multline*}
+\begin{multline*}
+\left[\frac{5 a_{mid_1}(2)+6 b_{mid_1}(2)+c_{mid_1}(2)}{3}\right](13,15) = 
+\left[(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 0 )\cdot 9\right](13,15) = \\
+\left[(5\cdot 5)\cdot 9\right](13,15) =
+\left[4\right](13,15) =
+(35,28)
+\end{multline*}
+For $\left\{\left[\frac{s^{k}t(2)}{3}\right](13,15)\right\} _{k=0}^{0}$ we get
+\begin{multline*}
+\left[\frac{2^{0}t(2)}{3}\right](13,15)=
+[t(2)\cdot 9](13,15)= 
+[(2^2+2+9)\cdot 9](13,15)= 
+[5](13,15) =
+(26,34)
+\end{multline*}
+All together, the $\mathbb{G}_1$ part of the CRS is:
+$$
+CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
+(27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
+\left\{\mathcal{O}, (13,15), (33,9)\right\}\\
+\left\{(33,34),(26,34),(35,28)\right\},
+\left\{(26,34)\right\}
+\end{array}\right\}
+$$
+To compute the $\mathbb{G}_2$ part 
+$$
+CRS_{\mathbb{G}_{2}}=\left\{ [5](7v^2,16v^3) ,[4](7v^2,16v^3),[3](7v^2,16v^3),\left\{[2^k](7v^2,16v^3)\right\} _{k=0}^{1}\right\} 
+$$
+$$
+CRS_{\mathbb{G}_{2}}=\left\{ [5](7v^2,16v^3) ,[4](7v^2,16v^3),[3](7v^2,16v^3),\left\{[1](7v^2,16v^3), [2](7v^2,16v^3)\right\}\right\} 
+$$
+$$
+CRS_{\mathbb{G}_{2}}=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\} 
+$$
+
+So alltogether our common reference string is 
+$$
+\begin{pmatrix}
+\left\{ \begin{array}{c}
+(27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
+\left\{\mathcal{O}, (13,15), (33,9)\right\}\\
+\left\{(33,34),(26,34),(35,28)\right\},
+\left\{(26,34)\right\}
+\end{array}\right\}\\
+\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\}
+\end{pmatrix}
+$$
+\end{example}
+\begin{example}[Player exchangeable multi party ceremony for the factorization snark] In this example we want to simulate a real world player exchangeable multi party ceremony for our factorization snark XXX as explained in XXX.
+
+We use our TinyMD5 hash function XXX to hash to $\mathbb{G}_2$.
+
+
+We assume that we have a coordinator $Alice$ together with three parties $Bob$, $Carol$ and $Dave$ that want to contribute their randomness to the protocol. Since the degree $n$ of the target polynomial is $2$, we need to compute the common reference string
+$$
+CRS= \left\{\right\}
+$$
+For contributer $j>0$ in phase $l$ to compute the proof of knowledge XXX, we need to define the $transcript_{l,j-1}$ of the previous round. We define it as sha256 of $MPC_{l,j-1}$. To be more precise we define
+$$
+transcript_{1,j-1}= 
+MD5(
+'[s]g_1 [s]g_2 [s^2] g_1 [\alpha]g_1 [\alpha\cdot s]g_1
+[\beta]g_1 [\beta]g_2[\beta \cdot s]g_1'
+)
+$$
+The only thing actually important about the transcript, is that it is publically available data that is not accesable for anyone before the MPC-data of round $j-1$ in phase $l$ exists.
+
+We start with the first round usually called the 'powers of tau' EXPLAIN THAT TERM...
+The computation is initialized With $s=1$, $\alpha=1$, $\beta=1$. Hence the computation starts with the following data
+$$
+MPC_{1,0}= \left\{
+\begin{array}{lcl}
+([s]g_1, [s]g_2) &=& ((13,15),(7v^2,16v^3))\\ 
+{}[s^2] g_1 &=& (13,15)\\
+{}[\alpha]g_1 &=& (13,15)\\ 
+{}[\alpha\cdot s]g_1 &=& (13,15)\\ 
+([\beta]g_1,[\beta]g_2) &=& ((13,15),(7v^2,16v^3))\\ 
+{}[\beta \cdot s]g_1 &=& (13,15)
+\end{array}
+\right\}
+$$
+Then 
+\begin{multline*}
+transcript_{1,0}=\\ 
+MD5('(13,15)(7v^2,16v^3)(13,15)(13,15)(13,15)(13,15)(7v^2,16v^3)(13,15)') =\\ f2baea4d3dba5eef5c63bb210920e7d9
+\end{multline*}
+We obtain that hash by computing
+
+$printf '\%s' "(13,15)(7v\textasciicircum 2,16v\textasciicircum 3)(13,15)(13,15)(13,15)(13,15)(7v\textasciicircum 2,16v\textasciicircum 3)(13,15)" | md5sum$
+% note the actual code is printf '%s' "(13,15)(7v^2,16v^3)(13,15)(13,15)(13,15)(13,15)(7v^2,16v^3)(13,15)" | md5sum
+
+Everyone agreed, that the MPC starts on the 21.03.2020 and everyone can contribute for exactly a year until the 20.03.2021. 
+
+
+  
+It then proceeds in a round robin style, starting with Bob, who optains that data in $MPC_{1,0}$ and then computes his contribution. Lets assume that $Bob$ is honest and that bought 
+a 13-sided dice (PICTURE OF 13-SIDED DICE) to randomly find three secret field values from our prime field $\F_{13}$. He though the dice and got $\alpha = 4$, $\beta=8$ and $s= 2$. He then updates $MPC_{1,0}$:  
+$$
+MPC_{1,1}= \left\{
+\begin{array}{lclcl}
+([s]g_1, [s]g_2) &=& ([2](13,15),[2](7v^2,16v^3)) &=& ((33,34),(10v^2,28v^3))\\ 
+{}[s^2] g_1 &=& [4](13,15)&=& (35,28)\\
+{}[\alpha]g_1 &=& [4](13,15)&=& (35,28)\\ 
+{}[\alpha\cdot s]g_1 &=& [8](13,15) &=& (26,9)\\ 
+([\beta]g_1,[\beta]g_2) &=& ([8](13,15),[8](7v^2,16v^3))&=& ((26,9),(16v^2,15v^3))\\ 
+{}[\beta \cdot s]g_1 &=& [3](13,15)&=& (38,15)
+\end{array}
+\right\}
+$$
+In addition he compute 
+$$
+POK_{1,1} \left\{
+\begin{array}{lcl}
+y_{s} &=& POK(2, f2baea4d3dba5eef5c63bb210920e7d9) = ((33,34),(16v^2 , 28v^3))\\
+y_{\alpha} &=& POK(4, f2baea4d3dba5eef5c63bb210920e7d9) = ((35,28),(10v^2 , 15v^3))\\ 
+y_{\beta} &=& POK(8, f2baea4d3dba5eef5c63bb210920e7d9) = ((26,9),(16v^2 , 28v^3))\\
+\end{array}
+\right\}
+$$
+since $[s]g_1 = (33,34)$, $[\alpha] g_1 = (35,28)$ and $[\beta] g_1 = (26,9)$. as well as 
+\begin{align*}
+TinyMD5_{2}('(33,34)f2baea4d3dba5eef5c63bb210920e7d9') =\\ H_2(MD5('(33,34)f2baea4d3dba5eef5c63bb210920e7d9').trunc(3))=\\ H_2(2066b3b6b6d97c46c3ac6ee2ccd23ad9.trunc(3))= H_2(ad9) = \\
+H_2(101 011 011 001)=\\
+[8\cdot 4^{1}\cdot 5^{0}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{0}\cdot 3^{1}\cdot 8^{1}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{1}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{0}\cdot 10^{1}](10v^2 , 15v^3 ) =\\
+[8\cdot 4\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 9\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 10](10v^2 , 15v^3 ) =\\
+[8\cdot 4\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 9\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 10](10v^2 , 15v^3 ) =\\
+[3](7v^2 , 16v^3)+
+[2](42v^2 , 16v^3 )+
+[3](17v^2 , 15v^3 ) +
+[4](10v^2 , 15v^3 )=\\
+[3](7v^2 , 16v^3)+
+[2*3](7v^2 , 16v^3 )+
+[3*7](7v^2 , 16v^3 ) +
+[4*11](7v^2 , 16v^3 )=\\
+(42v^2 , 16v^3)+
+(17v^2 , 28v^3 )+
+(16v^2 , 15v^3 ) +
+(16v^2 , 28v^3 )=\\
+[3](7v^2 , 16v^3)+
+[6](7v^2 , 16v^3 )+
+[8](7v^2 , 16v^3 ) +
+[5](7v^2 , 16v^3 )=\\
+[3+6+8+5](7v^2 , 16v^3)=
+(37v^2 , 16v^3 )
+\end{align*}
+So we get $[2](37v^2 , 16v^3 )= (16v^2 , 28v^3 )$
+
+===================
+
+\begin{align*}
+TinyMD5_{2}('(35,28)f2baea4d3dba5eef5c63bb210920e7d9') =\\ H_2(MD5('(35,28)f2baea4d3dba5eef5c63bb210920e7d9').trunc(3))=\\ H_2(ad54fa3674f6a84fab9208d7a94c9163.trunc(3))= H_2(163) = \\
+H_2(000 101 100 011)=\\
+[8\cdot 4^{0}\cdot 5^{0}\cdot 7^{0}](7v^2 , 16v^3)+
+[12\cdot 1^{1}\cdot 3^{0}\cdot 8^{1}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{1}\cdot 9^{0}\cdot 11^{0}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{1}\cdot 10^{1}](10v^2 , 15v^3 ) = \\
+[8](7v^2 , 16v^3)+
+[12\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 3](17v^2 , 15v^3 ) +
+[3\cdot 9\cdot 10](10v^2 , 15v^3 ) = \\
+[8](7v^2 , 16v^3)+
+[5](42v^2 , 16v^3 )+
+[6](17v^2 , 15v^3 ) +
+[10](10v^2 , 15v^3 ) = \\
+[8](7v^2 , 16v^3)+
+[5*3](7v^2 , 16v^3 )+
+[6*7](7v^2 , 16v^3 ) +
+[10*11](7v^2 , 16v^3 )=\\
+(16v^2 , 15v^3)+
+(10v^2 , 28v^3 )+
+(42v^2 , 16v^3 ) +
+(17v^2 , 28v^3 )=\\
+[8](7v^2 , 16v^3)+
+[2](7v^2 , 16v^3 )+
+[3](7v^2 , 16v^3 ) +
+[6](7v^2 , 16v^3 )=\\
+[8+2+3+6](7v^2 , 16v^3)=
+(17v^2 , 28v^3 )
+\end{align*}
+So we get $[4](17v^2 , 28v^3 )= (10v^2 , 15v^3 )$
+
+\begin{align*}
+TinyMD5_{2}('(26,9)f2baea4d3dba5eef5c63bb210920e7d9') =\\ H_2(MD5('(26,9)f2baea4d3dba5eef5c63bb210920e7d9').trunc(3))=\\ H_2(b87b632f7027ad78cadc2452beb30e9a.trunc(3))= H_2(e9a) = \\
+H_2(111 010 011 010)=\\
+[8\cdot 4^{1}\cdot 5^{1}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{0}\cdot 3^{1}\cdot 8^{0}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{1}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{1}\cdot 10^{0}](10v^2 , 15v^3 )= \\
+[8\cdot 4\cdot 5\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3](42v^2 , 16v^3 )+
+[2\cdot 9\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 9](10v^2 , 15v^3 )= \\
+[2](7v^2 , 16v^3)+
+[10](42v^2 , 16v^3 )+
+[3](17v^2 , 15v^3 ) +
+[1](10v^2 , 15v^3 )= \\
+[2](7v^2 , 16v^3)+
+[10*3](7v^2 , 16v^3 )+
+[3*7](7v^2 , 16v^3 ) +
+[1*11](7v^2 , 16v^3 )=\\
+(10v^2 , 28v^3)+
+(37v^2 , 27v^3 )+
+(16v^2 , 15v^3 ) +
+(10v^2 , 15v^3 )=\\
+[2](7v^2 , 16v^3)+
+[4](7v^2 , 16v^3 )+
+[8](7v^2 , 16v^3 ) +
+[11](7v^2 , 16v^3 )=\\
+[2+4+8+11](7v^2 , 16v^3)=
+(7v^2 , 27v^3 )
+\end{align*}
+So we get $[8](17v^2 , 28v^3 )= (16v^2 , 28v^3 )$
+
+So Bob publishes $MPC_{1,1}$ as well as $POK_{1,1}$ and after that its Carols turn. Lets also assume that Carrol is honest. So Carol looks at Bobs data and compute the transcript according to our rules
+\begin{multline*}
+transcript_{1,1}=\\ 
+MD5('
+(33,34)(10v^2,28v^3)(35,28)(35,28)(26,9)(26,9)(16v^2,15v^3)(38,15)') =\\ fe72e18b90014062682a77136944e362
+\end{multline*}
+We obtain that hash by computing
+
+$printf '\%s' "(33,34)(10v^2,28v^3)(35,28)(35,28)(26,9)(26,9)(16v^2,15v^3)(38,15)" | md5sum$
+
+Carol then computes here contribution. Since she is honest she chooses randomly three secret field values from our prime field $\F_{13}$, by invoking her compter. She found $\alpha = 3$, $\beta=4$ and $s= 9$ and updates $MPC_{1,1}$:  
+$$
+MPC_{1,2}= \left\{
+\begin{array}{lclcl}
+([s]g_1, [s]g_2) &=& ([9](33,34),[9](10v^2,28v^3)) &=&  ((26,34),(16v^2,28v^3))\\ 
+{}[s^2] g_1 &=& [9\cdot 9](35,28) &=& (13,28)\\
+{}[\alpha]g_1 &=& [3](35,28) &=& (13,28) \\ 
+{}[\alpha\cdot s]g_1 &=& [3\cdot 9](26,9) &=& (26,9)\\ 
+([\beta]g_1,[\beta]g_2) &=& ([4](26,9),[4](16v^2,15v^3)) &=& ((27,34),(17v^2,28v^3))\\ 
+{}[\beta \cdot s]g_1 &=& [4\cdot 9](38,15) &=& (35,28)
+\end{array}
+\right\}
+$$
+In addition he compute 
+$$
+POK_{1,2} \left\{
+\begin{array}{lcl}
+y_{s} &=& POK(9, fe72e18b90014062682a77136944e362) = ((35,15),(17v^2 , 28v^3))\\
+y_{\alpha} &=& POK(3, fe72e18b90014062682a77136944e362) = ((38,15),(17v^2 , 15v^3 ))\\ 
+y_{\beta} &=& POK(4, fe72e18b90014062682a77136944e362) = ((35,28),(42v^2 , 27v^3 ))\\
+\end{array}
+\right\}
+$$
+
+\begin{align*}
+TinyMD5_{2}('(35,15)fe72e18b90014062682a77136944e362') =\\ H_2(MD5('(35,15)fe72e18b90014062682a77136944e362').trunc(3))=\\ H_2(115f145ceffdda73e916dc5ba8ae7354.trunc(3))= H_2(354) = \\
+H_2(001 101 010 100)=\\
+[8\cdot 4^{0}\cdot 5^{0}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{1}\cdot 3^{0}\cdot 8^{1}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{1}\cdot 11^{0}](17v^2 , 15v^3 ) +
+[3\cdot 6^{1}\cdot 9^{0}\cdot 10^{0}](10v^2 , 15v^3 )= \\
+[8\cdot 7](7v^2 , 16v^3)+
+[12\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 9](17v^2 , 15v^3 ) +
+[3\cdot 6](10v^2 , 15v^3 )= \\
+[4](7v^2 , 16v^3)+
+[5](42v^2 , 16v^3 )+
+[5](17v^2 , 15v^3 ) +
+[5](10v^2 , 15v^3 )= \\
+[4](7v^2 , 16v^3)+
+[5*3](7v^2 , 16v^3 )+
+[5*7](7v^2 , 16v^3 ) +
+[5*11](7v^2 , 16v^3 )=\\
+(37v^2 , 27v^3)+
+(10v^2 , 28v^3 )+
+(37v^2 , 16v^3 ) +
+(42v^2 , 16v^3 )=\\
+[4](7v^2 , 16v^3)+
+[2](7v^2 , 16v^3 )+
+[9](7v^2 , 16v^3 ) +
+[3](7v^2 , 16v^3 )=\\
+[4+2+9+3](7v^2 , 16v^3)=
+(16v^2 , 28v^3 )
+\end{align*}
+So we get $[9](16v^2 , 28v^3 )= (17v^2 , 28v^3 )$
+
+\begin{align*}
+TinyMD5_{2}('(38,15)fe72e18b90014062682a77136944e362') =\\ H_2(MD5('(38,15)fe72e18b90014062682a77136944e362').trunc(3))=\\ H_2(cc4da0c02c4c1b15e72d6cc6430206ab.trunc(3))= H_2(6ab) = \\
+H_2(011 010 101 011)=\\
+[8\cdot 4^{0}\cdot 5^{1}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{0}\cdot 3^{1}\cdot 8^{0}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{1}\cdot 9^{0}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{1}\cdot 10^{1}](10v^2 , 15v^3 )= \\
+[8\cdot 5\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3](42v^2 , 16v^3 )+
+[2\cdot 3\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 9\cdot 10](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[10](42v^2 , 16v^3 )+
+[1](17v^2 , 15v^3 ) +
+[10](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[10*3](7v^2 , 16v^3 )+
+[1*7](7v^2 , 16v^3 ) +
+[10*11](7v^2 , 16v^3 )=\\
+(17v^2 , 15v^3)+
+(17v^2 , 28v^3 )+
+(17v^2 , 15v^3 ) +
+(17v^2 , 28v^3 )=\\
+[7](7v^2 , 16v^3)+
+[4](7v^2 , 16v^3 )+
+[7](7v^2 , 16v^3 ) +
+[6](7v^2 , 16v^3 )=\\
+[7+4+7+6](7v^2 , 16v^3)=
+(10v^2 , 15v^3)
+\end{align*}
+So we get $[3](10v^2 , 15v^3 )= (17v^2 , 15v^3 )$
+
+\begin{align*}
+TinyMD5_{2}('(35,28)fe72e18b90014062682a77136944e362') =\\ H_2(MD5('(35,28)fe72e18b90014062682a77136944e362').trunc(3))=\\ H_2(502323bc55c75f7189fad7999c9f1708.trunc(3))= H_2(708) = \\
+H_2(011 100 001 000)=\\
+[8\cdot 4^{0}\cdot 5^{1}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{1}\cdot 3^{0}\cdot 8^{0}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{0}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{0}\cdot 10^{0}](10v^2 , 15v^3 )= \\
+[8\cdot 5\cdot 7](7v^2 , 16v^3)+
+[12](42v^2 , 16v^3 )+
+[2\cdot 11](17v^2 , 15v^3 ) +
+[3](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[12](42v^2 , 16v^3 )+
+[9](17v^2 , 15v^3 ) +
+[3](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[12*3](7v^2 , 16v^3 )+
+[9*7](7v^2 , 16v^3 ) +
+[3*11](7v^2 , 16v^3 )=\\
+(17v^2 , 15v^3)+
+(42v^2 , 27v^3 )+
+(10v^2 , 15v^3 ) +
+(17v^2 , 15v^3 )=\\
+[7](7v^2 , 16v^3)+
+[10](7v^2 , 16v^3 )+
+[11](7v^2 , 16v^3 ) +
+[7](7v^2 , 16v^3 )=\\
+[7+10+11+7](7v^2 , 16v^3)=
+(37v^2 , 16v^3)
+\end{align*}
+So we get $[4](37v^2 , 16v^3 )= (42v^2 , 27v^3 )$
+
+Dave thinks he can outsmart the syste, Since he is the last to contribute, he just makes up an entirely new $MPC$, that does not contain any randomness from the previous contributers. He thinks he can do that because, no one can distinguish his $MPC_{1,3}$ from a correct one. If this is done in a smart way, he will even be able to compute the correct $POK$s. 
+
+So Dave choses $s=12$, $\alpha=11$ and $\beta=10$ and he will keep those values, hoping to be able to use them later to forge false proofs in the factorization snark. He then compute  
+$$
+MPC_{1,3}= \left\{
+\begin{array}{lcl}
+([s]g_1, [s]g_2) &=& ((13,28),(7v^2,27v^3))\\ 
+{}[s^2] g_1 &=& (13,15)\\
+{}[\alpha]g_1 &=& (33,9)\\ 
+{}[\alpha\cdot s]g_1 &=& (33,34)\\ 
+([\beta]g_1,[\beta]g_2) &=& ((38,28),(42v^2,27v^3))\\ 
+{}[\beta \cdot s]g_1 &=& (38,15)
+\end{array}
+\right\}
+$$
+Dave does not delete $s$, $\alpha$ and $\beta$, because if this is accepted as phase one of the common reference string computation, Dave controls already $3/4$-th of the cheating key to forge proofs. So Dave is careful to get the proofs of knowledge right. He computes the transcript of Carols contribution as 
+
+\begin{multline*}
+transcript_{1,2}=\\ 
+MD5('
+(26,34)(16v^2,28v^3)(13,28)(13,28)(26,9)(27,34)(17v^2,28v^3)(35,28)') =\\ c8e6308fffd47009f5f65e773ae4b499
+\end{multline*}
+
+We obtain that hash by computing
+
+$printf '\%s' "(26,34)(16v^2,28v^3)(13,28)(13,28)(26,9)(27,34)(17v^2,28v^3)(35,28)" | md5sum$
+
+\end{example}
