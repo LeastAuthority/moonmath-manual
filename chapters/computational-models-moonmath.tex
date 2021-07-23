@@ -312,16 +312,17 @@ So we get the following statement $\phi = (1,i,w) = (1, x)$, with instance (publ
 $A=\begin{pmatrix}0 & 1\end{pmatrix}$, $B=\begin{pmatrix}1 & -1\end{pmatrix}$ and $C=\begin{pmatrix}0 & 0\end{pmatrix}$.
 
 To make those constraints easily accesable for R1CS developers, a gadget is convinient:
-\begin{algorithmic}
-\Require $m$ Bitlength of modulus
-\Statement $\phi \gets [x,b[m],mid[m]]$
-\State $tmp \gets 0$
-\For{$j\gets 0,\ldots, m-1$}
-	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
-	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
-\EndFor
-\State \textbf{Constrain:} $(mid[0]+\ldots+mid[m-1])\cdot 1 == x$
-\end{algorithmic}
+
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $\phi \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 0,\ldots, m-1$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $(mid[0]+\ldots+mid[m-1])\cdot 1 == x$
+%\end{algorithmic}
    
 
 \paragraph{AND-constraints} Given three field elements $x,y,z\in\F$ that represent boolean variables, we want to find a R1CS, such that $w=(1,x,y,z)$ satisfies the constraint system if and only if $x\; AND \; y =z$. 
@@ -435,17 +436,18 @@ $$
 So we have the statement $w = (1, x, b_0,\ldots,b_m, mid_0,\ldots,mid_m)$ and we need $(m+1)$ constraints to enforce the binary representation in addition to the $m$ constraints that enforce booleanness.
 
 At this point we see, that writing more complex R1CS becomes clumbsy and in actual implementations people therefore use languages to makes the constraint system more readable. In this example we could write for example something like this:
-\begin{algorithmic}
-\Require $m$ Bitlength of modulus
-\Statement $w \gets [x,b[m],mid[m]]$
-\State $tmp \gets 0$
-\For{$j\gets 1,\ldots, m$}
-	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
-	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
-	\State $tmp = tmp + mid[j]$
-\EndFor
-\State \textbf{Constrain:} $tmp \cdot 1 == x$
-\end{algorithmic}
+
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $w \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 1,\ldots, m$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%	\State $tmp = tmp + mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $tmp \cdot 1 == x$
+%\end{algorithmic}
 
 keeping in mind that this is a meta level algorith to \textbf{generate} the R1CS, not the R1CS itself, as constructs like for loops have not direct meening on the level of the R1CS itself.
 
@@ -674,18 +676,29 @@ $$
 In addition we need to constrain $(b_0,\ldots, b_N)$ to be the binary representation of $x$ and we need to constrain each $b_j$ to be boolean.
 
 As we can see a R1CS for scalar multiplication utilizes many R1CS that we have introduced before. For efficiency and readability it is therefore useful to apply the concept of a gadget (XXX). A pseudocode method to derive the associated R1CS could look like this:
-\begin{algorithmic}
-\Require $m$ Bitlength of modulus
-\Statement $w \gets [x,b[m],mid[m]]$
-\State $tmp \gets 0$
-\For{$j\gets 1,\ldots, m$}
-	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
-	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
-	\State $tmp = tmp + mid[j]$
-\EndFor
-\State \textbf{Constrain:} $tmp \cdot 1 == x$
-\end{algorithmic}
 
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $w \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 1,\ldots, m$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%	\State $tmp = tmp + mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $tmp \cdot 1 == x$
+%\end{algorithmic}
+
+\begin{codebox}
+\Procname{$\proc{Insertion-Sort}(A)$}
+\li \For $j \gets 2$ \To $\id{length}[A]$
+\li     \Do$\id{key} \gets A[j]$
+\li         \Comment Insert $A[j]$ into the sorted sequence $A[1 \twodots j-1]$.
+\li         $i \gets j-1$\li         \While $i > 0$ and $A[i] > \id{key}$
+\li             \Do$A[i+1] \gets A[i]$
+\li                 $i \gets i-1$\End
+\li         $A[i+1] \gets \id{key}$\End
+\end{codebox}
 
 \paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
 
@@ -888,6 +901,26 @@ Let $\mathcal{R}$ be a relation generator that given a security parameter $\lamb
 \end{itemize}
 \end{definition}
 
+\paragraph{Common Reference String Generation}
+Also called trusted setup phase. The field elements needed in this step are called toxic waste ...
+
+\subparagraph{Trusted third party} The most simple approach to generate a common reference string is a so called \textit{trusted third party}. By assumption the entire systems trusts this party to generate the common reference string exactly accoring to the rules and the party will delete all traces of the toxic waste after CRS generation.
+
+\subparagraph{Player exchangeable Multi Party Ceremonies}
+
+Achive soundness if only a single party is honest and correctly deletes toxix waste. Is always zero knowledge.
+
+State of the art
+%https://eprint.iacr.org/2017/1050.pdf
+works in the random beacon model. 
+
+A random beacon produces publicly available and verifyable random values at fixed intervals. The difference between random beacons and random oracles, is that random beacons are not available until certain time slots. Random beacons can be instanciated for example by evaluation of say $2^{40}$ iterations of SHA256 on some high entropy, publically available data like the closing value of the stock market on a certain date, the output of a selected set of national lotteries and so on. 
+
+The assumption is that any given random beacon value contains large amounts of entropy that is independent from the influence of an adversary in previous time slots. 
+
+
+
+
 \subsubsection{Groth16}
 Groth’s  constant  size  NIZK  argument  is  based  on  constructing  a  set  of  polynomial equations and using pairings to efficiently verify these equations. Gennaro, Gentry,Parno and Raykova [Pinocchio] found an insightful construction of polynomial equations based on Lagrange interpolation polynomials yielding a pairing-based NIZK argumentwith a common reference string size proportional to the size of the statement and wit-ness.
 
@@ -915,17 +948,16 @@ $$
 
 \begin{example}[Generalized factorization snark]
 \label{main_example_2_5}
-In this example we want to compile our main example in Groth16. Input is the R1CS from example \ref{main_example_2_4}. We choose the following parameters
+In this example we want to compile our main example in Groth16. Input is the R1CS from example \ref{main_example_2_4}. We choose the following global parameters
 
 \begin{tabular}{ccccc}
 \\
 curve = BLS6-6 & $\mathbb{G}_1=$ BLS6-6(13) & $g = (13,15) $
-& $\mathbb{G}_2=$ & $h=(7v^2,16v^3)$
+& $\mathbb{G}_2=$ & $h=(7v^2,16v^3)$ and $\mathbb{G}_T = \F_{43^6}^*$.
 \end{tabular} 
-
-Setup phase: Recall the quadratic arithmetic program of example XXX. 
-
-For our example we choose the following elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$
+\end{example}
+\begin{example}[Trusted third party for the factorization snark]
+We consider ourself as a trusted third part to generate the common reference string for our generalized factorization snark. We therefore choose the following secret field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$ and are very careful to hide them from anyone how hasn't read this book. From those values we can then instantiate the common reference string XXX:
 $$
 CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
 [6](13,15),[5](13,15),[3](13,15),\left\{ [s^{k}](13,15)\right\} _{k=0}^{1},\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{4}](13,15)\right\} _{k\in S}\\
@@ -1015,8 +1047,336 @@ $$
 \left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\}
 \end{pmatrix}
 $$
+\end{example}
+\begin{example}[Player exchangeable multi party ceremony for the factorization snark] In this example we want to simulate a real world player exchangeable multi party ceremony for our factorization snark XXX as explained in XXX.
 
-The proofer phase: 
+We use our TinyMD5 hash function XXX to hash to $\mathbb{G}_2$.
+
+
+We assume that we have a coordinator $Alice$ together with three parties $Bob$, $Carol$ and $Dave$ that want to contribute their randomness to the protocol. Since the degree $n$ of the target polynomial is $2$, we need to compute the common reference string
+$$
+CRS= \left\{\right\}
+$$
+For contributer $j>0$ in phase $l$ to compute the proof of knowledge XXX, we need to define the $transcript_{l,j-1}$ of the previous round. We define it as sha256 of $MPC_{l,j-1}$. To be more precise we define
+$$
+transcript_{1,j-1}= 
+MD5(
+'[s]g_1 [s]g_2 [s^2] g_1 [\alpha]g_1 [\alpha\cdot s]g_1
+[\beta]g_1 [\beta]g_2[\beta \cdot s]g_1'
+)
+$$
+The only thing actually important about the transcript, is that it is publically available data that is not accesable for anyone before the MPC-data of round $j-1$ in phase $l$ exists.
+
+We start with the first round usually called the 'powers of tau' EXPLAIN THAT TERM...
+The computation is initialized With $s=1$, $\alpha=1$, $\beta=1$. Hence the computation starts with the following data
+$$
+MPC_{1,0}= \left\{
+\begin{array}{lcl}
+([s]g_1, [s]g_2) &=& ((13,15),(7v^2,16v^3))\\ 
+{}[s^2] g_1 &=& (13,15)\\
+{}[\alpha]g_1 &=& (13,15)\\ 
+{}[\alpha\cdot s]g_1 &=& (13,15)\\ 
+([\beta]g_1,[\beta]g_2) &=& ((13,15),(7v^2,16v^3))\\ 
+{}[\beta \cdot s]g_1 &=& (13,15)
+\end{array}
+\right\}
+$$
+Then 
+\begin{multline*}
+transcript_{1,0}=\\ 
+MD5('(13,15)(7v^2,16v^3)(13,15)(13,15)(13,15)(13,15)(7v^2,16v^3)(13,15)') =\\ f2baea4d3dba5eef5c63bb210920e7d9
+\end{multline*}
+We obtain that hash by computing
+
+$printf '\%s' "(13,15)(7v\textasciicircum 2,16v\textasciicircum 3)(13,15)(13,15)(13,15)(13,15)(7v\textasciicircum 2,16v\textasciicircum 3)(13,15)" | md5sum$
+% note the actual code is printf '%s' "(13,15)(7v^2,16v^3)(13,15)(13,15)(13,15)(13,15)(7v^2,16v^3)(13,15)" | md5sum
+
+Everyone agreed, that the MPC starts on the 21.03.2020 and everyone can contribute for exactly a year until the 20.03.2021. 
+
+
+  
+It then proceeds in a round robin style, starting with Bob, who optains that data in $MPC_{1,0}$ and then computes his contribution. Lets assume that $Bob$ is honest and that bought 
+a 13-sided dice (PICTURE OF 13-SIDED DICE) to randomly find three secret field values from our prime field $\F_{13}$. He though the dice and got $\alpha = 4$, $\beta=8$ and $s= 2$. He then updates $MPC_{1,0}$:  
+$$
+MPC_{1,1}= \left\{
+\begin{array}{lclcl}
+([s]g_1, [s]g_2) &=& ([2](13,15),[2](7v^2,16v^3)) &=& ((33,34),(10v^2,28v^3))\\ 
+{}[s^2] g_1 &=& [4](13,15)&=& (35,28)\\
+{}[\alpha]g_1 &=& [4](13,15)&=& (35,28)\\ 
+{}[\alpha\cdot s]g_1 &=& [8](13,15) &=& (26,9)\\ 
+([\beta]g_1,[\beta]g_2) &=& ([8](13,15),[8](7v^2,16v^3))&=& ((26,9),(16v^2,15v^3))\\ 
+{}[\beta \cdot s]g_1 &=& [3](13,15)&=& (38,15)
+\end{array}
+\right\}
+$$
+In addition he compute 
+$$
+POK_{1,1} \left\{
+\begin{array}{lcl}
+y_{s} &=& POK(2, f2baea4d3dba5eef5c63bb210920e7d9) = ((33,34),(16v^2 , 28v^3))\\
+y_{\alpha} &=& POK(4, f2baea4d3dba5eef5c63bb210920e7d9) = ((35,28),(10v^2 , 15v^3))\\ 
+y_{\beta} &=& POK(8, f2baea4d3dba5eef5c63bb210920e7d9) = ((26,9),(16v^2 , 28v^3))\\
+\end{array}
+\right\}
+$$
+since $[s]g_1 = (33,34)$, $[\alpha] g_1 = (35,28)$ and $[\beta] g_1 = (26,9)$. as well as 
+\begin{align*}
+TinyMD5_{2}('(33,34)f2baea4d3dba5eef5c63bb210920e7d9') =\\ H_2(MD5('(33,34)f2baea4d3dba5eef5c63bb210920e7d9').trunc(3))=\\ H_2(2066b3b6b6d97c46c3ac6ee2ccd23ad9.trunc(3))= H_2(ad9) = \\
+H_2(101 011 011 001)=\\
+[8\cdot 4^{1}\cdot 5^{0}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{0}\cdot 3^{1}\cdot 8^{1}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{1}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{0}\cdot 10^{1}](10v^2 , 15v^3 ) =\\
+[8\cdot 4\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 9\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 10](10v^2 , 15v^3 ) =\\
+[8\cdot 4\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 9\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 10](10v^2 , 15v^3 ) =\\
+[3](7v^2 , 16v^3)+
+[2](42v^2 , 16v^3 )+
+[3](17v^2 , 15v^3 ) +
+[4](10v^2 , 15v^3 )=\\
+[3](7v^2 , 16v^3)+
+[2*3](7v^2 , 16v^3 )+
+[3*7](7v^2 , 16v^3 ) +
+[4*11](7v^2 , 16v^3 )=\\
+(42v^2 , 16v^3)+
+(17v^2 , 28v^3 )+
+(16v^2 , 15v^3 ) +
+(16v^2 , 28v^3 )=\\
+[3](7v^2 , 16v^3)+
+[6](7v^2 , 16v^3 )+
+[8](7v^2 , 16v^3 ) +
+[5](7v^2 , 16v^3 )=\\
+[3+6+8+5](7v^2 , 16v^3)=
+(37v^2 , 16v^3 )
+\end{align*}
+So we get $[2](37v^2 , 16v^3 )= (16v^2 , 28v^3 )$
+
+===================
+
+\begin{align*}
+TinyMD5_{2}('(35,28)f2baea4d3dba5eef5c63bb210920e7d9') =\\ H_2(MD5('(35,28)f2baea4d3dba5eef5c63bb210920e7d9').trunc(3))=\\ H_2(ad54fa3674f6a84fab9208d7a94c9163.trunc(3))= H_2(163) = \\
+H_2(000 101 100 011)=\\
+[8\cdot 4^{0}\cdot 5^{0}\cdot 7^{0}](7v^2 , 16v^3)+
+[12\cdot 1^{1}\cdot 3^{0}\cdot 8^{1}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{1}\cdot 9^{0}\cdot 11^{0}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{1}\cdot 10^{1}](10v^2 , 15v^3 ) = \\
+[8](7v^2 , 16v^3)+
+[12\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 3](17v^2 , 15v^3 ) +
+[3\cdot 9\cdot 10](10v^2 , 15v^3 ) = \\
+[8](7v^2 , 16v^3)+
+[5](42v^2 , 16v^3 )+
+[6](17v^2 , 15v^3 ) +
+[10](10v^2 , 15v^3 ) = \\
+[8](7v^2 , 16v^3)+
+[5*3](7v^2 , 16v^3 )+
+[6*7](7v^2 , 16v^3 ) +
+[10*11](7v^2 , 16v^3 )=\\
+(16v^2 , 15v^3)+
+(10v^2 , 28v^3 )+
+(42v^2 , 16v^3 ) +
+(17v^2 , 28v^3 )=\\
+[8](7v^2 , 16v^3)+
+[2](7v^2 , 16v^3 )+
+[3](7v^2 , 16v^3 ) +
+[6](7v^2 , 16v^3 )=\\
+[8+2+3+6](7v^2 , 16v^3)=
+(17v^2 , 28v^3 )
+\end{align*}
+So we get $[4](17v^2 , 28v^3 )= (10v^2 , 15v^3 )$
+
+\begin{align*}
+TinyMD5_{2}('(26,9)f2baea4d3dba5eef5c63bb210920e7d9') =\\ H_2(MD5('(26,9)f2baea4d3dba5eef5c63bb210920e7d9').trunc(3))=\\ H_2(b87b632f7027ad78cadc2452beb30e9a.trunc(3))= H_2(e9a) = \\
+H_2(111 010 011 010)=\\
+[8\cdot 4^{1}\cdot 5^{1}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{0}\cdot 3^{1}\cdot 8^{0}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{1}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{1}\cdot 10^{0}](10v^2 , 15v^3 )= \\
+[8\cdot 4\cdot 5\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3](42v^2 , 16v^3 )+
+[2\cdot 9\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 9](10v^2 , 15v^3 )= \\
+[2](7v^2 , 16v^3)+
+[10](42v^2 , 16v^3 )+
+[3](17v^2 , 15v^3 ) +
+[1](10v^2 , 15v^3 )= \\
+[2](7v^2 , 16v^3)+
+[10*3](7v^2 , 16v^3 )+
+[3*7](7v^2 , 16v^3 ) +
+[1*11](7v^2 , 16v^3 )=\\
+(10v^2 , 28v^3)+
+(37v^2 , 27v^3 )+
+(16v^2 , 15v^3 ) +
+(10v^2 , 15v^3 )=\\
+[2](7v^2 , 16v^3)+
+[4](7v^2 , 16v^3 )+
+[8](7v^2 , 16v^3 ) +
+[11](7v^2 , 16v^3 )=\\
+[2+4+8+11](7v^2 , 16v^3)=
+(7v^2 , 27v^3 )
+\end{align*}
+So we get $[8](17v^2 , 28v^3 )= (16v^2 , 28v^3 )$
+
+So Bob publishes $MPC_{1,1}$ as well as $POK_{1,1}$ and after that its Carols turn. Lets also assume that Carrol is honest. So Carol looks at Bobs data and compute the transcript according to our rules
+\begin{multline*}
+transcript_{1,1}=\\ 
+MD5('
+(33,34)(10v^2,28v^3)(35,28)(35,28)(26,9)(26,9)(16v^2,15v^3)(38,15)') =\\ fe72e18b90014062682a77136944e362
+\end{multline*}
+We obtain that hash by computing
+
+$printf '\%s' "(33,34)(10v^2,28v^3)(35,28)(35,28)(26,9)(26,9)(16v^2,15v^3)(38,15)" | md5sum$
+
+Carol then computes here contribution. Since she is honest she chooses randomly three secret field values from our prime field $\F_{13}$, by invoking her compter. She found $\alpha = 3$, $\beta=4$ and $s= 9$ and updates $MPC_{1,1}$:  
+$$
+MPC_{1,2}= \left\{
+\begin{array}{lclcl}
+([s]g_1, [s]g_2) &=& ([9](33,34),[9](10v^2,28v^3)) &=&  ((26,34),(16v^2,28v^3))\\ 
+{}[s^2] g_1 &=& [9\cdot 9](35,28) &=& (13,28)\\
+{}[\alpha]g_1 &=& [3](35,28) &=& (13,28) \\ 
+{}[\alpha\cdot s]g_1 &=& [3\cdot 9](26,9) &=& (26,9)\\ 
+([\beta]g_1,[\beta]g_2) &=& ([4](26,9),[4](16v^2,15v^3)) &=& ((27,34),(17v^2,28v^3))\\ 
+{}[\beta \cdot s]g_1 &=& [4\cdot 9](38,15) &=& (35,28)
+\end{array}
+\right\}
+$$
+In addition he compute 
+$$
+POK_{1,2} \left\{
+\begin{array}{lcl}
+y_{s} &=& POK(9, fe72e18b90014062682a77136944e362) = ((35,15),(17v^2 , 28v^3))\\
+y_{\alpha} &=& POK(3, fe72e18b90014062682a77136944e362) = ((38,15),(17v^2 , 15v^3 ))\\ 
+y_{\beta} &=& POK(4, fe72e18b90014062682a77136944e362) = ((35,28),(42v^2 , 27v^3 ))\\
+\end{array}
+\right\}
+$$
+
+\begin{align*}
+TinyMD5_{2}('(35,15)fe72e18b90014062682a77136944e362') =\\ H_2(MD5('(35,15)fe72e18b90014062682a77136944e362').trunc(3))=\\ H_2(115f145ceffdda73e916dc5ba8ae7354.trunc(3))= H_2(354) = \\
+H_2(001 101 010 100)=\\
+[8\cdot 4^{0}\cdot 5^{0}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{1}\cdot 3^{0}\cdot 8^{1}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{1}\cdot 11^{0}](17v^2 , 15v^3 ) +
+[3\cdot 6^{1}\cdot 9^{0}\cdot 10^{0}](10v^2 , 15v^3 )= \\
+[8\cdot 7](7v^2 , 16v^3)+
+[12\cdot 8](42v^2 , 16v^3 )+
+[2\cdot 9](17v^2 , 15v^3 ) +
+[3\cdot 6](10v^2 , 15v^3 )= \\
+[4](7v^2 , 16v^3)+
+[5](42v^2 , 16v^3 )+
+[5](17v^2 , 15v^3 ) +
+[5](10v^2 , 15v^3 )= \\
+[4](7v^2 , 16v^3)+
+[5*3](7v^2 , 16v^3 )+
+[5*7](7v^2 , 16v^3 ) +
+[5*11](7v^2 , 16v^3 )=\\
+(37v^2 , 27v^3)+
+(10v^2 , 28v^3 )+
+(37v^2 , 16v^3 ) +
+(42v^2 , 16v^3 )=\\
+[4](7v^2 , 16v^3)+
+[2](7v^2 , 16v^3 )+
+[9](7v^2 , 16v^3 ) +
+[3](7v^2 , 16v^3 )=\\
+[4+2+9+3](7v^2 , 16v^3)=
+(16v^2 , 28v^3 )
+\end{align*}
+So we get $[9](16v^2 , 28v^3 )= (17v^2 , 28v^3 )$
+
+\begin{align*}
+TinyMD5_{2}('(38,15)fe72e18b90014062682a77136944e362') =\\ H_2(MD5('(38,15)fe72e18b90014062682a77136944e362').trunc(3))=\\ H_2(cc4da0c02c4c1b15e72d6cc6430206ab.trunc(3))= H_2(6ab) = \\
+H_2(011 010 101 011)=\\
+[8\cdot 4^{0}\cdot 5^{1}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{0}\cdot 3^{1}\cdot 8^{0}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{1}\cdot 9^{0}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{1}\cdot 10^{1}](10v^2 , 15v^3 )= \\
+[8\cdot 5\cdot 7](7v^2 , 16v^3)+
+[12\cdot 3](42v^2 , 16v^3 )+
+[2\cdot 3\cdot 11](17v^2 , 15v^3 ) +
+[3\cdot 9\cdot 10](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[10](42v^2 , 16v^3 )+
+[1](17v^2 , 15v^3 ) +
+[10](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[10*3](7v^2 , 16v^3 )+
+[1*7](7v^2 , 16v^3 ) +
+[10*11](7v^2 , 16v^3 )=\\
+(17v^2 , 15v^3)+
+(17v^2 , 28v^3 )+
+(17v^2 , 15v^3 ) +
+(17v^2 , 28v^3 )=\\
+[7](7v^2 , 16v^3)+
+[4](7v^2 , 16v^3 )+
+[7](7v^2 , 16v^3 ) +
+[6](7v^2 , 16v^3 )=\\
+[7+4+7+6](7v^2 , 16v^3)=
+(10v^2 , 15v^3)
+\end{align*}
+So we get $[3](10v^2 , 15v^3 )= (17v^2 , 15v^3 )$
+
+\begin{align*}
+TinyMD5_{2}('(35,28)fe72e18b90014062682a77136944e362') =\\ H_2(MD5('(35,28)fe72e18b90014062682a77136944e362').trunc(3))=\\ H_2(502323bc55c75f7189fad7999c9f1708.trunc(3))= H_2(708) = \\
+H_2(011 100 001 000)=\\
+[8\cdot 4^{0}\cdot 5^{1}\cdot 7^{1}](7v^2 , 16v^3)+
+[12\cdot 1^{1}\cdot 3^{0}\cdot 8^{0}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{0}\cdot 9^{0}\cdot 11^{1}](17v^2 , 15v^3 ) +
+[3\cdot 6^{0}\cdot 9^{0}\cdot 10^{0}](10v^2 , 15v^3 )= \\
+[8\cdot 5\cdot 7](7v^2 , 16v^3)+
+[12](42v^2 , 16v^3 )+
+[2\cdot 11](17v^2 , 15v^3 ) +
+[3](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[12](42v^2 , 16v^3 )+
+[9](17v^2 , 15v^3 ) +
+[3](10v^2 , 15v^3 )= \\
+[7](7v^2 , 16v^3)+
+[12*3](7v^2 , 16v^3 )+
+[9*7](7v^2 , 16v^3 ) +
+[3*11](7v^2 , 16v^3 )=\\
+(17v^2 , 15v^3)+
+(42v^2 , 27v^3 )+
+(10v^2 , 15v^3 ) +
+(17v^2 , 15v^3 )=\\
+[7](7v^2 , 16v^3)+
+[10](7v^2 , 16v^3 )+
+[11](7v^2 , 16v^3 ) +
+[7](7v^2 , 16v^3 )=\\
+[7+10+11+7](7v^2 , 16v^3)=
+(37v^2 , 16v^3)
+\end{align*}
+So we get $[4](37v^2 , 16v^3 )= (42v^2 , 27v^3 )$
+
+Dave thinks he can outsmart the syste, Since he is the last to contribute, he just makes up an entirely new $MPC$, that does not contain any randomness from the previous contributers. He thinks he can do that because, no one can distinguish his $MPC_{1,3}$ from a correct one. If this is done in a smart way, he will even be able to compute the correct $POK$s. 
+
+So Dave choses $s=12$, $\alpha=11$ and $\beta=10$ and he will keep those values, hoping to be able to use them later to forge false proofs in the factorization snark. He then compute  
+$$
+MPC_{1,3}= \left\{
+\begin{array}{lcl}
+([s]g_1, [s]g_2) &=& ((13,28),(7v^2,27v^3))\\ 
+{}[s^2] g_1 &=& (13,15)\\
+{}[\alpha]g_1 &=& (33,9)\\ 
+{}[\alpha\cdot s]g_1 &=& (33,34)\\ 
+([\beta]g_1,[\beta]g_2) &=& ((38,28),(42v^2,27v^3))\\ 
+{}[\beta \cdot s]g_1 &=& (38,15)
+\end{array}
+\right\}
+$$
+Dave does not delete $s$, $\alpha$ and $\beta$, because if this is accepted as phase one of the common reference string computation, Dave controls already $3/4$-th of the cheating key to forge proofs. So Dave is careful to get the proofs of knowledge right. He computes the transcript of Carols contribution as 
+
+\begin{multline*}
+transcript_{1,2}=\\ 
+MD5('
+(26,34)(16v^2,28v^3)(13,28)(13,28)(26,9)(27,34)(17v^2,28v^3)(35,28)') =\\ c8e6308fffd47009f5f65e773ae4b499
+\end{multline*}
+
+We obtain that hash by computing
+
+$printf '\%s' "(26,34)(16v^2,28v^3)(13,28)(13,28)(26,9)(27,34)(17v^2,28v^3)(35,28)" | md5sum$
 
 \end{example}
-

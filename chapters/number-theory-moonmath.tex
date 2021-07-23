@@ -225,13 +225,13 @@ As long division is the standard algorithm used for pen-and-paper division of mu
 
 In a nutshell, the algorithm shifts gradually from the left to the right end of the dividend, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the final difference is then the remainder. To be more precise one version of the algorithm looks like this:
 
-\begin{algorithmic}
-\State Divide $n$ by $d$
-\State If $d = 0$ then error(DivisionByZeroException) end
-\State $Q \leftarrow 0 $ -- Initialize quotient to zero
-\State $R \leftarrow 0 $ -- Initialize remainder to zero               
-\State TO APPEAR
-\end{algorithmic}
+%\begin{algorithmic}
+%\State Divide $n$ by $d$
+%\State If $d = 0$ then error(DivisionByZeroException) end
+%\State $Q \leftarrow 0 $ -- Initialize quotient to zero
+%\State $R \leftarrow 0 $ -- Initialize remainder to zero               
+%\State TO APPEAR
+%\end{algorithmic}
 
 \begin{example}[Integer Log Division] To give an example of the basic integer long division algorithm most of us learned at school, lets divide the integer $157843853$ by the number $261$. 
 
@@ -264,17 +264,17 @@ The following pseudocode shows in detail how to calculate these numbers with the
 \begin{definition}
 \label{theorem: ext_Euclid}
 Let the natural numbers $ a, b \in \N $ be given. Then the so-called \textit{extended Euclidean algorithm} is given by the following calculation rule:
-\begin{algorithmic}
-\State $ \begin{array}{ccccc}
-r_0: = a, & r_1: = b, & s_0: = 1, & s_1: = 0, & k: = 1
-\end{array} $
-\While{$ r_{k} \neq 0 $}
-\State $ q_k: = \Zdiv{r_{k-1}}{r_k} $
-\State $ r_{k + 1}: = r_{k-1} -q_k \cdot r_k $
-\State $ s_{k + 1}: = s_{k-1} -q_k \cdot s_k $
-\State $ k \gets k + 1 $
-\EndWhile
-\end{algorithmic}
+%\begin{algorithmic}
+%\State $ \begin{array}{ccccc}
+%r_0: = a, & r_1: = b, & s_0: = 1, & s_1: = 0, & k: = 1
+%\end{array} $
+%\While{$ r_{k} \neq 0 $}
+%\State $ q_k: = \Zdiv{r_{k-1}}{r_k} $
+%\State $ r_{k + 1}: = r_{k-1} -q_k \cdot r_k $
+%\State $ s_{k + 1}: = s_{k-1} -q_k \cdot s_k $
+%\State $ k \gets k + 1 $
+%\EndWhile
+%\end{algorithmic}
 As a result, the algorithm computes the integers $ gcd (a, b): = r_k $, as well as $ s: = s_k $ and $ t: = \Zdiv{(r_k-s_k \cdot a)}{b} $ such that the equation
 $ gcd (a, b) = s \cdot a + t \cdot b $ holds.
 \end{definition}
@@ -765,18 +765,18 @@ Let $ p $ be an odd prime number $ p \in \Prim _{\geq 3} $ and $ y $ a quadratic
 \item Find $ Q, S \in \Z $ with $ p-1 = Q \cdot 2 ^ S $ such that $ Q $ is odd.
 \item Find an arbitrary quadratic non-remainder $ z \in \Z_p $.
 \item
-\begin{algorithmic}
-\State $ \begin{array}{ccccc}
-M: = S, & c: = z ^ Q, & t: = y ^ Q, & R: = y ^{\frac{Q + 1}{2}}, & M, c, t, R \in \Z_p
-\end{array} $
-\While{$ t \neq 1 $}
-\State Find the smallest $ i $ with $ 0 <i <M $ and $ t ^{2 ^ i} = 1 $
-\State $ b: = c ^{2 ^{M-i-1}} $
-\State $ \begin{array}{ccccc}
-M: = i, & c: = b ^ 2, & t: = tb ^ 2, & R: = R \cdot b
-\end{array} $
-\EndWhile
-\end{algorithmic}
+%\begin{algorithmic}
+%\State $ \begin{array}{ccccc}
+%M: = S, & c: = z ^ Q, & t: = y ^ Q, & R: = y ^{\frac{Q + 1}{2}}, & M, c, t, R \in \Z_p
+%\end{array} $
+%\While{$ t \neq 1 $}
+%\State Find the smallest $ i $ with $ 0 <i <M $ and $ t ^{2 ^ i} = 1 $
+%\State $ b: = c ^{2 ^{M-i-1}} $
+%\State $ \begin{array}{ccccc}
+%M: = i, & c: = b ^ 2, & t: = tb ^ 2, & R: = R \cdot b
+%\end{array} $
+%\EndWhile
+%\end{algorithmic}
 The results are then the square roots $ r_1: = R $ and $ r_2: = p-R $ of $y$ in $\F_p$.
 \end{enumerate}
 \end{definition}
@@ -1453,7 +1453,7 @@ Non of these techniques work for hashing into $\mathbb{G}_2$. We therefore imple
 
 We start with $\mathbb{G}_1$. Our goal is to define an $12$-bit bounded hash function
 $$
-H_{1}: \{0,1\}^{8} \to \mathbb{G}_1 
+H_{1}: \{0,1\}^{12} \to \mathbb{G}_1 
 $$
 Since $12= 3\cdot 4$ we "randomly" select $4$ uniformly distributed generators $\{(38, 15), (35,28), (27, 34), (38, 28)\}$ from $\mathbb{G}_1$ and use the pseudo-random function from XXX. 
 For every genrator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
@@ -1467,21 +1467,21 @@ $$
 $$
 So our hash function is computed like this:
 \begin{multline*}
-H_1(x_0,x_1,\ldots, x_{11})=
-[2\cdot 7^{x_0}\cdot 5^{x_1}\cdot 9^{x_2}](38,15)+
-[11\cdot 4^{x_3}\cdot 7^{x_4}\cdot 7^{x_5}](35,28)+\\
-[5\cdot 3^{x_6}\cdot 7^{x_7}\cdot 12^{x_8}](27,34) +
-[6\cdot 5^{x_9}\cdot 1^{x_{10}}\cdot 8^{x_{11}}](38,28)
+H_1(x_{11},x_1,\ldots, x_{0})=
+[2\cdot 7^{x_{11}}\cdot 5^{x_{10}}\cdot 9^{x_9}](38,15)+
+[11\cdot 4^{x_8}\cdot 7^{x_7}\cdot 7^{x_6}](35,28)+\\
+[5\cdot 3^{x_5}\cdot 7^{x_4}\cdot 12^{x_3}](27,34) +
+[6\cdot 5^{x_2}\cdot 1^{x_{1}}\cdot 8^{x_{0}}](38,28)
 \end{multline*}
 Note that $a^x=1$ whe $x=0$ and hence those terms can be omitted in the computation. 
 In particular the hash of the $12$-bit zero string is given by 
-\begin{multline*}
+\begin{multline*}WRONG-ORDERING-REDO
 H_1(0)= [2](38,15)+[11](35,28)+[5](27,34)+[6](38,28)= \\
 (27,34)+(26,34)+(35,28)+(26,9)= (33,9) + (13,28) = (38,28)
 \end{multline*}
 The hash of $011010101100$ is given by 
 \begin{multline*}
-H_1(011010101100)=\\
+H_1(011010101100)=WRONG-ORDERING-REDO\\
 [2\cdot 7^{0}\cdot 5^{1}\cdot 9^{1}](38,15)+
 [11\cdot 4^{0}\cdot 7^{1}\cdot 7^{0}](35,28)+
 [5\cdot 3^{1}\cdot 7^{0}\cdot 12^{1}](27,34) +
@@ -1498,7 +1498,7 @@ TO_APPEAR
 \end{multline*}
 We can use the same technique to define a $12$-bit bounded hash function in $\mathbb{G}_2$:  
 $$
-H_{2}: \{0,1\}^{8} \to \mathbb{G}_2 
+H_{2}: \{0,1\}^{12} \to \mathbb{G}_2 
 $$
 Again we "randomly" select $4$ uniformly distributed generators $\{(7v^2 , 16v^3 ), (42v^2 , 16v^3 ), (17v^2 , 15v^3 ), (10v^2 , 15v^3 )\}$ from $\mathbb{G}_2$ and use the pseudo-random function from XXX. For every genrator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
 $$
@@ -1511,13 +1511,19 @@ $$
 $$
 So our hash function is computed like this:
 \begin{multline*}
-H_1(x_0,x_1,\ldots, x_{11})=
-[8\cdot 4^{x_0}\cdot 5^{x_1}\cdot 7^{x_2}](7v^2 , 16v^3)+
-[12\cdot 1^{x_3}\cdot 3^{x_4}\cdot 8^{x_5}](42v^2 , 16v^3 )+\\
-[2\cdot 3^{x_6}\cdot 9^{x_7}\cdot 11^{x_8}](17v^2 , 15v^3 ) +
-[3\cdot 6^{x_9}\cdot 9^{x_{10}}\cdot 10^{x_{11}}](10v^2 , 15v^3 )
+H_1(x_{11},x_{10},\ldots, x_{0})=
+[8\cdot 4^{x_{11}}\cdot 5^{x_{10}}\cdot 7^{x_9}](7v^2 , 16v^3)+
+[12\cdot 1^{x_8}\cdot 3^{x_7}\cdot 8^{x_6}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{x_5}\cdot 9^{x_4}\cdot 11^{x_3}](17v^2 , 15v^3 ) +
+[3\cdot 6^{x_2}\cdot 9^{x_{1}}\cdot 10^{x_{0}}](10v^2 , 15v^3 )
 \end{multline*}
-
+We extend this to a hash function that maps unbounded bitstring to $\mathbb{G}_2$ by precomposing with an actual haah function like $MD5$ and feet the first 12 bits of its outcome into our previously defined hash function. 
+$$
+TinyMD5_{\mathbb{G}_2}: \{0,1\}^* \to \mathbb{G}_2
+$$
+with $TinyMD5_{\mathbb{G}_2}(s)= H_2(MD5(s)_0,\ldots MD5(s)_{11})$. For example, since 
+$MD5("")= 0xd41d8cd98f00b204e9800998ecf8427e$ and the binary representation of the hexadecimal number $0x27e$ is $001001111110$ we compute $TinyMD5_{\mathbb{G}_2}$ of the empty string as
+$TinyMD5_{\mathbb{G}_2}("")= H_2(MD5(s)_{11},\ldots MD5(s)_{0}) = H2(001001111110)=$
 
 \subsubsection{Baby-JubJub-2}
 To give an understanding what the Baby-JubJub curve is, we want to parallel its development here to find a Baby-Jubjub like curve for pen and paper.
