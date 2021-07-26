@@ -1,11 +1,217 @@
-\chapter{Number Theory}
+\chapter{Mathematics}
+% Reason why we need a math-chapter in a book like this:
+How much mathematics is needed to understand zero knowledge proofs? The answer, of course, depends on many things like the level of detail the reader want to understand them. For example it is possible to describe those proofs not using mathematics at all. However to read a foundational paper like [GROTH16], enough mathematics is needed to at least understand the basic concepts. 
 
-To understand the internals SNARKs it is foremost important to understand the basics of finite field arithmetics AND STUFF.
+Otherwise any student who is interested in learning the concepts, but who
+has never seen or played with, say, a finite field, or an elliptic curve, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needs but perhaps more because of the vast amount of technical jargon, of unknown terms, obscure symbols that quickly makes a text ubreadable, desipte the concepts being actually not that hard. As a result the reader might either loose interest, or gain some dangerous smattering that in a worst case scenario materialize in inmature code. 
+
+In this chapter we therefore derive the mathematical concepts needed to understand the basic concepts underlying snark development and we encourage the reader who is not familiar with basic number theory and lliptic curves to take the time and read this chapter until they are able to at least solve most of the simple exercises. 
+
+If on the other hand the reader is already skilled in elliptic curve cryptography they might skip this section and only come back for reference and comparision. Maybe the most interesing parts are XXX.
+
+We start at a very basic level and only really requie fundamntal concepts like integer arithmetics. At the same time we'll have a focus on teaching the reader how to think mathematically and to understand that there are numbers and methatical structures out there that appear to be very different from the stuff we learned in school and yet on a deeper level they are in deed very similar.
+
+We want to stress however, that our introduction is informal, incomplete and optimized to enable the reader to understand zero knowledge concepts as efficient as possible. Our focus and design choices are so that we give as little theory as necessary but accompanied by a wealth of numerical examples. We found this on the believe, that such an informal, example-
+driven approach to learning mathematics may ease the beginner’s digestion in the initial stages. 
+
+For instance, a beginner would be likely to find it more beneficial to first compute a simple toy snark in a pen and paper style all the way through all steps before they dig deeper and actually devop real world production ready systems. Also having already a few simple examples in you head, its likely easier to only then read the actual academic papers. 
+
+However in order to be able to derive those toy example, some mathematical groundwork is needed. This chapter therefore will help the reader to focus on what is important, while at the same time serve as first exercises the reader is encouraged to recompute themself. Every section usually then ends with a list of additional exercises in increasing difficulty order, to help the reader memorising and applying the concepts given. 
+
+Overall the goal of this chapter is to provide a reader who is starting with nothing more than basic high school algebra, to be able to solve basic tasks in elliptic curve cryptography without the need of a computer.
+
 
 %Summary of this chapter
-We therefore start with a brief introduction to fundamental algebraic terms like fields, field extensions AND STUFF . We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples, that likely all of us know and do basic computations with these examples. 
+We start with a brief recapitulation of basic integer aithmetics like long division, the greatest common divisior and Euklids algorithm. After that we introduce modular arithmetics as \textbf{the most important} skill to compute our pen and paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
 
-The motivated reader is then encuraged to do some exercises from  the apendix of this chapter.
+After this practical warm up, we have to introduce some basic algebraic terms like groups and fields, because those terms are all over the place when reading academic papers in the context of zero knowledge proof. The beginner is good adviced to memorize those terms and think about them. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
+
+\section{Integer Arithmetics}
+\label{integer_arithmetics}
+To some degree, most readers with probably remember integer arithmetics from school. It is however important for the rest of the book to be able to apply those concepts to understand and execute computations in the various pen and paper examples that are the main contribution of the moon math manual. We will therefore recapitulate those concepts filling up some knowledge gaps.
+
+In what follows we applay standard mathematical notations and use the symbol $\mathbb{Z}$ for the set of all integers, that is we write
+\begin{equation}
+\label{integer_symbol}
+\Z := \{\ldots, -3,-2,-1,0,1,2,3,\ldots\}
+\end{equation}
+So whenever you see the symbol $\mathbb{Z}$, think of the set of all integers. If $a \in \Z$ is an integer, we write $|a|$ for the \textit{absolute value} of $a$, that is the the non-negative value of $a$ without regard to its sign. In addition we will use the symbol $\N$ for the set of all counting numbers, that is we write 
+\begin{equation}
+\label{integer_symbol}
+\N := \{0,1,2,3,\ldots\}
+\end{equation}
+including the number $0$. So whenever you see the symbol $\mathbb{N}$, think of the set of all non negative integers. 
+
+To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the begining, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore. 
+
+Both sets $\N$ and $\Z$ have a notion of addition as well as multiplication dedined on them and also most of us are probably able to do many integer computations in their head, we will frequently invoke the sagemath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer-type in sage is:
+\begin{sagecommandline}
+sage: ZZ # A sage notation for the integer type
+sage: NN # A sage notation for the counting number type
+sage: ZZ(5) # Get an element from the Ring of integers
+sage: ZZ(5) + ZZ(3)
+sage: ZZ(5) * NN(3)
+sage: ZZ.random_element(10**50)
+sage: ZZ(27713).str(2) # Binary string representation
+sage: NN(27713).str(2) # Binary string representation
+sage: ZZ(27713).str(16) # Hexadecimal string representation
+\end{sagecommandline}
+Of particular interest for us are the so called \textit{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are divisible by themself and by $ 1 $ only. Prime numbers are called \textit{odd} if they are not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+$\Prim$ is infinite and can be ordered according to size, so that we can writem them as
+\begin{equation}
+\label{eq: primenumber_sequence}
+2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
+\end{equation}
+which is sequence $ A000040 $ in OEIS. In particular, we can talk about small and large prime numbers.
+
+As the \textit{fundamental theorem of arithmetics} tells us, prime numbers are in a certain sense the basic building blocks from which all other natural numbers are composed. To see that, let $ n \in \N_{\geq 2} $ be any natural number. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that
+\begin{equation}
+n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
+\end{equation}
+This representation is unique, except for permutations in the factors and is called the \textbf{prime factorization} of $n$.
+\begin{example}[Prime Factorization] To see what we mean by integer factorization, lets look at the number $19214758032624000$. To get its prime factors, we can sucessively divide it by all prime numbers in ascending order starting with $2$. We get
+\begin{equation*}
+19214758032624000 = 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2 \cdot 3\cdot 3\cdot 3\cdot 5\cdot 5\cdot 5\cdot 7 \cdot 11 \cdot 17\cdot 17 \cdot 23 \cdot 43\cdot 43 \cdot 47
+\end{equation*}
+We can double check our findings invoking sage, which provides an algorith to factor counting numbers:
+\begin{sagecommandline}
+sage: n = ZZ(19214758032624000)
+sage: factor(n)
+\end{sagecommandline}
+\end{example}
+Having done the computation from the previous example, reveals an important observation: Computing the factorization was computationally expensive, while on the other hand, giving a string of prime numbers, computing their product is fast. 
+
+From this an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \textit{factorization problem} and as far as we know, there is no method on a classical Turing machine that is able to compute this representation in polynomial time. The fastest algorithms known today run sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $.
+
+It follows that integer factorization $\Leftrightarrow$ prime number multiplication is an example of, what is called a one-way.function. Something that is easy to compute in one direction, but hard to compute in the other direction. Existence of one way functions like this are basic crytographic assumptions, that the security of many crypto systems is based on.
+
+It should be pointed out however hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is, of course, that cryosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
+\begin{exercise}
+Compute the factorization of $6469693230$ and double check your results using sage.
+\end{exercise}
+
+\paragraph{Euklidean Division}
+\label{Euklidean_division}
+In general there is no division defined in the usual sense for integers, as for example $7$ divided by $3$ will not be an integer again. However it is possible to devide any two integers with a remainder. So for example $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
+
+Doing integer division like this is probably something many of us remember from school. It is 
+usually called \textit{Euclidean division}, or division with remainder and it is an important technique, that every reader must become familiar with to understand many concepts in this book. The precise definition is as follows:
+
+Let $ a \in \Z $ and $ b \in \Z $ be two integers. Then there is always another integer $ m \in \Z $ and a counting number $ r \in \N $, with $ 0 \leq r <|b| $ such that
+\begin{equation}
+\label{eq_euklidean_division}
+a = m \cdot b + r
+\end{equation}
+This decomposition of $a$ given $b$ is called \textit{Euklidean division}, where $ a $ is called the \textit{divident}, $ b $ is called the \textit{divisor}, $m$ is called the \textit{quotient} and $r$ is called the \textit{remainder}. 
+\begin{notation}
+\label{eq_euklidean_division_notation}
+Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euklidean_division}). Then we often write 
+\begin{equation}
+\label{def_integer_division_and_modulus}
+\begin{array}{lcr}
+\Zdiv{a}{b}: = m, & & \Zmod{a}{b}: = r 
+\end{array}
+\end{equation}
+to describe the quotient and the remainder of the Euklidean division. We also say, that an integer $ a $ is divisible by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ a | b $.
+\end{notation}
+So in a Nutshell Euclidean division is a process of dividing one integer by another, in a way that produces a quotient and a non negative remainder the latter of which is smaller than the absolute value of the divisor. It can be shown, that both the quotient and the remainder always exist and are unique, as long as the divident is different from $0$.
+
+A special situation occures, is the remainder is zero, because in this special case the divident \textit{is} divisible by the divisor. Our notation $a|b$ refelcts that. 
+
+
+\begin{example} Applying Euklidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the divisor $-17$ and the divident $4$, we get 
+\begin{equation*}
+\begin{array}{lcr}
+\Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
+\end{array}
+\end{equation*}
+because $ -17 = -5 \cdot 4 + 3 $  is the Euklidean division of $-17$ and $4$ (Since the remainder is by definition a non-negative number). In this case $4$ does not divide $-17$ as the reminder is not zero. Writing $-17 | 4$ therefore has no meaning. On the other hand we can write $12 | 4$, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke sagemath to do the computation for us. We get
+\begin{sagecommandline}
+sage: ZZ(-17) // ZZ(4) # Integer quotient 
+sage: ZZ(-17) % ZZ(4) # remainder 
+sage: ZZ(4).divides(ZZ(-17)) # self divides other
+sage: ZZ(4).divides(ZZ(12))
+\end{sagecommandline}
+\end{example}
+Methods to compute Euklidean division for integers are called \textit{integer division algorithms}. Probably the best known algorithm is the so called \textit{long division}, that most of us might have learned in school. It should be noted however that there are faster methods like \textit{Newton–Raphson division}.
+
+As long division is the standard method used for pen-\&-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it all over this book when we do simple pen-and-paper computations. However instead of defining the algorithm formally, we rather give some examples, that hopelly will make the process clear
+
+\begin{example}[Integer Long Division] To give an example of integer long division algorithm, lets divide the integer $a=143785$ by the number $b=17$. Our goal is therfore to find solutions to equation \ref{eq_euklidean_division}, that is we need to find the quotient $m\in\Z$ and the reminder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute
+\begin{equation}
+\intlongdivision{143785}{17}
+\end{equation}
+We therefore get $m=8457$ as well as $r=16$ and indeed we have $143785 = 8457\cdot 17 + 16$, which we can double check invoking sage:
+\begin{sagecommandline}
+sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
+sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
+\end{sagecommandline}
+In a nutshell, the algorithm loops through the digits of the divident from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the divident.
+\end{example}
+\begin{exercise}[Integer Long Division]
+Find an $m\in\Z$ as well as an $r\in\N$ such that $a= m\cdot b +r$ (See equation \ref{eq_euklidean_division}) holds for the folling pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$. In which cases are your solutions unique?
+\end{exercise}
+\begin{exercise}[Long Division Algorithm]
+Write an algorithm in pseudocode that computes integer long division, handling all edge cases properly.
+% https://en.wikipedia.org/wiki/Division_algorithm
+\end{exercise}
+
+\paragraph{The Extended Euklidean Algorithm}
+One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so called finite fields, as we explain in XXX. In modular arithmetics it is sometimes possible to define actual division and multiplicative inverses of numbers, that is very different from inverses as we know them from other systems like factional numbers. 
+
+However, to actually compute those inverses we have to get familar with the so-called \textit{extended Euclidean algorithm}. To recapitulate jargon first, the \textit{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition two counting numbers are called \textbf{relative prime}, if their greates common divisor is $1$.
+
+The extended Euclidean algorithm is then a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the equation
+\begin{equation}
+\label{eq: erw_Eukl_algo}
+gcd (a, b) = s \cdot a + t \cdot b
+\end{equation}
+holds. The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm (\cite{JB} chapter 2.9):
+
+\begin{algorithm}\caption{Extended Euklidean Algorithm}
+\label{alg_ext_euclid_alg}
+\begin{algorithmic}[0]
+\Require $a,b \in \N$ with $a\geq b$
+\Procedure{Ext-Euclid}{$a,b$}
+\State $r_0\gets a$
+\State $r_1\gets b$
+\State $s_0\gets 1$
+\State $s_1\gets 0$
+\State $k\gets 1$
+\While{$ r_{k} \neq 0 $}
+\State $ q_k\gets \Zdiv{r_{k-1}}{r_k} $
+\State $ r_{k + 1}\gets r_{k-1} -q_k \cdot r_k $
+\State $ s_{k + 1}\gets s_{k-1} -q_k \cdot s_k $
+\State $ k \gets k + 1 $
+\EndWhile
+\State \textbf{return} $gcd(a,b)\gets r_{k-1}$, $s\gets s_{k-1}$ and $ t: = \Zdiv{(r_{k-1}-s_{k-1} \cdot a)}{b} $ 
+\EndProcedure
+\Ensure $ gcd (a, b) = s \cdot a + t \cdot b $
+\end{algorithmic}
+\end{algorithm}
+The algorithm is simple enough to be done effectively in pen-\&-paper examples, where it is common to write it as a table where the rows represent the while-loop and the colums represent the values of the the array $r$, $s$ and $t$ with index $k$. The following example provides a simple execution:
+\begin{example} To illustrate the algorithm, lets apply it to the numbers $a=12$ and $b=5$. Since $12,5\in \N$ as well as $12\geq 5$ all requirements are meat and we compute
+\begin{center}
+  \begin{tabular}{c | c c l}
+    k & $ r_k $ & $ s_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
+    0 & 12 & 1 & 0 \\
+    1 & 5 & 0 & 1 \\
+    2 & 2 & 1 & -2 \\
+    3 & 1 & -2 & 5 \\
+  \end{tabular}
+\end{center}
+From this we can see that $ 12 $ and $ 5 $ are relatively prime (coprime), since their greatest common divisor is $ gcd (12, 5) = 1 $ and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ holds. We can also invoke sage to double check our findings:
+\begin{sagecommandline}
+sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
+\end{sagecommandline}
+\end{example}
+\begin{exercise}[Extended Euklidean Algorithm]
+Find integers $s,t\in\Z$ such that $gcd(a,b)= s\cdot a +t\cdot b$ holds for the folling pairs $(a,b) = (45,10)$, $(a,b)=(13,11)$, $(a,b)=(13,12)$. What pairs $(a,b)$ are coprime?
+\end{exercise}
+\begin{exercise}[Towards Prime fields]
+Let $n\in \N$ be a counting number and $p$ a prime number, such that $n<p$. What is the greatest common divisor $gcd(p,n)$?
+\end{exercise}
+
 
 \section{Preliminaries}
 INTO-BLA
@@ -82,15 +288,7 @@ sage: CommutativeRings().super_categories()
 \end{sagecommandline}
 
 \begin{example}[The Ring of Integers] The set $\Z$ of integers with the usual addition and multiplication is a ring. In sage the ring of integers is called as follows and as we know, not all elements have multiplicative inverses
-\begin{sagecommandline}
-sage: ZZ # A sage notation for the Ring of integers
-sage: ZZ(5) # Get an element from the Ring of integers
-sage: ZZ(5) + ZZ(3)
-sage: ZZ(5) * ZZ(3)
-sage: ZZ.random_element(10**50)
-sage: ZZ(27713).str(2) # Binary string representation
-sage: ZZ(27713).str(16) # Hexadecimal string representation
-\end{sagecommandline}
+
 \end{example}
 \begin{example}[Underlying additive group of a ring] Every ring $(R,+,\cdot)$ gives rise to group, if we just forget about the multiplication
 \end{example}
@@ -186,114 +384,6 @@ sage: GF(2)(1) + GF(2)(1) # Addition
 sage: GF(2)(1) / GF(2)(1) # Division
 \end{sagecommandline}
 \end{example}
-
-
-\subsection{Integer Arithmetics}
-\label{integer_arithmetics}
-We start by a recapitulation of basic arithmetics as most of us will probably recall from school.
-
-As we have seen in the previous section integers form a ring and division is not well defined. However one of the most basic but at the same time highly important technique, that every reader must become familiar with is the following (kind of) replacement for devision of integers called \textit{Euklidean division} (\cite{AL}
-\begin{theorem}[Euklidean Division]
-Let $ a \in \Z $ be an integer and $ b \in \N $ a natural number. Then there are always two numbers $ m \in \Z $ and $ r \in \N $, with $ 0 \leq r <b $ such that
-\begin{equation}
-\label{eq: euklidean_division}
-a = m \cdot b + r
-\end{equation}
-This decomposition of $a$ given $b$ is called \textbf{Euklidean division} or \textbf{division with remainder} and $ a $ is called the \textbf{divident}, $ b $ is called the \textbf{divisor},$m$ is called the quotient and $r$ is called the \textbf{remainder}. 
-\end{theorem}
-\begin{remark}
-\label{eq: euklidean_division_notation}
-If $ a, b, m $ and $ r $ satisfy the equation (\ref{eq: euklidean_division}), we often write $ \Zdiv{a}{b}: = m $ to describe the quotient and use the symbol $ \Zmod{a}{b}: = r $ for the remainder. We also say, that an integer $ a $ is divided by a number $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ a | b $ (\cite{AL} Note 1 below).
-\end{remark}
-\begin{example}
-Using our previously defined notation, we have $ \Zdiv{-17}{4 } = - 5 $ and $ \Zmod{-17}{4} = 3 $, because $ -17 = -5 \cdot 4 + 3 $  is the Euklidean division of $-17$ and $4$ (Since the remainder is by definition a non-negative number). In this case $4$ does not divide $-17$ as the reminder is not zero. Writing $-17 | 4$ therefore has no meaning.
-
-On the other hand we can write $12 | 4$, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $.
-
-\begin{sagecommandline}
-sage: ZZ(-17) // ZZ(4) # Integer quotient 
-sage: ZZ(-17) % ZZ(4) # remainder 
-sage: ZZ(-17).divides(ZZ(4))
-sage: ZZ(4).divides(ZZ(12))
-\end{sagecommandline}
-\end{example}
-A fundamental property of Euclidean division is that both the quotient and the remainder exist and are unique. The result is therefore independent of any algorithm that actually does the computation.
-
-Methods for computing the division with remainder are called \textit{integer division algorithms}. Probably the best known algorithm is the so called \textit{long division}, that most of us might have learned in school. It should be noted however that there are faster algorithms like \textit{Newton–Raphson division} known.
-
-As long division is the standard algorithm used for pen-and-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with this algorithm as we use it all over this book when we do simple pen-and-paper computations.
-
-In a nutshell, the algorithm shifts gradually from the left to the right end of the dividend, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the final difference is then the remainder. To be more precise one version of the algorithm looks like this:
-
-%\begin{algorithmic}
-%\State Divide $n$ by $d$
-%\State If $d = 0$ then error(DivisionByZeroException) end
-%\State $Q \leftarrow 0 $ -- Initialize quotient to zero
-%\State $R \leftarrow 0 $ -- Initialize remainder to zero               
-%\State TO APPEAR
-%\end{algorithmic}
-
-\begin{example}[Integer Log Division] To give an example of the basic integer long division algorithm most of us learned at school, lets divide the integer $157843853$ by the number $261$. 
-
-So the goal is to find quotient and reminder $m,r \in \N$ such that
-$$157843853 = 261 * m +r$$
-holds. Using a notation that is mostly used in Commonwealth countries we can then compute
-%\longdivision{157843853}{261} 
-
-TO-APPEAR 
-\end{example}
-
-\begin{sagecommandline}
-sage: ZZ(157843853).quo_rem(ZZ(261)) # Euclidean Division
-sage: ZZ(604765)*ZZ(261) + ZZ(188) # check
-\end{sagecommandline}
-
-
-Another important algorithm frequently used in computations with integers is the so-called \textit{extended Euclidean algorithm}, which calculates the greatest common divisor $ gcd (a, b) $ of two natural numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the equation
-\begin{equation}
-\label{eq: erw_Eukl_algo}
-gcd (a, b) = s \cdot a + t \cdot b
-\end{equation}
-holds. Two numbers are called \textbf{relative prime}, if their greates common divisor is $1$.
-
-The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm (\cite{JB} chapter 2.9):
-
-
-
-
-\begin{definition}
-\label{theorem: ext_Euclid}
-Let the natural numbers $ a, b \in \N $ be given. Then the so-called \textit{extended Euclidean algorithm} is given by the following calculation rule:
-%\begin{algorithmic}
-%\State $ \begin{array}{ccccc}
-%r_0: = a, & r_1: = b, & s_0: = 1, & s_1: = 0, & k: = 1
-%\end{array} $
-%\While{$ r_{k} \neq 0 $}
-%\State $ q_k: = \Zdiv{r_{k-1}}{r_k} $
-%\State $ r_{k + 1}: = r_{k-1} -q_k \cdot r_k $
-%\State $ s_{k + 1}: = s_{k-1} -q_k \cdot s_k $
-%\State $ k \gets k + 1 $
-%\EndWhile
-%\end{algorithmic}
-As a result, the algorithm computes the integers $ gcd (a, b): = r_k $, as well as $ s: = s_k $ and $ t: = \Zdiv{(r_k-s_k \cdot a)}{b} $ such that the equation
-$ gcd (a, b) = s \cdot a + t \cdot b $ holds.
-\end{definition}
-\begin{example} To illustrate the algorithm, lets apply it to the numbers $ (12,5) $. We compute
-\begin{center}
-  \begin{tabular}{c | c c l}
-    k & $ r_k $ & $ s_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
-    0 & 12 & 1 & 0 \\
-    1 & 5 & 0 & 1 \\
-    2 & 2 & 1 & -2 \\
-    3 & 1 & -2 & 5 \\
-  \end{tabular}
-\end{center}
-From this one can see that $ 12 $ and $ 5 $ are relatively prime (since their greatest common divisor is $ gcd (12, 5) = 1 $) and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ holds.
-\end{example}
-
-\begin{sagecommandline}
-sage: ZZ(12).xgcd(ZZ(5)) # (gcd,s,t)
-\end{sagecommandline}
 
 \subsection{Modular arithmetic}
 Congruence or modlar arithmetics (sometimes also called residue class arithmetics) is of central importance for understanding most modern crypto systems. In this section we will therefore take a closer look at this arithmetic. For the notation in cryptology see also \cite{JB} Chapter 3, or \cite{AL} Chapter 3.
@@ -546,37 +636,7 @@ a short overview of prime numbers and provide few basic properties like the fund
 
 The key insight here, is that when the modulus is a prime number, modular arithmetic has a well defined division, that is absent for general moduli.
 
-A prime number $ p \in \N $ is a natural number $ p \geq 2 $, which is divisible by itself and by $ 1 $ only. Such a prime number is called \textit{odd} if it is not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
 
-As the Greek mathematician Euclid was able to prove by contradiction in the famous \textit{theorem of Euclid}, no largest prime number exists. The set of all prime numbers is thus infinite \cite{AL}.
-
-Since prime numbers are especially natural numbers, they can be ordered according to size, so that one can get the sequence
-\begin{equation}
-\label{eq: primenumber_sequence}
-p_n: = 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
-\end{equation}
-of all prime numbers, which is sequence $ A000040 $ in OEIS or \cite{HW} chapter 1.4). In particular, we can talk about small and large prime numbers.
-
-As the following theorem shows, prime numbers are in a certain sense the basic units from which all other natural numbers are composed:
-\begin{theorem}[The Fundamental Theorem of Arithmetic]
-\label{theorem: primfactor_decomposition}
-Let $ n \in \N_{\geq 2} $ be a natural number. Then there are prime numbers 
-$ p_1, p_2, \ldots, p_k \in \Prim $, such that:
-\begin{equation}
-n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
-\end{equation}
-Except for permutations in the factors, this representation is unique and is called the \textbf{prime factorization} of $ n $.
-\end{theorem}
-\begin{proof} (\cite{AL} sentence 6.) 
-\end{proof}
-\begin{remark}
-An important question is how fast we can compute the prime factorization of a natural number? This is the famous \textit{factorization problem}. As far as we know, there is no method on a classical Turing machine that is able to compute this representation in polynomial time. The fastest algorithms known today run sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $. THe interested reader can find more on this exciting topic in \cite{JB} Chapter 10.
-\end{remark}
-\begin{remark}
-It should be pointed out however hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer \cite{PS}.
-
-The consequence of this is, of course, that cryosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
-\end{remark} 
 
 
 \begin{definition}[Prime Fields] (\cite{JB} example 3.4.4 or \cite{AL} definition 3.1)
