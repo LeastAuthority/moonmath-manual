@@ -212,8 +212,358 @@ Find integers $s,t\in\Z$ such that $gcd(a,b)= s\cdot a +t\cdot b$ holds for the 
 Let $n\in \N$ be a counting number and $p$ a prime number, such that $n<p$. What is the greatest common divisor $gcd(p,n)$?
 \end{exercise}
 
+\section{Modular arithmetic}
+In mathematics, so called \textit{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$, $24$ or $60$, depending on your clock. For example if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The letter of which has no meaning on a normal clock that shows hours. 
 
-\section{Preliminaries}
+The number at which the wrap occures is called the \textit{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arizes in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the exponentiation function has an inverse with respect to certain moduli, that is hard to compute. In addition we will see that it provides the foundation of what is called finite fields (See XXX)
+
+Also it will turn out that modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encouurage the interested reader to work through the example and to discover that, once they accept that this is a new kind of calculations, its actually not that hard.
+\paragraph{Congurency}
+In what follows, let $n\in\N$ with $n\geq 2$ be a fixed counting number, that we will call the \textit{modulus} of our modular arithmetics system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euklidean division \ref{Euklidean_division} by $n$ will give the same remainder. We then say that two numbers are \textit{congruent} whenever they are in the same class.
+
+\begin{example}
+If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we Euklidean divide them by $12$. In the picture of an analog $12$-hour clock, starting at $5$ o'clock, when we add $12$ hours we are again at $5$ o'clock, representing the number $17$. On the other hand when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$. 
+\end{example}
+We can formulize this intuition of what congruency should be into a proper definition utilizing Euklidean division as explained previously \ref{integer_arithmetics}: Let $ a $, $ b \in \Z $ be two integers and $ n \in \N $ a natural number.
+Then $ a $ and $ b $ are said to be \textbf{congruent with respect to the modulus} $ n $, if and only if the equation
+\begin{equation}
+\Zmod{a}{n} = \Zmod{b}{n}
+\end{equation}
+holds. If on the other hand two numbers are not congruent with respect to a given modulus $n$, we call them \textit{incongruent} w.r.t. $n$. 
+
+A \textit{congruency} is then nothing but an equation "up to congruency", which means that the equation only needs to hold if we take the modulus on both sides. In which case we write 
+\begin{equation}
+\kongru{a}{b}{n} 
+\end{equation}
+\paragraph{Modular Arithmetics}
+On particulary nice thing about congruencies is, that we can do calculations (aithmetics), much like we can with integer equations. That is we can add or multiply numbers on both sides. The main difference is probably that the congruency $\kongru{a}{b}{n}$ is only equivalent to the congruency $\kongru{k\cdot a}{k\cdot b}{n}$ for some non zero integer $k\in \Z$, whenever $k$ and the modulus $n$ are coprime. The following list gives a set of useful rules:
+
+Suppose that the congurencies $\kongru{a_1}{b_1}{n}$ as well as $\kongru{a_2}{b_2}{n}$ are satisfied for integers $a_1,a_2,b_1,b_2\in\Z$ and that $k\in\Z$ is another integer. Then:
+\begin{itemize}
+\item $\kongru{a_1+k}{b_1+k}{n}$ (compatibility with translation)
+\item $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ (compatibility with scaling)
+\item $\kongru{a_1+a_2}{b_1+b_2}{n}$ (compatibility with addition)
+\item $\kongru{a_1\cdot a_2}{b_1\cdot b_2}{n}$ (compatibility with multiplication)
+\end{itemize}
+Other rules like compatibility with subtraction and exponentiation follow from this rule, as for example compatibility with subtraction is compatibility with scaling by $k=-1$ and compatibility with addition.
+
+Note that the previous rules are implications not equivalences, which means that you can not necessarily reverse those rules. The following rules makes this precise:
+\begin{itemize}
+\item If $\kongru{a_1+k}{b_1+k}{n}$, then $\kongru{a_1}{b_1}{n}$
+\item If $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ and $k$ is coprime with $n$, then $\kongru{a_1}{b_1}{n}$
+\item If $\kongru{k\cdot a_1}{k\cdot b_1}{k\cdot n}$ , then $\kongru{a_1}{b_1}{n}$
+\end{itemize}
+Another property of congruencies, not known in the traditional arithmetics of integers is the so called \textit{Fermat's Little Theorem}. In simple words, it says that in modular arithmetics every number raised to the power of a prime number modulus is congruent to the number itself. Or, to be more precise, if $ p \in \Prim $ is a prime number and $ k \in \mathbb{Z} $ is an integer, then:
+\begin{equation}
+\kongru{k ^ p}{k}{p} \;,
+\end{equation}
+If $k$ is coprime to $p$, then we can divide both sides of this congruency by $k$ and rewrite the expression into the equivalent form 
+\begin{equation}
+\label{eq_fermat_lt_2}
+\kongru{k ^{p-1}}{1}{p}
+\end{equation} 
+We can invoke sage, to compute examples for both $k$ being coprime and not coprime to $p$:
+\begin{sagecommandline}
+sage: ZZ(137).gcd(ZZ(64))
+sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
+sage: ZZ(64)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
+sage: ZZ(1918).gcd(ZZ(137))
+sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
+sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
+\end{sagecommandline}
+\begin{remark}
+Congruency \ref{eq_fermat_lt_2} has a nice interpretation, that gives a first glimpse of the idea of a prime field as we will describe it in XXX: Whenever the modulus is a prime number and $k<p$ then $k$ and $p$ are coprime (Exercise XXX) and hence there is a notion of division by $k$, that is absent in integer arithmetics. If $a$ is another integer we could define division by $k$ as follows $a/k := a\cdot k^{p-2}$, which is always defined. This makes sense because "division by something" should be defined as "multiplication by the inverse" and since $\kongru{k\cdot k ^{p-2}}{1}{p}$, the number $k^{p-2}$ behaves like a multiplicative inverse for $k$ in modular arithmetics for prime number moduli and coprime $k$.
+\end{remark}
+
+Now, since this was a lot to digest for a reader who has never encountered modular arithmetics before, lets compute an example that contains most of the stuff we just described:   
+   
+\begin{example}Assume that we choose the modulus $17$ and that our task is to solve the following congruency for $x\in \Z$
+$$\kongru{7\cdot(2x+21) + 11}{x-102}{17}$$
+As many rules for congruencies are more or less same as for integers, we can proceed in a way similar, as we would if we had an equation to solve. 
+The first thing we notice, is that $7\cdot(2x+21) + 11= 14x +158$, since both sides of a congruency contain ordinary integers. We can therefore rewrite the congruency into the equivalent form
+$$\kongru{14x +158}{x-102}{17}$$
+In a next step we want to shift all encounters of $x$ to left and every other term to the right. So we applay the "compatibility with translation" rules two times. In a first step we choose $k=-x$ and in a second step we choose $k=-158$. Since "compatibility with translation" transforms a congruency into an equivalent form, the solution set will not change and we get 
+\begin{multline*}
+\kongru{14x +158}{x-102}{17} \Leftrightarrow\\
+\kongru{14x-x +158-158}{x-x-102-158}{17} \Leftrightarrow \\
+\kongru{13x}{-260}{17}
+\end{multline*}
+If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However in case of a congruency we need to make sure that the modulus and the number we want to divide by are coprime first. Only then will we get an equivalent expression. So we need to the greatest common divisor $gcd(17,13)$ and since both numbers are prime, we know $gcd(17,13)=1$, so both numbers are indeed coprime. We therefore compute 
+$$
+\kongru{13x}{-260}{17} \Leftrightarrow \kongru{x}{-20}{17}
+$$
+Our task is now to find all integers $x$, such that $x$ is congruent to $-20$ with respect to the modulus $17$. So we have to find all $x$ such
+$$
+\Zmod{x}{17} = \Zmod{-20}{17}
+$$
+Since $-2\cdot 17 +14 = -20$ we know $ \Zmod{-20}{17} = 14$ and hence we know that $x=14$ is a solution. However $31$ is another solution since $ \Zmod{31}{17} = 14$ as well and so is $-20$. In fact there are infinite many solutions given by the set
+$$
+\{\ldots, -20,-3, 14,31, 48,\ldots\} = \{14+k\cdot 17 \;|\; k\in \Z\}
+$$
+Putting all this together we have shown that the every $x$ from the set $\{x=14+k\cdot 17 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{17}$. We double ckeck for, say, $x=14$ as well as $x=14 + 12\cdot 17 = 218$ using sage:
+\begin{sagecommandline}
+sage: (ZZ(7)* (ZZ(2)*ZZ(14) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(14) - ZZ(102))  % ZZ(17)
+sage: (ZZ(7)* (ZZ(2)*ZZ(218) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(218) - ZZ(102))  % ZZ(17)
+\end{sagecommandline}
+\end{example}
+\begin{example}[Mudular multiplicative inverse] In the previous example we encounter the "lucky coincidence", that we could solve the congruency $\kongru{13x}{-260}{17}$ by division by $13$, since $260$ is divisible by $13$ as integers. But what if this is not the case?
+So see how this can be solved in modular arithmetics lets consider the following modification of the congruency in the previous example:
+$$
+\kongru{7x}{-260}{17}
+$$ 
+In this example we can not integer divide both sides of the congruency by $7$, since $260/7$ is not an integer. However we recall from Fermats little theorem, that $\kongru{k\cdot k^{p-2}}{1}{p}$ for every integer $k$ that coprime to every prime modulus $p$. 
+
+In our example, since $7$ is coprime to $17$ (both are prime numbers), we can exploit Fermats theorem, in combination with the "compatibility with scaling" rule and multiply both sides of the congruency with $7^{17-2}= 4747561509943$. We then get
+\begin{multline*}
+\kongru{7x}{-260}{17} \Leftrightarrow \\
+\kongru{7^{17-2}\cdot 7\cdot x}{-260\cdot 7^{17-2}}{17}\Leftrightarrow \\
+%\kongru{x}{-260\cdot 4747561509943}{17} \Leftrightarrow \\
+\kongru{x}{-1234365992585180}{17} 
+\end{multline*}
+And since $\Zmod{-1234365992585180}{17}=9$, we know that the solution is given by the set of all numbers $x\in \{9+m\cdot 17\;|\; m\in\Z\}$. We double ckeck for, say, $x=9$ as well as $x=9 + 101\cdot 17 = 1726$ using sage:
+\begin{sagecommandline}
+sage: (ZZ(7)* ZZ(9))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
+sage: (ZZ(7)* ZZ(1726))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
+\end{sagecommandline}
+\end{example}
+\begin{remark}
+The discouraged reader, who at this point thinks that modular aithmetics is to complicated, might consider two thinks: First, computing congruencies in modular arithmetics is not really more complicated then computations in more familiar number systems like fractional numbers. Its just a matter of getting used to it. Second, the theory of prime fields (and more general residue class rings) takes a different view on modular rithmetics with the attempt to simplify thinks. In other words, once we understand prime field arithmetics, thinks become conceptually cleaner and more easy to compute.
+\end{remark}
+\paragraph{The Chinese Remainder Theorem} We have seen in the previous paragraph how to solve congruencies in modular arithmetic. However one question that remains is, how to solve systems of congruencies, whith different moduli? The answer is given by the so called \textit{Chinese raimainder theorem}, which tells us, that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $, the so-called \textit{simultaneous congruency}
+\begin{equation}
+\label{eq_simultaneous_congruency}
+\begin{array}{c}
+\kongru{x}{a_1}{n_1} \\
+\kongru{x}{a_2}{n_2} \\
+\cdots \\
+\kongru{x}{a_k}{n_k} \\
+\end{array}
+\end{equation}
+has a solution and all possible solutions of this congruence system are congruent modulo
+the product $N= n_1 \cdot \ldots \cdot n_k $. In fact, the following algorithm computes the solution set:
+\begin{algorithm}\caption{Chinese Reminder Theorem}
+\label{alg_ext_euclid_alg}
+\begin{algorithmic}[0]
+\Require $n_0,\ldots,n_{k-1} \in \N$ coprime
+\Procedure{Congruency-Systems-Solver}{$k,a_{0,\ldots,k-1},n_{0,\ldots,k-1}$}
+\State $N\gets n_0\cdot \ldots \cdot n_{k-1}$
+\While{$j< k $}
+\State $N_j\gets N/n_j$
+\State $(\_,s_j,t_j)\gets EXT-EUCLID (N_j,n_j)$ 
+  \Comment{$1 = s_j\cdot N_j + t_j\cdot n_j$}
+\EndWhile
+\State $x'\gets \sum_{j=0}^{k-1}a_j\cdot s_j\cdot N_j$
+\State $x\gets \Zmod{x'}{N}$
+\State \textbf{return} $\{x+ m\cdot N\;|\; m\in \Z\}$
+\EndProcedure
+\Ensure $\{x+ m\cdot N\;|\; m\in \Z\}$ is the complete solution set to \ref{eq_simultaneous_congruency}.
+\end{algorithmic}
+\end{algorithm}
+
+This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but we don't need that extension in the book.
+\begin{example} To illustrate how to solve simultaneous congruences using the Chinese remainder theorem, let's look at the following system of congruencies:
+$$
+\begin{array}{c}
+\kongru{x}{4}{7} \\
+\kongru{x}{1}{3} \\
+\kongru{x}{3}{5} \\
+\kongru{x}{0}{11} \\
+\end{array}
+$$
+Clearly all moduli are coprime and we have $ N = 7 \cdot 3 \cdot 5 \cdot 11 = 1155 $, as well as
+$ N_1 = 165 $, $ N_2 = 385 $, $ N_3 = 231 $ and $ N_4 = 105 $. From this we calculate with the extended Euclidean algorithm
+$$
+\begin{array}{cccc}
+ 1 = & 2 \cdot 165  & + & -47 \cdot 7 \\
+ 1 = & 1 \cdot 385  & + &  -128 \cdot 3 \\
+ 1 = & 1 \cdot 231  & + &  -46 \cdot 5 \\
+ 1 = & 2 \cdot 105  & + &  -19 \cdot 11 \\
+\end{array}
+$$
+so we have
+$x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
+as one solution. Because $ \Zmod{2398}{1155} = 88 $ the set of all solutions is
+$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are infinitely many different solutions. We can invoke sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
+\begin{sagecommandline}
+sage: CRT_list([4,1,3,0], [7,3,5,11])
+\end{sagecommandline}
+\end{example}
+As we have seen in various examples before, computing congruencies can be cumersome and solution sets are huge in general. It is therefore advantagous to find some kind of simplification for modular arithmetic. Fortunately this is possible if we consider all integers that have the same remainder with respect to a given modulus $n$ to be the same. It then follows from the properties of Euclidean division, that there are exactly $ n $ different such sets for every moduls. 
+
+If we go a step further and identify each such set (equivalence class) with the corresponding remainder of the Euclidean division, we get a new set, where integer addition and multiplication can be projected to a new kind of addition and multiplication on the equivalence classes. 
+
+Roughly speaking the new rules for addition and multiplication are then computed by taking any element of the firsr equivalence class and some element of the second, then add or multiply them in the usual way and see in which equivalence class the result is contained.
+The following example makes the abstract idea more concrete
+\begin{example} [Arithmetics modulo $6$]
+\label{z_6}
+Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$). We write
+$$
+\begin{array}{lll}
+0: = \{\ldots, -6,0,6,12, \ldots \}, &
+1: = \{\ldots, -5,1,7,13, \ldots \}, &
+2: = \{\ldots, -4,2,8,14, \ldots \} \\
+3: = \{\ldots, -3,3,9,15, \ldots \}, &
+4: = \{\ldots, -2,4,10,16, \ldots \}, &
+5: = \{\ldots, -1,5,11,17, \ldots \}
+\end{array}
+$$
+Now to compute the addition of those equivalence classes, say $2+5$, one chooses arbitrary elements from both sets say $14$ and $-1$, adds those numbers in the usual way and then looks in which equivalence class the result will be. 
+
+So we have $14+(-1)=13$ and $13$ is in the equivalence class (of) $1$. Hence we find that $2+5=1$ in modular $6$ aithmetics, which is a more readable way to write the congruency $\kongru{2+5}{1}{6}$.
+
+Applying the same reasoning to all equivalence classes, addition and multiplication can  be transferred to the equivalence classes and the results are summarized in the following addition and multiplication tables for modulus $6$ aithmetics:
+\begin{center}
+  \begin{tabular}{c | c c c c c c}
+    + & 0 & 1 & 2 & 3 & 4 & 5\\\hline
+    0 & 0 & 1 & 2 & 3 & 4 & 5 \\
+    1 & 1 & 2 & 3 & 4 & 5 & 0\\
+    2 & 2 & 3 & 4 & 5 & 0 & 1\\
+    3 & 3 & 4 & 5 & 0 & 1 & 2\\
+    4 & 4 & 5 & 0 & 1 & 2 & 3\\
+    5 & 5 & 0 & 1 & 2 & 3 & 4
+  \end{tabular} \quad \quad \quad \quad
+  \begin{tabular}{c | c c c c c c}
+$ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
+        0 & 0 & 0 & 0 & 0 & 0 & 0\\
+        1 & 0 & 1 & 2 & 3 & 4 & 5\\
+        2 & 0 & 2 & 4 & 0 & 2 & 4\\
+        3 & 0 & 3 & 0 & 3 & 0 & 3\\
+        4 & 0 & 4 & 2 & 0 & 4 & 2\\
+        5 & 0 & 5 & 2 & 3 & 2 & 1
+  \end{tabular}
+\end{center}
+
+These two tables are all you need to be able to calculate in modular $6$ aithmetics. 
+
+To see how this simplifies congruency computations, lets look at the congruency 
+$$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
+from example XXX again (But this time in modular $6$ arithmetics to use our addition and multiplication tables). Since $\Zmod{21}{6}= 3$ and $\Zmod{102}{6}= =$ We can rewrite the congruency into the equation 
+$7\cdot(2x+3) + 11=x$
+AND DO STUFF
+
+
+
+For example, to determine the multiplicative inverse of a remainder class, look for the entry that results in $ 1 $ in the product table. For example the multiplicative inverse of $ 5 $ is $ 5 $ itself, since $5\cdot 5 = 1$. Similar to the integers not all numbers have inverses. For example there is no element, that when multiplied with $4$ will give $1$. 
+However in contrast to what we know from integers, there are non zero numbers, that, when multiplied gives zero (e.g $4\cdot 4 =0$).
+
+\begin{sagecommandline}
+sage: Z6=Integers(6) # Define integers modulo 6 
+sage: Z6(2)+Z6(5) # standard representatives of a class
+sage: Z6(14)+Z6(-1) # different representatives for same class
+sage: - Z6(2) # additive inverse
+sage: Z6(5)**(-1) # multiplicative inverse if exists
+\end{sagecommandline}
+\end{example}
+
+TODO:
+
+Barrett reduction
+
+Montgomery modular multiplication (Montgomery domain)
+\begin{exercise}
+Let $a,b,k$ be integers, such that $\kongru{a}{b}{n}$ holds. Show $\kongru{a^k}{b^k}{n}$.
+\end{exercise}
+\begin{exercise}
+Let $a,n$ be integers, such that $a$ and $n$ are not coprime. For which $b\in\Z$ does the 
+congruency $\kongru{a\cdot x}{b}{n}$ have a solution $x$ and how does the solution set look in that case?
+\end{exercise}
+
+\section{Polynomials}
+A polynomial is an expression consisting of variables (also called indeterminates) and coefficients, that involves only the operations of addition, subtraction, multiplication, and non-negative integer exponentiation of variables. All coefficients of a polynomial must have the same type, e.g. being integers or fractions etc. To be more precise a \textit{polynomial} is an expression
+\begin{equation}
+P(x) := \sum _{j = 0} ^{m}{a} _{j}{t} ^{j} ={a} _{m}x^m +{a} _{m-1} x^{m-1} + \dots + a_1 x + a_0 \;,
+\end{equation}
+where $x$ is called the \textit{indeterminate}, each $ a_j$ is called a \textit{coefficient}. If $R$ is the type of the coefficients then the set of all \textbf{polynomials with coefficients in $R$} is written as $R[x]$. We often simply write $ P (x) \in R[x]$ for a polynomial and denote the constant term as $ P(0)$. 
+
+A polynomial is called the \textit{zero polynomial} if all coefficients are zero and a polynomial is called the \textit{one polynomial} if the constant term is $1$ and all other coefficients are zero.
+
+If a polynomial $P(x)=\sum_{j=0}^m a_jx^j$ is given and is not the zero polynomial, we call $deg(P):=m$ the \textit{degree} of $P$. We moreover define the degree of the zero polynomial to be $-\infty$.
+
+\begin{example}[Integer Polyinomials] The coefficients of a polynomial must all have the same type. The set of polynomials with integer coefficients is written as $\Z[x]$. Examples of such polynomialse are:
+\begin{itemize}
+\item $P_1(x)= 2x^2 -4x +17$, with degree $deg(P_1)=2$.
+\item $P_2(x)= x^{23}$, with degree $deg(P_2)=23$.
+\item $P_3(x)= x$, with degree $deg(P_3)=1$.
+\item $P_4(x)= 174$, with degree $deg(P_4)=0$.
+\item $P_5(x)= 1$, with degree $deg(P_5)=0$.
+\item $P_6(x)=0$, with degree $deg(P_5)=-\infty$.
+\item $P_7(x)= (x-1)(x+2)(x-4)$, with degree $deg(P_3)=3$.
+\end{itemize}
+In particular every integer can be seen as an integer polynomial of degree zero. $P_7$ is a polynomial, because we can expand its definition into $P_4(x)=x^3-3x^2-4x+6$, which is polynomial of degree $3$. The following expressions are not integer polynomial
+\begin{itemize}
+\item $Q_1(x)= 2x^2 + 4 + 3x^{-2}$
+\item $Q_2(x)= 0.5x^4 -2x$
+\item $Q_3(x)=1/x$
+\end{itemize}
+\end{example}
+We can invoke sage to do computations with polynomials. To do so we have to specify the symbol for the indertimate and the type for the coefficients. Note however that sage defines the degree of the zero polynomial to be $-1$.
+\begin{sagecommandline}
+sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
+sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
+sage: Zx
+sage: Zt
+sage: p = Zx([1,2,3,4])
+sage: q = Zt([1,2,3,4])
+sage: p
+sage: q
+sage: p.degree()
+sage: zero = Zx([0])
+sage: zero.degree()
+\end{sagecommandline}
+Given some element from the same type as the coefficients of a polynomial, the polynomial can be evaluated at that element, which means that we insert the element for every occurence of $x$ in the polynomial expression. To be more precise let $P\in R[x]$, with $P(x)=\sum_{j=0}a_j x^j$ be some polynomial with coefficient of type $R$ and let $b\in R$ be an element of that type. Then the \textit{evaluation} of $P$ at $b$ is given by
+\begin{equation}
+P(a) = \sum_{j=0} a_j b^j
+\end{equation}
+\begin{example} We evaluate the integer polynomials from example XXX at certain integers. We get:
+\begin{itemize}
+\item $P_1(2)= 2\cdot 2^2 -4\cdot 2 +17 = 17$
+\item $P_2(3)= 3^{23}=94143178827$
+\item $P_3(-4)= -4 = -4$.
+\item $P_4(15)= 174$.
+\item $P_5(0)= 1$.
+\item $P_6(1274)=0$.
+\item $P_7(-6)= (-6-1)(-6+2)(-6-4) = -280$.
+\end{itemize}
+Note however that is not possible to evaluate any of those polynomial on values of different type. It is for example strictly speaking wrong to write $P_1(0.5)$, since $0.5$ is not an integer.
+\end{example}
+
+As we will see in what follows, polynomials behave like integers in many ways. In particular they can be added, subtracted and multiplied. In addition they have their own notion of Euklidean division. 
+\begin{definition} Let $ \sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} $ and
+$ \sum _{n = 0} ^{\infty}{b} _{n}{x} $ be two polynomials from
+$ R[x]$. Then the \textit{sum} and the \textit{product} of these polynomials is defined as follows:
+\begin{equation}
+\sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} + \sum _{n = 0} ^{\infty}{b} _{n}{x } ^{n} = \sum _{n = 0} ^{\infty}{({a} _{n} +{b} _{n})}{x} ^{n}
+\end{equation}
+\begin{equation}
+\bigg (\sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{\infty }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{\infty} \sum _{i = 0} ^{n}{a} _{i }{{b} _{ni}}{x} ^{n}
+\end{equation}
+\end{definition}
+%\begin{sagecommandline}
+%sage: q = Z6x([5,-3,2,])
+%sage: p + q
+%sage: p*q
+%sage: p^2
+%\end{sagecommandline}
+
+In the case of polynomials, it is only necessary to note that the degree of the sum is exactly the maximum of the degrees of the summands and that the degree of the product is exactly the sum of the degrees of the factors.
+
+The ring of polynomials shares a lot of properties with the integers. In particular there is also the concept of Euclidean division and the algorithm of long division defined for polynomials.
+
+\begin{definition}[Irreducible Polynomial]
+TECHNOBOB
+\end{definition}
+
+\subsection{Lagrange interpolation polynomials}
+\section{Algebra Structures}
+
+The following theorem makes the idea precises
+\begin{theorem}
+\label{def: residual class ring}
+Let $ n \in \N _{\geq 2} $ be a fixed, natural number and
+$ \Z_n $ the set of equivalence classes of integers with respect to the  congruence modulo $ n $ relation. Then $ \Z_n $ forms a commutative ring with unit with respect to the addition and multiplication defined above.
+\end{theorem}
+\begin{proof} (\cite{AL} sentence 1)  
+\end{proof}
 INTO-BLA
 
 When you read papers about cryptography or mathematical papers in general, you will frequently stumble across terms like \textit{fields}, \textit{groups},\textit{rings} and similar. As we will use these terms repeatedly, we have to start this chapter with a short introduction to those terms.
@@ -384,243 +734,6 @@ sage: GF(2)(1) + GF(2)(1) # Addition
 sage: GF(2)(1) / GF(2)(1) # Division
 \end{sagecommandline}
 \end{example}
-
-\subsection{Modular arithmetic}
-Congruence or modlar arithmetics (sometimes also called residue class arithmetics) is of central importance for understanding most modern crypto systems. In this section we will therefore take a closer look at this arithmetic. For the notation in cryptology see also \cite{JB} Chapter 3, or \cite{AL} Chapter 3.
-
-MORE-HIGH-LEVEL-DESCRIPTION
-
-Utilizing Euklidean division as explained previously (\ref{integer_arithmetics}), congruency of two integers with respect to a so-called moduli can be defined as follows
-(\cite{JB} chapter 3.1):
-\begin{definition}[congruency] Let $ a $, $ b \in \Z $ be two integers and $ n \in \N $ a natural number.
-Then $ a $ and $ b $ are said to be \textbf{congruent with respect to the modulus} $ n $, if and only if the equation
-\begin{equation}
-\Zmod{a}{n} = \Zmod{b}{n}
-\end{equation}
-holds. In this case we write
-$ \kongru{a}{b}{n} $. If two numbers are not congruent with respect to a given modulus $n$, we call them \textit{incongruent} w.r.t. $n$.
-\end{definition}
-So in other words, if some modulus $n$ is given, then two integers are congruent with respect to this modulus if both Euclidean divisions by $n$ give the same remainder.   
-\begin{example}To give a simple example, lets assume that we choose the modulus $271$. Then we have
-$$ \kongru{7}{2446}{271} $$
-since both $\Zmod{7}{271} = 7$ as well as $\Zmod{2446}{271}=7$
-\begin{sagecommandline}
-sage: ZZ(7) % ZZ(271) == ZZ(2446) % ZZ(271)
-\end{sagecommandline}
-\end{example}
-The following theorem describes a fundamental property of modulus arithmetic, which is not known in the traditional arithmetics of integers: (\cite{JB} chapter 3.11):
-\begin{theorem} [Fermat's Little Theorem] Let $ p \in \Prim $ be a prime number and $ k \in \mathbb{Z} $ is an integer, then:
-\begin{equation}
-\kongru{k ^ p}{k}{p} \;,
-\end{equation}
-\end{theorem}
-\begin{proof} 
-\end{proof}
-\begin{remark}
-Fermats theorem is also often written as the equivalent equation $\kongru{k ^{p-1}}{1}{p}$, which can be derived from the original equation by dividing both sides of the congruency by $k$. In particular this gives a way to compute the multiplicative inverse of a number in modular arithmetics. 
-\begin{sagecommandline}
-sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64)
-sage: ZZ(64)** ZZ(137-1) % ZZ(137) == ZZ(1)
-\end{sagecommandline}
-\end{remark}
-Another theorem that is important for doing calculations with congruences is the following Chinese remainder theorem, as it provides a way to solves systems congruency equations (\cite{JB} chapter 3.15).
-
-\begin{theorem} [Chinese remainder theorem]
-For any $ k \in \N $ let coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as the integers $ a_1, \ldots a_k \in \Z $ be given. Then the so-called \textit{simultaneous congruency}
-\begin{equation}
-\begin{array}{c}
-\kongru{x}{a_1}{n_1} \\
-\kongru{x}{a_2}{n_2} \\
-\cdots \\
-\kongru{x}{a_k}{n_k} \\
-\end{array}
-\end{equation}
-has a solution and all possible solutions of this congruence system are congruent modulo
-$ n_1 \cdot \ldots \cdot n_k $.
-\end{theorem}
-\begin{proof} (\cite{JB} chapter 3.15)
-\end{proof}
-\begin{remark}From the proof as given in \cite{JB} chapter 3.15, the following algorithm to find all solutions to any given system of congruences can be derived TODO:WRITE IN ALGORITHM STYLE
-\begin{itemize}
-\item Compute $N=n_1 \cdot n_ 2\cdot\ldots\cdot n_k$
-\item For each $1\leq j \leq k$, compute 
-$N_j = \frac{N}{n_j}$
-\item For each $1\leq j \leq k$, use the extended Euklidean algorithm (\ref{theorem: ext_Euclid}) to compute numbers $s_j$ as well as $t_j$, such that $1 = s_j \cdot n_j + t_j \cdot N_j $ holds.
-\item A solution to the congruency system is then given by $x = \sum_{j=1}^k a_j\cdot t_j\cdot N_j$.
-\item Compute $m = \Zmod{x}{N}$. The set of all possible solutions is then given by
-$ x+m\cdot\Z = \{\ldots, x-2m, x-m,x,x+m, x+2m, \ldots \} $.
-\end{itemize} 
-\end{remark}
-
-\begin{remark}
-This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $.
-\end{remark}
-\begin{example} To illustrate how to solve simultaneous congruences using the Chinese remainder theorem, let's look at the following system of congruencies:
-$$
-\begin{array}{c}
-\kongru{x}{4}{7} \\
-\kongru{x}{1}{3} \\
-\kongru{x}{3}{5} \\
-\kongru{x}{0}{11} \\
-\end{array}
-$$
-So here we have $ N = 7 \cdot 3 \cdot 5 \cdot 11 = 1155 $, as well as
-$ N_1 = 165 $, $ N_2 = 385 $, $ N_3 = 231 $ and $ N_4 = 105 $. From this we calculate with the extended Euclidean algorithm
-$$
-\begin{array}{cccc}
- 1 = & -47 \cdot 7 & + & 2 \cdot 165 \\
- 1 = & -128 \cdot 3 & + & 1 \cdot 385 \\
- 1 = & -46 \cdot 5 & + & 1 \cdot 231 \\
- 1 = & -19 \cdot 11 & + & 2 \cdot 105 \\
-\end{array}
-$$
-so we have
-$x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
-as one solution. Because $ \Zmod{2398}{1155} = 88 $ the set of all solutions is
-$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are infinitely many different solutions.
-
-\begin{sagecommandline}
-sage: CRT_list([4,1,3,0], [7,3,5,11])
-\end{sagecommandline}
-\end{example}
-
-Congruency modulo $ n $ is an equivalence relation on the set of integers, where each class is the set of all integers that have the same remainder when divided by $n$. If then follows from the properties of Euclidean division,that there are exactly $ n $ different equivalence classes. 
-
-If we go a step further and identify each equivalence class with the corresponding remainder of the Euclidean division, we get a new set, where integer addition and multiplication can be projected to a new kind of addition and multiplication on the equivalence classes. 
-
-Roughly speaking the new rules are computed by taking any element of the firsr equivalence class and and element of the second, then add or multiply them in the usual way and see in which equivalence class the result is contained.
-
-The following theorem makes the idea precises
-\begin{theorem}
-\label{def: residual class ring}
-Let $ n \in \N _{\geq 2} $ be a fixed, natural number and
-$ \Z_n $ the set of equivalence classes of integers with respect to the  congruence modulo $ n $ relation. Then $ \Z_n $ forms a commutative ring with unit with respect to the addition and multiplication defined above.
-\end{theorem}
-\begin{proof} (\cite{AL} sentence 1)  
-\end{proof}
-\begin{remark}
-DESCRIBE NEUTRAL ELEMENTS AND HOW TO ADD, EXPLAIN HOW TO FIND THE NEGATIVE OF A NUMBER AND HOW TO SUBTRACT AND HOW TO MULTIPLY...
-\end{remark}
-The following example makes the abstract idea more concrete
-\begin{example} [Arithmetics modulo $6$]
-\label{z_6}
-Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$). We write
-$$
-\begin{array}{lll}
-0: = \{\ldots, -6,0,6,12, \ldots \}, &
-1: = \{\ldots, -5,1,7,13, \ldots \}, &
-2: = \{\ldots, -4,2,8,14, \ldots \} \\
-3: = \{\ldots, -3,3,9,15, \ldots \}, &
-4: = \{\ldots, -2,4,10,16, \ldots \}, &
-5: = \{\ldots, -1,5,11,17, \ldots \}
-\end{array}
-$$
-Now to compute the addition of those equivalence classes, say $2+5$, one chooses arbitrary elements from both sets say $14$ and $-1$, adds those numbers in the usual way and then looks in which equivalence class the result will be. 
-
-So we have $14+(-1)=13$ and $13$ is in the equivalence class (of) $1$. Hence in $Z_6$ we have that $2+5=1$!
-
-Applying the same reasoning to all equivalence classes, addition and multiplication can  be transferred to the equivalence classes and the results are summarized in the following addition and multiplication tables for $ \Z_6 $:
-\begin{center}
-  \begin{tabular}{c | c c c c c c}
-    + & 0 & 1 & 2 & 3 & 4 & 5\\\hline
-    0 & 0 & 1 & 2 & 3 & 4 & 5 \\
-    1 & 1 & 2 & 3 & 4 & 5 & 0\\
-    2 & 2 & 3 & 4 & 5 & 0 & 1\\
-    3 & 3 & 4 & 5 & 0 & 1 & 2\\
-    4 & 4 & 5 & 0 & 1 & 2 & 3\\
-    5 & 5 & 0 & 1 & 2 & 3 & 4
-  \end{tabular} \quad \quad \quad \quad
-  \begin{tabular}{c | c c c c c c}
-$ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
-        0 & 0 & 0 & 0 & 0 & 0 & 0\\
-        1 & 0 & 1 & 2 & 3 & 4 & 5\\
-        2 & 0 & 2 & 4 & 0 & 2 & 4\\
-        3 & 0 & 3 & 0 & 3 & 0 & 3\\
-        4 & 0 & 4 & 2 & 0 & 4 & 2\\
-        5 & 0 & 5 & 2 & 3 & 2 & 1
-  \end{tabular}
-\end{center}
-
-These two tables are all you need to be able to calculate in $ \Z_6 $. For example, to determine the multiplicative inverse of a remainder class, look for the entry that results in $ 1 $ in the product table. For example the multiplicative inverse of $ 5 $ is $ 5 $ itself, since $5\cdot 5 = 1$. Similar to the integers not all numbers have inverses. For example there is no element, that when multiplied with $4$ will give $1$. 
-However in contrast to what we know from integers, there are non zero numbers, that, when multiplied gives zero (e.g $4\cdot 4 =0$).
-
-\begin{sagecommandline}
-sage: Z6=Integers(6) # Define integers modulo 6 
-sage: Z6(2)+Z6(5) # standard representatives of a class
-sage: Z6(14)+Z6(-1) # different representatives for same class
-sage: - Z6(2) # additive inverse
-sage: Z6(5)**(-1) # multiplicative inverse if exists
-\end{sagecommandline}
-\end{example}
-
-TODO:
-
-Barrett reduction
-
-Montgomery modular multiplication (Montgomery domain)
-
-
-
-\subsection{Polynome}
-Following \cite{LK} we want to give a brief introduction to polynomials. 
-\begin{definition}[Polynomials]
-Let $R$ be a commutative ring with unit $1$.
-Then we call the expression
-\begin{equation}
-\sum _{n = 0} ^{m}{a} _{n}{t} ^{n} ={a} _{0} +{a} _{1} x +{a} _{2} x ^ 2 + \dots + a_m x ^ m \;,
-\end{equation}
-with unknown $x $ and coefficients $ a_n \in R $ a
-\textbf{polynomial with coefficients in $R$} and we write $ R [x] $ for the set of all polynomials with coefficients in $R$.
-\end{definition}
-We often simply write $ P (x) \in R[x]$ for a polynomial and denote the constant term as $ P(0)$.
-\begin{example}
-\label{def: zero polynomial}
-The so-called \textit{zero polynomial} is the polynomial $0(x):=0\cdot x^0$. In analogy to the additively neutral element $ 0 \in R $ of general rings, we also often write $ 0 $ for this polynomial.
-
-The so-called \textit{unit polynomial} is the polynomial $1(x)= 1\cdot x^0$. In analogy to the multiplicatively neutral element $ 1 \in R $ of a general ring, we also often write $ 1 $ for this polynomial.
-\end{example}
-\begin{sagecommandline}
-sage: Z6x = Z6['x']
-sage: Z6x
-sage: p = Z6x([1,2,3,4])
-sage: p
-\end{sagecommandline}
-\begin{definition}[degree] 
-The \textit{degree} $ degree (P (x)) $ of a polynomial
-$ P (x) \in R [x] $ is defined as follows: If $ P (x) $ is the zero polynomial, we define $ deg(P (x)): = - 1 $. For every other polynomial we define $ degree (P (x)) = n $ if $ a_n $ is the highest non-vanishing coefficient of $ P (x) $.
-\end{definition}
-\begin{sagecommandline}
-sage: p.degree()
-sage: Z6x([0]).degree()
-\end{sagecommandline}
-Polynomials can be added and multiplied in such a way that the set of all polynomials becomes a commutative ring:
-\begin{definition} Let $ \sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} $ and
-$ \sum _{n = 0} ^{\infty}{b} _{n}{x} $ be two polynomials from
-$ R[x]$. Then the \textit{sum} and the \textit{product} of these polynomials is defined as follows:
-\begin{equation}
-\sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} + \sum _{n = 0} ^{\infty}{b} _{n}{x } ^{n} = \sum _{n = 0} ^{\infty}{({a} _{n} +{b} _{n})}{x} ^{n}
-\end{equation}
-\begin{equation}
-\bigg (\sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{\infty }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{\infty} \sum _{i = 0} ^{n}{a} _{i }{{b} _{ni}}{x} ^{n}
-\end{equation}
-\end{definition}
-\begin{sagecommandline}
-sage: q = Z6x([5,-3,2,])
-sage: p + q
-sage: p*q
-sage: p^2
-\end{sagecommandline}
-
-In the case of polynomials, it is only necessary to note that the degree of the sum is exactly the maximum of the degrees of the summands and that the degree of the product is exactly the sum of the degrees of the factors.
-
-The ring of polynomials shares a lot of properties with the integers. In particular there is also the concept of Euclidean division and the algorithm of long division defined for polynomials.
-
-\begin{definition}[Irreducible Polynomial]
-TECHNOBOB
-\end{definition}
-
-\subsection{Lagrange interpolation polynomials}
-
 
 \section{Galois fields}
 As we have seen in the previous section, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers. But in contrast to arithmetics on integers or rational numbers, we deal with a finite set of elements, which when implemented on computers will not lead to precision problems.
