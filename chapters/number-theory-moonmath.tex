@@ -213,6 +213,7 @@ Let $n\in \N$ be a counting number and $p$ a prime number, such that $n<p$. What
 \end{exercise}
 
 \section{Modular arithmetic}
+% TODO: Introduce the term residue class
 In mathematics, so called \textit{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$, $24$ or $60$, depending on your clock. For example if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The letter of which has no meaning on a normal clock that shows hours. 
 
 The number at which the wrap occures is called the \textit{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arizes in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the exponentiation function has an inverse with respect to certain moduli, that is hard to compute. In addition we will see that it provides the foundation of what is called finite fields (See XXX)
@@ -395,7 +396,7 @@ If we go a step further and identify each such set (equivalence class) with the 
 Roughly speaking the new rules for addition and multiplication are then computed by taking any element of the firsr equivalence class and some element of the second, then add or multiply them in the usual way and see in which equivalence class the result is contained.
 The following example makes the abstract idea more concrete
 \begin{example} [Arithmetics modulo $6$]
-\label{z_6}
+\label{def_residue_ring_z_6}
 Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$). We write
 $$
 \begin{array}{lll}
@@ -446,6 +447,8 @@ AND DO STUFF
 For example, to determine the multiplicative inverse of a remainder class, look for the entry that results in $ 1 $ in the product table. For example the multiplicative inverse of $ 5 $ is $ 5 $ itself, since $5\cdot 5 = 1$. Similar to the integers not all numbers have inverses. For example there is no element, that when multiplied with $4$ will give $1$. 
 However in contrast to what we know from integers, there are non zero numbers, that, when multiplied gives zero (e.g $4\cdot 4 =0$).
 
+One can show that distributivity, associativity and commuativity hold (See section XXX for a precise definition)
+
 \begin{sagecommandline}
 sage: Z6=Integers(6) # Define integers modulo 6 
 sage: Z6(2)+Z6(5) # standard representatives of a class
@@ -460,6 +463,9 @@ TODO:
 Barrett reduction
 
 Montgomery modular multiplication (Montgomery domain)
+
+\begin{jargon}[$k$-bit modulus] In cryptographic papers, we can sometimes read phrases like "$[\ldots]$ using a 4096-bit modulus". This means that the underlying modulus $n$ of the modular arithmetic used in the system has a binary representation with a length of $4096$ bits. For example, the number $6$ has the binary representation $110$ and henxe example describes a $3$-bit modulus arithmetics system.   
+\end{jargon}
 \begin{exercise}
 Let $a,b,k$ be integers, such that $\kongru{a}{b}{n}$ holds. Show $\kongru{a^k}{b^k}{n}$.
 \end{exercise}
@@ -477,8 +483,16 @@ where $x$ is called the \textit{indeterminate}, each $ a_j$ is called a \textit{
 
 A polynomial is called the \textit{zero polynomial} if all coefficients are zero and a polynomial is called the \textit{one polynomial} if the constant term is $1$ and all other coefficients are zero.
 
-If a polynomial $P(x)=\sum_{j=0}^m a_jx^j$ is given and is not the zero polynomial, we call $deg(P):=m$ the \textit{degree} of $P$. We moreover define the degree of the zero polynomial to be $-\infty$.
-
+If a polynomial $P(x)=\sum_{j=0}^m a_jx^j$ is given and is not the zero polynomial, we call 
+\begin{equation}
+deg(P):=m
+\end{equation}
+the \textit{degree} of $P$ and define the degree of the zero polynomial to be $-\infty$. In addition we write 
+\begin{equation}
+\label{def_leading_coefficient}
+Lc(P):=a_m
+\end{equation}
+and call it the \textit{leading coefficient} of the polynomial $P$. We can restrict the set $R[x]$ of \textit{all} polynomials with coefficients in $R$, to the set of all such polynomials that have a degree that does not exceed a certain value. If $m$ is the maximum degree allowed, we write $R_{\leq m}[x]$ for the set of all poynomials with a degree less or equal to $m$.
 \begin{example}[Integer Polyinomials] The coefficients of a polynomial must all have the same type. The set of polynomials with integer coefficients is written as $\Z[x]$. Examples of such polynomialse are:
 \begin{itemize}
 \item $P_1(x)= 2x^2 -4x +17$, with degree $deg(P_1)=2$.
@@ -487,14 +501,34 @@ If a polynomial $P(x)=\sum_{j=0}^m a_jx^j$ is given and is not the zero polynomi
 \item $P_4(x)= 174$, with degree $deg(P_4)=0$.
 \item $P_5(x)= 1$, with degree $deg(P_5)=0$.
 \item $P_6(x)=0$, with degree $deg(P_5)=-\infty$.
-\item $P_7(x)= (x-1)(x+2)(x-4)$, with degree $deg(P_3)=3$.
+\item $P_7(x)= (x-2)(x+3)(x-5)$, with degree $deg(P_3)=3$.
 \end{itemize}
-In particular every integer can be seen as an integer polynomial of degree zero. $P_7$ is a polynomial, because we can expand its definition into $P_4(x)=x^3-3x^2-4x+6$, which is polynomial of degree $3$. The following expressions are not integer polynomial
+In particular every integer can be seen as an integer polynomial of degree zero. $P_7$ is a polynomial, because we can expand its definition into $P_7(x)=x^3 - 4 x^2 - 11 x + 30$, which is polynomial of degree $3$. The following expressions are not integer polynomial
 \begin{itemize}
 \item $Q_1(x)= 2x^2 + 4 + 3x^{-2}$
 \item $Q_2(x)= 0.5x^4 -2x$
 \item $Q_3(x)=1/x$
 \end{itemize}
+\end{example}
+\begin{example}[Polynomials over $\mathbb{Z}_6$] Recall our definition of the residue classes $\Z_6$ and their arithmetics as defined in \ref{def: residual class ring}. The set of all polynomials with indeterminant $x$ and coefficients in $\Z_6$ is symbolized as $\Z_6[x]$. Example of polynomials from $\Z_6$ are:
+\begin{itemize}
+\item $P_1(x)= 2x^2 -4x +5$, with degree $deg(P_1)=2$.
+\item $P_2(x)= x^{23}$, with degree $deg(P_2)=23$.
+\item $P_3(x)= x$, with degree $deg(P_3)=1$.
+\item $P_5(x)= 1$, with degree $deg(P_5)=0$.
+\item $P_6(x)=0$, with degree $deg(P_5)=-\infty$.
+\item $P_7(x)= (x-2)(x+3)(x-5)$, with degree $deg(P_3)=3$.
+\end{itemize}
+As in the previous example $P_7$ is a polynomial. However since we are working with coefficients from $\Z_6$ now the expension of $P_7$ is computed differently, as we have to invoke addition and multiplication in $\Z_6$ as defined in XXX. We get:
+$$
+\begin{array}{l c l r}
+(x-2)(x+3)(x-5) & = & (x+4)(x+3)(x+1) & \text{\# additive inverses in } \Z_6 \\
+                & = & (x^2+4x+3x+3\cdot 4)(x+1) & \text{\# bracket expansion} \\
+                & = & (x^2+1x+0)(x+1) & \text{\# compuation in } \Z_6 \\
+                & = & (x^3+x^2+x^2+x) & \text{\# bracket expansion}\\
+                & = & (x^3+2x^2+x) &
+\end{array} 
+$$
 \end{example}
 We can invoke sage to do computations with polynomials. To do so we have to specify the symbol for the indertimate and the type for the coefficients. Note however that sage defines the degree of the zero polynomial to be $-1$.
 \begin{sagecommandline}
@@ -526,34 +560,178 @@ P(a) = \sum_{j=0} a_j b^j
 \end{itemize}
 Note however that is not possible to evaluate any of those polynomial on values of different type. It is for example strictly speaking wrong to write $P_1(0.5)$, since $0.5$ is not an integer.
 \end{example}
+\begin{example} We evaluate the polynomials from example XXX at certain values from $\Z_6$. We get:
+\begin{itemize}
+\item $P_1(2)= 2\cdot 2^2 -4\cdot 2 +5 = 2 - 2 + 5 = 5$
+\item $P_2(3)= 3^{23}=3$, since $3\cdot 3=3$ in $\Z_6$.
+\item $P_3(-4)= P_3(2) = 2$.
+\item $P_5(0)= 1$.
+\item $P_6(4)=0$.
+\end{itemize}
+\end{example}
+\begin{exercise}
+Compare both expansions of $P_7$ from $\Z[x]$ and from $\Z_6[x]$ in example XXX and example XXX and consider the definition of $\Z_6$ as given in example XXX. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?
+\end{exercise}
+\paragraph{Polynomial Aithmetics}
+Polynomials behave like integers in many ways. In particular they can be added, subtracted and multiplied. In addition they have their own notion of Euklidean division. Roughly speaking two polynomials are added by simply adding the coefficients of the same index and they are multiplied by applying the distributive property, that is by multiplying every term of the left factor with every term of the right factor and add the results together.
 
-As we will see in what follows, polynomials behave like integers in many ways. In particular they can be added, subtracted and multiplied. In addition they have their own notion of Euklidean division. 
-\begin{definition} Let $ \sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} $ and
-$ \sum _{n = 0} ^{\infty}{b} _{n}{x} $ be two polynomials from
-$ R[x]$. Then the \textit{sum} and the \textit{product} of these polynomials is defined as follows:
+To be more precise let $ \sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} $ and
+$ \sum _{n = 0} ^{m_2}{b} _{n}{x} $ be two polynomials from $ R[x]$. Then the \textit{sum} and the \textit{product} of these polynomials is defined as:
 \begin{equation}
-\sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} + \sum _{n = 0} ^{\infty}{b} _{n}{x } ^{n} = \sum _{n = 0} ^{\infty}{({a} _{n} +{b} _{n})}{x} ^{n}
+\sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} + \sum _{n = 0} ^{m_2}{b} _{n}{x } ^{n} = \sum _{n = 0} ^{may(m_1,m_2)}{({a} _{n} +{b} _{n})}{x} ^{n}
 \end{equation}
 \begin{equation}
-\bigg (\sum _{n = 0} ^{\infty}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{\infty }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{\infty} \sum _{i = 0} ^{n}{a} _{i }{{b} _{ni}}{x} ^{n}
+\bigg (\sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{m_2 }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{m_1+m_2} \sum _{i = 0} ^{n}{a} _{i }{{b} _{ni}}{x} ^{n}
 \end{equation}
-\end{definition}
-%\begin{sagecommandline}
-%sage: q = Z6x([5,-3,2,])
-%sage: p + q
-%sage: p*q
-%sage: p^2
-%\end{sagecommandline}
+A rule for polynomial subtraction can be deduced from these two rules by first muliplying the subtrahend with (the polynomial) $-1$ and then add the result to the minuend.
 
-In the case of polynomials, it is only necessary to note that the degree of the sum is exactly the maximum of the degrees of the summands and that the degree of the product is exactly the sum of the degrees of the factors.
+Regarding ower definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands and the degree of the product is always the degree of the factors, providing that $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is sage, which would violate this rule.
+\begin{example} To given an example of how polynomial aithmetics work, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
+$$
+\begin{array}{lcl}
+(P+Q)(x) & = & (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
+         & = & x^3 +3x^2 -4x +7
+\end{array}
+$$
+The product of thess two polynomials is computed by multiplication of each term in the first factor with each term in the second factor. We get
+$$
+\begin{array}{lcl}
+(P\cdot Q)(x) & = & (5x^2 -4x +2)\cdot (x^3-2x^2 +5) \\
+              & = & (5 x^5 -10 x^4 +25 x^2)+ (-4x^4 +8 x^3 -20x) + (2x^3 -4x^2+10) \\
+              & = & 5 x^5 -14x^4 +10x^3+21x^2-20x +10
+\end{array}
+$$
+We can double check our computations by invoking sage
+\begin{sagecommandline}
+sage: Zx = ZZ['x'] 
+sage: P = Zx([2,-4,5])
+sage: Q = Zx([5,0,-2,1])
+sage: P
+sage: Q
+sage: P+Q
+sage: P*Q
+\end{sagecommandline}
+\end{example}
+\begin{example} Lets consider the polynomials of the previous example but interpreted in modular $6$ aithmetics. So we consider $P,Q\in \Z_6[x]$ again with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. This time we get
+$$
+\begin{array}{lcl}
+(P+Q)(x) & = & (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
+         & = & (0+1)x^3 + (5+4)x^2 + (2 +0) x +(2+5) \\
+         & = & x^3 +3x^2 +2x +1\\
+         \\
+(P\cdot Q)(x) & = & (5x^2 -4x +2)\cdot (x^3-2x^2 +5) \\
+              & = & (5x^2 +2x +2)\cdot (x^3+4x^2 +5) \\
+              & = & (5 x^5 +2 x^4 +1x^2)+ (2x^4 +2x^3 +4x) + (2x^3 +2x^2+4) \\
+              & = & 5 x^5 +4x^4 +4x^3+3x^2+4x +4
+\end{array}
+$$
+We can double check our computations by invoking sage
+\begin{sagecommandline}
+sage: Z6 = Integers(6)['x'] 
+sage: P = Z6([2,-4,5])
+sage: Q = Z6([5,0,-2,1])
+sage: P
+sage: Q
+sage: P+Q
+sage: P*Q
+\end{sagecommandline}
+\end{example}
 
-The ring of polynomials shares a lot of properties with the integers. In particular there is also the concept of Euclidean division and the algorithm of long division defined for polynomials.
+\paragraph{Euklidean Division}
+The ring of polynomials shares a lot of properties with the integers. In particular there is also the concept of Euclidean division and the algorithm of long division defined for polynomials. Recalling from Euklidean division of integers XXX, we know, that given two integers $a$ and $b\neq 0$ there is always another integer $m$ and a counting number $r$ with $r<|b|$, such that $a = m\cdot b +r$ holds.
 
-\begin{definition}[Irreducible Polynomial]
-TECHNOBOB
-\end{definition}
+We can generalize this to polynomials, whenver the coefficients of the polynomials have a notion of division. In fact given two polynomials $A$ and $B\neq 0$ from $R[x]$, there exist two polynomials $M$ (the quotient) and $R$ (the remainder), such that
+\begin{equation}
+A = M\cdot B + R
+\end{equation}
+and $deg(R) < deg(B)$. Similar to integer Euklidean division both $M$ and $R$ are uniquely defined by these relations. 
+\begin{notation}
+\label{eq_polynomial_euklidean_division_notation}
+Suppose that the polynomials $ A, B, M $ and $ R $ satisfy equation XX. Then we often write 
+\begin{equation}
+\label{def_integer_division_and_modulus}
+\begin{array}{lcr}
+\Zdiv{A}{B}: = M, & & \Zmod{A}{B}: = R 
+\end{array}
+\end{equation}
+to describe the quotient and the remainder polynomials of the Euklidean division. We also say, that a polynomial $ A $ is divisible by another polynomial $ B $ if $ \Zmod{A}{B} = 0 $ holds. In this case we also write $ B | A $ and call $B$ a \textit{factor} of $A$.
+\end{notation}
+Analog to integers, methods to compute Euklidean division for polynomials are called \textit{polynomial division algorithms}. Probably the best known algorithm is the so called \textit{polynomial long division}. 
+\begin{algorithm}\caption{Polynomial Euklidean Algorithm}
+\label{alg_ext_euclid_alg}
+\begin{algorithmic}[0]
+\Require $A,B \in R[x]$ with $B\neq 0$, such that $Lc(B)^{-1}$ exists in $R$
+\Procedure{Poly-Long-Division}{$A,B$}
+\State $M \gets 0$
+\State $R \gets A$
+\State $d \gets deg(B)$
+\State $c \gets Lc(B)$
+\While{$ deg(R) \geq d$}
+\State  $S := \frac{Lc(R)}{c}\cdot x^{deg(R)-d}$
+\State $M \gets M + S$
+\State $R \gets R - S\cdot B$
+\EndWhile
+\State \textbf{return} $(Q, R)$ 
+\EndProcedure
+\Ensure $ A=  M \cdot B + R$
+\end{algorithmic}
+\end{algorithm}
 
-\subsection{Lagrange interpolation polynomials}
+% https://math.stackexchange.com/questions/2140378/division-algorithm-for-polynomials-in-rx-where-r-is-a-commutative-ring-with-u
+This algorithm works only when there is a notion of division by the leading coefficient of $B$. It can be generalized, but we will only need this somewhat simpler method in what follows.
+\begin{example}[Polynomial Long Division] To give an example of how the previous algorithm works, lets divide the polynomial $A(x)=x^5+2x^3-9$ by the polynomial $B(x)=x^2+4x-1$. Since $B$ is not the zero polynomial and the leading coefficient of $B$ is $1$, which is invertible as an integer, we can applay algorithm XXX and our goal is to find solutions to equation \ref{xxx}, that is we need to find the quotient polynomial $M\in\Z[x]$ and the reminder polynomial $R \in \Z[x]$ such that $x^5+2x^3-9 = M(x)\cdot (x^2+4x-1) + R$. Using a notation that is mostly used in Commonwealth countries, we compute
+\begin{equation}
+\polylongdiv{X^5+2X^3-9}{X^2+4X-1}
+\end{equation}
+We therefore get $M(x)=x^3-4x^2+19x-80$ as well as $R(x)=339x-89$ and indeed we have $x^5+2x^3-9 = (x^3-4x^2+19x-80)\cdot (x^2+4x-1) + (339x-89)$, which we can double check invoking sage:
+\begin{sagecommandline}
+sage: Zx = ZZ['x']
+sage: a = Zx([-9,0,0,2,0,1])
+sage: b = Zx([-1,4,1])
+sage: m = Zx([-80,19,-4,1])
+sage: r = Zx([-89,339])
+sage: a == m*b +r
+\end{sagecommandline}
+\end{example}
+\begin{example} In the previous example polynomial division gave a non trivial (non vanishing, i.e non-zero) remainder. Of special interest are divisions that don't give a remainer. Sutable divisiors are called factors in that case. For example consider the polynomial $P_7$ from example XXX again. As we have shown, it can be written both as $x^3 - 4 x^2 - 11 x + 30$ as well as $(x-2)(x + 3)(x-5)$. From this we can see that the polynomials $F_1(x)=(x-2)$, $F_2(x)=(x+3)$ and $F_3(x)=(x-5)$ are all the factors of $x^3 - 4 x^2 - 11 x + 30$.
+\end{example}
+
+\paragraph{Roots}
+As we have seen in example XXX, points where a polynomial evaluates to zero, i.e points $x_0\in R$ with $P(x_0)=0$ are of special interest, since the polynomial $F(x)=(x-x_0)$ is a factor of $P$. Those points are called the \textit{roots} of $P$. To be more precise, let $P\in R[x]$ be a polynomial. Then the set of all roots of $P$ is defined as
+\begin{equation}
+R_0(P):=\{x_0\in R\;|\; P(x_0)=0\}
+\end{equation}
+Finding the roots of a polynomial is sometimes called solving the polynomial. It is a hard problem and has been the subject of much research throughout history. In fact it is well known that for polynomials of degree $5$ or higher there is, in general, no closed expression, from which the roots can be deduced. 
+
+Therefore, except for very low degrees, root finding of polynomials consists of finding approximations of the roots.
+\begin{example}
+Consider our integer polynomial $P_7(x)=x^3 - 4 x^2 - 11 x + 30$ from example XXX again. We know that it's set of roots is given by $R_0(P_7)=\{-3,2,5\}$.
+
+On the other hand consider the integer polynomial $P(x)=x^2-2$. We know that it can not have any integer root, since $x^2-2=0$ implies that any root $x_0$ would have to satisfy $x_0^2=2$, but there is no integer that squares into $2$ ($\sqrt{2}$ is not an integer).
+\end{example}
+It can be shown, that if $m$ is the degree of a polynomial $P$, then $P$ can not have more then $m$ roots. However in general polynomials can have less then $m$ roots. A special case occures if a polynomial has no roots at all in which case it is called \textit{irreducible}. 
+
+In a sense, irreducible polynomials are for polynomials what prime numbers are for integers. They are the basic building blocks from which all other polynomials can be constructed. This can be expressed in a polynomial analog of the fundamental theorem of arithmetics XXX. To be more precise, let $P \in R[x]$ be any polynomial. Then there are always irreducible polynomials $F_1, F_2, \ldots, F_k \in R[x]$, such that
+\begin{equation}
+P = F_1 \cdot F_2 \cdot \ldots \cdot F_k \;.
+\end{equation}
+This representation is unique, except for permutations in the factors and is called the \textbf{prime factorization} of $P$.
+
+Every root $x_0$ of a polynomial defines a prime factor $(x-x_0)$ of $P$. The converse however is not necessarily true, because a polynomial can have irreducible prime factors. 
+\begin{example}[Prime Factorization] To give an example consider the polynomial 
+$P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1$. We can check that this polynomial has the following roots $R_0(P)=\{-3,2\}$ and that the irreducible polynomial $F_1(x)=x^2-2$ is a factor of $P$. We can use this data to compute the prime factorization of $P$, by succesive polynomial division of $P$ by $(x+3)$, $(x-2)$ as well as $x^2-2$. We get:
+$$
+P= (x^2-2)(x^4-4)(x-2)(x+3)
+$$
+\end{example}
+
+
+
+
+
+\paragraph{Lange interpolation}
+Polynomials of degree m are determined on m+1 evaluation points 
+
 \section{Algebra Structures}
 
 The following theorem makes the idea precises
