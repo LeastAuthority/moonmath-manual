@@ -7,78 +7,63 @@ doctest this file with "sage -t main-moonmath_doctest.sage".
 It is always safe to delete this file; it is not used in typesetting your
 document.
 
-Sage commandline, line 46::
+Sage commandline, line 48::
 
-sage: Groups()
-sage: CommutativeAdditiveGroups()
-sage: FiniteGroups()
-
-Sage commandline, line 57::
-
-sage: TrivialGroup = SymmetricGroup(1)
-
-Sage commandline, line 79::
-
-sage: CommutativeRings()
-sage: CommutativeRings().super_categories()
-
-Sage commandline, line 85::
-
-sage: ZZ # A sage notation for the Ring of integers
+sage: ZZ # A sage notation for the integer type
+sage: NN # A sage notation for the counting number type
 sage: ZZ(5) # Get an element from the Ring of integers
 sage: ZZ(5) + ZZ(3)
-sage: ZZ(5) * ZZ(3)
+sage: ZZ(5) * NN(3)
 sage: ZZ.random_element(10**50)
 sage: ZZ(27713).str(2) # Binary string representation
+sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 
-Sage commandline, line 155::
+Sage commandline, line 77::
 
-sage: Fields()
+sage: n = ZZ(19214758032624000)
+sage: factor(n)
 
-Sage commandline, line 160::
-
-sage: QQ
-sage: QQ(1/5) # Get an element from the field of rational numbers
-sage: QQ(1/5) / QQ(3) # Division
-
-Sage commandline, line 182::
-
-sage: GF(2)
-sage: GF(2)(1) # Get an element from GF(2)
-sage: GF(2)(1) + GF(2)(1) # Addition
-sage: GF(2)(1) / GF(2)(1) # Division
-
-Sage commandline, line 213::
+Sage commandline, line 129::
 
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
-sage: ZZ(-17).divides(ZZ(4))
+sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 
-Sage commandline, line 246::
+Sage commandline, line 145::
 
-sage: ZZ(157843853).quo_rem(ZZ(261)) # Euclidean Division
-sage: ZZ(604765)*ZZ(261) + ZZ(188) # check
+sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
+sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
-Sage commandline, line 294::
+Sage commandline, line 204::
 
-sage: ZZ(12).xgcd(ZZ(5)) # (gcd,s,t)
+sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 317::
+Sage commandline, line 267::
 
-sage: ZZ(7) % ZZ(271) == ZZ(2446) % ZZ(271)
+sage: ZZ(137).gcd(ZZ(64))
+sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
+sage: ZZ(64)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
+sage: ZZ(1918).gcd(ZZ(137))
+sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
+sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 331::
+Sage commandline, line 305::
 
-sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64)
-sage: ZZ(64)** ZZ(137-1) % ZZ(137) == ZZ(1)
+sage: (ZZ(7)* (ZZ(2)*ZZ(14) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(14) - ZZ(102))  % ZZ(17)
+sage: (ZZ(7)* (ZZ(2)*ZZ(218) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(218) - ZZ(102))  % ZZ(17)
 
-Sage commandline, line 392::
+Sage commandline, line 325::
+
+sage: (ZZ(7)* ZZ(9))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
+sage: (ZZ(7)* ZZ(1726))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
+
+Sage commandline, line 388::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 457::
+Sage commandline, line 452::
 
 sage: Z6=Integers(6) # Define integers modulo 6
 sage: Z6(2)+Z6(5) # standard representatives of a class
@@ -86,31 +71,81 @@ sage: Z6(14)+Z6(-1) # different representatives for same class
 sage: - Z6(2) # additive inverse
 sage: Z6(5)**(-1) # multiplicative inverse if exists
 
-Sage commandline, line 492::
+Sage commandline, line 529::
 
-sage: Z6x = Z6['x']
-sage: Z6x
-sage: p = Z6x([1,2,3,4])
+sage: ZZ(6).xgcd(ZZ(5))
+
+Sage commandline, line 627::
+
+sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
+sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
+sage: Zx
+sage: Zt
+sage: p = Zx([1,2,3,4])
+sage: q = Zt([1,2,3,4])
 sage: p
-
-Sage commandline, line 502::
-
+sage: q
 sage: p.degree()
-sage: Z6x([0]).degree()
+sage: zero = Zx([0])
+sage: zero.degree()
 
-Sage commandline, line 517::
+Sage commandline, line 698::
 
-sage: q = Z6x([5,-3,2,])
-sage: p + q
-sage: p*q
-sage: p^2
+sage: Zx = ZZ['x']
+sage: P = Zx([2,-4,5])
+sage: Q = Zx([5,0,-2,1])
+sage: P
+sage: Q
+sage: P+Q
+sage: P*Q
 
-Sage commandline, line 903::
+Sage commandline, line 722::
+
+sage: Z6 = Integers(6)['x']
+sage: P = Z6([2,-4,5])
+sage: Q = Z6([5,0,-2,1])
+sage: P
+sage: Q
+sage: P+Q
+sage: P*Q
+
+Sage commandline, line 780::
+
+sage: Zx = ZZ['x']
+sage: a = Zx([-9,0,0,2,0,1])
+sage: b = Zx([-1,4,1])
+sage: m = Zx([-80,19,-4,1])
+sage: r = Zx([-89,339])
+sage: a == m*b +r
+
+Sage commandline, line 71::
+
+sage: CommutativeRings()
+sage: CommutativeRings().super_categories()
+
+Sage commandline, line 139::
+
+sage: Fields()
+
+Sage commandline, line 144::
+
+sage: QQ
+sage: QQ(1/5) # Get an element from the field of rational numbers
+sage: QQ(1/5) / QQ(3) # Division
+
+Sage commandline, line 166::
+
+sage: GF(2)
+sage: GF(2)(1) # Get an element from GF(2)
+sage: GF(2)(1) + GF(2)(1) # Addition
+sage: GF(2)(1) / GF(2)(1) # Division
+
+Sage commandline, line 29::
 
 sage: EllipticCurve(GF(5),[1,0])
 sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
 
-Sage commandline, line 1304::
+Sage commandline, line 430::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -124,13 +159,13 @@ sage: for P in INF.division_points(13): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1342::
+Sage commandline, line 468::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1368::
+Sage commandline, line 494::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -143,7 +178,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1383::
+Sage commandline, line 509::
 
 sage: for d in F13:
 ....:     j= ZZ(0)
@@ -154,14 +189,14 @@ sage: for d in F13:
 ....:     print('d=',d)
 ....:     print('order=',j)
 
-Sage commandline, line 1404::
+Sage commandline, line 530::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1438::
+Sage commandline, line 564::
 
 sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
@@ -170,7 +205,7 @@ sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....: (x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1538::
+Sage commandline, line 664::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -183,7 +218,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1553::
+Sage commandline, line 679::
 
 sage: j = ZZ(0)
 sage: for a in F13:
@@ -195,27 +230,27 @@ sage: for a in F13:
 ....:                     j=j+1
 ....:         print('curve: a=',a,'d=',d,'order:',j)
 
-Sage commandline, line 1579::
+Sage commandline, line 705::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1607::
+Sage commandline, line 733::
 
 sage: def Edwards_add((x1,y1),(x2,y2),a,d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1637::
+Sage commandline, line 763::
 
 sage: F7 = GF(7)
 sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 1668::
+Sage commandline, line 794::
 
 sage: F7t.<t> = F7[]
 sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
@@ -228,13 +263,13 @@ sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1696::
+Sage commandline, line 822::
 
 sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 1772::
+Sage commandline, line 898::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])

@@ -1,5 +1,5 @@
 % with font size 10, I think there is just too much Information per page.
-\documentclass[a4paper, 11pt]{scrreprt}
+\documentclass[a4paper, 12pt]{scrreprt}
 
 % border sizes
 \setlength{\topmargin}{0.0in}
@@ -15,13 +15,23 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
+% integer long division
+\usepackage{longdivision}
+% polynomial long division
+\usepackage{polynom}
 
 \usepackage{amssymb,amsmath,amsthm,mathrsfs,xspace,multicol}
 \usepackage{polydiv}
 \usepackage{amscd}
 \usepackage[all]{xy}
-%\usepackage{algpseudocode}
-\usepackage{clrscode}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% We use algorithmicX, since we need to customize commands (\algblockdefx)
+% See https://ftp.agdsn.de/pub/mirrors/latex/dante/macros/latex/contrib/algorithmicx/algorithmicx.pdf for howTo customize
+\usepackage{algorithmicx}
+
+
 \usepackage{enumitem} % for personalizing enumeration with itemize
 
 % the sagetex evironment
@@ -29,12 +39,12 @@
 \usepackage{xcolor}
 % color of the sagecommandline-tex-environment
 \lstset{language=Sage,
-commentstyle={\ttfamily\color{green}},
-keywordstyle={\ttfamily\color{blue}\bfseries},
-stringstyle ={\ttfamily\color{dgraycolor}\bfseries},
+commentstyle={\ttfamily\color{black}},
+keywordstyle={\ttfamily\color{black}\bfseries},
+stringstyle ={\ttfamily\color{black}\bfseries},
 tabsize = 4,
 basicstyle={\small \ttfamily},
-backgroundcolor= \color{gray!10},
+backgroundcolor= \color{white},
 }
 
 
@@ -88,7 +98,19 @@ backgroundcolor= \color{gray!10},
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{conjecture}{Conjecture}
 \newtheorem{remark}{Remark}
-\newtheorem{example}{Example}
+\newtheorem{notation}{Notation and Symbols}
+
+% Examples get their own counter
+\newcounter{ExampleCounter}
+\newtheorem{example}[ExampleCounter]{Example}
+
+% Exercises get their own counter
+\newcounter{ExerciseCounter}
+\newtheorem{exercise}[ExerciseCounter]{Exercise}
+
+% Jargon get their own counter
+\newcounter{JargonCounter}
+\newtheorem{jargon}[JargonCounter]{Jargon}
 
 % algorithmicx commands
 %\algnewcommand\algorithmicinput{\textbf{Statement:}}
@@ -109,7 +131,9 @@ Here is a citation for demonstration: \cite{lamport1982the}
 \include{chapters/intro-moonmath}
 \include{chapters/zoo-moonmath}
 \include{chapters/preliminaries-moonmath}
-\include{chapters/number-theory-moonmath}
+\include{chapters/arithmetics-moonmath}
+\include{chapters/algebra-moonmath}
+\include{chapters/elliptic-curves-moonmath}
 \include{chapters/computational-models-moonmath}
 \include{chapters/exercise-solutions-moonmath}
 
