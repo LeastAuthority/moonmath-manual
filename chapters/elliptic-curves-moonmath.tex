@@ -1,0 +1,926 @@
+\chapter{Elliptic Curves}
+
+\section{Epileptic Curves}
+%references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
+In this section we introduce epileptic curves as they are used in cryptography, hwhich are certain types of commutative groups basically, well suited for various constructions of various cryptographic primitives. 
+
+The eliptic curves we consider are all defined over Galoise fields, so the reader should be familiar with the contend of the previous section.
+
+\begin{definition}[Short Weierstraß elliptic Curve] Let $\F_{q}$ be a Galois field and $a,b\in \F_q$ be two field elements with $ 4a^3+ 27b^2 \neq 0 $. Then a short Weierstrass elliptic curve $E/F_q$ over $F_q$ is defined as the set
+$$
+E/\F_q = \{(x,y)\in \F_q\times \F_q\;|\; y^2=x^3+ax+b \} \bigcup \{\Oinf\}
+$$
+of all pairs $(x,y)\in \F_q\times \F_q$ of field elements, that satisfy the short Weierstrass equation $y^2=x^3+ax+b$, together with the "point at infinity $\Oinf$.
+\end{definition}
+If the characteristic of the Galois field is $2$ or $3$, that is if $\F_q$ is of the form $\F_{2^n}$ or $\F_{3^n}$ for some $n\in\N$, then this is not the most general way to describe an elliptic curve. However for our purposes this is al we need.
+
+An interesting question is: How many elements does a curve over a finite contain? Since the curve consists of pairs of elements from $\F_q$ plus the point at infinity and $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. However the following estimation is more precise:
+\begin{theorem}[Hasse bound] Let $E/\F_q$ be an elliptic curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is a number $t$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
+$$
+|E/\F_q| = q +1 -t
+$$
+\end{theorem}
+So roughly speaking, the number of elements in an elliptic curve is approximately equal to the sizeq of an underlying field.
+\begin{example}Lets consider our prime field $\F_5$ from (XXX). If we choose $a=1$ and $b=0$ then $4a^3+ 27b^2 = 4 \neq  0 $ and the corresponding elliptic curve $E/\F_{5}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x$. We can find this set simply by trying all 25 combinations of pairs. We get
+$$
+E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
+$$
+So our elliptic curve contains 4 elements and the trace $t$ is therefore $2$. Sage code for this curve:
+\begin{sagecommandline}
+sage: EllipticCurve(GF(5),[1,0])
+sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
+\end{sagecommandline}
+\end{example}
+\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
+$$
+E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
+\end{example}
+
+\paragraph{Keys}
+- Keys on elliptic curves
+- compressed keys
+
+\section{The group law}
+% http://wwwmayr.informatik.tu-muenchen.de/konferenzen/Jass07/courses/1/Lukyanenko/Lukyanenk_Paper.pdf
+One of the key properties of an elliptic curve is that it is possible to define a group law on the set of its points together with the point at infinity, which serves as the neutral element.
+
+The origin of this law is geometric and known as the chord-and-tangent rule. The  rule can be described in the following way:
+\begin{itemize}
+\item (Point addition) Let $P, Q\in E/\F_q- \{\Oinf\}$ with $P\neq Q$ be two distinct points on an elliptic curve $E/\F_q - \{\Oinf\}$, that are both not the point at infinity. Then one can define the sum of $P$ and $Q$ as follows: Consider the line $l$ which intersects the curve in $P$ and $Q$. If $l$ intersects the elliptic curve at a third point $R'$, define the sum $R=P+Q$ of $P$ and $Q$ as the reflection of $R'$ at the x-axis. If it does not intersect the curve at a third point define the sum to be the point at infinity $\Oinf$.
+\item (Point doubling) Let $P \in E/\F_q$ with $P\neq Q$ be a points on an elliptic curve $E/\F_q - \{\Oinf\}$. Then the double $2P$ of $P$ is defined as follows: Consider the line wich is tangent to the elliptic curve at $P$. It can be shown, that it intersects the elliptic curve at the second point $R'$. $2P$ is then the reflection of this point at the x-axis.
+\item (Point at infinity) We define $P+\Oinf = \Oinf$ for all points of the eliptic curve $P, Q\in E/\F_q$.
+\end{itemize}
+It can be shown that the points of an elliptic curve have a group structure with respect to the tangent and chord rule, with $\Oinf$ as the neutral element. The inverse of any element $P\in E/\F_q$ is the reflection of $P$ on the x-axis.
+
+Translating the chord-and-tanent-rule into algebraic expressions gives the following laws for computing the sum of points on an elliptic curve in short Weierstrass form:
+
+\begin{itemize}
+\item (Commutativity) $P + Q = Q + P$ for all $P,Q \in E/\F_q$.
+\item (The neutral element) $P + \Oinf = P$ for all $P \in E/\F_q$.
+\item (Addition rule )  For $P, Q \in E/\F_q$ with $P=(x_1,y_1)$ and $Q=(x_2,y_2)$ and $x_1 \neq x_2$, the sum $R=P+Q$ is given by $R=(x_3,y_3)$ with
+$$
+\begin{array}{lr}
+x_3 = \left(\frac{y_2-y_1}{x_2-x_1}\right)^2 -x_1-x_2 &
+y_3 = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1
+\end{array} 
+$$
+\item (Doubling rule ) For $P \in E/\F_q$ with $P=(x,y)$ and $y\neq 0$, the double of $P$ (sum of $P$ with itself) is given by $2P=(x',y')$ with
+$$
+\begin{array}{lr}
+x' = \left(\frac{3x^2+a}{2y}\right)^2 -2x &
+y' = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y
+\end{array} 
+$$
+\item (The inverse element) For $P \in E/\F_q$ with $P=(x,y)$, the inverse (negative) element is given by $-P:= (x,-y)$.
+\end{itemize}  
+It can be shown, that when $x_1=x_2$ then $y_1 = -y_2$. This implies that the previous rules are complete, since in doubling the case $y=0$, means that the point is its own inverse and hence doubling gives the point at infinity.
+
+As we can see, it is very efficient to compute inverses on elliptic curves.
+
+\begin{definition}[Elliptic curve exponentiation and generators]
+Let $E/\F_q$ an elliptic curve and $P\in E/\F_q$ a point on that curve. Then the \textbf{elliptic curve exponentiation} with base $P$ is given by
+$$
+[\cdot]P: \Z \to E/\F_q; m \mapsto [m]P
+$$
+where $[m]P = P+P+\ldots + P$ is the $m$-fold sum of $P$ with itself. Moreover the point $P$ is called a \textbf{generator} of the curve, if $[\Z]P = E/\F_q$.
+\end{definition}
+\begin{remark}
+The term exponentiation come from the fact, that if the group law is written in multiplicative notation, then an $m$-fold product $x\cdot x\cdot\ldots \cdot x$ is usually written in as $x^m$. So our exponential map, is an adoptation of that for groups with an additive notation of the group law.
+\end{remark}
+\begin{example}Lets consider the curve $E_1/\F_5$ from example XXX again. We have 
+$$
+E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
+$$
+So as always $\Oinf$ is the neutral element. Since all elements have $0$ as their y-coordinate, it follows that all of them are self inverse, that is $-P=P$. To add, say $(2,0)$ and $(3,0)$ we use the addition rule, since their x-coordinates differ, we get 
+\begin{align*}
+(0,0)+(2,0)= \left(3,0\right)\\
+(0,0)+(3,0)= \left(2,0\right)\\
+(2,0)+(3,0)= \left(0,0\right)\\ 
+\end{align*}
+As we can see $(0,2)$ is not a generator of the group since 
+$[1](0,2)=(0,2)$, $[2](0,2)=(0,2)+(0,2)= \Oinf$. HMM I GUESS THERE IS SOMETHING WRONG HERE. THREE TWO ELEMENT SUBGROUPS SHOULDN'T EXIST??
+\end{example}
+\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
+$$
+E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
+\end{example}
+\begin{definition}[The elliptic curve discrete logarithm]. Let $E/\F_q$ be an elliptic curve and $P,Q\in E/\F_q$ be two points. Then the elliptic curve discrete logarithm problem consists of finding a solution $m\in\Z$, such that
+$$
+P = [m]Q
+$$
+Such an equation is also called a discrete logarithm relation between $P$ and $Q$
+\end{definition}
+\begin{remark}
+If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
+\end{remark}
+STUFF ON THE INFEASABILITY TO COMPUTE DISCRETE LOGARITHMS
+
+\begin{definition}[Cofactor Clearing]
+Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
+\end{definition}
+
+\paragraph{Cryptographically secure elliptic curves} Not all elliptic curves satisfy the requirements from applied cryptography .... Here is a list of properties a curve should satisfy:
+
+\begin{enumerate}
+\item TECHNOBOB
+\end{enumerate}
+
+\subsection{twists}
+
+\section{Pairings}
+In this section, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
+
+We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
+
+\subsection{Hashing to Curve}
+In various cryptographic primitives the ability to generate elliptic curve points from binary strings that have properties similar to those of cryptographically secure hash functions is desireable. We call this hash-to-curve.
+
+Of particular interest are constructions, that not only hash to curve points, but where the images have spacial properties, like being in the pairing groupd $\mathbb{G}_1$ or $\mathbb{G}_2$.
+
+Thinking about hashing to curves and hashing to certain subgroups in particular maybe the most obvious thing that comes to mind, is to simply hash to the scalar field of the eliptic curve and then use a generator of the subgroup taget and multiply the generator with the hash value in that scalar field. The result is a valid curve point that is guranteed to be in the desired subgroup. 
+
+To be more precise given an elliptic curve $E/\F$, a subgroup $\mathbb{G}$ of $E$ of order $r$, a generator $g$ of $\mathbb{G}$, a bit-string $s$ and a hash function $H: \{0,1\}^* \to \F_{r}$, then $[H(s)]g$ is an element of $\mathbb{G}$ and hence $H':  \{0,1\}^* \to \mathbb{G}$ with $H'(s):= [H(s)]g$ is a hash function. 
+
+This naive approach however is almost never adequate in cryptographic applications as a discrete log relation is always know between any two given hash value $H'(s)$ and $H'(t)$. In fact for $H(s)\neq 0$, we can define $x= H(t)/H(s)$ and then have $[x]H'(s)=H'(t)$.
+
+So we need a different approach:
+\paragraph{Try and increment hash functions}
+One of the most straight forward ways to hash a bitstring onto an eliptic curve point, in a  secure way, is to use a cryptographic hash function together with one of the methods we described in XXX to hash to the base field of the curve. Ideally the hash function generates an image that is at least one bit longer then the bit representation of the base field modulus.
+
+The image in the base field can then be interpreted as the $x$-coordinate of the curve point and the two possible $y$-coordinates are then derived from the curve equation, while one of the bits that exceeded the modulus determines which of the two $y$-coordinates to choose.
+
+Such an approach would be easy to implement and deterministic and it will conserve the cryptographic properties of the original hash function. However not all $x$-ccordinates genrated in such a way, will result in quadratic residues, when inserted into the defining equation. It follows that not all field elements give rise to actual curve points. In fact
+% https://www.cs.umd.edu/users/gasarch/TOPICS/res/burgess.pdf
+on a prime field, only half of the field elements are quadratic residues and hence assuming an even distribution of the hash values in the field, this method would fail to generate a curve point in about half of the attempts. 
+
+One way to account for this problem is the so called \textit{try and increment} method. Its basic assumption is, that hashing different values, the result will eventually lead to a valid curve point. 
+
+Therefore instead of simply hashing a string $s$ to the field the concatenation of $s$ with additional bytes is hashed to the field instead. The bytes are initially zero and interpreted as an unsigned integer. If the first \textit{try} of hashing to the field does not result in a valid curve point, the counter is \textit{incremented} and hashed again. This is repeated until a valid curve point is found eventually.
+
+This method has the advantegous that is relatively easy to implement in code and that it preserves the cryptographic properties of the original hash function. However it is not guranteed to find a valid curve point, as there is a chance that all possible values in the choosen size of the counter bytes fail to generate a quadratic residue. Fortunately it is possible to make the probability for this arbitrarily small by choosing large enough counters and relying on the (approximate) uniformity of the hash-to-field function. 
+
+One might think that another disadvantage of this method in the context of snarks is that it can not be implemented as a circuit effectively. This however is not fully true, as a circuit/r1cs only needs to enforce the correctness of the computation. Hence for the circuit it is enough to check the hash of the string and the correct counter. It does not need to find that counter.
+
+So to be more formal, we can define a try and increment hash-to-curve like this
+
+DEF
+
+
+Conidering certain subgroups of the elliptic curve, the usefulness of this methods depends highly on the actual situation. For example if a hash to the $n$-torsion subgroup $\mathbb{G}_1$ is desired, there are two possibilities: 
+
+First generic try and increment can be used, followed by a cofactor clearing step. This way every hash on the curve is considered valid, but then projected to $\mathbb{G}_1$ afterwards 
+
+Second, the try step not only checks if the curve point actually exists, but also if it is a point in $\mathbb{G}_1$. If its not then the increment step is executed until a valid point is found. This is possible in most applications, since $\mathbb{G}_1$ is usually the by fare largest subgroup in $E$ and the probability to find a point in it is large.
+
+The situation for $\mathbb{G}_2$ as defined in XXX is different and the try and increment method usually fails to find hash values in $\mathbb{G}_2$. For once $\mathbb{G}_2$ is defined in $E$ over an extension field, not the prime field itself, so hashing to $\F$ must be extended into a hash to the extension field. This is possible, but not desireable ventually, because even if we find valid curve points in the curve, $\mathbb{G}_2$. We therefore need different approaches for hashing into $\mathbb{G}_2$
+
+\paragraph{Pederson Hashes}
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
+\begin{definition}[Pedersen's Hash function]
+Let $\mathbb{G}$ be a cyclic group of order $r$ and $\{g_1, \ldots, g_k\} \subset \mathbb{G}$ a uniform randomly generated set of generators of $\mathbb{G}$. Then \textbf{Pedersen’s hash function} 
+$$
+H : \left(\F_r\right)^k \to \mathbb{G}
+$$
+is defined for any message $M = (M_1,\ldots,M_k)\in \F_r \times \cdots \times \F_r$, 
+by $H(M) =\Pi_{j=1}^k [M_j]g_j$.
+\end{definition}
+SIMPLE WORD DESCRIPTION
+\begin{remark} Of course Pedersen's hash function can be combined with a hash-to-field function as described in XXX to give a function that maps ordinary bit strings to group points. However
+for this function to be secure, it is necessary to proof that there is no known discrete log relations between the elements of the generator set.
+
+It can be shown that collision resistance is equivalent to the hardness of the discrete log problem XXX.
+\end{remark}
+\begin{example}
+
+\end{example}
+\paragraph{Posaidon Hashes}
+\subsection{Special Functions}
+\begin{theorem}[Pseudo-Randomness in cyclic groups]
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
+Let $\mathbb{G}$ be a cyclic group of order $r$, such that DDT is hard in $\mathbb{G}$, let $g$ be a generator and $\{a_0,a_1,\ldots,a_n\}\subset \F_{r}^*$ a uniform randomly generated set of invertible field elements, from the scalar field of $\mathbb{G}$. Then the function
+$$
+H: \{0,1\}^n \to \mathbb{G}
+$$
+defined for any binary string $s=(s_1,\ldots,s_n)$ by $H(s)= [a_0\cdot \Pi_{j=1}^n a_j^{s_j}]g$
+is a pseudo-random function.
+\end{theorem}
+
+\section{Constructing Elliptic curves}
+\subsection{The Complex Multiplication Method}
+% the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
+% http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf
+% https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf
+% https://www.ams.org/journals/mcom/2007-76-260/S0025-5718-07-01980-1/S0025-5718-07-01980-1.pdf
+% https://graui.de/code/elliptic2/ //draw curves
+% https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf proposition 2.1
+\begin{itemize}
+\item Choose a prime number $p\in\Prim$ and integers $t,D\in\Z$, such that the equation $-Dv^2 = 4p - t^2$ has solutions $\pm v \in \Z$.
+\item If one of the values $p+1-t$ or $p+1+t$ a prime number, then proceed to the next steps, otherwise we go back to step 1.
+\item Compute the set $CL(Dv^2)=\{(a,b,c)\;|\; a,b,c\in\Z, |b|\leq a \leq \sqrt{\frac{Dv^2}{3}},a\leq c, b^2-4ac=-Dv^2, (a,b,c)=1WHATISTHIS?\}$. If $|b|=a$ or $a=c$, then $b\geq 0$.
+\item Compute $H_D(x)=\Pi_{(a,b,c)\in CL(D)} (x-j(\frac{-b+\sqrt{-Dv^2}}{2a}))$
+\item Round the coefficients of $H_D$ to the closed integers.
+\item Compute $H_{D,p} =H_D \; mod_p$
+\item Find a root $j$ of $H_{D,p}$ 
+\item If $j\neq 0$ or $j\neq 1728$, then choose $c\in \F_p$ and define the elliptic curve $E/\F_p$ defined by $y^2 = x^3 + 3kx+2k$ for $k= \frac{j}{1728-j}$.
+\item Compute the order of $E/\F_p$. If it divides either $p+1-u$ or $p+1-u$, then $E/\F_p$ is the result.
+\item Otherwise choose $c\in \F_p$ with $c\neq 1$ and $c\neq 0$ and define the elliptic curve $E'/\F_p$ defined by $y^2 = x^3 + 3kc^2x+2kc^3$ for $k= \frac{j}{1728-j}$.
+\end{itemize}
+\section{Classes of elliptic curves}
+In this section we describes ways to describe elliptic curves different from the general Weierstrass form. Alternative descriptions are sometimes useful because of DIFFERENT ways to express the group laws
+\subsection{Montgomery Form}
+Let $\F$ be a finite field with characteristic $\neq 2$. A Montgomery curve over $\F$ is defined by the equation
+$$
+M: B y^2 = x^3 + A x^2 + x 
+$$
+for certain $A, B \in \F$, with $A\neq \pm 2$, $b\neq 0$ and $B(A^2 - 4)\neq 0$. 
+
+The Montgomery form is just another form to define an elliptic curve. In fact every curve in Montgomery form can be transformed into an elliptic curve in Weierstrass form and vice versa. To see that assume that a curve in Montgomery form $B y^2 = x^3 + A x^2 + x$ is given. The associated Weierstrass form is then
+$$
+y^2 = x^3 + \frac{3-A^2}{3B^2}\cdot x + \frac{2A^3-9A}{27B^3}
+$$
+ 
+On the other hand, an elliptic curve over base field $\F$ in Weierstrass form $E: v^2 = t^3 + a t + b$ can be converted to Montgomery form if and only if the following conditions hold:
+\begin{itemize}
+\item $E$ has order divisible by $4$
+\item The polynomial $z^3 + a z + b \in \F[]$ has at least one root $\alpha\in\F$
+\item $3\alpha^2 + a$ is a quadratic residue in $\F$.
+\end{itemize}
+
+When these conditions are satisfied, then for $s=({\sqrt{3\alpha^{2}+a}})^{-1}$ the equivalent Montgomery curve is given by
+$$
+sy^{2}=x^{3}+(3\alpha s)x^{2}+x
+$$
+
+\subsection{Twisted Edwards Form}
+% https://eprint.iacr.org/2008/013.pdf
+In this section we describe curves, that are defined over Galois fields of characteristics $\neq 2$. 
+A \textbf{twisted Edwards curve} over a Galois field $\F$ is a curve, defined by the equation
+$$E/\F:a\cdot x^2+y^2= 1+d\cdot x^2y^2$$ 
+where $x,y\in \F$ and $d\in \F\backslash\{0,1\}$ and $d\in \F\backslash\{1\}$ with $a\neq d$. Such a curve is called an Edwards curve (non twisted), if $a=1$.
+
+On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
+
+As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
+
+Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. 
+
+The most remarkable fact about twisted Edwards curves is their simple addition law. Assuming that $a$ has a root in $\F$ and $d$ has no root in $\F$, the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
+$$
+(x_1, y_1) + (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
+$$
+The point $(0,1)$ is the neutral element of the addition law. The inverse of a point $(x_1, y_1)$ on $E$ is $(-x_1, y1)$. The addition law is very simple to implement and it can also be used for point doubling. It also works for the neutral element, for inverses..
+
+As Edwards curves have such simple non branching addition laws that work for all points, including the neutral element and inverses, they are a interesting for snarks as they can be implemented with only a few constraints in circuits.
+
+%\begin{example}[Non twisted Edwards curves have order 4 points]
+%In this example, we will show that every Edwards curve has a point of order $4$. To see that let $E$ be an arbitrary Edwards curve ($a=1$). Then the point $(1,0)$ is on that curve, since $1^2+0^2= 1+d 1^2 0^2$. We compute 
+%\begin{align*}
+%[4](1,0) = \\
+%[2]([2](1,0))=\\
+%[2]\left(\frac{1 0 +1 0}{1 +d 1 1 0 0},\frac{00-1\cdot 1}{1-d1 1 00}\right)=\\
+%[2](0,-1)=\\
+%\left(\frac{0(-1)+(-1)0}{1 +d 0 0 (-1)(-1)},\frac{(-1)(-1)-00}{1-d00(-1)(-1)}\right) =\\
+(0,1)
+%\end{align*} 
+
+%Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
+%\end{example}
+
+The twisted Edwards form is just another form to define an elliptic curve. In fact every curve in twisted Edwards form can be transformed into an elliptic curve in Montgomery form and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery form is then
+$$
+\frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
+$$
+On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ (WITH STUFF) can be transformed into a twisted Edwards curve 
+$$
+(\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
+$$
+
+
+\section{Pend and Paper example curves}
+\subsection{BLS6-6 -- our pen\& paper curve}
+% https://arxiv.org/pdf/1207.6983.pdf
+% construction 6.6 in https://eprint.iacr.org/2006/372.pdf
+In this example we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
+
+A well understood family of pairing friendly curves are the BLS curves (STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION)
+
+BLS curves are particular useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. In this case the system of polynomials from section XXX parameterizes these curves.
+
+Of course the smallest embedding degree $k$ that satisfies the congruency, is $k=6$. We therefore aim for a BLS6 curve as our main pen\&{}paper example. 
+
+As explained in XXX, the defining polynomials for any BLS6 curve are given by
+\begin{align*}
+r(x) &= \Phi_6(x)\\
+t(x) &= x+1\\
+q(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
+\end{align*}
+where $\Phi_6$ is the $6$-th cyclotomic polynomial. For any $x\in\N$, where $r(x),t(x),q(x)$ are natural numbers, with $q(x)>3$ and $r(x)>3$ those values describe elliptic curves with discriminant $D=3$, characteristic $p(x)$, prime order subgroup $r(x)$ and Frobenious trace $t(x)$.  
+
+We start by looking-up the $6$-th cyclotomic polynimial which is $\Phi_{6}=x^2-x+1$ and then insert small values for $x$ into the defining polynomials $r,t,q$. This gives the following results:
+$$
+\begin{array}{lcr}
+x=1 & (r(x),t(x),q(x)) & (1,2,1)\\
+x=2 & (r(x),t(x),q(x)) & (3,3,3)\\
+x=3 & (r(x),t(x),q(x)) & (7,4,\frac{37}{3})\\
+x=4 & (r(x),t(x),q(x)) & (13,5,43)\\
+\end{array}
+$$
+Since $q(1)=1$ is not a prime number, the first $x$ that gives a proper curve is $x=2$. However such a curve would be defined over a base field of characteristic $3$ and we would rather like to avoid that. We therefore use $x=4$, which defines a curve of fields of characteristic $43$. Since the prime field $\F_{43}$ has $43$ elements and $43$ has binary representation $101011$, which are $6$ digits, the name of our pen\&{}paper curve should be $BLS6-6$.
+
+We can check that the embedding degree is indeed $6$, since $k= 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
+
+Strictly speaking BLS6-6 is not pairing friendly according to the definition in XXX, since indeed $r=13 > \sqrt{43}$, but the second requirement is not satisfied. This however is irrelevant as the hole point of constructing this curve is to have a "large" prime oder subgroup that is as small as possible. 
+
+From the the defining equations of BLS curves, we can immediately deduce that BLS6-6 has a "large" subgroup of prime order $13$, which is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables. 
+
+To see how the rest of the curve will look, we use XX to compute the number of rational points on the curve which is either $q+1-t$ or $q+1+t$. We get $43+1-5= 39$ or $43+1+5=49$. Since our subgroup order $r=13$ must divide the number of points, it follows that our curve has $39$ point and hence a cofactor of $3$, which implies that there is a single non trivial "small" order subgroup that contains three elements.
+
+To compute the defining equation $y^2=x^3 + ax +b$ of BLS6-6, we use the complex multiplication algorithm as described above in XXX. The goal is to find $a,b\in\F_{43}$ representations, that are particulary nice to work with. As shown for example in XXX the discriminant $D$ of all BLS curves is $-3$, which gives them the general form $y^2 = x^3 +b$.
+
+This is because the Hilbert class polynomial $H_3(x)=x$, since $CL(3) = \{[1,1,1]\}$ and in this case $j(\frac{-1 + i \sqrt{3}}{1})=0$. It follows that the general curve equation is given by $y^2 = x^3 +b$ and it only remains to find $b$, such that the curve has the correct number of points which is $39$. Since $b\in \F_{43}$, we can just put values for $b$ into the equation and count points. The smallest value then is $b$ and we get
+$$
+\begin{array}{lcrr}
+BLS6-6: & y^2 = x^3 + 6& \text{for all } x,y \in \F_{43}
+\end{array}
+$$
+There are other choice for $b$ like $b=10$ or $b=23$, but all these curves are isomorphic and hence represent the same thing really but in different way only.
+
+Since BLS6-6 only contains $39$ points it is possible to give a visual impression of the curve:
+\includegraphics[scale=0.6]{figures/bls6-6.png}
+As we can see our curve is somewhat nice, as it does not contain self inverse points that is points with $y=0$. It follows that the addition law can be optimized, since the branch for those cases can be eliminated. 
+
+Note: Is there a way to printe the entire addition table from https://graui.de/code/elliptic2/ here? Would be nice to have but is a bit large.
+
+Since the order of BLS6-6 is $39= 3\cdot 13$, we know that it has a "large" subgroup of order $13$ and small subgroup of order $3$. We can use XXX to find those groups. We have $BLS6-6(3)=\{\mathcal{O},(0,7),(0,36)\}$.
+
+In addition we have the generator $g_{BLS6}:=(13,15)$ that generates
+\begin{multline}
+BLS6-6(13)=\\
+\{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
+(27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
+\end{multline}
+
+Computations "in the exponent": In cryptography and in particular in snarks a lot HAPPENS IN THE EXPONENT...
+
+To use our example to explain what this means observe that from this representation, we can deduce a map from the scalar field $\F_{13}$ to $BLS6-6(13)$ with respect to our generator. WE have
+$$
+[\cdot]_{(13,15)}: \F_{13} \to BLS6-6(13)\;;\; x \mapsto [x](13,15)
+$$
+
+So for example we have $[1]_{(13,15)}= (13,15)$, $[7]_{(13,15)}= (27,9)$ and $[0]_{(13,15)}= \mathcal{O}$. In particular this map is a homomorphism of groups from the additive group $\F_{13}$ to $BLS6-6(13)$. This means in particular, the the additive neutral element from $\F_{13}$ is mapped to $\mathcal{O}$ and negatives are mapped to inverses. For example $[-2]_{(13,15)}= - [2]_{(13,15)}$, since
+$[-2]_{(13,15)}= [11]_{(13,15)}= (33,9) = (33,-34) = -(33,34)=
+- [2]_{(13,15)}$
+
+The map also give a visualization of the ECDL problem in $BLS6-6(13)$, which is concerned with finding solutions $x\in \F_{13}$ for the equation 
+$[x]_{(13,15)}= (x,y)$ for any $(x,y) \in BLS6-6(13)$. Of course ECDL is not hard in $BLS6-6(13)$, since we can deduce the solutions easily from XXX. For example the solution to $[x]_{(13,15)}= (35,15)$ is $x=9$, since $[9](13,15)=(35,15)$.
+
+Since $[0]_{(13,15)}$ maps the group of cyclic integers modulo $13$ onto our group $BLS6-6(13)$, we can use this to write down the group law in the following way:
+\begingroup
+    \fontsize{5pt}{5pt}\selectfont
+$$
+\begin{array}{c|ccccccccccccc}
+\cdot & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
+\hline
+\\
+\mathcal{O} & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
+\\
+(13,15) & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O}\\
+\\
+(33,34) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15)\\
+\\
+(38,15) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34)\\
+\\
+(35,28) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15)\\
+\\
+(26,34) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28)\\
+\\
+(27,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34)\\
+\\
+(27,9) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34)\\
+\\
+(26,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9)\\
+\\
+(35,15) & (35,15) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9)\\
+\\
+(38,28) & (38,28) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15)\\
+\\
+(33,9) & (33,9) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28)\\
+\\
+(13,28) & (13,28) & \mathcal{O} & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9)\\
+\end{array}
+$$
+\endgroup
+
+
+Cofactor clearing: 
+
+Given an arbitrary point on the curve that is not in any of our two subgroups like $(2,33)$, we can project it on both subgroups $BLS6-6(3)$ and $BLS6-6(13)$ respectively, by \textit{multiplication with the cofactor}. Since $39 = 3 \cdot 13$, we have to multiply $(2,33)$ with $13$ to map it onto $BLS6-6(3)$ and we have to multiply $(2,33)$ with $3$ to map it onto $BLS6-6(13)$. Indeed we get $[13](2,33)= (0,36)$ which is an element of $BLS6-6(3)$ and $[3](2,33)= (35,15)$ which is an element of $BLS6-6(13)$
+
+In what follows we want to compute type 2 pairings on our BLS6 curve. We therefore need to extract the subgroup $\mathbb{G}_1$ as well as $\mathbb{G}_2$ from the full $13$-torsion group. We already know from XXX that $\mathbb{G}_1$ is given by  
+\begin{multline*}
+\mathbb{G}_1=\{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
+(27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
+\end{multline*}
+
+In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $13$-torsion group, that are mapped to $43\cdot P$ under the Frobenius endomorphism XXX. Since $BLS6/\F_{13^6}$ contains $6321251664$ elements, we can not simply loop through all elements, to find the full $13$-torsion group and extract all elements from $\mathbb{G}_2$. However we can derive the full $13$-torsion as the set of all $13$-division points and then extract $G_2$ from this
+\begin{sagecommandline}
+sage: F43 = GF(43)
+sage: F43t.<t> = F43[]
+sage: F43_6.<v> = GF(43^6, name='v', modulus=t^6+6) # t^6+6 irreducible
+sage: BLS6 = EllipticCurve (F43_6,[0 ,6])
+sage: INF = BLS6(0) # point at infinity
+sage: for P in INF.division_points(13): # PI(P) == [q]P
+....:     if P.order() == 13: # exclude point at infinity
+....:         PiP = BLS6([a.frobenius() for a in P])
+....:         qP = 43*P
+....:         if PiP == qP:
+....:             print(P.xy())
+\end{sagecommandline}
+
+Choose $g_2=(7v^2, 16v^3)$ as generator of $\mathbb{G}_2$, we get
+\begin{multline*}
+\mathbb{G}_2=\{
+(7v^2, 16v^3) \to
+(10v^2, 28v^3)\to
+(42v^2, 16v^3)\to
+(37v^2, 27v^3)\to\\
+(16v^2, 28v^3)\to
+(17v^2, 28v^3)\to
+(17v^2, 15v^3)\to
+(16v^2, 15v^3)\to\\
+(37v^2, 16v^3)\to
+(42v^2, 27v^3)\to
+(10v^2, 15v^3)\to
+(7v^2, 27v^3)\to
+\mathcal{O}\}
+\end{multline*}
+e.g. $[3]g_2= (42v^2, 16v^3)$.
+
+Having those groups we can do pairings. We choose the Weil pairing and invoke sagemath. For example the Weil pairing between our two generators is
+$$
+e(g_1,g_2)= 5v^5 + 16v^4 + 16v^3 + 15v^2 + 3v + 41
+$$
+
+\begin{sagecommandline}
+sage: g1 = BLS6([13,15])
+sage: g2 = BLS6([7*v^2, 16*v^3])
+sage: g1.weil_pairing(g2,13)
+\end{sagecommandline}
+
+As we have seen, $\mathbb{G}_2$ needs quite a bit more storage space then $\mathbb{G}_1$, since elements in $\mathbb{G}_2$ are pairs of polynomials of degree $<6$ with coefficients in $\F_{43}$, while elements from $\mathbb{G}_1$ are just pairs of elements from $\F_{43}$. 
+
+As we know from XXX it is possible to reduce the space needed to store $\mathbb{G}_2$ by using the concept of a twist. In our case $BLS6$ has embedding degree $6$ and the curve parameter $a$ in $y^2 = x^3 +ax + b$ is zero. We therefore know from XXX, that BLS6 has three different twist: A quadratic twist, a cubic twist and a sextic twist. We want to compute all of these twist:
+
+The quadratic twisted BLS6-6 curve: Consider our BLS6-6 curve $BLS6-6/\F_{43^6}$. A quadratic twist is then another curve $BLS6-6_{2-twist}$ over $\F_{43^3}$ isomorphic to the original curve. We use XXX. The task is to find an $\omega\in \F_{43^6}$, such that $\omega^2 \in \F_{43^3}$. 
+We choose $\omega = x^4 + 7x^3 + 9x^2 + 11x + 8$. Then we interpret $\delta = \omega^2 = 27x^2 + 17x + 35$ as an element from $\F_{43^3}$. So our twisted curve is
+$y^2 = x^3+a\delta^2 x+b \delta^3 = x^3+6\cdot(27t^2+17t+35)$
+so we get
+$$
+BLS6-6_{2-twist}/\F_{43^3}: y^2 = x^3+(10t^2+14t+15)
+$$
+\subsubsection{Baby JubJub}
+% As we talk about R1CS already may write elliptic curves chapter after circuits/r1cs?
+To give an understanding what the Baby-JubJub curve is, we want to parallel its development here to find a Baby-Jubjub like curve for pen and paper.
+
+As with the original large Baby-JubJub curve we apply the method from
+%https://www.hjp.at/doc/rfc/rfc7748.html#page_19 (Appendinx A)
+to define a pen\& paper Baby-JubJub-like curve over the scalar field of the "large" BLS6 prime order subgroup, which is $\F_{13}$. 
+
+Since $\Zmod{13}{4}=1$ we would go with A.1. As we will only find a few curves, we will tweak the algorithm and run
+\begin{sagecommandline}
+sage: F13 = GF(13) 
+sage: for A in xrange(3, 13):
+....:     if (A-2) % 4 != 0:
+....:         continue
+....:     try:
+....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
+....:         E
+....:         E.order()
+....:     except:               
+....:         continue      
+\end{sagecommandline}
+So we get two curves in Montgomery form $y^2 = x^3 + 6*x^2 + x$ which has order $8$ and  $y^2 = x^3 + 10*x^2 + x$, which has order $16$. We could transform one of them into an Edwards curve, however   
+
+So to find our Edwards curve, we will do exhaustive search rather 
+\begin{sagecommandline}
+sage: for d in F13:          
+....:     j= ZZ(0)          
+....:     for x in F13:
+....:         for y in F13:                        
+....:             if x^2+y^2 == 1+d*x^2*y^2:                           
+....:                 j=j+1        
+....:     print('d=',d)                
+....:     print('order=',j)     
+\end{sagecommandline}
+and get $x^2+y^2= 1+7\cdot x^2y^2$ which has $20$ points. The associated Montgomery curve is then using XXX given by $8y^2 = x^3 + 6\cdot x^2 + x$.
+
+So we define our Baby-JubJub Edwards curve to be
+$$
+EdBJJ/\F_{13}: x^2+y^2= 1+7\cdot x^2y^2
+$$
+with associated Montgomery form to be
+$$
+MBJJ/\F_{13}:8y^2 = x^3 + 6\cdot x^2 + x
+$$
+As $20=2\cdot 2\cdot 5$, we have a "large" prime order subgroup of order $5$ and a cofactor $4$. The group of rational points is
+\begin{sagecommandline}
+sage: for x in F13:                                   
+....:     for y in F13:                                                                                
+....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:                                                     
+....:             print(x,y)
+\end{sagecommandline}
+
+$$
+(0, 1),
+(0, 12),
+(1, 0),
+(2, 4),
+(2, 9),
+(4, 2),
+(4, 11),
+(5, 6),
+(5, 7),
+(6, 5),
+(6, 8),
+(7, 5),
+(7, 8),
+(8, 6),
+(8, 7),
+(9, 2),
+(9, 11),
+(11, 4),
+(11, 9),
+(12, 0)
+$$
+with neutral element $(0,12)$
+
+As expected we have a prime order subgroup of size $5$, which can be generated by $(11,9)$. We get $\{(11,9)\to (6,8)\to (7,8) \to (2,9) \to (0,1))\}$.
+
+% rewrite into something nice
+\begin{sagecommandline}
+sage: def Edwards_add((x1,y1),(x2,y2),d):
+....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
+....: (x2)*F13(y1)*F13(y2))))
+....:     y3 = F13((F13(y1)*F13(y2)-F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13
+....: (x2)*F13(y1)*F13(y2))))
+....:     return (x3,y3)
+\end{sagecommandline}
+
+\paragraph{Hashing to the pairing groups}
+We give various constructions to hash into $\mathbb{G}_1$ and $\mathbb{G}_2$. 
+
+We start with hashing to the scalar field... TO APPEAR
+
+Non of these techniques work for hashing into $\mathbb{G}_2$. We therefore implement Pederson's Hash for BLS6. 
+
+We start with $\mathbb{G}_1$. Our goal is to define an $12$-bit bounded hash function
+$$
+H_{1}: \{0,1\}^{12} \to \mathbb{G}_1 
+$$
+Since $12= 3\cdot 4$ we "randomly" select $4$ uniformly distributed generators $\{(38, 15), (35,28), (27, 34), (38, 28)\}$ from $\mathbb{G}_1$ and use the pseudo-random function from XXX. 
+For every genrator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
+$$
+\begin{array}{lcl}
+(38,15) &:& \{2,7,5,9\}\\
+(35,28) &:& \{11,4,7,7\}\\
+(27,34) &:& \{5,3,7,12\}\\
+(38,28) &:& \{6,5,1,8\}
+\end{array}
+$$
+So our hash function is computed like this:
+\begin{multline*}
+H_1(x_{11},x_1,\ldots, x_{0})=
+[2\cdot 7^{x_{11}}\cdot 5^{x_{10}}\cdot 9^{x_9}](38,15)+
+[11\cdot 4^{x_8}\cdot 7^{x_7}\cdot 7^{x_6}](35,28)+\\
+[5\cdot 3^{x_5}\cdot 7^{x_4}\cdot 12^{x_3}](27,34) +
+[6\cdot 5^{x_2}\cdot 1^{x_{1}}\cdot 8^{x_{0}}](38,28)
+\end{multline*}
+Note that $a^x=1$ whe $x=0$ and hence those terms can be omitted in the computation. 
+In particular the hash of the $12$-bit zero string is given by 
+\begin{multline*}WRONG-ORDERING-REDO
+H_1(0)= [2](38,15)+[11](35,28)+[5](27,34)+[6](38,28)= \\
+(27,34)+(26,34)+(35,28)+(26,9)= (33,9) + (13,28) = (38,28)
+\end{multline*}
+The hash of $011010101100$ is given by 
+\begin{multline*}
+H_1(011010101100)=WRONG-ORDERING-REDO\\
+[2\cdot 7^{0}\cdot 5^{1}\cdot 9^{1}](38,15)+
+[11\cdot 4^{0}\cdot 7^{1}\cdot 7^{0}](35,28)+
+[5\cdot 3^{1}\cdot 7^{0}\cdot 12^{1}](27,34) +
+[6\cdot 5^{1}\cdot 1^{0}\cdot 8^{0}](38,28)=\\
+[2\cdot 5\cdot 9](38,15)+
+[11\cdot 7](35,28)+
+[5\cdot 3\cdot 12](27,34) +
+[6\cdot 5](38,28)=\\
+[12](38,15)+
+[12](35,28)+
+[11](27,34) +
+[4](38,28)=\\ 
+TO_APPEAR
+\end{multline*}
+We can use the same technique to define a $12$-bit bounded hash function in $\mathbb{G}_2$:  
+$$
+H_{2}: \{0,1\}^{12} \to \mathbb{G}_2 
+$$
+Again we "randomly" select $4$ uniformly distributed generators $\{(7v^2 , 16v^3 ), (42v^2 , 16v^3 ), (17v^2 , 15v^3 ), (10v^2 , 15v^3 )\}$ from $\mathbb{G}_2$ and use the pseudo-random function from XXX. For every genrator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
+$$
+\begin{array}{lcl}
+(7v^2 , 16v^3 ) &:& \{8,4,5,7\}\\
+(42v^2 , 16v^3 ) &:& \{12,1,3,8\}\\
+(17v^2 , 15v^3 ) &:& \{2,3,9,11\}\\
+(10v^2 , 15v^3 ) &:& \{3,6,9,10\}
+\end{array}
+$$
+So our hash function is computed like this:
+\begin{multline*}
+H_1(x_{11},x_{10},\ldots, x_{0})=
+[8\cdot 4^{x_{11}}\cdot 5^{x_{10}}\cdot 7^{x_9}](7v^2 , 16v^3)+
+[12\cdot 1^{x_8}\cdot 3^{x_7}\cdot 8^{x_6}](42v^2 , 16v^3 )+\\
+[2\cdot 3^{x_5}\cdot 9^{x_4}\cdot 11^{x_3}](17v^2 , 15v^3 ) +
+[3\cdot 6^{x_2}\cdot 9^{x_{1}}\cdot 10^{x_{0}}](10v^2 , 15v^3 )
+\end{multline*}
+We extend this to a hash function that maps unbounded bitstring to $\mathbb{G}_2$ by precomposing with an actual haah function like $MD5$ and feet the first 12 bits of its outcome into our previously defined hash function. 
+$$
+TinyMD5_{\mathbb{G}_2}: \{0,1\}^* \to \mathbb{G}_2
+$$
+with $TinyMD5_{\mathbb{G}_2}(s)= H_2(MD5(s)_0,\ldots MD5(s)_{11})$. For example, since 
+$MD5("")= 0xd41d8cd98f00b204e9800998ecf8427e$ and the binary representation of the hexadecimal number $0x27e$ is $001001111110$ we compute $TinyMD5_{\mathbb{G}_2}$ of the empty string as
+$TinyMD5_{\mathbb{G}_2}("")= H_2(MD5(s)_{11},\ldots MD5(s)_{0}) = H2(001001111110)=$
+
+\subsubsection{Baby-JubJub-2}
+To give an understanding what the Baby-JubJub curve is, we want to parallel its development here to find a Baby-Jubjub like curve for pen and paper.
+
+The original Baby-JubJub is a twisted Edwards curve over $\F_{?}$ with $a=-1$ and $d=?.$
+
+As with the original large Baby-JubJub curve we apply the method from
+%https://www.hjp.at/doc/rfc/rfc7748.html#page_19 (Appendinx A)
+to define a pen\& paper Baby-JubJub-like curve over the scalar field of the "large" BLS6 prime order subgroup, which is $\F_{13}$. 
+
+Since $\Zmod{13}{4}=1$ we would go with A.1. As we will only find a few curves, we will tweak the algorithm and run
+\begin{sagecommandline}
+sage: F13 = GF(13) 
+sage: for A in xrange(3, 13):
+....:     if (A-2) % 4 != 0:
+....:         continue
+....:     try:
+....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
+....:         E
+....:         E.order()
+....:     except:               
+....:         continue      
+\end{sagecommandline}
+So we get two curves in Montgomery form $y^2 = x^3 + 6*x^2 + x$ which has order $8$ and  $y^2 = x^3 + 10*x^2 + x$, which has order $16$. We could transform one of them into an Edwards curve, however   
+
+So to find our Edwards curve, we will do exhaustive search rather 
+\begin{sagecommandline}
+sage: j = ZZ(0)
+sage: for a in F13:
+....:     for d in F13:
+....:         j = 0
+....:         for x in F13:
+....:             for y in F13:
+....:                 if a*x^2 + y^2 == 1+d*x^2*y^2:
+....:                     j=j+1
+....:         print('curve: a=',a,'d=',d,'order:',j)     
+\end{sagecommandline}
+We want to choose a curve that has a large prime order subgroup and a small cofactor. So we go
+with $2x^2+y^2= 1+3\cdot x^2y^2$ which has order $14$. 
+
+
+The associated Montgomery curve is then using XXX given by $9y^2 = x^3 +2x^2 + x$.
+
+So we define our Baby-JubJub Edwards curve to be
+$$
+EdBJJ/\F_{13}: 2x^2+y^2= 1+3\cdot x^2y^2
+$$
+with associated Montgomery form to be
+$$
+MBJJ/\F_{13}:9y^2 = x^3 + 2x^2 + x
+$$
+As $14=2\cdot 7$, we have a "large" prime order subgroup of order $7$ and a cofactor $2$. The group of rational points is
+\begin{sagecommandline}
+sage: for x in F13:                                   
+....:     for y in F13:                                                                                
+....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:                                                     
+....:             print(x,y)
+\end{sagecommandline}
+
+$$
+(0, 1),
+(0, 12),
+(2, 4),
+(2, 9),
+(4, 5),
+(4, 8),
+(5, 2),
+(5, 11),
+(8, 2),
+(8, 11),
+(9, 5),
+(9, 8),
+(11, 4),
+(11, 9)
+$$
+with neutral element $(0,1)$
+
+As expected we have a prime order subgroup of size $5$, which can be generated by $(11,9)$. We get $\{(11,9)\to (6,8)\to (7,8) \to (2,9) \to (0,1))\}$.
+
+% rewrite into something nice
+\begin{sagecommandline}
+sage: def Edwards_add((x1,y1),(x2,y2),a,d):
+....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
+....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
+....:     return (x3,y3)
+\end{sagecommandline}
+
+
+
+
+\subsection{MNT4 MNT6 Cycles}
+% https://eprint.iacr.org/2006/372.pdf theorem 5.2
+\begin{theorem}
+Let $q$ be a prime and $E/\F_q$ be an ordinary elliptic curve such that $r= |E(Fq)|$ is a prime greater than $3$.  
+\begin{itemize}
+\item $E$ has embedding  degree $k= 4$ if and only if there  exists $x\in \mathbb{Z}$ such  that $t=-x$ or $t=x+1$, and $q=x^2+x+1$.\item $E$ has  embedding  degree $k= 6$ if and only if there  exists $x\in \Z$ such that $t= 1\pm 2x$ and $q=4x^2+1$.
+\item There is an elliptic curve $E/\F_q$ with embedding degree $6$, discriminant $D$, and $|E(Fq)| = r$ if and only if there is an elliptic curve $E'/\F_r$ with embedding degree $4$, discriminant $D$, and $|E'(\F_r)| =q$.
+\end{itemize}
+\end{theorem}
+
+We can use this theorem to find an MNT6-MNT4 cycle over very small prime fields with characteristics $>3$: 
+\paragraph{MNT4}
+For our MNT4 curve, we can choose $x=2$. Then $q=7$ and if we choose $t= x+1 $ then $r = q + 1 - t = 7 + 1 -3 = 5$. Therefore our MNT4 curve is a curve $y^2=x^3+ax+b$ defined over $\F_7$ that consists of $5$ points. 
+
+To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_7$ there are only $48$ possibilities so we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $5$ rational points. We get
+$$
+y^2 = x^3 + 4x + 1
+$$
+defined over $\F_7$, with scalar field $\F_5$. Since $7= 2^2+2+1$, we know from theorem XXX, that this curve has embedding degree $4$ and hence qualifies as a pen\&{}paper pairing friendly elliptic curve. Since the curve's order is a prime and therefore has no non trivial factors, it has no non trivial subgroups. The curve has the following set of elements
+$$MNT4=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$ 
+\begin{sagecommandline}
+sage: F7 = GF(7)
+sage: MNT4 = EllipticCurve (F7,[4 ,1])
+sage: [P.xy() for P in MNT4.points() if P.order() > 1]
+\end{sagecommandline}
+The multiplication table is
+\begingroup
+    \fontsize{10pt}{10pt}\selectfont
+$$
+\begin{array}{c|ccccc}
+\cdot & \mathcal{O} & (0,1) & (4,5) & (4,2) & (0,6)\\
+\hline
+\\
+\mathcal{O} & \mathcal{O} & (0,1) & (4,5) & (4,2) & (0,6)\\
+\\
+(0,1) & (0,1) & (4,5) & (4,2) & (0,6) & \mathcal{O}\\
+\\
+(4,5) & (4,5) & (4,2) & (0,6) & \mathcal{O} & (0,1)\\
+\\
+(4,2) & (4,2) & (0,6) & \mathcal{O} & (0,1) & (4,5)\\
+\\
+(0,6) & (0,6) & \mathcal{O} & (0,1) & (4,5) & (4,2)\\
+\end{array}
+$$
+\endgroup
+In what follows we choose our generator to be $g_{MNT4}=(0,1)$.
+
+In what follows we want to compute type 2 pairings on our MNT4 curve. We therefore need to extract the subgroup $\mathbb{G}_1$ as well as $\mathbb{G}_2$ from the full $5$-torsion group. Since the order of MNT4 is a prime number, we already know from XXX that $\mathbb{G}_1$ is given by  
+$$\mathbb{G}_1=\{(0,1)\to (0,6)\to (4,2)\to (4,5) \to \mathcal{O}\}$$ 
+
+In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $5$-torsion group, that are mapped to $7\cdot P$ under the Frobenius endomorphism XXX. Since $MNT4/\F_{7^4}$ only contains $2475$ elements, we can  loop through all elements, to find the full $5$-torsion group and extract all elements from $\mathbb{G}_2$:
+\begin{sagecommandline}
+sage: F7t.<t> = F7[]
+sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
+sage: MNT4 = EllipticCurve (F7_4,[4 ,1])
+sage: INF = MNT4(0) # point at infinity
+sage: for P in INF.division_points(5): # PI(P) == [q]P
+....:     if P.order() == 5: # exclude point at infinity
+....:         PiP = MNT4([a.frobenius() for a in P])
+....:         qP = 7*P
+....:         if PiP == qP:
+....:             print(P.xy())
+\end{sagecommandline}
+
+Choose $g_2=(2u^3 + 5u^2 + 4u + 2, 2u^3 + 3u + 5)$ as generator of $\mathbb{G}_2$, we get
+\begin{multline*}
+\mathbb{G}_2=\{ 
+(2u^3 + 5u^2 + 4u + 2, 2u^3 + 3u + 5) \to
+(5u^3 + 2u^2 + 3u + 6, 2u^2 + 3u) \to \\
+(5u^3 + 2u^2 + 3u + 6, 5u^2 + 4u) \to
+(2u^3 + 5u^2 + 4u + 2, 5u^3 + 4u + 2)\to
+\mathcal{O}\}
+\end{multline*}
+e.g. $[3]g_2= (5u^3 + 2u^2 + 3u + 6, 5u^2 + 4u)$.
+
+Having those groups we can do pairings. We choose the Weil pairing and invoke sagemath. For example the Weil pairing between our two generators is
+$$
+e(g_1,g_2)= 5u^3 + 2u^2 + 6u
+$$
+\begin{sagecommandline}
+sage: g1 = MNT4([0,1])
+sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
+sage: g1.weil_pairing(g2,5)
+\end{sagecommandline}
+The full pairing table can the be written as
+\begingroup
+    \fontsize{10pt}{10pt}\selectfont
+    
+% generate the table entries as:
+% sage: for i in range(5):
+% ....:     for j in range(5):
+% ....:         p = (i*g1).weil_pairing((j*g2),5)
+% ....:         print('e([',i,']g1,[',j,']g2=',p)         
+    
+    
+$$
+\begin{array}{c|lllll}
+e(\cdot,\cdot)    & \mathcal{O} & g_1            & [2]g_1         & [3]g_1         & [4]g_1\\
+\hline
+\\
+      \mathcal{O} & 1           & 1              & 1              & 1              & 1\\
+\\
+              g_2 & 1           & 5u^3+2u^2+6u   & 6u^3+5u^2+6    & 2u^3+u^2+2u+3  & u^3+6u^2+6u+4\\
+\\
+\left[2\right]g_2 & 1           & 6u^3+5u^2+6    & u^3+6u^2+6u+4  & 5u^3+2u^2+6u   & 2u^3+u^2+2u+3\\
+\\
+\left[3\right]g_2 & 1           & 2u^3+u^2+2u+3  & 5u^3+2u^2+6u   & u^3+6u^2+6u+4  & 6u^3+5u^2+6\\
+\\
+\left[4\right]g_2 & 1           & u^3+6u^2+6u+4  & 2u^3+u^2+2u+3  & 6u^3+5u^2+6    & 5u^3+2u^2+6u\\
+\end{array}
+$$
+\endgroup
+
+\paragraph{MNT6}
+For our MNT6 curve, we can choose $x=1$. Then $q=5$ and if we choose $t= 1 + 2x $ then $r= q + 1 - t = 5 + 1 + 1 = 7$. Therefore our MNT6 curve is a curve $y^2=x^3+ax+b$ defined over $\F_5$ that consists of $7$ points. 
+
+To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_5$ there are only $24$ possibilities, we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $7$ rational points. We get
+$$
+y^2 = x^3 + 2x + 1
+$$
+defined over $\F_5$. Since $5= 4\cdot 1 + 1$, we know from theorem XXX, that this curve has embedding degree $6$ and hence qualifies as a pen\&{}paper pairing friendly elliptic curve. 
+
+The curve has the following set of elements
+$$MNT6=\{(1,2)\to (3,3)\to (0,1)\to (0,4)\to (3,2)\to (1,3)\to \mathcal{O}\}$$
+The multiplication table is
+\begingroup
+    \fontsize{10pt}{10pt}\selectfont
+$$
+\begin{array}{c|ccccccc}
+\cdot & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3)\\
+\hline
+\\
+\mathcal{O} & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3)\\
+\\
+(1,2) & (1,2) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3) & \mathcal{O}\\
+\\
+(3,3) & (3,3) & (0,1) & (0,4) & (3,2) & (1,3) & \mathcal{O} & (1,2)\\
+\\
+(0,1) & (0,1) & (0,4) & (3,2) & (1,3) & \mathcal{O} & (1,2) & (3,3)\\
+\\
+(0,4) & (0,4) & (3,2) & (1,3) & \mathcal{O} & (1,2) & (3,3) & (0,1)\\
+\\
+(3,2) & (3,2) & (1,3) & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4)\\
+\\
+(1,3) & (1,3) & \mathcal{O} & (1,2) & (3,3) & (0,1) & (0,4) & (3,2)\\
+\end{array}
+$$
+\endgroup
+
+In what follows we choose our generator to be $g_{MNT6}=(1,2)$.
+
+In what follows we want to compute type 2 pairings on our MNT6 curve. We therefore need to extract the subgroup $\mathbb{G}_1$ as well as $\mathbb{G}_2$ from the full $7$-torsion group. Since the order of MNT6 is a prime number, we already know from XXX that $\mathbb{G}_1$ is given by
+$$\mathbb{G}_1=\{(1,2)\to (3,3)\to (0,1)\to (0,4)\to (3,2)\to (1,3)\to \mathcal{O}\}$$
+In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $7$-torsion group, that are mapped to $5\cdot P$ under the Frobenius endomorphism XXX. Since $MNT6/\F_{5^6}$ contains $15680$ elements, we can still loop through all elements, to find the full $7$-torsion group and extract all elements from $\mathbb{G}_2$
+
+\begin{sagecommandline}
+sage: G.<x> = GF(5^6) # embedding degree is 6
+sage: MNT6 = EllipticCurve (G,[2 ,1])
+sage: INF = MNT6(0) # point at infinity
+sage: for P in INF.division_points(7): # PI(P) == [q]P
+....:     if P.order() == 7: # exclude point at infinity
+....:         PiP = MNT6([a.frobenius() for a in P])
+....:         qP = 5*P
+....:         if PiP == qP:
+....:             print(P.xy())
+\end{sagecommandline}
+
+\begin{multline*}
+\mathbb{G}_2=\{ 
+(x^3+2x^2+4x,x^5+2x^4+4x^3+3x^2+3)\to
+(x^5+4x^4+2x^3+3x^2+x+2,3x^4+2x^3+x)\to\\
+(4x^5+x^4+2x^3,3x^5+x^4+x^3+4x+4)\to
+(4x^5+x^4+2x^3,2x^5+4x^4+4x^3+x+1) \to\\
+(x^5+4x^4+2x^3+3x^2+x+2,2x^4+3x^3+4x)\to
+(x^3+2x^2+4x,4x^5+3x^4+x^3+2x^2+2)\to
+\mathcal{O}\}
+\end{multline*}
+We choose the generator $g_2 = (x^3+2x^2+4x,x^5+2x^4+4x^3+3x^2+3)$
+
+\begin{remark}
+Note however that our MNT6 curve discriminant $D=-16(4a^3 + 27 b^2)= -16(4\cdot 2^3 + 27\cdot 1^2)=-944$, while our MNT4 curve has discriminsnt XXX. Hence our example curves are not those guranteed by theorem XXX. Those curve are both given by $y^2= x^3 + 2x +1$ over $\F_5$ and $\F_7$, respectively. However as both curves have the same defining equation, we rather choose examples that are visually distinguishable by their defining equations.
+\end{remark}
+
+\subsection{Edwards curve cycles}

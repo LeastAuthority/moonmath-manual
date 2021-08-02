@@ -1,0 +1,459 @@
+\chapter{Algebra}
+We gave an introduction to the basic computational skills needed for a pen \& paper approach to SNARKS in the previous chapter. In this chapter we get a bit more abstract and clarify a lot of mathematical terminology and jargon.
+
+When you read papers about cryptography or mathematical papers in general, you will frequently stumble across algebraic terms like \textit{groups}, \textit{fields},\textit{rings} and similar. To understand what is going on, it is necessary to get at least some understanding of these terms. In this chapter we therefore with a short introduction to those terms.
+
+In a nutshell, algebraic types like groups or fields define sets that are analog to numbers to various extend, in the sense that you can add, subtract, multiply or divide on thoses sets. 
+
+We know many example of sets that fall under those categories, like the natural numbers, the integers, the ratinal or the real numbers. they are in some sense already the most fundamental examples.
+
+\section{Groups}The first concept to memorize is that of a group. To understand groups, remember back in school when we learned about addition and subtraction of integers (Forgetting about integer multiplication for a moment). We learned that we can always add to integers and that the result is guranteed to be an integer again. We also learned how to deal wih brackets, that nothing happens, when we add zero to any integer, that it doesn't matter in which order we add a given set of integers and that for every integer there is always another integer (the negative), such that when we add both together we get zero. 
+
+Distilling these rules to the smallest independend list of properties and making these rules abstract we arrive at the definition of a group:
+
+A \textbf{group} $(\G,\cdot) $ is a set $ \G$, together with a map $ \cdot: \G \times \G \to \G $, called the group law, such that the following properties hold:
+\begin{itemize}
+\item (Existence of a neutral element) There is a $e\in\G$ for all $g\in\G$, such that $e\cdot g=g$ as well as $g\cdot e = g$.
+\item (Existence of an inverse) For every $g\in\G$ there is a $g^{-1}\in\G$, such that $g\cdot g^{-1}=e$ as well as $g^{-1}\cdot g = e$.
+\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation 
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
+\end{itemize}
+As we will see in what follows, groups are all over the place in cryptography and in SNARKS. In particular we will see in XXX, that the set of points on an elliptic curve define a group, which is the most important example in this book. To give some more familiar examples first:
+\begin{example}[Integer Addition and Subtraction]
+The set $(\Z,+)$ of integers together with integer addition is the archetypical example of a group, where the group law is traditionally written as $+$ (instead of $\cdot$). To compare integer addition against the abstract axioms of a group, we first see that the neutral element $e$ is the number $0$, since $a+0=a$ for all integers $a\in $ and that the inverse of a number is the negative, since $a+(-a)=0$, for all $a\in\Z$. In addition we know that $(a+b)+c=a+(b+c)$, so integers with addition are indeed a group in the abstract sense.
+\end{example}
+\begin{example}[The trivial group]
+The most basic example of a group, is group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=0$. 
+\end{example}
+A group is called a \textbf{commutative group} if the equation $g_1\cdot g_2 = g_2 \cdot g_1$ holds for all $g_1,g_2\in\G$. In case $\G$ is a commutative group, we frequently use the so called \textit{additive notation} to parallel integer addition and write $+$ instead of $\cdot$ for the group law and $-g:=g^{-1}$ for the inverse of an element $g\in\G$.
+
+A group is called a \textit{finite group}, if the underlying set of elements is finite and the number of elements of that group is called the \textit{order} of that group.
+\begin{example} Consider the group of integers with integer addition again.
+Since $a+b=b+a$ for all integers, this group is the archetypical example of a commutative group. Since there are infinite many integers, $(\Z,+)$ is not a finite group.
+\end{example}
+\begin{example} Consider $(\Z_6,+)$, that is modulo $6$ addition as defined in the addition table from example. As we see the residue class $0$ is the neutral element in modulo $6$ arithmetics and the inverse of a residue class $r$ is given by $6-r$, since 
+$r+(6-r)=6$, which is is equal to $0$, since $\Zmod{6}{6}=0$. Moreover $(r_1+r_2)+r_3=r_1+(r_2+r_3)$ is inherited from integer arithmetic.  
+
+We therefore see that $(\Z_6,+)$ is a group and since addition table XX is symmetric, we see $r_1+r_2 = r_2+r_1$ which shows that $(\Z_6,+)$ is commutative. Moreover $(\Z_6,+)$ is a finite group of order $6$, since it contains precisely $6$ elements.
+\end{example}
+\paragraph{Cyclic group}
+
+\begin{example}
+Consider the finite group $(\Z,+)$ from example XXX again. We compute 
+$1+1+1+1+1+1=2+1+1+1+1=3+1+1+1=4+1+1=5+1=0$ which shows that $(\Z,+)$ is a cyclic group of order $6$.
+\end{example}
+\paragraph{Generators} Of special interest, when working with groups are elements that can generate the entire group, by applying the group law repeadly to itself. For example the number $1$ is a generator for the natural numbers (not a group), as you can compute any natural number by adding 1 repeatedly to itself. To be more precise, a \textbf{generator} of a group $(\G,\cdot)$ is an element $g\in G$, such that for every other element $y\in \G$ there is an integer $x\in\Z$ with $y= g^x$.
+
+
+\begin{exercise} Consider example XXX and example XXX and let $\Z_6^*$ be the set $\Z_6\backslash \{0\}$ and $\Z_5^*$ be the set $\Z_5\backslash \{0\}$. Show that 
+$(\Z_5,\cdot)$ is a group and that $(\Z_6,\cdot)$ is not a group.
+\end{exercise}
+
+\section{Commutative Rings}
+Now thinking of integers again, we know, that there are actually two operations addition and multiplication, such that that they interact in a certain way. This is captured by the concept of a ring, where integers are the most basic example in a sense
+
+
+
+\begin{definition}[Commutative Ring with Unit]
+A ring $ (R, +, \cdot) $ is a set $R$, provided with two maps $ +: R \cdot R \to R $ and $ \cdot: R \cdot R \to R $, called \textit{addition} and \textit{multiplication}, such that the following conditions hold:
+\begin{itemize}
+\item $ \left (R, + \right) $ is a commutative group, where the neutral element is denoted here with $ 0 $.
+\item (Existence of a unit) There is an element $1\in R$ for all $g\in R$, 
+\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation 
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds. 
+\item (Distributivity) For all $ g_1, g_2, g_3 \in R $ the distributive laws apply:
+$$ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3 \quad \text{and} \quad
+\left (g_1 + g_2 \right) \cdot g_3 = g_1 \cdot g_3 + g_2 \cdot g_3 $$
+\item COMMUTATIVITY
+\end{itemize}
+\end{definition}
+
+\begin{sagecommandline}
+sage: CommutativeRings()
+sage: CommutativeRings().super_categories()
+\end{sagecommandline}
+
+\begin{example}[The Ring of Integers] The set $\Z$ of integers with the usual addition and multiplication is a ring. In sage the ring of integers is called as follows and as we know, not all elements have multiplicative inverses
+
+\end{example}
+\begin{example}[Underlying additive group of a ring] Every ring $(R,+,\cdot)$ gives rise to group, if we just forget about the multiplication
+\end{example}
+The following example is more interesting, as it introduces the concept of so called addition and multiplication table. To understand those tables BLA....
+\begin{example} Let $S:=\{\bullet,\star,\odot,\otimes\}$ be a set that contains four elements and let adiition and multiplication on $S$ be defined as follows:
+\begin{center}
+  \begin{tabular}{c | c c c c c c}
+    $\cup$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\\hline
+    $\bullet$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\
+    $\star$ & $\star$ & $\odot$ & $\otimes$ & $\bullet$ \\
+    $\odot$ & $\odot$ & $\otimes$ & $\bullet$ & $\star$ \\
+    $\otimes$ & $\otimes$ & $\bullet$ & $\star$ & $\odot$ \\
+  \end{tabular} \quad \quad \quad \quad
+  \begin{tabular}{c | c c c c c c}
+$ \circ $ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ & \\\hline
+        $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ &\\
+        $\star$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ &\\
+        $\odot$ & $\bullet$ & $\odot$ & $\bullet$ & $\odot$ &\\
+        $\otimes$ & $\bullet$ & $\otimes$ & $\odot$ & $\star$ &\\
+  \end{tabular}
+\end{center}
+Then $(S,\cup,\circ)$ is a ring with unit $\star$ and zero $\bullet$. It therefore makes sense to ask for solutions to equations like this one:
+Find $x\in S$ such that
+$$
+\otimes \circ (x \cup \odot ) = \star
+$$
+To see how such an "alien equation" can be solved, we have to keep in mind, that rings behaves mostly like normal number when it comes to bracketing and computation rules. The only differences are the symbols and the actual way to add and multiply. With this we solve the equation for $x$ in the "usual way"
+\begin{align*}
+\otimes \circ (x \cup \odot ) &= \star & \text{distributive law}\\
+\otimes \circ x \cup \otimes \circ \odot  &= \star & \otimes \circ \odot = \odot\\
+\otimes \circ x \cup \odot  &= \star & \text{add the additive inverse to both sides}\\
+\otimes \circ x \cup \odot \cup -\odot  &= \star \cup -\odot\\
+\otimes \circ x \cup \bullet &= \star \cup -\odot & \text{inverse property}\\
+\otimes \circ x &= \star \cup -\odot & \text{neutral element can be deleted} \\
+\otimes \circ x &= \star \cup \odot & -\odot = \odot \text{from addition table} \\
+\otimes \circ x &= \otimes  & \star \cup \odot = \otimes \text{from addition table}\\
+(\otimes)^{-1}\circ \otimes \circ x &= (\otimes)^{-1}\circ \otimes & \text{multiply with the multiplicative inverse}\\
+\otimes\circ \otimes \circ x &= \otimes\circ \otimes\\
+\star \circ x &= \star\\
+x &= \star
+\end{align*}
+On the other hand, EQUATION $2x=3$ has no sultion and equation BLA has more then one solution. So rings are sometimes different from numbers. When we want more we need fields .... BLAHHHH EXPAND
+\end{example}
+It is a good and fundamental exercise in mathematics to understand examples like this in detail as it helps the reader to loosen the connection to what "should be" numbers and what not.
+
+
+\begin{definition}[Field]
+A field $ (\F, +, \cdot) $ is a set $ \F$, provided with two maps $ +: \F \cdot \F \to \F $ and $ \cdot: \F \cdot \F \to \F $, called \textit{addition} and \textit{multiplication}, such that the following conditions holds
+\begin{itemize}
+\item $ \left (\F, + \right) $ is a commutative group, where the neutral element is denoted by $ 0 $.
+\item $ \left (\F \setminus \left \{0 \right \}, \cdot \right) $ is a commutative group, where the neutral element is denoted by $ 1 $.
+\item (Distributivity) For all $ g_1, g_2, g_3 \in \F $ the distributive laws apply:
+$$ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3 \quad \text{and} \quad
+\left (g_1 + g_2 \right) \cdot g_3 = g_1 \cdot g_3 + g_2 \cdot g_3 $$
+\end{itemize}
+The \textit{characteristic} of a field $ \F $ is the smallest natural number $ n \geq 1 $, for which the $ n $ -fold sum of $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $.
+
+If such a $ n> 0 $ exists, the field is also called of \textit{finite characteristic}. If, on the other hand, every finite sum of $1$ is not equal to zero, then the field is defined to have characteristic $ 0 $.
+\end{definition}
+So a field is a commutative ring with unit, such that every element other the the neutral element of addition has an inverse.
+
+\begin{sagecommandline}
+sage: Fields()
+\end{sagecommandline}
+
+\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. In sage rational numbers are called like this
+\begin{sagecommandline}
+sage: QQ
+sage: QQ(1/5) # Get an element from the field of rational numbers
+sage: QQ(1/5) / QQ(3) # Division
+\end{sagecommandline}
+\end{example}
+\begin{example}[Field with two elements] It can be shown that in any field, the neutral element $0$ of addition must be different from the neutral element $1$ of multiplication, that is we always have $0\neq 1$ in a field. From this follows that the smallest field must contain at least two elements and as the following addition and multiplication tables show, there is indeed a field with two elements, which is usually called $\F_2$:
+
+Let $\F_2:=\{0,1 \}$ be a set that contains two elements and let addition and multiplication on $\F_2$ be defined as follows:
+\begin{center}
+  \begin{tabular}{c | c c c}
+    + & 0 & 1 \\\hline
+    0 & 0 & 1\\
+    1 & 1 & 0 \\
+  \end{tabular} \quad \quad \quad \quad
+  \begin{tabular}{c | c c c}
+$\cdot$ & 0 & 1 \\\hline
+      0 & 0 & 0 \\
+      1 & 0 & 1 \\
+  \end{tabular}
+\end{center}
+For reasons we will understand better in XXX, sage defines this field as a so called Galois field with 2 elements. It is called like this:
+\begin{sagecommandline}
+sage: GF(2)
+sage: GF(2)(1) # Get an element from GF(2)
+sage: GF(2)(1) + GF(2)(1) # Addition
+sage: GF(2)(1) / GF(2)(1) # Division
+\end{sagecommandline}
+\end{example}
+
+\section{Galois fields}
+As we have seen in the previous section, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers. But in contrast to arithmetics on integers or rational numbers, we deal with a finite set of elements, which when implemented on computers will not lead to precision problems.
+
+However as we have seen in the last example modular arithmetics is at the same time very different from integer arithmetics as the product of non zero elements can be zero. In addition it is also different from the arithmetics of rational numbers, as there is often no multiplicative inverse, hence no division defined. 
+
+In this section we will see that modular arithmetics behaves very nicely, whenever the modulus is a prime number. In that case the rules of modular arithmetics exactly parallels exactly the well know rules of rational arithmetics, despite the fact that the actually computed numbers are very different.
+
+The resulting structures are the so called prime fields and they are the base for many of the contemporary algebra based cryptographic systems.
+
+Since Galois fields are strongly connectedto prime numbers we start with
+a short overview of prime numbers and provide few basic properties like the fundamental theorem of arithmetic, which says that every natural number can be represented as a finite product of prime numbers.
+
+The key insight here, is that when the modulus is a prime number, modular arithmetic has a well defined division, that is absent for general moduli.
+
+
+
+
+\begin{definition}[Prime Fields] (\cite{JB} example 3.4.4 or \cite{AL} definition 3.1)
+Let $p \in \Prim$ be a prime number. Then we write $ (\F, +, \cdot) $ for the set of congruency classes and the induced addition and multiplication 
+as described in theorem (\ref{def: rest class ring}) and call it the \textbf{prime field} of characteristic $p$.
+\end{definition}
+\begin{remark}
+We have seen in (\ref{def: residual class ring}) how do compute addition, subtraction and multiplication in modular arithmetics. AS prime fields are just a special case where the modulus is a prime number, all this stays the same. In addition we have also seen in example (XXX) that division is not always possible in modular arithmetics. However the key insight here is, that division is well defined when the modulus is a prime number. This means that in a prime field we can indeed define devision.
+
+To be more precise, division is really just multiplication with the so called multiplicative inverse, which is really just another element, such that the product of both elements is equal to $1$. This is well known from fractional numbers, where for example the multiplicative element of say $3$ is simply $1/3$, since $3\cdot 1/3 =1$. Division by $3$ is then noth but multiplication by the inverse $1/3$. For example $7/3 = 7 \cdot 1/3$.
+
+We can apply the same reasoning when it comes to prime fields and define division as multiplication with the multiplicative inverse, which leads to the question of how to find the multiplicative inverse of an equivalence class $ x \in \F_p $ in a prime field. 
+
+As with all fields, $0$ has no inverse, which implies, that division by zero is undefined. So lets assume $ x \neq 0 $. Then $ gcd (x, p) = 1 $, since $p$ is a prime number and therefore has no divisors (see \ref{theorem: primfactor_decomposition}). 
+
+So we can use the extended Euclidean algorithm (REF) to compute numbers $x^{-1}, t \in \mathbb{Z} $ with $ s \cdot x + t \cdot p = 1 $, which gives $x^{-1}$ as the multiplicative inverse of $x$ in $\F_p$, since $ \kongru{x^{-1}x}{1}{p}$. 
+\end{remark}
+\begin{example}
+To summarize the basic aspects of computation in prime fields, lets consider the prime field $\F_5$ and simplify the following expression 
+$$\left(\frac{2}{3} - 2\right)\cdot 2 $$
+A first thing to note is that since $F_5$ is a field all rules like bracketing (distributivity), summing ect. are identical to the rules we learned in school when we where dealing with rational, real or complex numbers.
+
+So we start by evaluating the bracket and get $\left(\frac{2}{3} - 2\right)\cdot 2 = \frac{2}{3}\cdot 2 - 2\cdot 2= \frac{2\cdot 2}{3} - 2\cdot 2$. Now we evaluate $2\cdot 2 = 4$, since $\Zmod(4,5)=4$ and $-(2\cdot 2) = -4=5-4=1$, since the negative of a number is just the modulus minus the original number. We therefore get $\frac{2\cdot 2}{3} - 2\cdot 2 = \frac{4}{3}+1$. 
+
+Now to compute the faction, we need the multiplicative inverse of $3$, which is the number, that when multiplies with $3$ in $\F_5$ gives $1$. So we use the extended Euclidean algorithm to compute
+$$x^{-1}\cdot 3 + t \cdot 5 =1$$
+Note that in the Euclidean algorithm the compuations of each $t_k$ is irrelevant here:
+\begin{center}
+  \begin{tabular}{c | c c l}
+    k & $ r_k $ & $ x^{-1}_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
+    0 & 3 & 1 & $\cdot$\ \\
+    1 & 5 & 0 & $\cdot$ \\
+    2 & 3 & 1 & $\cdot$ \\
+    3 & 2 &-1 & $\cdot$ \\
+    4 & 1 & 2  & $\cdot$ \\
+  \end{tabular}
+\end{center}
+So the multiplicative inverse of $3$ in $\Z_5$ is $2$ and indeed if compute $3\cdot 2$ we get $1$ in $\F_5$. 
+
+This implies that we can rewrite our original expression into $\frac{4}{3}+1 = 4\cdot 2 + 1 = 3+1 =4$.
+\end{example}
+
+The following important property immediately follows from Fermat's little theorem:
+\begin{lemma}
+\label{lemma: klein_satz_fermat}
+Let $ p \in \Prim $ be a prime number and $ \Z_p $ be associated prime field of the characteristic $ p $. Then the equations
+\begin{equation}
+\begin{array}{ccc}
+x^p = x & \text{or} & x^{p-1} = 1.
+\end{array}
+\end{equation}
+holds for all elements $ x \in \Z_p $ with $x\neq 0$.
+\end{lemma}
+
+In order to give the reader an impression of how prime fields can be seen, we give a full computation of a prime field in the following example
+
+
+\paragraph{Hash to Prime fields} 
+% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
+An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
+
+In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$. 
+
+If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
+
+For example in the extreme case $k=1$, $H$ only maps to $\{0,1\}\subset \F_q$. The best possible case is therefore $k=m-1$. In that case only the highest XXX numbers (DO THE COMPUTATION) are missing from the distribution.
+
+On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
+
+The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY). 
+
+\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
+Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
+$$
+\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}
+$$
+Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
+\end{example}
+
+\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.  
+
+Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.  
+
+As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
+\end{example}
+
+\begin{definition}[The finite field] Let $ p \in \mathbb{N} $ be a prime number. Then $ \mathbb{K} _p $ denotes the \textit{remainder class body \"orper} $ \mathbb{ Z} / p \mathbb{Z} $ and $ \mathbb{K} _{p ^ n} $, for each $ n \in \mathbb{N} $, the finite K (unique except for isomorphism) \"orper with $ p ^ n $ elements.
+\end{definition} 
+
+\begin{theorem}
+\label{def: residual class ring}
+Let $ n \in \N _{\geq 2} $ be a fixed, natural number and
+$ \Z_n $ the set of equivalence classes of integers with respect to the  congruence modulo $ n $ relation. Then $ \Z_n $ forms a commutative ring with unit with respect to the addition and multiplication defined above.
+\end{theorem}
+\begin{proof} (\cite{AL} sentence 1)  
+\end{proof}
+
+\subsection{Square Roots}
+In this part we deal with \textit{square numbers} and \textit{square roots} in prime fields. To do this, we first define what square roots actually are. We roughly follow Chapter 6.5 in \cite{HW}.
+\begin{definition}[quadratic residue and square roots] Let
+$p \in \Prim $ a prime number and $\F_p $ the associate prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the equation
+\begin{equation}
+x^2 = y
+\end{equation}
+On the other hand, if $y$ is given and the quadratic equation has no $x$ solution, we call $ y $ as \textit{quadratic non-residue}. For any $ y \in \F_p $ we write
+\begin{equation}
+\sqrt{y} _{| p}: = \{x \in \F_p \; | \; x^2 = y \}
+\end{equation}
+for the set of all square roots of $ y $ in the prime field
+$ \F_n $. (If $ y $ is a quadratic non-residue, then $ \sqrt{y}_{| p} = \emptyset $ and if $ y = 0 $, then $ \sqrt{y}_{| p} = \{0 \} $)
+\end{definition}
+\begin{remark}
+The notation $ \sqrt{y}_{| n} $ for the root of square residues is not found in textbooks, but it is quite practical to clearly distinguish between roots in different prime fields as the symbol $ \sqrt{y} $ is  ambiguous and it must also be specified in which prime field this root is actually meant.
+\end{remark}
+\begin{remark}
+It can be shown that in any prime field every non zero element has either no square root or two of them. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. This makes sense, as the larger one can always be computed as the modulus minus the smaller one, which is the definition of the negative in prime fields. 
+\end{remark}
+
+\begin{example} [square numbers and roots in $ \F_5 $] Let us consider our example (\ref{primkoerper_z_5}) again. All square numbers can be found on the main diagonal of the multiplication table. As you can see, in $ \Z_5 $ only get the square root of $ 0 $, $ 1 $ and $ 4 $ are non empty sets and we get $ \sqrt{0}_{| 5} = \{0 \} $, $ \sqrt{1}_{| 5} = \{1,4 \} $, $ \sqrt{2}_{ | 5} = \emptyset $, $ \sqrt{3}_{| 5} = \emptyset $ and $ \sqrt{4}_{| 5} = \{2,3 \} $.
+\end{example}
+In order to describe whether an element of a prime field is a square number  or not, we define (\cite{HW} chapter 6.5) the so called Legendre Symbol as its of used in the literature
+\begin{definition}[Legendre symbol] Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element of the associated prime field. Then the so-called \textit{Legendre symbol} of $ y $ is defined as follows:
+\begin{equation}
+\label{eq: Legendre-symbol}
+\left (\frac{y}{p} \right): =
+\begin{cases}
+1 & \text{if $ y $ has square roots} \\
+-1 & \text{if $ y $ has no square roots} \\
+0 & \text{if $ y = 0 $}
+\end{cases}
+\end{equation}
+\end{definition}
+\begin{example}
+If we look again at the example (\ref{primkoerper_z_5}) we have the following Legendre symbols
+$$
+\begin{array}{ccccc}
+\left (\frac{0}{5} \right) = 0, &
+\left (\frac{1}{5} \right) = 1, &
+\left (\frac{2}{5} \right) = -1, &
+\left (\frac{3}{5} \right) = -1, &
+\left (\frac{4}{5} \right) = 1 \;.
+\end{array}
+$$
+\end{example}
+
+The following theorem  gives a simple criterion for calculating the legendre symbol.
+\begin{theorem} [Euler criterion] Let $ p \in \Prim_{\geq 3} $ be an odd 
+Prime number and $ y \in \F_p $. Then the Legendre symbol can be computed as 
+\begin{equation}
+\label{eq: Euler_criterium}
+\left (\frac{y}{p} \right) = y^{\frac{p-1}{2}} \;.
+\end{equation}
+\end{theorem}
+\begin{proof} (\cite{HW} proposition 83) 
+\end{proof}
+So the question remains how to actually compute square roots in prime field. The following algorithms give a solution
+\begin{definition}[Tonelli-Shanks algorithm]
+\label{def: Tonelli-Shanks}
+Let $ p $ be an odd prime number $ p \in \Prim _{\geq 3} $ and $ y $ a quadratic residue in $ \Z_p $. Then the so-called Tonneli \cite{TA} and Shanks \cite{SD} algorithm computes the two square roots of $ y $. It is defined as follows:
+\begin{enumerate}
+\item Find $ Q, S \in \Z $ with $ p-1 = Q \cdot 2 ^ S $ such that $ Q $ is odd.
+\item Find an arbitrary quadratic non-remainder $ z \in \Z_p $.
+\item
+%\begin{algorithmic}
+%\State $ \begin{array}{ccccc}
+%M: = S, & c: = z ^ Q, & t: = y ^ Q, & R: = y ^{\frac{Q + 1}{2}}, & M, c, t, R \in \Z_p
+%\end{array} $
+%\While{$ t \neq 1 $}
+%\State Find the smallest $ i $ with $ 0 <i <M $ and $ t ^{2 ^ i} = 1 $
+%\State $ b: = c ^{2 ^{M-i-1}} $
+%\State $ \begin{array}{ccccc}
+%M: = i, & c: = b ^ 2, & t: = tb ^ 2, & R: = R \cdot b
+%\end{array} $
+%\EndWhile
+%\end{algorithmic}
+The results are then the square roots $ r_1: = R $ and $ r_2: = p-R $ of $y$ in $\F_p$.
+\end{enumerate}
+\end{definition}
+
+
+\begin{remark}
+The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.
+\end{remark}
+
+\subsection{Exponents and Logarithms}
+
+\subsection{Extension Fields}
+% references https://blog.plover.com/math/se/finite-fields.html
+
+Eliptic curve pairings often need finite fields that go beyond the finite prime fields. 
+
+In fact it is well known, that for every natural number $n\in\N$ there is a field $\F_n$ with $n$ elements, if and only if $n$ is the power of a prime number, i.e. there is a $m\in\N$ with $n=p^m$ for some prime $p\in\Prim$.
+\begin{theorem}[Galois Field]
+Let $m\in\N$ and $p\in\Prim$ a prime number. Then there is a field $\F_{p^m}$ of characteristic $p$, that contains $p^n$ elements.  
+\end{theorem}
+We call such a field a \textbf{Galois field}. The following algorithm describes the construction of Galois fields (and more general field extensions):
+
+Construction of $\F_{p^m}$ 
+\begin{enumerate}
+\item Choose a polynomial $P\in \F[t]$ of degree $m$, that is irreducible.
+\item (Field set) of $\F_{p}$ is the set of all polynomials in $\F[t]$ of degree $<m$, that is 
+$$\F_{p^m}:=\{a_{k-1} t^{k-1}+a_{k-2}t^{k-2}+\ldots+a_1 t+a_0\;|\; a_i\in \F_p\}$$
+\item (Field Addition) is just addition of the polynomials in the usual way.
+\item (Field Multiplication) Multiply the polynomials in the usual way, then compute the long division by $P$. The remainder is the product.
+\end{enumerate}
+\begin{remark}
+In the definition of $\F_{p^m}$, every $a_j$ can have $p$ different values and we have $m$ many of them. This implies that $\F_{p^m}$ contains $p^m$ many elements.
+
+The construction depends on the choice of an irreducible polynomial, but it can be shown, that all resulting fields are isomorphic, that is they can be transformed into each other, so they are really just different views on the same thing. From an implementations point of view however some choices are better, because they allow for faster computations.
+\end{remark}
+\begin{example}[The Galois field $\F_{3^2}$]In (XXX) we have constructed the prime field $\F_3$. In this example we apply algorithm (XXX) to construct the Galois field $\F_{3^2}$. We start by choosing an irreducibe polynomial of degree $2$ with coefficients in $\F_3$. We try 
+$P(t)=t^2+1$. Maybe the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is never zero. WE compute
+\begin{align*}
+P(0) = 0^2+1 &= 1\\
+P(1) = 1^2+1 &= 2\\
+P(2) = 2^2+1 &=  1+1  = 2
+\end{align*}
+Now the set $\F_{3^2}$ contains all poynomials of degrees lower then two with coefficients in $\F_3$. This is precisely
+$$
+\F_{3^2}=\{0,1,2,t,t+1,t+2,2t,2t+1,2t+2\}
+$$
+Addition is then defined as normal addition of polynomials. For example 
+$(t+2) + (2t+2)= (1+2)t +(2+2)= 1$. Doing this computation for all elements give the following addition table
+\begin{center}
+  \begin{tabular}{c | c c c c c c c c c}
+    + & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
+    0 & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\
+    1 & 1    & 2    & 0    & t+1  & t+2  & t    & 2t+1 & 2t+2 & 2t   \\
+    2 & 2    & 0    & 1    & r+2  & t    & t+1  & 2t+2 & 2t   & 2t+1 \\
+    t & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 & 0    & 1    & 2    \\
+  t+1 & t+1  & t+2  & t    & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    \\
+  t+2 & t+2  & t    & t+1  & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    \\
+   2t & 2t   & 2t+1 & 2t+2 & 0    & 1    & 2    & t    & t+1  & t+2  \\
+ 2t+1 & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    & t+1  & t+2  & t    \\
+ 2t+2 & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    & t+2  & t    & t+1
+  \end{tabular}
+\end{center}
+From this table, we can deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
+
+Multiplication then needs a bit more computation, as you multiply the polynomials and then divide the result by $P$ and keep the remainder. For example 
+$(t+2) \cdot (2t+2)= 2t^2 + 2t + t + 1 = 2t^2+1$. Long division by $P(t)$ then gives $2t^2+1:t^2+1= 2 + \frac{2}{t^2+1}$, so the remainder is $2$ and find that the product of $t+2$ and $2t+2$ in $\F_{3^2}$ is $2$. Doing this computation for all elements give the following multiplication table (DOTHIS!!! THE TABLE NEEDS AN UPDATE)
+\begin{center}
+  \begin{tabular}{c | c c c c c c c c c}
+$\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
+      0 & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\
+      1 & 1    & 2    & 0    & t+1  & t+2  & t    & 2t+1 & 2t+2 & 2t   \\
+      2 & 2    & 0    & 1    & r+2  & t    & t+1  & 2t+2 & 2t   & 2t+1 \\
+      t & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 & 0    & 1    & 2    \\
+    t+1 & t+1  & t+2  & t    & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    \\
+    t+2 & t+2  & t    & t+1  & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    \\
+     2t & 2t   & 2t+1 & 2t+2 & 0    & 1    & 2    & t    & t+1  & t+2  \\
+   2t+1 & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    & t+1  & t+2  & t    \\
+   2t+2 & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    & t+2  & t    & t+1
+  \end{tabular}
+\end{center}
+From this table, we can deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
+\end{example}
+As we can see from the previous example, it can become quite messy to write elements of extension fields. Especially for larger extension degrees. In the literature we therefore find two ways to have a nicer description.
+
+The most obvious one is to observe that polynomials of maximal degree $m$ are in one to one correspondence with $m+1$-dimensional vectors by
+$$
+\sum_{j=0}^m a_j x^j \Leftrightarrow \left(a_0,a_1,\ldots,a_m\right)
+$$
+so the coordinate vector associated to a given polynomial is given by its coefficients and vice versa. This way $\F_{q^m}$ can be seen as an $m$-dimensional vector space over the prime field $\F_q$. Addition is the usual component wise addition of vectors. However multiplication is not obvious and must be computed from the polynomial OR SUBSTITUTION.
+
+\begin{example}
+In this example the set $\F_{3^2}$ can be written as 
+$\{[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]\}$ and we get for example $[1,1]+ [2,1]= [0,2]$ by adding component wise. 
+\end{example}
+
+Power representation
