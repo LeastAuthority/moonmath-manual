@@ -21,26 +21,26 @@ sage: ZZ(27713).str(16) # Hexadecimal string representation
 
 Sage commandline, line 77::
 
-sage: n = ZZ(19214758032624000)
+sage: n = NN(19214758032624000)
 sage: factor(n)
 
-Sage commandline, line 129::
+Sage commandline, line 138::
 
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
 sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 
-Sage commandline, line 145::
+Sage commandline, line 154::
 
 sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
-Sage commandline, line 204::
+Sage commandline, line 213::
 
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 267::
+Sage commandline, line 288::
 
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -49,33 +49,20 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 305::
+Sage commandline, line 324::
 
-sage: (ZZ(7)* (ZZ(2)*ZZ(14) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(14) - ZZ(102))  % ZZ(17)
-sage: (ZZ(7)* (ZZ(2)*ZZ(218) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(218) - ZZ(102))  % ZZ(17)
+sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
+sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 325::
-
-sage: (ZZ(7)* ZZ(9))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
-sage: (ZZ(7)* ZZ(1726))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
-
-Sage commandline, line 388::
+Sage commandline, line 391::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
-
-Sage commandline, line 452::
-
-sage: Z6=Integers(6) # Define integers modulo 6
-sage: Z6(2)+Z6(5) # standard representatives of a class
-sage: Z6(14)+Z6(-1) # different representatives for same class
-sage: - Z6(2) # additive inverse
-sage: Z6(5)**(-1) # multiplicative inverse if exists
 
 Sage commandline, line 529::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 627::
+Sage commandline, line 659::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -89,7 +76,7 @@ sage: p.degree()
 sage: zero = Zx([0])
 sage: zero.degree()
 
-Sage commandline, line 698::
+Sage commandline, line 730::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -99,7 +86,7 @@ sage: Q
 sage: P+Q
 sage: P*Q
 
-Sage commandline, line 722::
+Sage commandline, line 754::
 
 sage: Z6 = Integers(6)['x']
 sage: P = Z6([2,-4,5])
@@ -109,7 +96,7 @@ sage: Q
 sage: P+Q
 sage: P*Q
 
-Sage commandline, line 780::
+Sage commandline, line 812::
 
 sage: Zx = ZZ['x']
 sage: a = Zx([-9,0,0,2,0,1])

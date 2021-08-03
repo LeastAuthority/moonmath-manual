@@ -69,13 +69,13 @@ As the \textit{fundamental theorem of arithmetics} tells us, prime numbers are i
 n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
 \end{equation}
 This representation is unique, except for permutations in the factors and is called the \textbf{prime factorization} of $n$.
-\begin{example}[Prime Factorization] To see what we mean by integer factorization, lets look at the number $19214758032624000$. To get its prime factors, we can sucessively divide it by all prime numbers in ascending order starting with $2$. We get
+\begin{example}[Prime Factorization] To see what we mean by prime factorization of a number, lets look at the number $19214758032624000\in\N$. To get its prime factors, we can sucessively divide it by all prime numbers in ascending order starting with $2$. We get
 \begin{equation*}
 19214758032624000 = 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2 \cdot 3\cdot 3\cdot 3\cdot 5\cdot 5\cdot 5\cdot 7 \cdot 11 \cdot 17\cdot 17 \cdot 23 \cdot 43\cdot 43 \cdot 47
 \end{equation*}
 We can double check our findings invoking sage, which provides an algorith to factor counting numbers:
 \begin{sagecommandline}
-sage: n = ZZ(19214758032624000)
+sage: n = NN(19214758032624000)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
@@ -83,11 +83,20 @@ Having done the computation from the previous example, reveals an important obse
 
 From this an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \textit{factorization problem} and as far as we know, there is no method on a classical Turing machine that is able to compute this representation in polynomial time. The fastest algorithms known today run sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $.
 
-It follows that integer factorization $\Leftrightarrow$ prime number multiplication is an example of, what is called a one-way.function. Something that is easy to compute in one direction, but hard to compute in the other direction. Existence of one way functions like this are basic crytographic assumptions, that the security of many crypto systems is based on.
+It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of, what is called a one-way function. Something that is easy to compute in one direction, but hard to compute in the other direction. Existence of one way functions like this are basic crytographic assumptions, that the security of many crypto systems is based on.
 
 It should be pointed out however hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is, of course, that cryosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
 \begin{exercise}
+What is the absolute value of the integers $-123$, $27$ and $0$?
+\end{exercise}
+\begin{exercise}
 Compute the factorization of $6469693230$ and double check your results using sage.
+\end{exercise}
+\begin{exercise}
+Consider the following equation $4\cdot x + 21 = 5$. Compute the set of all solutions $x$ under the following assumptions: 1. The equation is defined over the type of natural numbers. 2. The equation is defined over the type of integers.
+\end{exercise}
+\begin{exercise}
+Consider the following equation $2 x^3 - x^2 - 2 x = - 1$. Compute the set of all solutions $x$ under the following assumptions: 1. The equation is defined over the type of natural numbers. 2. The equation is defined over the type of integers. 2. The equation is defined over the type $\mathbb{Q}$ of fractions.
 \end{exercise}
 
 \paragraph{Euklidean Division}
@@ -97,7 +106,7 @@ In general there is no division defined in the usual sense for integers, as for 
 Doing integer division like this is probably something many of us remember from school. It is 
 usually called \textit{Euclidean division}, or division with remainder and it is an important technique, that every reader must become familiar with to understand many concepts in this book. The precise definition is as follows:
 
-Let $ a \in \Z $ and $ b \in \Z $ be two integers. Then there is always another integer $ m \in \Z $ and a counting number $ r \in \N $, with $ 0 \leq r <|b| $ such that
+Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a counting number $ r \in \N $, with $ 0 \leq r <|b| $ such that
 \begin{equation}
 \label{eq_euklidean_division}
 a = m \cdot b + r
@@ -112,11 +121,11 @@ Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euklide
 \Zdiv{a}{b}: = m, & & \Zmod{a}{b}: = r 
 \end{array}
 \end{equation}
-to describe the quotient and the remainder of the Euklidean division. We also say, that an integer $ a $ is divisible by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ a | b $.
+to describe the quotient and the remainder of the Euklidean division. We also say, that an integer $ a $ is divisible by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ b | a $.
 \end{notation}
 So in a Nutshell Euclidean division is a process of dividing one integer by another, in a way that produces a quotient and a non negative remainder the latter of which is smaller than the absolute value of the divisor. It can be shown, that both the quotient and the remainder always exist and are unique, as long as the divident is different from $0$.
 
-A special situation occures, is the remainder is zero, because in this special case the divident \textit{is} divisible by the divisor. Our notation $a|b$ refelcts that. 
+A special situation occures, is the remainder is zero, because in this special case the divident \textit{is} divisible by the divisor. Our notation $b | a$ refelcts that. 
 
 
 \begin{example} Applying Euklidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the divisor $-17$ and the divident $4$, we get 
@@ -125,7 +134,7 @@ A special situation occures, is the remainder is zero, because in this special c
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
 \end{array}
 \end{equation*}
-because $ -17 = -5 \cdot 4 + 3 $  is the Euklidean division of $-17$ and $4$ (Since the remainder is by definition a non-negative number). In this case $4$ does not divide $-17$ as the reminder is not zero. Writing $-17 | 4$ therefore has no meaning. On the other hand we can write $12 | 4$, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke sagemath to do the computation for us. We get
+because $ -17 = -5 \cdot 4 + 3 $  is the Euklidean division of $-17$ and $4$ (Since the remainder is by definition a non-negative number). In this case $4$ does not divide $-17$ as the reminder is not zero. Writing $4 | -17 $ therefore has no meaning. On the other hand we can write $4 | 12$, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke sagemath to do the computation for us. We get
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(4) # Integer quotient 
 sage: ZZ(-17) % ZZ(4) # remainder 
@@ -149,8 +158,8 @@ sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 In a nutshell, the algorithm loops through the digits of the divident from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the divident.
 \end{example}
 \begin{exercise}[Integer Long Division]
-Find an $m\in\Z$ as well as an $r\in\N$ such that $a= m\cdot b +r$ (See equation \ref{eq_euklidean_division}) holds for the folling pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$. In which cases are your solutions unique?
-\end{exercise}
+Find an $m\in\Z$ as well as an $r\in\N$ such that $a= m\cdot b +r$ holds for the folling pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$ and . In which cases are your solutions unique?
+\end{exercise}$(a,b)= (0, 7)$
 \begin{exercise}[Long Division Algorithm]
 Write an algorithm in pseudocode that computes integer long division, handling all edge cases properly.
 % https://en.wikipedia.org/wiki/Division_algorithm
@@ -159,14 +168,14 @@ Write an algorithm in pseudocode that computes integer long division, handling a
 \paragraph{The Extended Euklidean Algorithm}
 One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so called finite fields, as we explain in XXX. In modular arithmetics it is sometimes possible to define actual division and multiplicative inverses of numbers, that is very different from inverses as we know them from other systems like factional numbers. 
 
-However, to actually compute those inverses we have to get familar with the so-called \textit{extended Euclidean algorithm}. To recapitulate jargon first, the \textit{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition two counting numbers are called \textbf{relative prime}, if their greates common divisor is $1$.
+However, to actually compute those inverses we have to get familar with the so-called \textit{extended Euclidean algorithm}. To recapitulate jargon first, the \textit{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition two counting numbers are called \textbf{relative prime} or \textbf{coprime}, if their greates common divisor is $1$.
 
 The extended Euclidean algorithm is then a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the equation
 \begin{equation}
 \label{eq: erw_Eukl_algo}
 gcd (a, b) = s \cdot a + t \cdot b
 \end{equation}
-holds. The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm (\cite{JB} chapter 2.9):
+holds. The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm:
 
 \begin{algorithm}\caption{Extended Euklidean Algorithm}
 \label{alg_ext_euclid_alg}
@@ -211,7 +220,12 @@ Find integers $s,t\in\Z$ such that $gcd(a,b)= s\cdot a +t\cdot b$ holds for the 
 \begin{exercise}[Towards Prime fields]
 Let $n\in \N$ be a counting number and $p$ a prime number, such that $n<p$. What is the greatest common divisor $gcd(p,n)$?
 \end{exercise}
-
+\begin{exercise}
+Find all numbers $k\in\N$ with $0\leq k \leq 100$ such that $gcd(100,k) = 5$.
+\end{exercise}
+\begin{exercise}
+Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
+\end{exercise}
 \section{Modular arithmetic}
 % TODO: Introduce the term residue class
 In mathematics, so called \textit{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$, $24$ or $60$, depending on your clock. For example if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The letter of which has no meaning on a normal clock that shows hours. 
@@ -236,6 +250,13 @@ A \textit{congruency} is then nothing but an equation "up to congruency", which 
 \begin{equation}
 \kongru{a}{b}{n} 
 \end{equation}
+\begin{exercise}
+Which of the following pairs of numbers are congruent with respect to the modulus $13$: 
+$(5,19)$, $(13,0)$, $(-4,9)$, $(0,0)$.
+\end{exercise}
+\begin{exercise}
+Find all integers $x$, such that the congruency $\kongru{x}{4}{6}$ is satisfied.
+\end{exercise}
 \paragraph{Modular Arithmetics}
 On particulary nice thing about congruencies is, that we can do calculations (aithmetics), much like we can with integer equations. That is we can add or multiply numbers on both sides. The main difference is probably that the congruency $\kongru{a}{b}{n}$ is only equivalent to the congruency $\kongru{k\cdot a}{k\cdot b}{n}$ for some non zero integer $k\in \Z$, whenever $k$ and the modulus $n$ are coprime. The following list gives a set of useful rules:
 
@@ -246,7 +267,7 @@ Suppose that the congurencies $\kongru{a_1}{b_1}{n}$ as well as $\kongru{a_2}{b_
 \item $\kongru{a_1+a_2}{b_1+b_2}{n}$ (compatibility with addition)
 \item $\kongru{a_1\cdot a_2}{b_1\cdot b_2}{n}$ (compatibility with multiplication)
 \end{itemize}
-Other rules like compatibility with subtraction and exponentiation follow from this rule, as for example compatibility with subtraction is compatibility with scaling by $k=-1$ and compatibility with addition.
+Other rules like compatibility with subtraction and exponentiation follow from this rules, as for example compatibility with subtraction is compatibility with scaling by $k=-1$ and compatibility with addition.
 
 Note that the previous rules are implications not equivalences, which means that you can not necessarily reverse those rules. The following rules makes this precise:
 \begin{itemize}
@@ -272,64 +293,46 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 \end{sagecommandline}
-\begin{remark}
-Congruency \ref{eq_fermat_lt_2} has a nice interpretation, that gives a first glimpse of the idea of a prime field as we will describe it in XXX: Whenever the modulus is a prime number and $k<p$ then $k$ and $p$ are coprime (Exercise XXX) and hence there is a notion of division by $k$, that is absent in integer arithmetics. If $a$ is another integer we could define division by $k$ as follows $a/k := a\cdot k^{p-2}$, which is always defined. This makes sense because "division by something" should be defined as "multiplication by the inverse" and since $\kongru{k\cdot k ^{p-2}}{1}{p}$, the number $k^{p-2}$ behaves like a multiplicative inverse for $k$ in modular arithmetics for prime number moduli and coprime $k$.
-\end{remark}
-
 Now, since this was a lot to digest for a reader who has never encountered modular arithmetics before, lets compute an example that contains most of the stuff we just described:   
    
-\begin{example}Assume that we choose the modulus $17$ and that our task is to solve the following congruency for $x\in \Z$
-$$\kongru{7\cdot(2x+21) + 11}{x-102}{17}$$
+\begin{example}
+\label{example_first_congruency}
+Assume that we choose the modulus $6$ and that our task is to solve the following congruency for $x\in \Z$
+$$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
 As many rules for congruencies are more or less same as for integers, we can proceed in a way similar, as we would if we had an equation to solve. 
 The first thing we notice, is that $7\cdot(2x+21) + 11= 14x +158$, since both sides of a congruency contain ordinary integers. We can therefore rewrite the congruency into the equivalent form
-$$\kongru{14x +158}{x-102}{17}$$
+$$\kongru{14x +158}{x-102}{6}$$
 In a next step we want to shift all encounters of $x$ to left and every other term to the right. So we applay the "compatibility with translation" rules two times. In a first step we choose $k=-x$ and in a second step we choose $k=-158$. Since "compatibility with translation" transforms a congruency into an equivalent form, the solution set will not change and we get 
 \begin{multline*}
-\kongru{14x +158}{x-102}{17} \Leftrightarrow\\
-\kongru{14x-x +158-158}{x-x-102-158}{17} \Leftrightarrow \\
-\kongru{13x}{-260}{17}
+\kongru{14x +158}{x-102}{6} \Leftrightarrow\\
+\kongru{14x-x +158-158}{x-x-102-158}{6} \Leftrightarrow \\
+\kongru{13x}{-260}{6}
 \end{multline*}
-If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However in case of a congruency we need to make sure that the modulus and the number we want to divide by are coprime first. Only then will we get an equivalent expression. So we need to the greatest common divisor $gcd(17,13)$ and since both numbers are prime, we know $gcd(17,13)=1$, so both numbers are indeed coprime. We therefore compute 
+If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However in case of a congruency we need to make sure that the modulus and the number we want to divide by are coprime first. Only then will we get an equivalent expression. So we need to the greatest common divisor $gcd(13,6)$ and since $13$ is prime and $6$ is not a multiple of $13$, we know $gcd(13,6)=1$, so both numbers are indeed coprime. We therefore compute 
 $$
-\kongru{13x}{-260}{17} \Leftrightarrow \kongru{x}{-20}{17}
+\kongru{13x}{-260}{6} \Leftrightarrow \kongru{x}{-20}{6}
 $$
-Our task is now to find all integers $x$, such that $x$ is congruent to $-20$ with respect to the modulus $17$. So we have to find all $x$ such
+Our task is now to find all integers $x$, such that $x$ is congruent to $-20$ with respect to the modulus $6$. So we have to find all $x$ such
 $$
-\Zmod{x}{17} = \Zmod{-20}{17}
+\Zmod{x}{6} = \Zmod{-20}{6}
 $$
-Since $-2\cdot 17 +14 = -20$ we know $ \Zmod{-20}{17} = 14$ and hence we know that $x=14$ is a solution. However $31$ is another solution since $ \Zmod{31}{17} = 14$ as well and so is $-20$. In fact there are infinite many solutions given by the set
+Since $-4\cdot 6 +4 = -20$ we know $ \Zmod{-20}{6} = 4$ and hence we know that $x=4$ is a solution. However $22$ is another solution since $ \Zmod{22}{6} = 4$ as well and so is $-20$. In fact there are infinite many solutions given by the set
 $$
-\{\ldots, -20,-3, 14,31, 48,\ldots\} = \{14+k\cdot 17 \;|\; k\in \Z\}
+\{\ldots, -8,-2, 4,10, 16,\ldots\} = \{4+k\cdot 6 \;|\; k\in \Z\}
 $$
-Putting all this together we have shown that the every $x$ from the set $\{x=14+k\cdot 17 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{17}$. We double ckeck for, say, $x=14$ as well as $x=14 + 12\cdot 17 = 218$ using sage:
+Putting all this together we have shown that the every $x$ from the set $\{x=4+k\cdot 6 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{6}$. We double ckeck for, say, $x=4$ as well as $x=14 + 12\cdot 6 = 86$ using sage:
 \begin{sagecommandline}
-sage: (ZZ(7)* (ZZ(2)*ZZ(14) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(14) - ZZ(102))  % ZZ(17)
-sage: (ZZ(7)* (ZZ(2)*ZZ(218) + ZZ(21)) + ZZ(11))  % ZZ(17) == (ZZ(218) - ZZ(102))  % ZZ(17)
+sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
+sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 \end{sagecommandline}
 \end{example}
-\begin{example}[Mudular multiplicative inverse] In the previous example we encounter the "lucky coincidence", that we could solve the congruency $\kongru{13x}{-260}{17}$ by division by $13$, since $260$ is divisible by $13$ as integers. But what if this is not the case?
-So see how this can be solved in modular arithmetics lets consider the following modification of the congruency in the previous example:
-$$
-\kongru{7x}{-260}{17}
-$$ 
-In this example we can not integer divide both sides of the congruency by $7$, since $260/7$ is not an integer. However we recall from Fermats little theorem, that $\kongru{k\cdot k^{p-2}}{1}{p}$ for every integer $k$ that coprime to every prime modulus $p$. 
-
-In our example, since $7$ is coprime to $17$ (both are prime numbers), we can exploit Fermats theorem, in combination with the "compatibility with scaling" rule and multiply both sides of the congruency with $7^{17-2}= 4747561509943$. We then get
-\begin{multline*}
-\kongru{7x}{-260}{17} \Leftrightarrow \\
-\kongru{7^{17-2}\cdot 7\cdot x}{-260\cdot 7^{17-2}}{17}\Leftrightarrow \\
-%\kongru{x}{-260\cdot 4747561509943}{17} \Leftrightarrow \\
-\kongru{x}{-1234365992585180}{17} 
-\end{multline*}
-And since $\Zmod{-1234365992585180}{17}=9$, we know that the solution is given by the set of all numbers $x\in \{9+m\cdot 17\;|\; m\in\Z\}$. We double ckeck for, say, $x=9$ as well as $x=9 + 101\cdot 17 = 1726$ using sage:
-\begin{sagecommandline}
-sage: (ZZ(7)* ZZ(9))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
-sage: (ZZ(7)* ZZ(1726))  % ZZ(17) == (-ZZ(260))  % ZZ(17)
-\end{sagecommandline}
-\end{example}
-\begin{remark}
 The discouraged reader, who at this point thinks that modular aithmetics is to complicated, might consider two thinks: First, computing congruencies in modular arithmetics is not really more complicated then computations in more familiar number systems like fractional numbers. Its just a matter of getting used to it. Second, the theory of prime fields (and more general residue class rings) takes a different view on modular rithmetics with the attempt to simplify thinks. In other words, once we understand prime field arithmetics, thinks become conceptually cleaner and more easy to compute.
-\end{remark}
+\begin{exercise}Choose the modulus $13$ and find all solutions $x\in \Z$ to the following congruency $\kongru{5x+4}{28+2x}{13}$
+\end{exercise}
+\begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{5}{23}$
+\end{exercise}
+\begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{46}{23}$
+\end{exercise}
 \paragraph{The Chinese Remainder Theorem} We have seen in the previous paragraph how to solve congruencies in modular arithmetic. However one question that remains is, how to solve systems of congruencies, whith different moduli? The answer is given by the so called \textit{Chinese raimainder theorem}, which tells us, that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $, the so-called \textit{simultaneous congruency}
 \begin{equation}
 \label{eq_simultaneous_congruency}
@@ -389,15 +392,17 @@ $ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are in
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 \end{sagecommandline}
 \end{example}
-As we have seen in various examples before, computing congruencies can be cumersome and solution sets are huge in general. It is therefore advantagous to find some kind of simplification for modular arithmetic. Fortunately this is possible if we consider all integers that have the same remainder with respect to a given modulus $n$ to be the same. It then follows from the properties of Euclidean division, that there are exactly $ n $ different such sets for every moduls. 
+As we have seen in various examples before, computing congruencies can be cumersome and solution sets are huge in general. It is therefore advantagous to find some kind of simplification for modular arithmetic. 
 
-If we go a step further and identify each such set (equivalence class) with the corresponding remainder of the Euclidean division, we get a new set, where integer addition and multiplication can be projected to a new kind of addition and multiplication on the equivalence classes. 
+Fortunately this is possible and relatively straight forward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. Then we can go a step further and identify each set of numbers with equal remainder with that remainder and call it a \textit{remainder class} or \textit{residue class} in modulo $n$ arithmetics. 
+
+It then follows from the properties of Euclidean division, that there are exactly $ n $ different remainder classes for every modulus $n$ and that integer addition and multiplication can be projected to a new kind of addition and multiplication on thoses classes. 
 
 Roughly speaking the new rules for addition and multiplication are then computed by taking any element of the firsr equivalence class and some element of the second, then add or multiply them in the usual way and see in which equivalence class the result is contained.
 The following example makes the abstract idea more concrete
 \begin{example} [Arithmetics modulo $6$]
 \label{def_residue_ring_z_6}
-Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$). We write
+Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$) and when we identify those remainder classes, with the remainder, we get the following identification:
 $$
 \begin{array}{lll}
 0: = \{\ldots, -6,0,6,12, \ldots \}, &
@@ -433,36 +438,30 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
         5 & 0 & 5 & 2 & 3 & 2 & 1
   \end{tabular}
 \end{center}
+This way we have define a new arithmetic system, that contains just $6$ numbers and that comes with its own definition of addition and multiplication. Lets symbolize it by $\Z_6$ and call it \textit{modular 6 arithmetics}.
 
-These two tables are all you need to be able to calculate in modular $6$ aithmetics. 
+To see why such an identification of a congruency class with its remainder is useful and actually simplifies congruency computations a lot, lets go back to the congruency 
+\begin{equation}
+\label{example_congruency_two_1}
+\kongru{7\cdot(2x+21) + 11}{x-102}{6}
+\end{equation}
+from example \ref{example_first_congruency} again. As shown in that example, arithmetics of congruencies can deviate from ordinary arithmetics as for example division needs to check for coprimeness of the modulus and the divident and solutions are in general not unique.
 
-To see how this simplifies congruency computations, lets look at the congruency 
-$$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
-from example XXX again (But this time in modular $6$ arithmetics to use our addition and multiplication tables). Since $\Zmod{21}{6}= 3$ and $\Zmod{102}{6}= =$ We can rewrite the congruency into the equation 
-$7\cdot(2x+3) + 11=x$
-AND DO STUFF
-
-
-
-For example, to determine the multiplicative inverse of a remainder class, look for the entry that results in $ 1 $ in the product table. For example the multiplicative inverse of $ 5 $ is $ 5 $ itself, since $5\cdot 5 = 1$. Similar to the integers not all numbers have inverses. For example there is no element, that when multiplied with $4$ will give $1$. 
-However in contrast to what we know from integers, there are non zero numbers, that, when multiplied gives zero (e.g $4\cdot 4 =0$).
-
-One can show that distributivity, associativity and commuativity hold (See section XXX for a precise definition)
-
-\begin{sagecommandline}
-sage: Z6=Integers(6) # Define integers modulo 6 
-sage: Z6(2)+Z6(5) # standard representatives of a class
-sage: Z6(14)+Z6(-1) # different representatives for same class
-sage: - Z6(2) # additive inverse
-sage: Z6(5)**(-1) # multiplicative inverse if exists
-\end{sagecommandline}
+The point here is, that we can rewrite this congruency into an \textit{equation} over our new arithmetic type $\Z_6$ by "projecting onto the remainder classes". In particular, since $\Zmod{7}{6}= 1$, $\Zmod{21}{6}= 3$, $\Zmod{11}{6}= 5$ and $\Zmod{102}{6}= 0$ we have
+\begin{align*}
+\kongru{7\cdot(2x+21) + 11}{x-102}{6} \text{ over } \Z\\ 
+\Leftrightarrow & \; \; 1\cdot (2x+3) + 5 = x \text{ over } \Z_6
+\end{align*}
+and we can use the multiplication and addition tables to solves the equation on the right, like we would solve normal integer equations:
+\begin{align*}
+1\cdot (2x+3) + 5 &= x & \text{ }\\
+2x+3 + 5 &= x & \text{\# addition-table: } 3+5 = 2 \\
+2x+2 &= x & \text{\# add 4 and $-x$ on both sides} \\
+2x+2 +4 -x &= x + 4 -x & \text{\# addition-table: } 2+4 = 0 \\
+x &= 4 &
+\end{align*}
+So we see that, despite the somewhat unfimilar rules of addition and multiplication, solving congruencies this way is very similar to solving normal equations. And indeed the solution set is identical to the solution set of the original congruency, since $4$ is identified with the set $\{4+6\cdot k\;|\; k\in\Z\}$.
 \end{example}
-
-TODO:
-
-Barrett reduction
-
-Montgomery modular multiplication (Montgomery domain)
 
 \begin{jargon}[$k$-bit modulus] In cryptographic papers, we can sometimes read phrases like "$[\ldots]$ using a 4096-bit modulus". This means that the underlying modulus $n$ of the modular arithmetic used in the system has a binary representation with a length of $4096$ bits. For example, the number $6$ has the binary representation $110$ and henxe example describes a $3$-bit modulus arithmetics system.   
 \end{jargon}
@@ -473,13 +472,14 @@ Let $a,b,k$ be integers, such that $\kongru{a}{b}{n}$ holds. Show $\kongru{a^k}{
 Let $a,n$ be integers, such that $a$ and $n$ are not coprime. For which $b\in\Z$ does the 
 congruency $\kongru{a\cdot x}{b}{n}$ have a solution $x$ and how does the solution set look in that case?
 \end{exercise}
-\paragraph{Modular Inverses} As we know integers can be added, subtracted and multiplied, but not divided in general, as for example $3/2$ is not an integer anymore. To see why this is, from a more theoretical perspective, lets consider the definition of a multiplicative inverse first. When we have a set that has some kind of multiplication defined on it and we have a distinguished element of that set, that behaves neutral with respect to that multiplication (doesn't change anything when multiplied with any other element), then we can define \textit{multiplicative inverses} in the following way:
+\paragraph{Modular Inverses} 
+As we know integers can be added, subtracted and multiplied, but not divided in general, as for example $3/2$ is not an integer anymore. To see why this is, from a more theoretical perspective, lets consider the definition of a multiplicative inverse first. When we have a set that has some kind of multiplication defined on it and we have a distinguished element of that set, that behaves neutral with respect to that multiplication (doesn't change anything when multiplied with any other element), then we can define \textit{multiplicative inverses} in the following way:
 
 Let $S$ be our set that has some notion $a\cdot b$ of multiplication and a \textit{neutral element} $1\in S$, such that $1\cdot a = a$ for all elements $a\in S$. Then a \textit{multiplicative inverse} $a^{-1}$ of an element $a\in S$ is defined by
 \begin{equation}
 a\cdot a^{-1} = 1
 \end{equation}
-So roughly speaking a multiplicative element is defined in such a way, that it cancels the original element to give $1$, whenever they are multiplied. 
+So roughly speaking a multiplicative inverse is defined in such a way, that it cancels the original element to give $1$, whenever they are multiplied. 
 
 Numbers that have multiplicative inverses are of particular interest, because they immediately lead to the definition of division by those numbers. In fact if $a$ is number, such that the multiplicative inverse $a^{-1}$ exist, then we define \textit{division} by $a$ simply as multiplication by the inverse, i.e
 \begin{equation}
@@ -530,8 +530,13 @@ So we get $s=1$ as well as $t=-1$ and have $1 = 1\cdot 6 -1\cdot 5$. From this f
 sage: ZZ(6).xgcd(ZZ(5))
 \end{sagecommandline}
 \end{example}
-At this point the attentive reader might notice, that the situation, where the modulus is a prime number is of particular interest, since we know from exercise XXX, that in this cases all remainder classes must have modular inverses, since $ggt(r,n)=1$ for prime $n$ and $r<n$. We will look at this central situation in XXX. 
-
+At this point the attentive reader might notice, that the situation, where the modulus is a prime number is of particular interest, since we know from exercise XXX, that in this cases all remainder classes must have modular inverses, since $ggt(r,n)=1$ for prime $n$ and $r<n$. In fact Fermat's little theorem then gives a way to compute multiplicative inverses in this situation, since in case of a prime modulus $p$ and $r<p$, we have
+\begin{align*}
+\kongru{r^p}{r}{p} & \Leftrightarrow \\
+\kongru{r^{p-1}}{1}{p} & \Leftrightarrow \\
+\kongru{r\cdot r^{p-2}}{1}{p}
+\end{align*}
+which tells us, that the multiplicative inverse of a residue class $r$ in modular $p$ arithmetic is precisely $r^{p-2}$.
 \begin{example} [Modular $5$ arithmetics] 
 \label{primfield_z_5}
 To see the unique properties of mudular arithmetics whenever the modulus is prime numbers, we will parallel our findings from example XXX, but this time for the prime modulus $5$.
@@ -545,7 +550,7 @@ $$
 4: = \{\ldots, -1,4,9,14, \ldots \}
 \end{array}
 $$
-Addition and multiplication can now be transferred to the equivalence classes. This results in the following addition and multiplication tables in $ \Z_5 $:
+Addition and multiplication can be transferred to the equivalence classes, in a way exactly similar to example XXX. This results in the following addition and multiplication tables:
 \begin{center}
   \begin{tabular}{c | c c c c c}
     + & 0 & 1 & 2 & 3 & 4 \\\hline
@@ -564,9 +569,36 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 \\\hline
       4 & 0 & 4 & 3 & 2 & 1 \\
   \end{tabular}
 \end{center}
+Calling the set of reminder classes in modular $5$ arithmetics with this addition and multiplication $\F_5$ (for reasons we explain in more detail in XXX), we see some subtle but important differences to the situation in $\Z_6$. In particular we see that in the multiplication table every remainer $r\neq 0$ has the entry $1$ in its row and therefore has a multiplicative inverse. In addition there are no non zero elements, such that their product is zero.
 
-These two tables are all you need to be able to calculate in $ \Z_5 $. For example, to determine the multiplicative inverse of an element, look for the entry that results in $ 1 $ in the product table. This is the multiplicative inverse. For example the multiplicative inverse of $ 2 $ is $ 3 $ and the multiplicative inverse of $4$ is $4$ itself, since $4\cdot 4=1$. As we can see indeed every element $\neq 0$ has a multiplicative inverse.
+To use Fermat's little theorem in $\F_5$ for computing multiplicative inverses (instead of using the multiplcation table), lets consider $3\in\F_3$. We know that the multiplicative inverse is then given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\F_5$.
 \end{example}
+\begin{example}
+To understand one of the principle difference in prime number modular arithmetics vs. other number modular arithmetics, consider the linear equation $a\cdot x +b=0$ defined over both types $\F_5$ and $\Z_6$. Since in $\F_5$ every non zero element has a multiplicative inverse, we can always solves equations like this, which is not true in $\Z_6$. To see that consider the equation $3x+3=0$. In $\F_5$ we have
+\begin{align*}
+3x+3    &= 0 & \text{\# add 2 and on both sides} \\
+3x+3+2  &= 2 & \text{\# addition-table: } 2+3 = 0 \\
+3x      &= 2 & \text{\# divide by } 3 \\
+2\cdot(3x)      &= 2\cdot 2 & \text{\# multiplication-table: } 2+2=4 \\
+ x      &= 4 & 
+\end{align*}
+So in the case of our prime number modular arithmetics, we get the unique solution $x=4$. Now consider $\Z_6$. In this case 
+\begin{align*}
+3x+3    &= 0 & \text{\# add 3 and on both sides} \\
+3x+3+3  &= 3 & \text{\# addition-table: } 3+3 = 0 \\
+3x      &= 3 & \text{\# no multiplicative inverse of 3  exists}
+\end{align*}
+So in this case, we can not solve the equation for $x$, by dividing by $3$. And indeed we use the multiplication table of $\Z_6$, we find that there are three solutions $x\in\{1,3,5\}$, such that $3x+3=0$ holds true for all of them.
+\end{example}
+\begin{exercise}
+Consider the modulus $n=24$. Which of the integers $7$, $1$, $0$, $805$, $-4255$ have multiplicative inverses in modular $24$ arithmetics? Compute the inverses, in case they exist.
+\end{exercise}
+\begin{exercise}
+Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{5}$. Then project the congruency into $\F_5$ and solve the resulting equation in $\F_5$. Compare the results. 
+\end{exercise}
+\begin{exercise}
+Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{6}$. Then project the congruency into $\Z_6$ and try to solve the resulting equation in $\Z_6$.
+\end{exercise}
 \section{Polynomial Arithmetics}
 A polynomial is an expression consisting of variables (also called indeterminates) and coefficients, that involves only the operations of addition, subtraction, multiplication, and non-negative integer exponentiation of variables. All coefficients of a polynomial must have the same type, e.g. being integers or fractions etc. To be more precise a \textit{polynomial} is an expression
 \begin{equation}
