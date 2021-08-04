@@ -40,7 +40,7 @@ Sage commandline, line 213::
 
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 288::
+Sage commandline, line 287::
 
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -49,61 +49,111 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 324::
+Sage commandline, line 323::
 
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 391::
+Sage commandline, line 390::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 529::
+Sage commandline, line 465::
+
+sage: Z6 = Integers(6)
+sage: Z6(2) + Z6(5)
+sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
+
+Sage commandline, line 535::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 659::
+Sage commandline, line 583::
+
+sage: Z5 = Integers(5)
+sage: Z5(3)**(5-2)
+sage: Z5(3)**(-1)
+sage: Z5(3)**(5-2) == Z5(3)**(-1)
+
+Sage commandline, line 652::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
 sage: Zx
 sage: Zt
-sage: p = Zx([1,2,3,4])
-sage: q = Zt([1,2,3,4])
-sage: p
-sage: q
-sage: p.degree()
-sage: zero = Zx([0])
-sage: zero.degree()
+sage: p1 = Zx([17,-4,2])
+sage: p1
+sage: p1.degree()
+sage: p1.leading_coefficient()
+sage: p2 = Zt(t^23)
+sage: p2
+sage: p6 = Zx([0])
+sage: p6.degree()
 
-Sage commandline, line 730::
+Sage commandline, line 686::
+
+sage: Z6 = Integers(6)
+sage: Z6x = Z6['x']
+sage: Z6x
+sage: p1 = Z6x([5,-4,2])
+sage: p1
+sage: p1 = Z6x([17,-4,2])
+sage: p1
+sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
+
+Sage commandline, line 715::
+
+sage: Zx = ZZ['x']
+sage: p1 = Zx([17,-4,2])
+sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
+sage: p1(ZZ(2))
+sage: p7(ZZ(-6)) == ZZ(-264)
+
+Sage commandline, line 732::
+
+sage: Z6 = Integers(6)
+sage: Z6x = Z6['x']
+sage: p1 = Z6x([5,-4,2])
+sage: p1(Z6(2)) == Z6(5)
+
+Sage commandline, line 768::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
 sage: Q = Zx([5,0,-2,1])
-sage: P
-sage: Q
-sage: P+Q
-sage: P*Q
+sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
+sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 754::
+Sage commandline, line 787::
 
-sage: Z6 = Integers(6)['x']
-sage: P = Z6([2,-4,5])
-sage: Q = Z6([5,0,-2,1])
-sage: P
-sage: Q
-sage: P+Q
-sage: P*Q
+sage: Z6x = Integers(6)['x']
+sage: P = Z6x([2,-4,5])
+sage: Q = Z6x([5,0,-2,1])
+sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
+sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 812::
+Sage commandline, line 845::
 
 sage: Zx = ZZ['x']
-sage: a = Zx([-9,0,0,2,0,1])
-sage: b = Zx([-1,4,1])
-sage: m = Zx([-80,19,-4,1])
-sage: r = Zx([-89,339])
-sage: a == m*b +r
+sage: A = Zx([-9,0,0,2,0,1])
+sage: B = Zx([-1,4,1])
+sage: M = Zx([-80,19,-4,1])
+sage: R = Zx([-89,339])
+sage: A == M*B + R
+
+Sage commandline, line 877::
+
+sage: Zx = ZZ['x']
+sage: p = Zx(x^2-3)
+sage: p.roots()
+sage: p.factor()
+
+Sage commandline, line 902::
+
+sage: Zx = ZZ['x']
+sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
+sage: p.roots()
+sage: p.factor()
 
 Sage commandline, line 71::
 
