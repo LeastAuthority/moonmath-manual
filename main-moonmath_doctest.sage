@@ -155,22 +155,17 @@ sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 71::
-
-sage: CommutativeRings()
-sage: CommutativeRings().super_categories()
-
-Sage commandline, line 139::
+Sage commandline, line 268::
 
 sage: Fields()
 
-Sage commandline, line 144::
+Sage commandline, line 273::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 166::
+Sage commandline, line 295::
 
 sage: GF(2)
 sage: GF(2)(1) # Get an element from GF(2)
