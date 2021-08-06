@@ -303,11 +303,11 @@ Consider our remainder class ring $(\F_5,+,\cdot)$ and show that it is a field. 
 \paragraph{Prime fields}
 As we have seen in the variou examples of the previous sections, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers, which is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
 
-However at the same time we have seen in XXX, that, whenever the modulus is a prime number, every remainder class other then the zero class, has a modular multiplicative inverse. This is an important observation, since it immediately implies, that in case of a prime number, the modulus $\Z_n$ is not just a ring but actually a \textit{field}. Moreover since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have finite characteristic $n$ 
+However at the same time we have seen in XXX, that, whenever the modulus is a prime number, every remainder class other then the zero class, has a modular multiplicative inverse. This is an important observation, since it immediately implies, that in case of a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \textit{field}. Moreover since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have finite characteristic $n$ 
 
 To distinguish this important case from arbitrary reminder class rings, we write  $ (\F_p, +, \cdot) $ for the field of all remainder classes for a prime number modulus $p \in \Prim$ and call it the \textbf{prime field} of characteristic $p$.
 
-Prime fields are the foundation for many of the contemporary algebra based cryptographic systems, as they have many desireable properties. One of them is, that since these sets are finite and a prime field of characteristic $p$ can be represented on a computer in roughly $log_2(p)$ amount of space, no precision problems occure, that are for example unavoidable for computer representations of rational numbers or even the integers.
+Prime fields are the foundation for many of the contemporary algebra based cryptographic systems, as they have many desireable properties. One of them is, that since these sets are finite and a prime field of characteristic $p$ can be represented on a computer in roughly $log_2(p)$ amount of space, no precision problems occure, that are for example unavoidable for computer representations of rational numbers or even the integers, because those sets are infinite.
 
 Since prime fields are special cases of remainder class rings, all computations remain the same. Addition and multiplication can be computed by first doing normal integer addition and multiplication and then take the remainder modulus $p$. Subtraction and division can be computed by addition or multiplication with the additive or the multiplicative inverse, respectively. The additive inverse $-x$ of a field element $x\in\F_p$ is given by $p-x$ and the multiplicative inverse of $x\neq 0$ is given by $x^{p-2}$, or can be computed using the extended Euclidean algorithm. 
 
@@ -402,9 +402,12 @@ Look at the quadratic residues and non residues in $\F_5$ from example XXX again
 \left (\frac{3}{5} \right) &= 3^{\frac{5-1}{2}}= 3^2=4 =-1\\
 \left (\frac{4}{5} \right) &= 4^{\frac{5-1}{2}}= 4^2=1
 \end{align*}
-
 \end{example}
-
+\begin{exercise} Consider the prime field $\F_{13}$. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
+$$
+x^2+y^2 = 1 + 7\cdot x^2\cdot y^2
+$$
+\end{exercise}
 % I think this isn't needed. Will just leave it here in case this changes
 %
 %So the question remains how to actually compute square roots in prime field. The following algorithms give a solution
@@ -436,13 +439,17 @@ Look at the quadratic residues and non residues in $\F_5$ from example XXX again
 \paragraph{Exponentiation} TO APPEAR...
 \paragraph{Extension Fields}
 % references https://blog.plover.com/math/se/finite-fields.html
-We have define prime fields in the previous section. They are basic building locks for cryptography in general ans snarks in particular. However so called \textit{pairing based} snark systems are crcially dependend on group pairings XXX defined over elliptic curves. For those pairings to be non-trivial the elliptic curve must not only be defined over a prime field but over a so called \textit{field extension} of a given prime field.
+We defined prime fields in the previous section. They are the basic building blocks for cryptography in general and snarks in particular. 
 
-We therefore have to understand field extensions. To understand them let $p\in \Prim$ be a prime number and $m\in\N$ a natural number. Then there is a field $\F_{p^m}$ with characteristic $p$ and $p^m$ elements. Such a field is called an \textbf{extension field} of the prime field $\F_p$, because it contains $\F_p$ as a subfield. 
+However as we will see in XX so called \textit{pairing based} snark systems are crucially dependend on group pairings XXX defined over the group of rational points of elliptic curves. For those pairings to be non-trivial the elliptic curve must not only be defined over a prime field but over a so called \textit{extension field} of a given prime field.
+
+We therefore have to understand field extensions. To understand them first observe the field $\F'$ is called an \textit{extension} of a firld $\F$, if $\F$ is a subfield of $\F'$, that is $\F$ is a subset of $\F'$ and restricting the addition and multiplication laws of $\F'$ to the subset $\F$ recovers the appropriate laws of $\F$.
+
+Now it can be shown, that whenever $p\in \Prim$ is a prime and $m\in\N$ a natural number, then there is a field $\F_{p^m}$ with characteristic $p$ and $p^m$ elements, such that $\F_{p^m}$ is an extension field of the prime field $\F_p$. 
 
 Similar to how prime fields $\F_p$ are generated by starting with the ring of integers and then divide by a prime number $p$ and keep the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then divide them by an irreducible polynomial of degree $m$ and keep the remainder. 
 
-To be more precise let $P\in F_p[x]$ be an irreducible polynomial of degree $m$ with coefficient from our prime field $\F_p$. Then the set of the extension field is given by  the set of all polynomials with a degree less then $m$:
+To be more precise let $P\in F_p[x]$ be an irreducible polynomial of degree $m$ with coefficients from the given prime field $\F_p$. Then the underlying set $\F_{p^m}$ of the extension field is given by the set of all polynomials with a degree less then $m$:
 \begin{equation}
 \F_{p^m}:=\{a_{m-1} x^{m-1}+a_{k-2}x^{k-2}+\ldots+a_1 x+a_0\;|\; a_i\in \F_p\}
 \end{equation}
@@ -456,11 +463,11 @@ and we can see that the neutral element is (the polynomial) $0$ and that the add
 
 Multiplication in inheritec from $\F_p[x]$, too, but we have to divide the result by our modulus polynomial $P$, whenever the degree of the resulting polynomial is equal or greater to $m$. To be more precise, we have
 \begin{equation}
-+:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zdiv{\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}}{P} 
+\cdot\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P} 
 \end{equation}
-and we can see that the neutral element is (the polynomial) $1$. It is however not obvious from this definition how the multiplicative looks.
+and we can see that the neutral element is (the polynomial) $1$. It is however not obvious from this definition how the multiplicative inverse looks.
 
-We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field and hence $\sum_{j=0}^p 1=0$. Moreover $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$ and every coefficient $a_j$ can have $p$ different values.
+We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field and hence $\sum_{j=0}^p 1=0$. Moreover $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$ and every coefficient $a_j$ can have $p$ different values. In addition we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occures, when we restrict the elements of $\F_{p}$ to polynomials of degree zero.
 
 One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial and in fact different choices will give different multiplication tables, since the remainders from dividing a product by $P$ will be different..
 
@@ -494,12 +501,12 @@ So our extension field contains $9$ elements as expected. Addition is  defined a
 \end{center}
 As we can see, the group $(\F_3,+)$ is a subgroup of the group $(\F_{3^2},+)$, obtained by only considering the first three rows and columns of this table.
 
-As it was the case in previozs examples, we can use the table to deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
+As it was the case in previozs examples, we can use the table to deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$
 
-Multiplication needs a bit more computation, as we first have to multiply the polynomials and then divide the result by $P$ and keep the remainder. To see how this works compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$
+Multiplication needs a bit more computation, as we first have to multiply the polynomials and whenever the result has a degree $\geq 2$, we have to divide it by $P$ and keep the remainder. To see how this works compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$
 \begin{align*}
-(t+2) \cdot (2t+2) &= \Zmod{2t^2 + 2t + t + 1}{t^2+1} \\
-                   &= \Zmod{2t^2+1}{t^2+1} & \#\; 2t^2+1:t^2+1= 2 + \frac{2}{t^2+1} \\
+(t+2) \cdot (2t+2) &= \Zmod{(2t^2 + 2t + t + 1)}{(t^2+1)} \\
+                   &= \Zmod{(2t^2+1)}{(t^2+1)} & \#\; 2t^2+1:t^2+1= 2 + \frac{2}{t^2+1} \\
                    &= 2 
 \end{align*}
 So the product of $t+2$ and $2t+2$ in $\F_{3^2}$ is $2$. Doing this computation for all elements give the following multiplication table:
@@ -520,8 +527,19 @@ $\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
 As it was the case in previous examples, we can use the table to deduce the multiplicative inverse of any non-zero element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $(2t+1)^{-1}= 2t+2 $, since $(2t+1) \cdot (2t+2)=1$.
 
 From the multiplication table we can also see, that the only quadratic residues in $\F_{3^2}$ are the set $\{0,1,2, t, 2t\}$, with
-$\sqrt{0}=\{0\}$, $\sqrt{1}=\{1,2\}$, $\sqrt{2}=\{t, 2t\}$, $\sqrt{t}=\{t+2,2t+1\}$ and $\sqrt{2t}=\{t+1,2t+2\}$.    
+$\sqrt{0}=\{0\}$, $\sqrt{1}=\{1,2\}$, $\sqrt{2}=\{t, 2t\}$, $\sqrt{t}=\{t+2,2t+1\}$ and $\sqrt{2t}=\{t+1,2t+2\}$. 
 
+Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields, like the rational numbers. To see that lets find all $x\in\F_{3^2}$ that solve the quadratic equation $(t+1)(x^2 + (2t+2)) = 2$. So we compute:
+\begin{align*}
+(t+1)(x^2 + (2t+2))    &= 2 &\text{\# 2 distributive law}\\
+(t+1)x^2 + (t+1)(2t+2) &= 2 \\
+(t+1)x^2 + (t)         &= 2 &\text{\# 2 add the additive inverse of $t$}\\
+(t+1)x^2 + (t) + (2t)  &= (2) + (2t) \\
+(t+1)x^2               &= 2t+2 & \text{\# multiply with the multiplicative invers of $t+1$}\\
+(t+2)(t+1)x^2          &=(t+2)(2t+2) & \text{\# multiply with the multiplicative invers of $t+1$}\\
+x^2                    &= 2 & \text{\# 2 is quadratic residue. Take the roots.}\\
+x &\in \{t, 2t\}
+\end{align*}   
 Computations in extension fields are arguably on the edge of what can reasonbly be done with pen and paper. Fortunately sage provides us with a simple way to do the computations.
 \begin{sagecommandline}
 sage: Z3 = GF(3) # prime field
@@ -532,9 +550,20 @@ sage: F3_2.<t> = GF(3^2, name='t', modulus=P)
 sage: F3_2
 sage: F3_2(t+2)*F3_2(2*t+2) == F3_2(2)
 sage: F3_2(2*t+2)^(-1) # multiplicative inverse
+sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
+sage: F3_2(t+1)*(F3_2(t)**2 + F3_2(2*t+2)) == F3_2(2)
+sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
 \end{sagecommandline}
 \end{example}
-
+\begin{exercise}
+Consider the extension field $\F_{3^2}$ from the previous example and find all pairs of elements $(x,y)\in\F_{3^2}$, such that
+$$
+y^2 = x^3 + 4
+$$
+\end{exercise}
+\begin{exercise} Show that the polynomial $P=x^3+x+1$ from $\F_5[x]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euklidean algorithm. Then find all $x\in\F_{5^3}$ that solve the  equation 
+$$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
+\end{exercise}
 
 %\paragraph{Hash to Prime fields} 
 % https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
