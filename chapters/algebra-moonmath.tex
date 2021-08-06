@@ -249,27 +249,20 @@ and on the other hand we can use the right hand side of equation to evaluate $p$
 \end{align*}
 \end{example}
 
+\section{Fields}
+In this chapter we started with the definition of a group, which we the expended into the definition of a commutative ring with unit. Those rings generalize the behaviour of integers. In this section we will look at the special case of commutative rings, where every element, other then the neutral element of addition, has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$, which are in a sense an extension of the ring of integers, that is constructed by just including newly defined multiplicative inverses (the fractions) to the integers. 
 
-\begin{definition}[Field]
-A field $ (\F, +, \cdot) $ is a set $ \F$, provided with two maps $ +: \F \cdot \F \to \F $ and $ \cdot: \F \cdot \F \to \F $, called \textit{addition} and \textit{multiplication}, such that the following conditions holds
+Now considering the definition of a ring XXX again, we define a \textbf{field} $ (\F, +, \cdot) $ to be a set $ \F$, together with two maps $ +: \F \cdot \F \to \F $ and $ \cdot: \F \cdot \F \to \F $, called \textit{addition} and \textit{multiplication}, such that the following conditions holds
 \begin{itemize}
 \item $ \left (\F, + \right) $ is a commutative group, where the neutral element is denoted by $ 0 $.
 \item $ \left (\F \setminus \left \{0 \right \}, \cdot \right) $ is a commutative group, where the neutral element is denoted by $ 1 $.
-\item (Distributivity) For all $ g_1, g_2, g_3 \in \F $ the distributive laws apply:
-$$ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3 \quad \text{and} \quad
-\left (g_1 + g_2 \right) \cdot g_3 = g_1 \cdot g_3 + g_2 \cdot g_3 $$
+\item (Distributivity) For all $ g_1, g_2, g_3 \in \F $ the distributive law
+$g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
-The \textit{characteristic} of a field $ \F $ is the smallest natural number $ n \geq 1 $, for which the $ n $ -fold sum of $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $.
+If a field is iven and the definition of its addition and multiplication is not ambiguous, we will often simple write $\F$ instead of $(\F,+,\cdot)$ to describe it. We moreover write $\F^*$ to describe the multiplicative group of the field, that is the set of elements, except the neutral element of addition, with the multiplication as group law.
 
-If such a $ n> 0 $ exists, the field is also called of \textit{finite characteristic}. If, on the other hand, every finite sum of $1$ is not equal to zero, then the field is defined to have characteristic $ 0 $.
-\end{definition}
-So a field is a commutative ring with unit, such that every element other the the neutral element of addition has an inverse.
-
-\begin{sagecommandline}
-sage: Fields()
-\end{sagecommandline}
-
-\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. In sage rational numbers are called like this
+The \textbf{characteristic} $char(\F)$ of a field $ \F $ is the smallest natural number $ n \geq 1 $, for which the $ n $ -fold sum of $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such a $ n> 0 $ exists, the field is also called to have a \textit{finite characteristic}. If, on the other hand, every finite sum of $1$ is not equal to zero, then the field is defined to have characteristic $ 0 $.
+\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no counting number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the rational numers, the characteristic $char(\mathbb{Q})$ of the field $\mathbb{Q}$ is zero. In sage rational numbers are called like this
 \begin{sagecommandline}
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
@@ -291,57 +284,53 @@ $\cdot$ & 0 & 1 \\\hline
       1 & 0 & 1 \\
   \end{tabular}
 \end{center}
+Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ is there, that is we have $char(\F_2)=0$.
+
 For reasons we will understand better in XXX, sage defines this field as a so called Galois field with 2 elements. It is called like this:
 \begin{sagecommandline}
-sage: GF(2)
-sage: GF(2)(1) # Get an element from GF(2)
-sage: GF(2)(1) + GF(2)(1) # Addition
-sage: GF(2)(1) / GF(2)(1) # Division
+sage: F2 = GF(2)
+sage: F2(1) # Get an element from GF(2)
+sage: F2(1) + F2(1) # Addition
+sage: F2(1) / F2(1) # Division
 \end{sagecommandline}
 \end{example}
+\begin{example}
+Both the real numbers $\mathbb{R}$ as well as the complex numbers $\mathbb{C}$ are well known examples of fields.
+\end{example}
+\begin{exercise}
+Consider our remainder class ring $(\F_5,+,\cdot)$ and show that it is a field. What is the characteristic of $\F_5$?
+\end{exercise}
+\paragraph{Prime fields}
+As we have seen in the variou examples of the previous sections, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers, which is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
 
-\section{Galois fields}
-As we have seen in the previous section, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers. But in contrast to arithmetics on integers or rational numbers, we deal with a finite set of elements, which when implemented on computers will not lead to precision problems.
+However at the same time we have seen in XXX, that, whenever the modulus is a prime number, every remainder class other then the zero class, has a modular multiplicative inverse. This is an important observation, since it immediately implies, that in case of a prime number, the modulus $\Z_n$ is not just a ring but actually a \textit{field}. Moreover since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have finite characteristic $n$ 
 
-However as we have seen in the last example modular arithmetics is at the same time very different from integer arithmetics as the product of non zero elements can be zero. In addition it is also different from the arithmetics of rational numbers, as there is often no multiplicative inverse, hence no division defined. 
+To distinguish this important case from arbitrary reminder class rings, we write  $ (\F_p, +, \cdot) $ for the field of all remainder classes for a prime number modulus $p \in \Prim$ and call it the \textbf{prime field} of characteristic $p$.
 
-In this section we will see that modular arithmetics behaves very nicely, whenever the modulus is a prime number. In that case the rules of modular arithmetics exactly parallels exactly the well know rules of rational arithmetics, despite the fact that the actually computed numbers are very different.
+Prime fields are the foundation for many of the contemporary algebra based cryptographic systems, as they have many desireable properties. One of them is, that since these sets are finite and a prime field of characteristic $p$ can be represented on a computer in roughly $log_2(p)$ amount of space, no precision problems occure, that are for example unavoidable for computer representations of rational numbers or even the integers.
 
-The resulting structures are the so called prime fields and they are the base for many of the contemporary algebra based cryptographic systems.
+Since prime fields are special cases of remainder class rings, all computations remain the same. Addition and multiplication can be computed by first doing normal integer addition and multiplication and then take the remainder modulus $p$. Subtraction and division can be computed by addition or multiplication with the additive or the multiplicative inverse, respectively. The additive inverse $-x$ of a field element $x\in\F_p$ is given by $p-x$ and the multiplicative inverse of $x\neq 0$ is given by $x^{p-2}$, or can be computed using the extended Euclidean algorithm. 
 
-Since Galois fields are strongly connectedto prime numbers we start with
-a short overview of prime numbers and provide few basic properties like the fundamental theorem of arithmetic, which says that every natural number can be represented as a finite product of prime numbers.
-
-The key insight here, is that when the modulus is a prime number, modular arithmetic has a well defined division, that is absent for general moduli.
-
-
-
-
-\begin{definition}[Prime Fields] (\cite{JB} example 3.4.4 or \cite{AL} definition 3.1)
-Let $p \in \Prim$ be a prime number. Then we write $ (\F, +, \cdot) $ for the set of congruency classes and the induced addition and multiplication 
-as described in theorem (\ref{def: rest class ring}) and call it the \textbf{prime field} of characteristic $p$.
-\end{definition}
-\begin{remark}
-We have seen in (\ref{def: residual class ring}) how do compute addition, subtraction and multiplication in modular arithmetics. AS prime fields are just a special case where the modulus is a prime number, all this stays the same. In addition we have also seen in example (XXX) that division is not always possible in modular arithmetics. However the key insight here is, that division is well defined when the modulus is a prime number. This means that in a prime field we can indeed define devision.
-
-To be more precise, division is really just multiplication with the so called multiplicative inverse, which is really just another element, such that the product of both elements is equal to $1$. This is well known from fractional numbers, where for example the multiplicative element of say $3$ is simply $1/3$, since $3\cdot 1/3 =1$. Division by $3$ is then noth but multiplication by the inverse $1/3$. For example $7/3 = 7 \cdot 1/3$.
-
-We can apply the same reasoning when it comes to prime fields and define division as multiplication with the multiplicative inverse, which leads to the question of how to find the multiplicative inverse of an equivalence class $ x \in \F_p $ in a prime field. 
-
-As with all fields, $0$ has no inverse, which implies, that division by zero is undefined. So lets assume $ x \neq 0 $. Then $ gcd (x, p) = 1 $, since $p$ is a prime number and therefore has no divisors (see \ref{theorem: primfactor_decomposition}). 
-
-So we can use the extended Euclidean algorithm (REF) to compute numbers $x^{-1}, t \in \mathbb{Z} $ with $ s \cdot x + t \cdot p = 1 $, which gives $x^{-1}$ as the multiplicative inverse of $x$ in $\F_p$, since $ \kongru{x^{-1}x}{1}{p}$. 
-\end{remark}
+Note however that these computations might not be the fastest to implement on a computer. They are however useful in this book as they are easy to compute for small prime numbers.
+\begin{example}
+The smallest field is the field $\F_2$ of characteristic $2$ as we have seen it in example XXX. It is the prime field of the prime number $2$.
+\end{example}
 \begin{example}
 To summarize the basic aspects of computation in prime fields, lets consider the prime field $\F_5$ and simplify the following expression 
 $$\left(\frac{2}{3} - 2\right)\cdot 2 $$
-A first thing to note is that since $F_5$ is a field all rules like bracketing (distributivity), summing ect. are identical to the rules we learned in school when we where dealing with rational, real or complex numbers.
-
-So we start by evaluating the bracket and get $\left(\frac{2}{3} - 2\right)\cdot 2 = \frac{2}{3}\cdot 2 - 2\cdot 2= \frac{2\cdot 2}{3} - 2\cdot 2$. Now we evaluate $2\cdot 2 = 4$, since $\Zmod(4,5)=4$ and $-(2\cdot 2) = -4=5-4=1$, since the negative of a number is just the modulus minus the original number. We therefore get $\frac{2\cdot 2}{3} - 2\cdot 2 = \frac{4}{3}+1$. 
-
-Now to compute the faction, we need the multiplicative inverse of $3$, which is the number, that when multiplies with $3$ in $\F_5$ gives $1$. So we use the extended Euclidean algorithm to compute
-$$x^{-1}\cdot 3 + t \cdot 5 =1$$
-Note that in the Euclidean algorithm the compuations of each $t_k$ is irrelevant here:
+A first thing to note is that since $\F_5$ is a field all rules like bracketing (distributivity), summing ect. are identical to the rules we learned in school when we where dealing with rational, real or complex numbers. We get
+\begin{align*}
+\left(\frac{2}{3} - 2\right)\cdot 2 &= 
+ \frac{2}{3}\cdot 2 - 2\cdot 2 & \text{\# distributive law}\\
+ &= \frac{2\cdot 2}{3} - 2\cdot 2 & \Zmod{4}{5}=4 \\
+ &= \frac{4}{3} - 4 & \text{\# multiplicative inverse of 3 is } \Zmod{3^{5-2}}{5}=2\\
+ &= 4\cdot 2 - 4 & \text{\# additive inverse of 4 is } 5-4=1\\
+ &= 4\cdot 2 +1 & \Zmod{8}{5}=3\\
+ &= 3 +1 & \Zmod{4}{5}=4\\
+ &= 4
+\end{align*}
+In this computation we computed the multiplicative inverse of $3$ using the identity
+$x^{-1}=x^{p-2}$ in a prime field. This impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean algorithm.  To see that again, the task is to compute $x^{-1}\cdot 3 + t \cdot 5 =1$, but $t$ is actulally irrelevant. We get
 \begin{center}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ x^{-1}_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
@@ -353,90 +342,30 @@ Note that in the Euclidean algorithm the compuations of each $t_k$ is irrelevant
   \end{tabular}
 \end{center}
 So the multiplicative inverse of $3$ in $\Z_5$ is $2$ and indeed if compute $3\cdot 2$ we get $1$ in $\F_5$. 
-
-This implies that we can rewrite our original expression into $\frac{4}{3}+1 = 4\cdot 2 + 1 = 3+1 =4$.
 \end{example}
+\paragraph{Square Roots}
+In this part we deal with square numbers also called \textit{quadratic residues} and \textit{square roots} in prime fields. This is of particular importance in our studies on elliptic curves as only square numbers can actually be points on an elliptic curve. 
 
-The following important property immediately follows from Fermat's little theorem:
-\begin{lemma}
-\label{lemma: klein_satz_fermat}
-Let $ p \in \Prim $ be a prime number and $ \Z_p $ be associated prime field of the characteristic $ p $. Then the equations
-\begin{equation}
-\begin{array}{ccc}
-x^p = x & \text{or} & x^{p-1} = 1.
-\end{array}
-\end{equation}
-holds for all elements $ x \in \Z_p $ with $x\neq 0$.
-\end{lemma}
-
-In order to give the reader an impression of how prime fields can be seen, we give a full computation of a prime field in the following example
-
-
-\paragraph{Hash to Prime fields} 
-% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
-An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
-
-In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$. 
-
-If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
-
-For example in the extreme case $k=1$, $H$ only maps to $\{0,1\}\subset \F_q$. The best possible case is therefore $k=m-1$. In that case only the highest XXX numbers (DO THE COMPUTATION) are missing from the distribution.
-
-On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
-
-The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY). 
-
-\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
-Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
-$$
-\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}
-$$
-Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
-\end{example}
-
-\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.  
-
-Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.  
-
-As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
-\end{example}
-
-\begin{definition}[The finite field] Let $ p \in \mathbb{N} $ be a prime number. Then $ \mathbb{K} _p $ denotes the \textit{remainder class body \"orper} $ \mathbb{ Z} / p \mathbb{Z} $ and $ \mathbb{K} _{p ^ n} $, for each $ n \in \mathbb{N} $, the finite K (unique except for isomorphism) \"orper with $ p ^ n $ elements.
-\end{definition} 
-
-\begin{theorem}
-\label{def: residual class ring}
-Let $ n \in \N _{\geq 2} $ be a fixed, natural number and
-$ \Z_n $ the set of equivalence classes of integers with respect to the  congruence modulo $ n $ relation. Then $ \Z_n $ forms a commutative ring with unit with respect to the addition and multiplication defined above.
-\end{theorem}
-\begin{proof} (\cite{AL} sentence 1)  
-\end{proof}
-
-\subsection{Square Roots}
-In this part we deal with \textit{square numbers} and \textit{square roots} in prime fields. To do this, we first define what square roots actually are. We roughly follow Chapter 6.5 in \cite{HW}.
-\begin{definition}[quadratic residue and square roots] Let
-$p \in \Prim $ a prime number and $\F_p $ the associate prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the equation
+To make the intuition of quadratic risidues and roots precise, let $p \in \Prim $ be a prime number and $\F_p $ its associate prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the equation
 \begin{equation}
 x^2 = y
 \end{equation}
-On the other hand, if $y$ is given and the quadratic equation has no $x$ solution, we call $ y $ as \textit{quadratic non-residue}. For any $ y \in \F_p $ we write
+In this case $y$ is called a \textbf{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no $x$ solution, we call $ y $ as \textbf{quadratic non-residue}. For any $ y \in \F_p $ we write
 \begin{equation}
-\sqrt{y} _{| p}: = \{x \in \F_p \; | \; x^2 = y \}
+\sqrt{y}: = \{x \in \F_p \; | \; x^2 = y \}
 \end{equation}
-for the set of all square roots of $ y $ in the prime field
-$ \F_n $. (If $ y $ is a quadratic non-residue, then $ \sqrt{y}_{| p} = \emptyset $ and if $ y = 0 $, then $ \sqrt{y}_{| p} = \{0 \} $)
-\end{definition}
-\begin{remark}
-The notation $ \sqrt{y}_{| n} $ for the root of square residues is not found in textbooks, but it is quite practical to clearly distinguish between roots in different prime fields as the symbol $ \sqrt{y} $ is  ambiguous and it must also be specified in which prime field this root is actually meant.
-\end{remark}
-\begin{remark}
-It can be shown that in any prime field every non zero element has either no square root or two of them. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. This makes sense, as the larger one can always be computed as the modulus minus the smaller one, which is the definition of the negative in prime fields. 
-\end{remark}
+for the set of all square roots of $ y $ in the prime field $ \F_n $. (If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $)
 
-\begin{example} [square numbers and roots in $ \F_5 $] Let us consider our example (\ref{primkoerper_z_5}) again. All square numbers can be found on the main diagonal of the multiplication table. As you can see, in $ \Z_5 $ only get the square root of $ 0 $, $ 1 $ and $ 4 $ are non empty sets and we get $ \sqrt{0}_{| 5} = \{0 \} $, $ \sqrt{1}_{| 5} = \{1,4 \} $, $ \sqrt{2}_{ | 5} = \emptyset $, $ \sqrt{3}_{| 5} = \emptyset $ and $ \sqrt{4}_{| 5} = \{2,3 \} $.
+So roughly speaking, quadratic residues are numbers such that we can take the square root from them and quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the know case of integers, where some integers like $4$ or $9$ have square roots and others like $2$ or $3$ don't (as integers).
+
+It can be shown that in any prime field every non zero element has either no square root or two of them. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. This makes sense, as the larger one can always be computed as the modulus minus the smaller one, which is the definition of the negative in prime fields. 
+
+
+\begin{example} [Quadratic (Non)-Residues and roots in $ \F_5 $] Let us consider our example prime field $\F_5$ again. All square numbers can be found on the main diagonal of the multiplication table XXX. As you can see, in $ \Z_5 $ only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots and we get $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
 \end{example}
-In order to describe whether an element of a prime field is a square number  or not, we define (\cite{HW} chapter 6.5) the so called Legendre Symbol as its of used in the literature
-\begin{definition}[Legendre symbol] Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element of the associated prime field. Then the so-called \textit{Legendre symbol} of $ y $ is defined as follows:
+In order to describe whether an element of a prime field is a square number  or not, the so called Legendre Symbol can sometimes be found in the literature, why we will recapitulate it here:
+
+Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element from the associated prime field. Then the so-called \textit{Legendre symbol} of $ y $ is defined as follows:
 \begin{equation}
 \label{eq: Legendre-symbol}
 \left (\frac{y}{p} \right): =
@@ -446,9 +375,8 @@ In order to describe whether an element of a prime field is a square number  or 
 0 & \text{if $ y = 0 $}
 \end{cases}
 \end{equation}
-\end{definition}
 \begin{example}
-If we look again at the example (\ref{primkoerper_z_5}) we have the following Legendre symbols
+Look at the quadratic residues and non residues in $\F_5$ from example XXX again, we can deduce the following Legendre symbols, from example XXX.
 $$
 \begin{array}{ccccc}
 \left (\frac{0}{5} \right) = 0, &
@@ -459,25 +387,34 @@ $$
 \end{array}
 $$
 \end{example}
-
-The following theorem  gives a simple criterion for calculating the legendre symbol.
-\begin{theorem} [Euler criterion] Let $ p \in \Prim_{\geq 3} $ be an odd 
+The legendre symbol gives a criterion to decide wheather or not an element from a prime field has a quadratic root or not. This however is not just of theoretic use, as the following so called \textit{Euler criterion} gives a compact way to actually compute the Legendre symbol. To see that, let $ p \in \Prim_{\geq 3} $ be an odd 
 Prime number and $ y \in \F_p $. Then the Legendre symbol can be computed as 
 \begin{equation}
 \label{eq: Euler_criterium}
 \left (\frac{y}{p} \right) = y^{\frac{p-1}{2}} \;.
 \end{equation}
-\end{theorem}
-\begin{proof} (\cite{HW} proposition 83) 
-\end{proof}
-So the question remains how to actually compute square roots in prime field. The following algorithms give a solution
-\begin{definition}[Tonelli-Shanks algorithm]
-\label{def: Tonelli-Shanks}
-Let $ p $ be an odd prime number $ p \in \Prim _{\geq 3} $ and $ y $ a quadratic residue in $ \Z_p $. Then the so-called Tonneli \cite{TA} and Shanks \cite{SD} algorithm computes the two square roots of $ y $. It is defined as follows:
-\begin{enumerate}
-\item Find $ Q, S \in \Z $ with $ p-1 = Q \cdot 2 ^ S $ such that $ Q $ is odd.
-\item Find an arbitrary quadratic non-remainder $ z \in \Z_p $.
-\item
+\begin{example}
+Look at the quadratic residues and non residues in $\F_5$ from example XXX again, we can compute the following Legendre symbols using the Euler criterium:
+\begin{align*}
+\left (\frac{0}{5} \right) &= 0^{\frac{5-1}{2}}= 0^2=0\\
+\left (\frac{1}{5} \right) &= 1^{\frac{5-1}{2}}= 1^2=1\\
+\left (\frac{2}{5} \right) &= 2^{\frac{5-1}{2}}= 2^2=4 = -1\\
+\left (\frac{3}{5} \right) &= 3^{\frac{5-1}{2}}= 3^2=4 =-1\\
+\left (\frac{4}{5} \right) &= 4^{\frac{5-1}{2}}= 4^2=1
+\end{align*}
+
+\end{example}
+
+% I think this isn't needed. Will just leave it here in case this changes
+%
+%So the question remains how to actually compute square roots in prime field. The following algorithms give a solution
+%\begin{definition}[Tonelli-Shanks algorithm]
+%\label{def: Tonelli-Shanks}
+%Let $ p $ be an odd prime number $ p \in \Prim _{\geq 3} $ and $ y $ a quadratic residue in $ \Z_p $. Then the so-called Tonneli \cite{TA} and Shanks \cite{SD} algorithm computes the two square roots of $ y $. It is defined as follows:
+%\begin{enumerate}
+%\item Find $ Q, S \in \Z $ with $ p-1 = Q \cdot 2 ^ S $ such that $ Q $ is odd.
+%\item Find an arbitrary quadratic non-remainder $ z \in \Z_p $.
+%\item
 %\begin{algorithmic}
 %\State $ \begin{array}{ccccc}
 %M: = S, & c: = z ^ Q, & t: = y ^ Q, & R: = y ^{\frac{Q + 1}{2}}, & M, c, t, R \in \Z_p
@@ -490,54 +427,57 @@ Let $ p $ be an odd prime number $ p \in \Prim _{\geq 3} $ and $ y $ a quadratic
 %\end{array} $
 %\EndWhile
 %\end{algorithmic}
-The results are then the square roots $ r_1: = R $ and $ r_2: = p-R $ of $y$ in $\F_p$.
-\end{enumerate}
-\end{definition}
+%The results are then the square roots $ r_1: = R $ and $ r_2: = p-R $ of $y$ in $\F_p$.
+%\end{enumerate}
+%\end{definition}
 
+%\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
 
-\begin{remark}
-The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.
-\end{remark}
-
-\subsection{Exponents and Logarithms}
-
-\subsection{Extension Fields}
+\paragraph{Exponentiation} TO APPEAR...
+\paragraph{Extension Fields}
 % references https://blog.plover.com/math/se/finite-fields.html
+We have define prime fields in the previous section. They are basic building locks for cryptography in general ans snarks in particular. However so called \textit{pairing based} snark systems are crcially dependend on group pairings XXX defined over elliptic curves. For those pairings to be non-trivial the elliptic curve must not only be defined over a prime field but over a so called \textit{field extension} of a given prime field.
 
-Eliptic curve pairings often need finite fields that go beyond the finite prime fields. 
+We therefore have to understand field extensions. To understand them let $p\in \Prim$ be a prime number and $m\in\N$ a natural number. Then there is a field $\F_{p^m}$ with characteristic $p$ and $p^m$ elements. Such a field is called an \textbf{extension field} of the prime field $\F_p$, because it contains $\F_p$ as a subfield. 
 
-In fact it is well known, that for every natural number $n\in\N$ there is a field $\F_n$ with $n$ elements, if and only if $n$ is the power of a prime number, i.e. there is a $m\in\N$ with $n=p^m$ for some prime $p\in\Prim$.
-\begin{theorem}[Galois Field]
-Let $m\in\N$ and $p\in\Prim$ a prime number. Then there is a field $\F_{p^m}$ of characteristic $p$, that contains $p^n$ elements.  
-\end{theorem}
-We call such a field a \textbf{Galois field}. The following algorithm describes the construction of Galois fields (and more general field extensions):
+Similar to how prime fields $\F_p$ are generated by starting with the ring of integers and then divide by a prime number $p$ and keep the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then divide them by an irreducible polynomial of degree $m$ and keep the remainder. 
 
-Construction of $\F_{p^m}$ 
-\begin{enumerate}
-\item Choose a polynomial $P\in \F[t]$ of degree $m$, that is irreducible.
-\item (Field set) of $\F_{p}$ is the set of all polynomials in $\F[t]$ of degree $<m$, that is 
-$$\F_{p^m}:=\{a_{k-1} t^{k-1}+a_{k-2}t^{k-2}+\ldots+a_1 t+a_0\;|\; a_i\in \F_p\}$$
-\item (Field Addition) is just addition of the polynomials in the usual way.
-\item (Field Multiplication) Multiply the polynomials in the usual way, then compute the long division by $P$. The remainder is the product.
-\end{enumerate}
-\begin{remark}
-In the definition of $\F_{p^m}$, every $a_j$ can have $p$ different values and we have $m$ many of them. This implies that $\F_{p^m}$ contains $p^m$ many elements.
+To be more precise let $P\in F_p[x]$ be an irreducible polynomial of degree $m$ with coefficient from our prime field $\F_p$. Then the set of the extension field is given by  the set of all polynomials with a degree less then $m$:
+\begin{equation}
+\F_{p^m}:=\{a_{m-1} x^{m-1}+a_{k-2}x^{k-2}+\ldots+a_1 x+a_0\;|\; a_i\in \F_p\}
+\end{equation}
+which can be shown to be the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by $P$. So elements of the extension field are polynomials of degree less then $m$. This is analog to how $\F_p$ is the set of all remainders, when dividing integers by $p$.   
 
-The construction depends on the choice of an irreducible polynomial, but it can be shown, that all resulting fields are isomorphic, that is they can be transformed into each other, so they are really just different views on the same thing. From an implementations point of view however some choices are better, because they allow for faster computations.
-\end{remark}
-\begin{example}[The Galois field $\F_{3^2}$]In (XXX) we have constructed the prime field $\F_3$. In this example we apply algorithm (XXX) to construct the Galois field $\F_{3^2}$. We start by choosing an irreducibe polynomial of degree $2$ with coefficients in $\F_3$. We try 
+Addition in then inheritec from $\F_p[x]$, which means that addition on $\F_{p^m}$ is defined as normal addition of polynomials. To be more precise, we have
+\begin{equation}
++:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j 
+\end{equation}
+and we can see that the neutral element is (the polynomial) $0$ and that the additive inverse is given by the polynomial with all negative coefficients.
+
+Multiplication in inheritec from $\F_p[x]$, too, but we have to divide the result by our modulus polynomial $P$, whenever the degree of the resulting polynomial is equal or greater to $m$. To be more precise, we have
+\begin{equation}
++:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zdiv{\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}}{P} 
+\end{equation}
+and we can see that the neutral element is (the polynomial) $1$. It is however not obvious from this definition how the multiplicative looks.
+
+We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field and hence $\sum_{j=0}^p 1=0$. Moreover $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$ and every coefficient $a_j$ can have $p$ different values.
+
+One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial and in fact different choices will give different multiplication tables, since the remainders from dividing a product by $P$ will be different..
+
+It can however be shown, that the fields for different choices of $P$ are isomorphic, which means that there is a one to one identification between all of them and hence from an abstract point of view they are the same thing. From an implementations point of view however some choices are better, because they allow for faster computations.
+
+\begin{example}[The Extension field $\F_{3^2}$]In (XXX) we have constructed the prime field $\F_3$. In this example we apply the definition (XXX) of a field extension to construct $\F_{3^2}$. We start by choosing an irreducibe polynomial of degree $2$ with coefficients in $\F_3$. We try 
 $P(t)=t^2+1$. Maybe the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is never zero. WE compute
 \begin{align*}
 P(0) = 0^2+1 &= 1\\
 P(1) = 1^2+1 &= 2\\
 P(2) = 2^2+1 &=  1+1  = 2
 \end{align*}
-Now the set $\F_{3^2}$ contains all poynomials of degrees lower then two with coefficients in $\F_3$. This is precisely
+This implies, that $P$ is irreducible. The set $\F_{3^2}$ then contains all poynomials of degrees lower then two with coefficients in $\F_3$, which is precisely
 $$
 \F_{3^2}=\{0,1,2,t,t+1,t+2,2t,2t+1,2t+2\}
 $$
-Addition is then defined as normal addition of polynomials. For example 
-$(t+2) + (2t+2)= (1+2)t +(2+2)= 1$. Doing this computation for all elements give the following addition table
+So our extension field contains $9$ elements as expected. Addition is  defined as addition of polynomials. For example $(t+2) + (2t+2)= (1+2)t +(2+2)= 1$. Doing this computation for all elements give the following addition table
 \begin{center}
   \begin{tabular}{c | c c c c c c c c c}
     + & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
@@ -552,37 +492,73 @@ $(t+2) + (2t+2)= (1+2)t +(2+2)= 1$. Doing this computation for all elements give
  2t+2 & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    & t+2  & t    & t+1
   \end{tabular}
 \end{center}
-From this table, we can deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
+As we can see, the group $(\F_3,+)$ is a subgroup of the group $(\F_{3^2},+)$, obtained by only considering the first three rows and columns of this table.
 
-Multiplication then needs a bit more computation, as you multiply the polynomials and then divide the result by $P$ and keep the remainder. For example 
-$(t+2) \cdot (2t+2)= 2t^2 + 2t + t + 1 = 2t^2+1$. Long division by $P(t)$ then gives $2t^2+1:t^2+1= 2 + \frac{2}{t^2+1}$, so the remainder is $2$ and find that the product of $t+2$ and $2t+2$ in $\F_{3^2}$ is $2$. Doing this computation for all elements give the following multiplication table (DOTHIS!!! THE TABLE NEEDS AN UPDATE)
+As it was the case in previozs examples, we can use the table to deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
+
+Multiplication needs a bit more computation, as we first have to multiply the polynomials and then divide the result by $P$ and keep the remainder. To see how this works compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$
+\begin{align*}
+(t+2) \cdot (2t+2) &= \Zmod{2t^2 + 2t + t + 1}{t^2+1} \\
+                   &= \Zmod{2t^2+1}{t^2+1} & \#\; 2t^2+1:t^2+1= 2 + \frac{2}{t^2+1} \\
+                   &= 2 
+\end{align*}
+So the product of $t+2$ and $2t+2$ in $\F_{3^2}$ is $2$. Doing this computation for all elements give the following multiplication table:
 \begin{center}
   \begin{tabular}{c | c c c c c c c c c}
 $\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
-      0 & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\
-      1 & 1    & 2    & 0    & t+1  & t+2  & t    & 2t+1 & 2t+2 & 2t   \\
-      2 & 2    & 0    & 1    & r+2  & t    & t+1  & 2t+2 & 2t   & 2t+1 \\
-      t & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 & 0    & 1    & 2    \\
-    t+1 & t+1  & t+2  & t    & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    \\
-    t+2 & t+2  & t    & t+1  & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    \\
-     2t & 2t   & 2t+1 & 2t+2 & 0    & 1    & 2    & t    & t+1  & t+2  \\
-   2t+1 & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    & t+1  & t+2  & t    \\
-   2t+2 & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    & t+2  & t    & t+1
+      0 & 0    & 0    & 0    & 0    & 0    & 0    & 0    & 0    & 0 \\
+      1 & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2\\
+      2 & 0    & 2    & 1    & 2t   & 2t+2 & 2t+1 & t    & t+2  & t+1 \\
+      t & 0    & t    & 2t   & 2    & t+2  & 2t+2 & 1    & t+1  & 2t+1  \\
+    t+1 & 0    & t+1  & 2t+2 & t+2  & 2t   & 1    & 2t+1 & 2    & t   \\
+    t+2 & 0    & t+2  & 2t+1 & 2t+2 & 1    & t    & t+1  & 2t   & 2    \\
+     2t & 0    & 2t   & t    & 1    & 2t+1 & t+1  & 2  & 2t+2 & t+2\\
+   2t+1 & 0    & 2t+1 & t+2  & t+1  & 2    & 2t   & 2t+2 & t    & 1    \\
+   2t+2 & 0    & 2t+2 & t+1  & 2t+1 & t    & 2    & t+2  & 1     & 2t
   \end{tabular}
 \end{center}
-From this table, we can deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$ and the negative of an element is that other element, such that the sum gives the additive neutral element.
+As it was the case in previous examples, we can use the table to deduce the multiplicative inverse of any non-zero element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $(2t+1)^{-1}= 2t+2 $, since $(2t+1) \cdot (2t+2)=1$.
+
+From the multiplication table we can also see, that the only quadratic residues in $\F_{3^2}$ are the set $\{0,1,2, t, 2t\}$, with
+$\sqrt{0}=\{0\}$, $\sqrt{1}=\{1,2\}$, $\sqrt{2}=\{t, 2t\}$, $\sqrt{t}=\{t+2,2t+1\}$ and $\sqrt{2t}=\{t+1,2t+2\}$.    
+
+Computations in extension fields are arguably on the edge of what can reasonbly be done with pen and paper. Fortunately sage provides us with a simple way to do the computations.
+\begin{sagecommandline}
+sage: Z3 = GF(3) # prime field
+sage: Z3t.<t> = Z3[] # polynomials over Z3
+sage: P = Z3t(t^2+1)
+sage: P.is_irreducible()
+sage: F3_2.<t> = GF(3^2, name='t', modulus=P)
+sage: F3_2
+sage: F3_2(t+2)*F3_2(2*t+2) == F3_2(2)
+sage: F3_2(2*t+2)^(-1) # multiplicative inverse
+\end{sagecommandline}
 \end{example}
-As we can see from the previous example, it can become quite messy to write elements of extension fields. Especially for larger extension degrees. In the literature we therefore find two ways to have a nicer description.
 
-The most obvious one is to observe that polynomials of maximal degree $m$ are in one to one correspondence with $m+1$-dimensional vectors by
-$$
-\sum_{j=0}^m a_j x^j \Leftrightarrow \left(a_0,a_1,\ldots,a_m\right)
-$$
-so the coordinate vector associated to a given polynomial is given by its coefficients and vice versa. This way $\F_{q^m}$ can be seen as an $m$-dimensional vector space over the prime field $\F_q$. Addition is the usual component wise addition of vectors. However multiplication is not obvious and must be computed from the polynomial OR SUBSTITUTION.
 
-\begin{example}
-In this example the set $\F_{3^2}$ can be written as 
-$\{[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]\}$ and we get for example $[1,1]+ [2,1]= [0,2]$ by adding component wise. 
-\end{example}
+%\paragraph{Hash to Prime fields} 
+% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
+%An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
 
-Power representation
+%In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$. 
+
+%If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
+
+%For example in the extreme case $k=1$, $H$ only maps to $\{0,1\}\subset \F_q$. The best possible case is therefore $k=m-1$. In that case only the highest XXX numbers (DO THE COMPUTATION) are missing from the distribution.
+
+%On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
+
+%The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY). 
+
+%\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
+%Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
+%$$\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}$$
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
+%\end{example}
+
+%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.  
+
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.  
+
+%As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
+%\end{example}

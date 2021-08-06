@@ -155,22 +155,29 @@ sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 268::
-
-sage: Fields()
-
-Sage commandline, line 273::
+Sage commandline, line 266::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 295::
+Sage commandline, line 290::
 
-sage: GF(2)
-sage: GF(2)(1) # Get an element from GF(2)
-sage: GF(2)(1) + GF(2)(1) # Addition
-sage: GF(2)(1) / GF(2)(1) # Division
+sage: F2 = GF(2)
+sage: F2(1) # Get an element from GF(2)
+sage: F2(1) + F2(1) # Addition
+sage: F2(1) / F2(1) # Division
+
+Sage commandline, line 526::
+
+sage: Z3 = GF(3) # prime field
+sage: Z3t.<t> = Z3[] # polynomials over Z3
+sage: P = Z3t(t^2+1)
+sage: P.is_irreducible()
+sage: F3_2.<t> = GF(3^2, name='t', modulus=P)
+sage: F3_2
+sage: F3_2(t+2)*F3_2(2*t+2) == F3_2(2)
+sage: F3_2(2*t+2)^(-1) # multiplicative inverse
 
 Sage commandline, line 29::
 
