@@ -591,3 +591,109 @@ $$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
 
 %As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
 %\end{example}
+\section{Projective Planes}
+Projective planes are a certain type of geometry defined over some given field, that in a sense extend the concept of the ordinary Euklidean plane by including "points at infinity". 
+
+Such an inclusion of infinity points makes them particulary useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol "the point at infinity" to give the set of points on the curve the structute of a group. Translating the curve into projective geometry, then includes this "point at infinity" more naturally into the set of all points on a projective plane.
+
+To understand the idea for the construction of projective planes, note that in
+an ordinary Euclidean plane, two lines either intersect in a single point, or are parallel. In the latter case both lines are either the same, that is they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with additional "points at infinity" such that two different lines always intersect in a single point. Parallel lines intersect "at infinity".
+
+To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times F$ the set of all three tupels over $\F$ and $x\in \F^3$ with $x=(x_1,x_2,x_3)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given by
+\begin{equation}
+L_x := \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F\}
+\end{equation}
+A \textit{point} in the \textbf{projective plane} over $\F$ is then defined as such a \textit{line} and the projective plane is the set of all such points, that is
+\begin{equation}
+\F\mathbb{P}^2:=\{L_x\;|\; x\in \F^3\text{ with } x\neq (0,0,0)\}
+\end{equation}
+It can be shown that a projective plane over a finite field $\F_{p^m}$ contains $p^{2m}+p^m+1$ many ellements. 
+
+To understand why $L_x$ is called a line, consider the situation, where the underlying field $\F$ are the real numbers $\mathbb{R}$. Then $\mathbb{R}^3$ can be seen as the three dimensional space and $L_{(x,y,z)}$ is then an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $x$, $y$ and $z$.
+
+The key observation here is, that points in the projective plane, are lines in the $3$-dimensional space $\F^3$, also for finite fields, the terms space and line share very little visual similarity with their counterparts over the real numbers. 
+
+It follows from this that points $L_x\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(x_1,x_2,x_3)$, but by \textit{sets of coordinates} rather, where two different coordinates $(x_1,x_2,x_3)$ and $(x'_1,x'_2,x'_3)$, with $x_j\neq 0$ and $x_j'\neq 0$ describe the same point, if and only if there is some field element $k$, such that $(x_1,x_2,x_3) = (k\cdot x'_1,k\cdot x'_2,k\cdot x'_3)$. Descriptions like that are called \textbf{projective coordinates}.
+
+\begin{example} Consider the field $\F_3$ from example XXX. As this field only contains, three elements it takes not to much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we knwo that it only contain $13$ elemts. 
+
+To find $\F_3\mathbb{P}^2$, we have to compute the set of all lines in $\F_3\times \F_3\times \F_3$ that intersect $(0,0,0)$. Since those lines are parameterized by tupels $(x_1,x_2,x_3)$. We compute:
+\begin{align*}
+L_{(0,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,0,1), (0,0,2)\}\\
+L_{(0,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,0,2), (0,0,1)\} 
+          = L_{(0,0,1)}\\
+L_{(0,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,1,0), (0,2,0)\}\\ 
+L_{(0,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,1,1), (0,2,2)\}\\  
+L_{(0,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,1,2), (0,2,1)\}\\  
+L_{(0,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,2,0), (0,1,0)\}
+          = L_{(0,1,0)}\\ 
+L_{(0,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,2,1), (0,1,2)\}
+          = L_{(0,1,2)}\\  
+L_{(0,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (0,2,2), (0,1,1)\}  
+          = L_{(0,1,1)}\\ 
+L_{(1,0,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,0,0), (2,0,0)\}\\
+L_{(1,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,0,1), (2,0,2)\}\\
+L_{(1,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,0,2), (2,0,1)\}\\ 
+L_{(1,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,1,0), (2,2,0)\}\\
+L_{(1,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,1,1), (2,2,2)\}\\
+L_{(1,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,1,2), (2,2,1)\}\\  
+L_{(1,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,2,0), (2,1,0)\}\\
+L_{(1,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,2,1), (2,1,2)\}\\
+L_{(1,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (1,2,2), (2,1,1)\}\\                                                
+L_{(2,0,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,0,0), (1,0,0)\}
+          = L_{(1,0,0)}\\
+L_{(2,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,0,1), (1,0,2)\}
+          = L_{(1,0,2)}\\
+L_{(2,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,0,2), (1,0,1)\}
+          = L_{(1,0,1)}\\ 
+L_{(2,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,1,0), (1,2,0)\}
+          = L_{(1,2,0)}\\
+L_{(2,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,1,1), (1,2,2)\}
+          = L_{(1,2,2)}\\
+L_{(2,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,1,2), (1,2,1)\}
+          = L_{(1,2,1)}\\  
+L_{(2,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,2,0), (1,1,0)\}
+          = L_{(1,1,0)}\\
+L_{(2,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,2,1), (1,1,2)\}
+          = L_{(1,1,2)}\\
+L_{(2,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,0), (2,2,2), (1,1,1)\}                                                         
+          = L_{(1,1,1)}
+\end{align*}
+Those lines define the $13$ points in the projective plane $\F_3\mathbb{P}$ as follows
+\begin{multline*}
+\F_3\mathbb{P} = \{ L_{(0,0,1)}, L_{(0,1,0)}, L_{(0,1,1)}, L_{(1,0,0)}, L_{(1,0,1)}, \\ L_{(1,0,2)}, L_{(1,1,0)}, L_{(1,1,1)}, L_{(1,1,2)}, L_{(1,2,0)}, L_{(1,2,1)}, L_{(1,2,2)}\}
+\end{multline*}
+To understand the abiguity in projective coordinates a bit better, lets consider the point $L_{(1,2,2)}$. As this point in the projective plane is a line in $\F_3^3$, it has the projective coordinates $(1,2,2)$ as well as $(2,1,1)$, since the former coordinate give the latter, when multiplied in $\F_3$ by the factor $2$. In addition note, that for the same reasons the points $L_{(1,2,2)}$ and $L_{(2,1,1)}$ are the same, since their underlying sets are equal.
+\end{example}
+\begin{exercise}
+Construct the so called \textit{Fano plane}, that is the projective plane over the finite field $\F_2$.
+\end{exercise}
+
+
+ 
