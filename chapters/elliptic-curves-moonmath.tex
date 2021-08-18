@@ -12,7 +12,7 @@ In its most generality elliptic curves are defined as a smooth projective curve 
 We start with an introduction to so called short Weierstraß curves, which are the most general types of curves over finite fields of characteristic greater then $3$. 
 
 \paragraph{Affine short Weierstraß form}
-To see what a short Weierstraß curve in affine coordinates is, let $\F_{q}$ be a finite field and $a,b\in \F_q$ two field elements such that $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$. Then a \textbf{short Weierstrass elliptic curve} $E/\F_q$ over $\F_q$ in its affine representation is the set
+To see what a short Weierstraß curve in affine coordinates is, let $\F_q$ be a finite field of characteristic $char(\F)> 3$ and $a,b\in \F_q$ two field elements such that $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$. Then a \textbf{short Weierstrass elliptic curve} $E/\F_q$ over $\F_q$ in its affine representation is the set
 \begin{equation}
 \label{def_short_weierstrass_curve}
 E/\F_q = \{(x,y)\in \F_q\times \F_q\;|\; y^2=x^3+ax+b \} \bigcup \{\Oinf\}
@@ -84,8 +84,6 @@ y^2\cdot 0 & = x^3+a\cdot x\cdot 0^2 + b\cdot 0^3 & \Leftrightarrow \\
 \end{align*} 
 which shows that the only projective point at infinity that is a point on the curve is the class $[0,1,0]$. This point is the projective representation of $\mathcal{O}$. The projective representation of a short Weierstraß curve therefore has the advantage to not need a special symbol to represent the special "point at infinity" $\mathcal{O}$ from the affine definition. 
 
-=============
-
 As we have seen in XXX, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its rational points, described geometrically by the chord and tangent rule. This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appered whenever the chord did not have a third intersection point with the curve.
 
 One of the key features of projective coordinates is now, that in projective space it is guranteed that any chord will always intersect the curve in three points, so the geometric picture simplifies as we don't need to consider external points and associated cases.
@@ -96,51 +94,60 @@ Again, it can be shown that the points of an elliptic curve in projective space 
 
 \begin{algorithm}\caption{Projective Weierstraß Addition Law}
 \label{alg_projective_group_law}
+% https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Standard_Projective_Coordinates
 \begin{algorithmic}[0]
 \Require $[X_1:Y_1:Z_1],[X_2:Y_2:Z_2] \in E(\F\mathbb{P}^2)$
 \Procedure{Add-Rule}{$[X_1:Y_1:Z_1],[X_2:Y_2:Z_2]$}
 \If{$[X_1:Y_1:Z_1] == [0:1:0]$}
-\State $[X_3:Y_3:Z_3] \gets [X_2:Y_2:Z_2]$
+  \State $[X_3:Y_3:Z_3] \gets [X_2:Y_2:Z_2]$
 \ElsIf{$[X_2:Y_2:Z_2] == [0:1:0]$}
-\State $[X_3:Y_3:Z_3] \gets [X_1:Y_1:Z_1]$
-\ElsIf{$[X_1:Y_1:Z_1] == [X_2:Y_2:Z_2]$}
-\If{$Y_1==0$}
-\State $[X_3:Y_3:Z_3] \gets [0:1:0]$
+  \State $[X_3:Y_3:Z_3] \gets [X_1:Y_1:Z_1]$
 \Else
-\State $W = a*Z_1^2 + 3*X_1^2$
-\State $S = Y_1*Z_1$
-\State $B = X_1*Y_1*S$
-\State $H = W^2 - 8*B$
-\State $X' = 2*H*S$
-\State $Y' = W*(4*B - H) - 8*Y_1^2*S^2$
-\State $Z' = 8*S^3$
-\State $[X_3:Y_3:Z_3]\gets [X':Y':Z']$
+  \State $U_1 \gets Y_2\cdot Z_1$
+  \State $U_2 \gets Y_1\cdot Z_2$
+  \State $V_1 \gets X_2\cdot Z_1$
+  \State $V_2 \gets X_1\cdot Z_2$
+  \If{$V_1 == V_2$}
+    \If{$U_1 \neq U_2$}
+      $[X_3:Y_3:Z_3] \gets [0:1:0]$
+    \Else
+      \If{$Y_1 == 0$}
+        $[X_3:Y_3:Z_3] \gets [0:1:0]$
+      \Else
+        \State $W \gets a\cdot Z_1^2 + 3\cdot X_1^2$
+        \State $S \gets Y_1\cdot Z_1$
+        \State $B \gets X_1\cdot Y_1\cdot S$
+        \State $H \gets W^2 - 8\cdot B$
+        \State $X' \gets 2\cdot H\cdot S$
+        \State $Y' \gets W\cdot (4\cdot B - H) - 8\cdot Y_1^2\cdot S^2$
+        \State $Z' \gets 8\cdot S^3$
+        \State $[X_3:Y_3:Z_3] \gets [X':Y':Z']$
+      \EndIf
+    \EndIf
+  \Else
+    \State $U = U_1 - U_2$
+    \State $V = V_1 - V_2$
+    \State $W = Z_1\cdot Z_2$
+    \State $A = U^2\cdot W - V^3 - 2\cdot V^2\cdot V_2$
+    \State $X' = V\cdot A$
+    \State $Y' = U\cdot(V^2\cdot V_2 - A) - V^3\cdot U_2$
+    \State $Z' = V^3\cdot W$
+    \State $[X_3:Y_3:Z_3]\gets [X':Y':Z']$
+  \EndIf
 \EndIf
-\Else
-\EndIf
-
-\State $r_0\gets a$
-\State $r_1\gets b$
-\State $s_0\gets 1$
-\State $s_1\gets 0$
-\State $k\gets 1$
-\While{$ r_{k} \neq 0 $}
-\State $ q_k\gets \Zdiv{r_{k-1}}{r_k} $
-\State $ r_{k + 1}\gets r_{k-1} -q_k \cdot r_k $
-\State $ s_{k + 1}\gets s_{k-1} -q_k \cdot s_k $
-\State $ k \gets k + 1 $
-\EndWhile
-\State \textbf{return} $gcd(a,b)\gets r_{k-1}$, $s\gets s_{k-1}$ and $ t: = \Zdiv{(r_{k-1}-s_{k-1} \cdot a)}{b} $ 
+\State \textbf{return} $[X_3:Y_3:Z_3]$
 \EndProcedure
-\Ensure $ gcd (a, b) = s \cdot a + t \cdot b $
+\Ensure $ [X_3:Y_3:Z_3] == [X_1:Y_1:Z_1] \oplus [X_2:Y_2:Z_2]$
 \end{algorithmic}
 \end{algorithm}
-
+\begin{exercise}
+Compare that affine addition law for short Weierstraß curves with the projective addition rule. Which branch in the projective rule corresponds to which case in the affine law? 
+\end{exercise}
 
 \paragraph{Coordinate Transformations}
-From a mathematical point of view projective and affine short Weierstraß curves describe the same thing as there is a one-to-one correspondence (an isomorphism) between both representations for ny given parameters $a$ and $b$. 
+From a mathematical point of view projective and affine short Weierstraß curves describe the same thing as there is a one-to-one correspondence (an isomorphism) between both representations for any given parameters $a$ and $b$. 
 
-To specify the isomorphism, let $E/\F_q$ and $E/\F_q\mathbb{P}^2$ be an affine and a projective short Weierstraß curve defined for the same parameters $a$ and $b$. Then the map
+To specify the isomorphism, let $E/\F$ and $E/\F\mathrm{P}^2$ be an affine and a projective short Weierstraß curve defined for the same parameters $a$ and $b$. Then the map
 \begin{equation}
 \Phi : E/\F_q \to E/\F_q\mathbb{P}^2\;:\;
 \begin{array}{lcl}
@@ -155,10 +162,74 @@ maps points from a the affine representation to points from the projective repre
 \mathcal{O} & \text{ if } z=0
 \end{cases}
 \end{equation}
-Note the only projective point $[x:y:z]$ with $z\neq 0$ that satisfys XXX is given by the class $[0:1:0]$.  
+Note the only projective point $[x:y:z]$ with $z\neq 0$ that satisfys XXX is given by the class $[0:1:0]$. 
 
-So from a mathematical point of view both definition are equivalent and implementations can choose freely between both representations. As we will see in what follows both representations have their pros and cons.
+One key feature of $\Phi$ and its inverse is, that it respects the group structure, which means that $\Phi((x_1,y_1)\oplus (x_2,y_2))$ is equl to $\Phi(x_1,y_1)\oplus \Phi(x_2,y_2)$. The same holds true for the inverse map $\Phi^{-1}$.
 
+Maps with these properties are caled \textit{group isomorphisms} and from a mathematical point of view the exisrence of $\Phi$ implies, that both definition are equivalent and implementations can choose freely between both representations. 
+
+\subsection{Montgomery Curves}
+% https://eprint.iacr.org/2017/212.pdf
+History and use of them (otimized scalar multiplication)
+
+\paragraph{Affine Montgomery Form}
+To see what a Montgomery curve in affine coordinates is, let $\F_q$ be a finite field of characteristic $char(\F_q)>2$ and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2 \neq 4$. Then a \textbf{Montomery elliptic curve} $M(\F_q)$ over $\F_q$ in its affine representation is the set
+\begin{equation}
+\label{def_short_weierstrass_curve}
+M(\F_q) = \{(x,y)\in \F_q\times \F_q\;|\; B\cdot y^2 = x^3 + A\cdot x^2 + x  \} \bigcup \{\Oinf\}
+\end{equation}
+of all pairs of field elements $(x,y)\in \F_q\times \F_q$, that satisfy the Montgomery cubic equation $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distingushid symbol $\Oinf$, called the \textbf{point at infinity}.
+
+Despite the fact that Montgomery curves look different then short Weierstrass curve, they are in fact just a special way to describe certain short Weierstrass curves. In fact every curve in affine Montgomery form can be transformed into an elliptic curve in Weierstrass form. To see that assume that a curve in Montgomery form $B y^2 = x^3 + A x^2 + x$ is given. The associated Weierstrass form is then
+$$
+y^2 = x^3 + \frac{3-A^2}{3B^2}\cdot x + \frac{2A^3-9A}{27B^3}
+$$
+ 
+On the other hand, an elliptic curve over base field $\F_q$ in Weierstrass form $E: y^2 = x^3 + a x + b$ can be converted to Montgomery form if and only if the following conditions hold:
+\begin{itemize}
+\item The number of points on $E(F_q)$ is divisible by $4$
+\item The polynomial $z^3 + a z + b \in \F_q[z]$ has at least one root $\alpha\in\F_q$
+\item $3\alpha^2 + a$ is a quadratic residue in $\F_q$.
+\end{itemize}
+
+When these conditions are satisfied, then for $s=({\sqrt{3\alpha^{2}+a}})^{-1}$ the equivalent Montgomery curve is given by
+$$
+sy^{2}=x^{3}+(3\alpha s)x^{2}+x
+$$
+So we see that Montgomery curves a special cases of short Weierstrass curves. As such they have a group structure defined on the set of their points, which can also be derived from a chord and tangent rule. In accordance with short Weierstrass curves, it can be shown that the identity $x_1=x_2$ implies $y_2=\pm y_1$, which shows that the following rules are a complete description of the affine addition law.
+\begin{itemize}
+\item (Neutral element) Point at infinity $\Oinf$ is the neutral element.
+\item (Additive inverse ) The addivive inverse of $\mathcal{O}$ is $\mathcal{O}$ and for any other curve point $(x,y) \in M(\F_q)\textbackslash \{\mathcal{O}\}$, the additive inverse is given by $(x,-y)$.
+\item (Addition rule) For any two curve points $P, Q \in M(\F_q)$ addition is defined by one of the following cases:
+\begin{enumerate}
+\item (Adding the neutral element) If $Q=\Oinf$, then the sum is defined as $P+Q=P$.
+\item (Adding inverse elements)  If $P=(x,y)$ and $Q=(x,-y)$, the sum is defined as $P+Q=\Oinf$.
+\item (Adding non self-inverse equal points) If $P=(x,y)$ and $Q=(x,y)$ with $y\neq 0$, the sum $2P=(x',y')$ is defined by
+$$
+\begin{array}{llr}
+x' = (\frac{3x_1^2 + 2A x_1 +1}{2By_1})^2\cdot B - (x_1 + x_2) - A &,&
+y' = \frac{3x_1^2 + 2A x_1 +1}{2By_1}(x_1-x') - y_1
+\end{array} 
+$$
+\item (Adding non inverse differen points) If $P=(x_1,y_1)$ and $Q=(x_2,y_2)$ such that $x_1 \neq x_2$, the sum $R=P+Q$ with $R=(x_3,y_3)$ is defined by
+$$
+\begin{array}{llr}
+x' = (\frac{y_2-y_1}{x_2-x_1})^2B - (x_1 + x_2) - A &, &
+y' = \frac{y_2-y_1}{x_2-x_1}(x_1-x') - y_1
+\end{array} 
+$$
+\end{enumerate}
+\end{itemize} 
+\paragraph{Projective Montgomery Form}
+As with more general curves in short Weierstrass form, we can look at Montgomery curves in projective space. To see how such a curve looks in projective coordinates is, let $\F_{q}$ be a finite field and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2\neq 4$. Then a \textbf{Montgomery elliptic curve} $E/\F_q$ over $\F_q$ in its projective representation is the set
+\begin{equation}
+\label{def_short_weierstrass_curve}
+E/\F_q\mathbb{P}^2 = \{[X:Y:Z]\in \F_q\mathbb{P}^2\;|\; B\cdot Y^2 \cdot Z = X^3 + A\cdot X^2\cdot Z + X\cdot Z^2  \}
+\end{equation}
+of all points $[X:Y:Z]\in \F_q\mathbb{P}^2$ from the projective plane, that satisfy the \textit{homogenous} cubic equation $B\cdot Y^2 \cdot Z = X^3 + A\cdot X^2\cdot Z + X\cdot Z^2$.
+
+
+\subsection{STUFF}
 \paragraph{Order of an Elliptic Curve}
 An interesting question is: How many elements does a curve over a finite field contain? The first thing to note is that, since $\Phi$ from XXX is a one-to-one correspondence, affine curves have the same number of points as isomorphic projective curve. It is therefore enough to study the affine case only.
 
@@ -342,29 +413,7 @@ is a pseudo-random function.
 \end{itemize}
 \section{Classes of elliptic curves}
 In this section we describes ways to describe elliptic curves different from the general Weierstrass form. Alternative descriptions are sometimes useful because of DIFFERENT ways to express the group laws
-\subsection{Montgomery Form}
-Let $\F$ be a finite field with characteristic $\neq 2$. A Montgomery curve over $\F$ is defined by the equation
-$$
-M: B y^2 = x^3 + A x^2 + x 
-$$
-for certain $A, B \in \F$, with $A\neq \pm 2$, $b\neq 0$ and $B(A^2 - 4)\neq 0$. 
 
-The Montgomery form is just another form to define an elliptic curve. In fact every curve in Montgomery form can be transformed into an elliptic curve in Weierstrass form and vice versa. To see that assume that a curve in Montgomery form $B y^2 = x^3 + A x^2 + x$ is given. The associated Weierstrass form is then
-$$
-y^2 = x^3 + \frac{3-A^2}{3B^2}\cdot x + \frac{2A^3-9A}{27B^3}
-$$
- 
-On the other hand, an elliptic curve over base field $\F$ in Weierstrass form $E: v^2 = t^3 + a t + b$ can be converted to Montgomery form if and only if the following conditions hold:
-\begin{itemize}
-\item $E$ has order divisible by $4$
-\item The polynomial $z^3 + a z + b \in \F[]$ has at least one root $\alpha\in\F$
-\item $3\alpha^2 + a$ is a quadratic residue in $\F$.
-\end{itemize}
-
-When these conditions are satisfied, then for $s=({\sqrt{3\alpha^{2}+a}})^{-1}$ the equivalent Montgomery curve is given by
-$$
-sy^{2}=x^{3}+(3\alpha s)x^{2}+x
-$$
 
 \subsection{Twisted Edwards Form}
 % https://eprint.iacr.org/2008/013.pdf
