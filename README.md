@@ -21,7 +21,12 @@ Given the small number of contributors, the fact that we're mostly working with 
 
 ## <a name="overleaf-integration"></a>Overleaf intergration
 
-To facilitate collaboration with people using a WYSIWYG editor, we have an [Overleaf project for the MoonMath manual](https://www.overleaf.com/project/6061b4073b270f74b95100ad). This project is connected to the GitHub repo, but it has to be manually synced with it.
+To facilitate collaboration with people using a WYSIWYG editor, we have an [Overleaf project for the MoonMath manual](https://www.overleaf.com/project/6061b4073b270f74b95100ad). 
+
+> To get access to the Overleaf project, ask [Margherita](mailto:margherita@leastauthority.com).
+
+The Overleaf project is connected to the GitHub repo, but it has to be manually synced with it.
+
 
 To do this, open the Overleaf project in your browser, click **Menu** in the upper left corner, then click **GitHub**. 
 
