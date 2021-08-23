@@ -155,20 +155,20 @@ sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 266::
+Sage commandline, line 268::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 290::
+Sage commandline, line 292::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 544::
+Sage commandline, line 546::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
@@ -182,12 +182,40 @@ sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
 sage: F3_2(t+1)*(F3_2(t)**2 + F3_2(2*t+2)) == F3_2(2)
 sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
 
-Sage commandline, line 246::
+Sage commandline, line 35::
 
-sage: EllipticCurve(GF(5),[1,0])
-sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
+sage: F5 = GF(5)
+sage: E1 = EllipticCurve(F5,[1,1])
+sage: [P.xy() for P in E1.points() if P.order() > 1]
 
-Sage commandline, line 590::
+Sage commandline, line 46::
+
+sage: F13 = GF(13)
+sage: MJJ = EllipticCurve(F13,[8,8])
+sage: AffinePoints = [P.xy() for P in MJJ.points() if P.order() > 1]
+
+Sage commandline, line 141::
+
+sage: F5 = GF(5)
+sage: E1 = EllipticCurve(F5,[1,1])
+sage: P = E1(0,1)
+sage: Q = E1(4,2)
+sage: R1 = E1(2,1)
+sage: R2 = E1(3,4)
+sage: R1 == P+Q
+sage: R2 == Q+Q
+sage: R2 == 2*Q
+
+Sage commandline, line 159::
+
+sage: F13 = GF(13)
+sage: MJJ = EllipticCurve(F13,[8,8])
+sage: P = MJJ(4,0)
+sage: INF = MJJ(0) # Point at infinity
+sage: INF == P+P
+sage: INF == 2*P
+
+Sage commandline, line 681::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -201,13 +229,13 @@ sage: for P in INF.division_points(13): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 628::
+Sage commandline, line 719::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 654::
+Sage commandline, line 745::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -220,7 +248,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 669::
+Sage commandline, line 760::
 
 sage: for d in F13:
 ....:     j= ZZ(0)
@@ -231,14 +259,14 @@ sage: for d in F13:
 ....:     print('d=',d)
 ....:     print('order=',j)
 
-Sage commandline, line 690::
+Sage commandline, line 781::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 724::
+Sage commandline, line 815::
 
 sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
@@ -247,7 +275,7 @@ sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....: (x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 824::
+Sage commandline, line 915::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -260,7 +288,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 839::
+Sage commandline, line 930::
 
 sage: j = ZZ(0)
 sage: for a in F13:
@@ -272,27 +300,27 @@ sage: for a in F13:
 ....:                     j=j+1
 ....:         print('curve: a=',a,'d=',d,'order:',j)
 
-Sage commandline, line 865::
+Sage commandline, line 956::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 893::
+Sage commandline, line 984::
 
 sage: def Edwards_add((x1,y1),(x2,y2),a,d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 923::
+Sage commandline, line 1014::
 
 sage: F7 = GF(7)
 sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 954::
+Sage commandline, line 1045::
 
 sage: F7t.<t> = F7[]
 sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
@@ -305,13 +333,13 @@ sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 982::
+Sage commandline, line 1073::
 
 sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 1058::
+Sage commandline, line 1149::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])

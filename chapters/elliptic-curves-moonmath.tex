@@ -8,7 +8,9 @@ The eliptic curves we consider are all defined over prime fields or prime field 
 
 In its most generality elliptic curves are defined as a smooth projective curve of genus 1 defined over some field $\F$ with a distinguished $\F$-rational point, but this definition is not very useful for the introductary character of this book. We will therefore look at $3$ more practical definitions in the following sections, by introducing Weierstraß, Montgommery and Edwards curves. All of them are useful in cryptography and nesessary to understand for the contnuation of the book.
 
-\section{Short Weierstraß Curves}
+\section{Elliptic Curve Arithmetics}
+
+\subsection{Short Weierstraß Curves}
 We start with an introduction to so called short Weierstraß curves, which are the most general types of curves over finite fields of characteristic greater then $3$. 
 
 \paragraph{Affine short Weierstraß form}
@@ -24,6 +26,34 @@ Note that in the literature, the set $E/\F_q$ that included $\mathcal{O}$ is oft
 The requirement $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$ is BBBB 
 
 In a nutshell a short Weierstraß elliptic curve is nothing but a set of certain pairs of coordinates, that satisfy equation XXX. The term "curve" appears, because the set of points of an elliptic curve defined in the 2 dimensional Euklidean plane $\R^2$, looks like a curve  
+
+\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5} \neq  0 $ and the corresponding elliptic curve $E(\F_5)$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. For example if we choose $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence the pair $(1,1)$ is not an element of our curve $E_1(\F_5)$. On the other hand $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is an element of $E_1(\F_5)$. Doing this computations for all 25 combinations of pairs in $\F_5$, gives the set of rational points as 
+$$
+E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+We can also invoke sage to compute this elliptic curve. 
+\begin{sagecommandline}
+sage: F5 = GF(5)
+sage: E1 = EllipticCurve(F5,[1,1])
+sage: [P.xy() for P in E1.points() if P.order() > 1]
+\end{sagecommandline}
+\end{example}
+\begin{example}[Moon-JubJub] Consider the prime field $F_{13}$. If we choose $a=8$ and $b=8$ then $\kongru{4a^3+ 27b^2}{6}{13}$ and the corresponding elliptic curve $MJJ(\F_{13})$ is given by all pairs $(x,y)$ from $\F_13$ such that $y^2=x^3+8x+8$. 
+
+We call $MJJ(\F_{13})$ the Moon-JubJub curve. As we will see in what follows this curve is kind od special as it is possible to represent it in two alternitive forms, called a Montgomery and a twisted Edwards form (See xxx and XXX). 
+
+Since there are $169$ pairs of elements from $F_{13}$, computing the set of curve points is bit to much work and we invoke sage instead. We get
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: MJJ = EllipticCurve(F13,[8,8])
+sage: AffinePoints = [P.xy() for P in MJJ.points() if P.order() > 1]
+\end{sagecommandline}
+Combining this with the point at infinity gives the set of rational points as 
+\begin{multline*}
+MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2),\\ (7, 11), (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
+10), (11, 6), (11, 7), (12, 5), (12, 8)\}
+\end{multline*}
+\end{example}
 
 %group law
 % http://wwwmayr.informatik.tu-muenchen.de/konferenzen/Jass07/courses/1/Lukyanenko/Lukyanenk_Paper.pdf
@@ -65,7 +95,85 @@ $$
 Note that short Weierstraß curve points $P$ with $P=(x,0)$ are inverse to themselfs, which implies $2P=\Oinf$ in this case.
 
 As we can see, it is very efficient to compute inverses on elliptic curves. However computing the addition of elliptic curve points in the affine representation needs to consider many cases and involves extensive finite field divisions. As we will see in the next paragraph this can be simplified in projective coordinates.
+\begin{example}Consider the elliptic curve $E_1(\F_5)$ from example XXX again.  As we have seen, the set of rational points contains $9$ elements and is given by
+$$
+E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+We know that this set defines a group, so we can add any two elements from $E_1(\F_5)$ to get a third element. 
 
+To give an example consider the elements $P=(0,1)$ and $Q=(4,2)$. Neither of these elements is the neutral element and since the $x$-coordinate of $P$ is different from the $x$-coordinate of $Q$, we know that we have to use the tangent rule, that is rule number 4 from XXX to compute the sum $R= P\oplus Q$. We get
+%\begin{tabular}{lr}
+\begin{align*}
+x_3  & = \left(\frac{y_2-y_1}{x_2-x_1}\right)^2 -x_1-x_2 \\
+     & = \left(\frac{2-1}{4-0}\right)^2 -0-4 \\
+     & = \left(\frac{1}{4}\right)^2 +1 \\
+     & = 4^2 +1 \\
+     & = 1 +1 \\
+     & = 2
+\end{align*} %&
+\begin{align*}
+y_3  & = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1 \\     
+     & = \left(\frac{2-1}{4-1} \right)\left(0-2\right) - 1 \\    
+     & = \left(\frac{1}{4} \right)\cdot 3 + 4 \\    
+     & = 4\cdot 3 + 4 \\            
+     & = 2 + 4 \\          
+     & = 1          
+\end{align*} 
+%\end{tabular}
+So in our elliptic curve $E_1(\F_5)$ we get $(0,1)\oplus (4,2) =(2,1)$ and indeed the pair $(2,1)$ is an element of $E_1(\F_5)$ as expected. On the other hand we have $(0,1)\oplus (0,4) =\Oinf$, since both points have equal $x$-coordinates and inverse $y$-coordinates rendering them as inverse to each other. Adding the point $(4,2)$ to itself, we have to use the tangent rule, that is rule 3 from XXX. We get 
+\begin{align*}
+x'  & = \left(\frac{3x^2+a}{2y}\right)^2 -2x \\
+    & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2 -2\cdot 4 \\
+    & = \left(\frac{3\cdot 1+1}{4}\right)^2 +3\cdot 4 \\
+    & = \left(\frac{4}{4}\right)^2 +2 \\
+    & = 1 +2 \\
+    & = 3
+\end{align*}
+\begin{align*}
+y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y\\
+    & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2\left(4-3\right) - 2\\
+    & = 1\cdot 1 + 3\\
+    & 4
+\end{align*}
+So in our elliptic curve $E_1(\F_5)$ we get the doubling $2\cdot (4,2)$, that is $(4,2)\oplus (4,2) =(3,4)$ and indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self inverse points, since no point has $0$ as its $y$-coordinate.
+
+We can also invoke sage to compute the addition on our  elliptic curve. 
+\begin{sagecommandline}
+sage: F5 = GF(5)
+sage: E1 = EllipticCurve(F5,[1,1])
+sage: P = E1(0,1)
+sage: Q = E1(4,2)
+sage: R1 = E1(2,1)
+sage: R2 = E1(3,4)
+sage: R1 == P+Q
+sage: R2 == Q+Q
+sage: R2 == 2*Q
+\end{sagecommandline}
+\end{example}
+\begin{example}[Moon-JubJub] Consider the Moon-JubJub curve from example XXX again. Its group of rational points $MJJ(\F_{13})$ is given by 
+\begin{multline*}
+MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2),\\ (7, 11), (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
+10), (11, 6), (11, 7), (12, 5), (12, 8)\}
+\end{multline*}
+In contrast to the group from the previous example, this group contains the self inverse point $(4,0)$. To see that, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $MJJ(\F_{13})$. 
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: MJJ = EllipticCurve(F13,[8,8])
+sage: P = MJJ(4,0)
+sage: INF = MJJ(0) # Point at infinity
+sage: INF == P+P
+sage: INF == 2*P
+\end{sagecommandline}
+\end{example}
+\begin{exercise}
+Consider the Moon-JubJub curve from example XXX. 
+\begin{enumerate}
+\item Compute the inverse of $(10,10)$, $\Oinf$, $(4,0)$ and $(1,2)$.
+\item Compute the expression $3*(1,11) - (9,9)$.
+\item Solve the equation $x + 2(9,4) = (5,2) $ for $x\in E_1(\F_{13})$
+\item Solve the equation $x\cdot (7,11) = (8,5)$ for $x\in \Z$
+\end{enumerate}
+\end{exercise}
 \paragraph{Projective short Weierstraß form}
 % https://www.cosic.esat.kuleuven.be/bcrypt/lecture%20slides/wouter.pdf
 As we can see, we had to add a special point at infinity to the definition of a short Weierstrass curve. Recalling from the definition of projective planes we know, that similar points at infinity are handled as ordinary points in projective geometry. It make therefore sense to look at the definition of a short Weierstraß curve in projective geometry.
@@ -167,6 +275,29 @@ Note the only projective point $[x:y:z]$ with $z\neq 0$ that satisfys XXX is giv
 One key feature of $\Phi$ and its inverse is, that it respects the group structure, which means that $\Phi((x_1,y_1)\oplus (x_2,y_2))$ is equl to $\Phi(x_1,y_1)\oplus \Phi(x_2,y_2)$. The same holds true for the inverse map $\Phi^{-1}$.
 
 Maps with these properties are caled \textit{group isomorphisms} and from a mathematical point of view the exisrence of $\Phi$ implies, that both definition are equivalent and implementations can choose freely between both representations. 
+\paragraph{Order of an Elliptic Curve}
+An interesting question is: How many elements does a curve over a finite field contain? The first thing to note is that, since $\Phi$ from XXX is a one-to-one correspondence, affine curves have the same number of points as isomorphic projective curve. It is therefore enough to study the affine case only.
+
+Since an affine short Weierstraß curve consists of pairs of elements from $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E/\F_q$ be an affine short Weierstraß curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
+\begin{equation}
+|E/\F_q| = q +1 -t
+\end{equation}
+So roughly speaking, the number of elements in an elliptic curve is approximately equal to the size of an underlying field.
+
+\paragraph{Scalar multiplication}
+Let $E/\F_q$ an elliptic curve and $P\in E/\F_q$ a point on that curve. Then the \textbf{elliptic curve scalar multiplication} with base $P$ is given by
+$$
+[\cdot]P: \Z \to E/\F_q; m \mapsto [m]P
+$$
+where $[m]P = P+P+\ldots + P$ is the $m$-fold sum of $P$ with itself. 
+
+Elliptic curve scal multiplication is an instantiation of the exponential map XXX. As with all cyclic groups the inverse of the exponential map exist and is ... To be more precise, let $E/\F_q$ be an elliptic curve and $P,Q\in E/\F_q$ be two points. Then the elliptic curve discrete logarithm problem consists of finding a solution $m\in\Z$, such that
+\begin{equation}
+P = [m]Q
+\end{equation}
+Such an equation is also called a discrete logarithm relation between $P$ and $Q$
+
+If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
 
 \subsection{Montgomery Curves}
 % https://eprint.iacr.org/2017/212.pdf
@@ -220,40 +351,62 @@ y' = \frac{y_2-y_1}{x_2-x_1}(x_1-x') - y_1
 $$
 \end{enumerate}
 \end{itemize} 
-\paragraph{Projective Montgomery Form}
-As with more general curves in short Weierstrass form, we can look at Montgomery curves in projective space. To see how such a curve looks in projective coordinates is, let $\F_{q}$ be a finite field and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2\neq 4$. Then a \textbf{Montgomery elliptic curve} $E/\F_q$ over $\F_q$ in its projective representation is the set
-\begin{equation}
-\label{def_short_weierstrass_curve}
-E/\F_q\mathbb{P}^2 = \{[X:Y:Z]\in \F_q\mathbb{P}^2\;|\; B\cdot Y^2 \cdot Z = X^3 + A\cdot X^2\cdot Z + X\cdot Z^2  \}
-\end{equation}
-of all points $[X:Y:Z]\in \F_q\mathbb{P}^2$ from the projective plane, that satisfy the \textit{homogenous} cubic equation $B\cdot Y^2 \cdot Z = X^3 + A\cdot X^2\cdot Z + X\cdot Z^2$.
+%\paragraph{Projective Montgomery Form}
+%As with more general curves in short Weierstrass form, we can look at Montgomery curves in projective space. To see how such a curve looks in projective coordinates is, let $\F_{q}$ be a finite field and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2\neq 4$. Then a \textbf{Montgomery elliptic curve} $E/\F_q$ over $\F_q$ in its projective representation is the set
+%\begin{equation}
+%\label{def_short_weierstrass_curve}
+%E/\F_q\mathbb{P}^2 = \{[X:Y:Z]\in \F_q\mathbb{P}^2\;|\; B\cdot Y^2 \cdot Z = X^3 + A\cdot X^2\cdot Z + X\cdot Z^2  \}
+%\end{equation}
+%of all points $[X:Y:Z]\in \F_q\mathbb{P}^2$ from the projective plane, that satisfy the \textit{homogenous} cubic equation $B\cdot Y^2 \cdot Z = X^3 + A\cdot X^2\cdot Z + X\cdot Z^2$.
 
+% TODO: https://maths-people.anu.edu.au/~brent/pd/Subramanya-thesis.pdf
+% x-ccordinate only aka differential arithmetics on Montgomery curves
+\subsection{Twisted Edwards Curves}
+On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
+
+As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
+
+Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. 
+\paragraph{Twisted Edwards Form}
+% https://eprint.iacr.org/2008/013.pdf
+In this section we describe curves, that are defined over finite fields of characteristics $\neq 2$. An affine \textbf{twisted Edwards curve} over a finite field $\F$ is a curve, defined by the equation
+$$E/\F:a\cdot x^2+y^2= 1+d\cdot x^2y^2$$ 
+where $x,y\in \F$ and $d\in \F\backslash\{0,1\}$ and $d\in \F\backslash\{1\}$ with $a\neq d$ Assuming that $a$ has a root in $\F$ and $d$ has no root in $\F$. Such a curve is called an Edwards curve (non twisted), if $a=1$.
+
+The most remarkable fact about twisted Edwards curves is their simple addition law.  the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
+$$
+(x_1, y_1) + (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
+$$
+The point $(0,1)$ is the neutral element of the addition law. The inverse of a point $(x_1, y_1)$ on $E$ is $(-x_1, y1)$. The addition law is very simple to implement and it can also be used for point doubling. It also works for the neutral element, for inverses..
+
+As Edwards curves have such simple non branching addition laws that work for all points, including the neutral element and inverses, they are a interesting for snarks as they can be implemented with only a few constraints in circuits.
+
+%\begin{example}[Non twisted Edwards curves have order 4 points]
+%In this example, we will show that every Edwards curve has a point of order $4$. To see that let $E$ be an arbitrary Edwards curve ($a=1$). Then the point $(1,0)$ is on that curve, since $1^2+0^2= 1+d 1^2 0^2$. We compute 
+%\begin{align*}
+%[4](1,0) = \\
+%[2]([2](1,0))=\\
+%[2]\left(\frac{1 0 +1 0}{1 +d 1 1 0 0},\frac{00-1\cdot 1}{1-d1 1 00}\right)=\\
+%[2](0,-1)=\\
+%\left(\frac{0(-1)+(-1)0}{1 +d 0 0 (-1)(-1)},\frac{(-1)(-1)-00}{1-d00(-1)(-1)}\right) =\\
+(0,1)
+%\end{align*} 
+
+%Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
+%\end{example}
+
+The twisted Edwards form is just another wa to describe Montgomery elliptic curve. In fact every curve in twisted Edwards form can be transformed into an elliptic curve in Montgomery form and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery form is then
+$$
+\frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
+$$
+On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ (WITH STUFF) can be transformed into a twisted Edwards curve 
+$$
+(\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
+$$
 
 \subsection{STUFF}
-\paragraph{Order of an Elliptic Curve}
-An interesting question is: How many elements does a curve over a finite field contain? The first thing to note is that, since $\Phi$ from XXX is a one-to-one correspondence, affine curves have the same number of points as isomorphic projective curve. It is therefore enough to study the affine case only.
 
-Since an affine short Weierstraß curve consists of pairs of elements from $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E/\F_q$ be an affine short Weierstraß curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
-\begin{equation}
-|E/\F_q| = q +1 -t
-\end{equation}
-So roughly speaking, the number of elements in an elliptic curve is approximately equal to the size of an underlying field.
-\begin{example}Lets consider our prime field $\F_5$ from (XXX). If we choose $a=1$ and $b=0$ then $4a^3+ 27b^2 = 4 \neq  0 $ and the corresponding elliptic curve $E/\F_{5}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x$. We can find this set simply by trying all 25 combinations of pairs. We get
-$$
-E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
-$$
-So our elliptic curve contains 4 elements and the trace $t$ is therefore $2$. Sage code for this curve:
-\begin{sagecommandline}
-sage: EllipticCurve(GF(5),[1,0])
-sage: EllipticCurve(GF(5),[1,0]).trace_of_frobenius()
-\end{sagecommandline}
-\end{example}
-\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
-$$
-E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
-$$
-So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
-\end{example}
+
 
 \paragraph{Keys}
 - Keys on elliptic curves
@@ -261,16 +414,7 @@ So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
 
 
 
-\begin{definition}[Elliptic curve exponentiation and generators]
-Let $E/\F_q$ an elliptic curve and $P\in E/\F_q$ a point on that curve. Then the \textbf{elliptic curve exponentiation} with base $P$ is given by
-$$
-[\cdot]P: \Z \to E/\F_q; m \mapsto [m]P
-$$
-where $[m]P = P+P+\ldots + P$ is the $m$-fold sum of $P$ with itself. Moreover the point $P$ is called a \textbf{generator} of the curve, if $[\Z]P = E/\F_q$.
-\end{definition}
-\begin{remark}
-The term exponentiation come from the fact, that if the group law is written in multiplicative notation, then an $m$-fold product $x\cdot x\cdot\ldots \cdot x$ is usually written in as $x^m$. So our exponential map, is an adoptation of that for groups with an additive notation of the group law.
-\end{remark}
+
 \begin{example}Lets consider the curve $E_1/\F_5$ from example XXX again. We have 
 $$
 E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
@@ -290,20 +434,7 @@ E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
 So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
 \end{example}
-\begin{definition}[The elliptic curve discrete logarithm]. Let $E/\F_q$ be an elliptic curve and $P,Q\in E/\F_q$ be two points. Then the elliptic curve discrete logarithm problem consists of finding a solution $m\in\Z$, such that
-$$
-P = [m]Q
-$$
-Such an equation is also called a discrete logarithm relation between $P$ and $Q$
-\end{definition}
-\begin{remark}
-If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
-\end{remark}
-STUFF ON THE INFEASABILITY TO COMPUTE DISCRETE LOGARITHMS
 
-\begin{definition}[Cofactor Clearing]
-Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
-\end{definition}
 
 \paragraph{Cryptographically secure elliptic curves} Not all elliptic curves satisfy the requirements from applied cryptography .... Here is a list of properties a curve should satisfy:
 
@@ -415,55 +546,15 @@ is a pseudo-random function.
 In this section we describes ways to describe elliptic curves different from the general Weierstrass form. Alternative descriptions are sometimes useful because of DIFFERENT ways to express the group laws
 
 
-\subsection{Twisted Edwards Form}
-% https://eprint.iacr.org/2008/013.pdf
-In this section we describe curves, that are defined over Galois fields of characteristics $\neq 2$. 
-A \textbf{twisted Edwards curve} over a Galois field $\F$ is a curve, defined by the equation
-$$E/\F:a\cdot x^2+y^2= 1+d\cdot x^2y^2$$ 
-where $x,y\in \F$ and $d\in \F\backslash\{0,1\}$ and $d\in \F\backslash\{1\}$ with $a\neq d$. Such a curve is called an Edwards curve (non twisted), if $a=1$.
-
-On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
-
-As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
-
-Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. 
-
-The most remarkable fact about twisted Edwards curves is their simple addition law. Assuming that $a$ has a root in $\F$ and $d$ has no root in $\F$, the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
-$$
-(x_1, y_1) + (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
-$$
-The point $(0,1)$ is the neutral element of the addition law. The inverse of a point $(x_1, y_1)$ on $E$ is $(-x_1, y1)$. The addition law is very simple to implement and it can also be used for point doubling. It also works for the neutral element, for inverses..
-
-As Edwards curves have such simple non branching addition laws that work for all points, including the neutral element and inverses, they are a interesting for snarks as they can be implemented with only a few constraints in circuits.
-
-%\begin{example}[Non twisted Edwards curves have order 4 points]
-%In this example, we will show that every Edwards curve has a point of order $4$. To see that let $E$ be an arbitrary Edwards curve ($a=1$). Then the point $(1,0)$ is on that curve, since $1^2+0^2= 1+d 1^2 0^2$. We compute 
-%\begin{align*}
-%[4](1,0) = \\
-%[2]([2](1,0))=\\
-%[2]\left(\frac{1 0 +1 0}{1 +d 1 1 0 0},\frac{00-1\cdot 1}{1-d1 1 00}\right)=\\
-%[2](0,-1)=\\
-%\left(\frac{0(-1)+(-1)0}{1 +d 0 0 (-1)(-1)},\frac{(-1)(-1)-00}{1-d00(-1)(-1)}\right) =\\
-(0,1)
-%\end{align*} 
-
-%Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
-%\end{example}
-
-The twisted Edwards form is just another form to define an elliptic curve. In fact every curve in twisted Edwards form can be transformed into an elliptic curve in Montgomery form and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery form is then
-$$
-\frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
-$$
-On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ (WITH STUFF) can be transformed into a twisted Edwards curve 
-$$
-(\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
-$$
-
-
 \section{Pend and Paper example curves}
 \subsection{BLS6-6 -- our pen\& paper curve}
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
+
+\begin{definition}[Cofactor Clearing]
+Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
+\end{definition}
+
 In this example we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
 
 A well understood family of pairing friendly curves are the BLS curves (STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION)
