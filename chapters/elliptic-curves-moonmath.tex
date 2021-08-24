@@ -54,7 +54,7 @@ MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8)
 10), (11, 6), (11, 7), (12, 5), (12, 8)\}
 \end{multline*}
 \end{example}
-
+\paragraph{Affine group law}
 %group law
 % http://wwwmayr.informatik.tu-muenchen.de/konferenzen/Jass07/courses/1/Lukyanenko/Lukyanenk_Paper.pdf
 One of the key properties of an elliptic curve is that it is possible to define a group law on the set of its rational points, such that the point at infinity serves as the neutral element and inverses are reflections on the $x$-axis.
@@ -137,7 +137,49 @@ y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y\\
 \end{align*}
 So in our elliptic curve $E_1(\F_5)$ we get the doubling $2\cdot (4,2)$, that is $(4,2)\oplus (4,2) =(3,4)$ and indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self inverse points, since no point has $0$ as its $y$-coordinate.
 
-We can also invoke sage to compute the addition on our  elliptic curve. 
+Since we know that $E_1(\F_5)$ is a finite cyclic group of order $9$ and the prime factorization of $9$ is $9=3\cdot 3$, we know that $E_1(\F_5)$ must have exactly one non trivial subgroup of order $3$ and (as always) the trivial subgroup that only consists of the neutral element. This is a consequence of the fundamental theorem of cyclic groups XXX. In fact the subgroups are given by
+\begin{itemize}
+\item By definition any group is a subgroup of itself. So 
+$\G_1 = E_1(\F_5)$ is its own subgroup.
+\item The set $\G_2 = \{(2,1),(2,4),\Oinf\}$ is a subgroup of order $3$.
+\item The trivial subgroup $\G_3 = \{\Oinf\}$.
+\end{itemize}
+Moreover since $E_1(\F_5)$ and all its subgroups are cyclic, we know from XXX, that they must have generators. For example the curve point $(2,1)$ is a generator of the group $\{(2,1),(2,4),\Oinf\}$, since 
+\begin{align*}
+[1](2,1) & = (2,1) \\
+[2](2,1) & = (2,4) \\
+[3](2,1) & = \Oinf
+\end{align*}
+So as expected the generator $(2,1)$ defines an exponential map from the finite field $\F_3$ onto $\G_2$ defined by scalar multiplication
+$$
+[\cdot](2,1): \F_3 \to \G_2\; : \; x\mapsto [x](2,1) 
+$$
+To give an example of a generator that generates the entire group $E_1(\F_5)$ consider the point $(0,1)$. With some effort (or by invoking sage), we compute
+\begin{align*}
+[1](0,1) & = (0, 1)\\
+[2](0,1) & = (4, 2)\\
+[3](0,1) & = (2, 1)\\
+[4](0,1) & = (3, 4)\\
+[5](0,1) & = (3, 1)\\
+[6](0,1) & = (2, 4)\\
+[7](0,1) & = (4, 3)\\
+[8](0,1) & = (0, 4)\\
+[9](0,1) & = \Oinf
+\end{align*}
+So as expected the generator $(0,1)$ defines an exponential map from the commutative ring $\Z_9$ onto $\G_1$ defined by scalar multiplication
+$$
+[\cdot](0,1): \Z_9 \to \G_1\; : \; x\mapsto [x](0,1) 
+$$
+To simplify the notation and to make our pen and paper computation somewhat more easy we will adopt a notation like this 
+$$
+\G_1 = \{(0, 1)\to (4, 2)\to (2, 1)\to (3, 4)\to (3, 1)\to (2, 4)\to (4, 3)\to (0, 4)\to \Oinf \}
+$$
+indicating that the first element is a generator and the $n$-th element is the scalar product of $n$ and the generator. This simplifies computations a lot, since for example, we can immediately deduce $(3,4)\oplus (4,3) = (4,2)$, since 
+we see from our representation that $(3,4)= [4](0,1)$ as well as $(4,3)= [7](0,1)$ and since $4+7 = 2$ in $\Z_9$, the result is $(4,2)=[2](0,1)$.
+
+Finally we can use $E_1(\F_5)$ as an example to understand the concept of cofactor clearing from XXX. Since the order of $E_1(\F_5)$ is $9$ we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_1(\F_5)$ onto its prime factor group $\G_2$ by scalar multiplication with $3$. For example taking the element $(3,4)$ which is not in $\G_2$ and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $\G_2$ as expected.
+
+We can also invoke sage to double check all the computations. 
 \begin{sagecommandline}
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
@@ -152,10 +194,31 @@ sage: R2 == 2*Q
 \end{example}
 \begin{example}[Moon-JubJub] Consider the Moon-JubJub curve from example XXX again. Its group of rational points $MJJ(\F_{13})$ is given by 
 \begin{multline*}
-MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2),\\ (7, 11), (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
+MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2), (7, 11), \\ (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
 10), (11, 6), (11, 7), (12, 5), (12, 8)\}
 \end{multline*}
 In contrast to the group from the previous example, this group contains the self inverse point $(4,0)$. To see that, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $MJJ(\F_{13})$. 
+
+Now since the order of $MJJ(\F_{13})$ is $20$ and $20 = 2^2\cdot 5$, we know that the Moon-JubJub curve contains a "large" prime order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
+
+To compute those groups we can apply the technique of cofactor clearing starting from the smallest group (the trivial group). Since the trivial group has order $1$, the apropriate cofactor is $20$ and scalar multiplication $[20](x,y)$ will result in $\Oinf$ for any element $(x,y)\in MJJ(\F_{13})$. And indeed $\Oinf$ is a generator of the trivial group $\G_1 :=\{\Oinf\}$. 
+
+To find a generator of the next smallest subgroup, which contains two elements, we have to multiply with the cofactor $10$ of $2$. Choosing $(5,11)$ we get 
+$[10](8,8)=\Oinf$, which doesn't give us a generator. However choosing $(9,4)$ we get $[10](9,4)=(4,0)$, so we found the generator $(4,0)$ of the group $\G_2=\{(4,0)\to \Oinf\}$. 
+
+To find a generator of the subgroup with $5$ elements, we multiply $(9,4)$ by the cofactor $4$ and get $[4](9,4)=(7,11)$. To finde the group of order $5$, we apply the exponential map $[\cdot](7,11): \F_5 \to MJJ(\F_{13})$ and get
+\begin{align*}
+[1](7,11) &= (7,11)\\
+[2](7,11) &= (8,5)\\
+[3](7,11) &= (8,8)\\
+[4](7,11) &= (7,2)\\
+[5](7,11) &= \Oinf\\
+\end{align*} 
+Adopting the notation from example XXX, we therefore find the following "large" order primegroup
+\begin{multline*}
+\G_5 = \{(7,11)\to(8,5)\to(8,8)\to(7,2)\to \Oinf\}
+\end{multline*}
+ 
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
@@ -298,6 +361,8 @@ P = [m]Q
 Such an equation is also called a discrete logarithm relation between $P$ and $Q$
 
 If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
+
+
 
 \subsection{Montgomery Curves}
 % https://eprint.iacr.org/2017/212.pdf
