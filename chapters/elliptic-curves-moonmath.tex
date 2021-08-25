@@ -1,6 +1,8 @@
 \chapter{Elliptic Curves}
 %references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
-Generally speaking, elliptic curves are "curves" defined in geometric planes like the Euklidean or the projective plane over some given field. One of the key features of elliptic curves over finite fields from the point of view of cryptography is their set of points has a group law, such that the resulting group is finite and cyclic and it is believed that the discrete logarithm problem on these groups is hard. Moreover (DECISIONAL DH ECT.)
+Generally speaking, elliptic curves are "curves" defined in geometric planes like the Euklidean or the projective plane over some given field. One of the key features of elliptic curves over finite fields from the point of view of cryptography is their set of points has a group law, such that the resulting group is finite and cyclic and it is believed that the discrete logarithm problem on these groups is hard. 
+
+A special class of elliptic curves are so called \textit{pairing friendly curve}, which have a notation of pairing as defined in XXX, that has cryptographicall nice prperties. Those curve are useful in the development of SNAKS, since they allow to compute so called R1CS-satisfiability "in the exponent" (THIS HAS TO BE REWRITTEN WITH WAY MORE DETAIL)
 
 In this chapter we introduce epileptic curves as they are used in pairing based approaches to the construction of snarks. 
 
@@ -11,48 +13,103 @@ In its most generality elliptic curves are defined as a smooth projective curve 
 \section{Elliptic Curve Arithmetics}
 
 \subsection{Short Weierstraß Curves}
-We start with an introduction to so called short Weierstraß curves, which are the most general types of curves over finite fields of characteristic greater then $3$. 
+In this section we introduce the so called short Weierstraß curves, which are the most general types of curves over finite fields of characteristic greater then $3$. 
 
-\paragraph{Affine short Weierstraß form}
-To see what a short Weierstraß curve in affine coordinates is, let $\F_q$ be a finite field of characteristic $char(\F)> 3$ and $a,b\in \F_q$ two field elements such that $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$. Then a \textbf{short Weierstrass elliptic curve} $E/\F_q$ over $\F_q$ in its affine representation is the set
+We start with their reprrsention in affine space. This reprresentation has the advantage that affine points are just pairs of numbers which is more convinient to work with for the beginner. However it has the disadvantage that a special "point at infinity" that is not a point on the curve, is necessary to describe the group structure. We introduce the elliptic curve group law and describe elliptic curve scalar multiplication, which is nothing but an instatation of the exponential map from general cyclic groups.
+
+Then we look at the projective representation of short Weierstrass curves. It has the advantage that no special sybol is necessary to represent the point at infinity but comew with the drawback that projective points are classes of numbers, which might be a bit unusual for a beginner.
+
+We finish this section with an explicit equivalence that transforms affine representations into projective once and vice versa.
+
+\paragraph{Affine short Weierstraß form} Probably the least abstract and most straight forward way to introduce elliptic curves for beginners is the so called affine representation of a short Weierstraß curve. To see what this is, let $\F_q$ be a finite field of characteristic $char(\F)> 3$ and $a,b\in \F_q$ two field elements such that $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$. Then a \textbf{short Weierstrass elliptic curve} $E(\F_q)$ over $\F_q$ in its affine representation is the set
 \begin{equation}
 \label{def_short_weierstrass_curve}
-E/\F_q = \{(x,y)\in \F_q\times \F_q\;|\; y^2=x^3+ax+b \} \bigcup \{\Oinf\}
+E(\F_q) = \{(x,y)\in \F_q\times \F_q\;|\; y^2=x^3+ax+b \} \bigcup \{\Oinf\}
 \end{equation}
 of all pairs of field elements $(x,y)\in \F_q\times \F_q$, that satisfy the short Weierstrass cubic equation $y^2=x^3+ax+b$, together with a distingushid symbol $\Oinf$, called the \textbf{point at infinity}.
 
-Note that in the literature, the set $E/\F_q$ that included $\mathcal{O}$ is often called the set of \textit{rational points} of the elliptic curve. However in what follows we will frequently identify an elliptic curve with its set of rational points.
+To brake this complicated looking definition down into simple terms, a short Weierstraß elliptic curve is nothing but the set of all pairs of $x$ and $y$ coordinates, that satisfy the equation $y^2 = x^3 + a\cdot x +b$ together with a special symbol. 
 
-The requirement $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$ is BBBB 
+The term "curve" appears, because in the ordinary 2 dimensional plane $\R^2$,
+the set of all points $(x,y)$ that satisfy $y^2 = x^3 +ax +b$ looks like a curve. We should note however, that visualizing elliptic curves over finite fields as "curves" has its limitations and we will therefore not stress the geometric picture too much, but focus on the compuational properties instead.
 
-In a nutshell a short Weierstraß elliptic curve is nothing but a set of certain pairs of coordinates, that satisfy equation XXX. The term "curve" appears, because the set of points of an elliptic curve defined in the 2 dimensional Euklidean plane $\R^2$, looks like a curve  
+The identity $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$ ensures that the curve is  non-singular, which means that the curve has no cusps or self-intersections.
 
-\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5} \neq  0 $ and the corresponding elliptic curve $E(\F_5)$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. For example if we choose $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence the pair $(1,1)$ is not an element of our curve $E_1(\F_5)$. On the other hand $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is an element of $E_1(\F_5)$. Doing this computations for all 25 combinations of pairs in $\F_5$, gives the set of rational points as 
+\begin{notation}
+In the literature, the set $E(\F_q)$, which includs the sybol $\mathcal{O}$ is often called the set of \textit{rational points} of the elliptic curve, in which case the curve itself is usually written as $E/\F_q$. However in what follows we will frequently identify an elliptic curve with its set of rational points and therefore use the symbol $E(\F_q)$ instead. This is possible in our case, since we only really care about the group structure of the curve in consideration.
+\end{notation}
+When dealing with elliptic curves compuations can quickly become cumbersome and tedious. So on the one hand side the reader is adviced to do as many compuations in a pen and paper style as possible. This helps a lot to get a deeper understanding for the details. On the other hand side however, compuations are sometimes simply to large to be done by hand and one might get lost in the details. Fortunately sage is very helpful in dealing with elliptic curves. One we to define elliptic curves and work is them goes like this:
+\begin{sagecommandline}
+sage: F5 = GF(5) # define the base field
+sage: a = F5(2) # parameter a
+sage: b = F5(4) # parameter b
+sage: F5(6)*(F5(4)*F5(2)^3+F5(27)*F5(4)^2) != F5(0)
+sage: # short Weierstrass curve 
+sage: E = EllipticCurve(F5,[a,b]) # y^2 == x^3 + ax +b 
+sage: P = E(0,2) # 2^2 == 0^3 + 2*0 + 4
+sage: P.xy() # affine coordinates
+sage: INF = E(0) # point at infinity
+sage: try: 	# point at infinity has no affine coordinates
+....:     INF.xy()
+....: except ZeroDivisionError:
+....:     pass
+
+\end{sagecommandline}
+The following three examples will give a more practical understanding of what an elliptic curve is and how we can compute them. The reader is adviced to read them carefully and ideally to parallel the computation themselfs. We will repeatedly build on these example in this chapter and use the second example at various places in this book.
+\begin{example}Consider the prime field $\F_5$ from example (XXX). If we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5}$ and the corresponding elliptic curve $E_1(\F_5)$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. 
+
+For example if we choose $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence the pair $(1,1)$ is not an element of the curve $E_1(\F_5)$. On the other hand $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is an element of $E_1(\F_5)$. Doing the same computations for all 25 combinations of pairs in $\F_5$, gives the set of rational points as 
 $$
 E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
-We can also invoke sage to compute this elliptic curve. 
+So our elliptic curve is a set of $9$ elements. $8$ of which are pairs of numbers and one special symbol $\Oinf.$ We can also invoke sage to compute this elliptic curve. 
 \begin{sagecommandline}
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
-sage: [P.xy() for P in E1.points() if P.order() > 1]
+sage: try: # valid point
+....:     E1(2,1).xy() # 1^2 == 2^3 + 2 + 1
+....: except TypeError:
+....:     pass
+sage: try: # invalid point
+....:     E1(1,1).xy() # 1^2 != 1^3 + 1 + 1
+....: except TypeError:
+....:     pass
 \end{sagecommandline}
+% sage: AffinePoints = [P.xy() for P in E1.points() if P.order > 1]
 \end{example}
-\begin{example}[Moon-JubJub] Consider the prime field $F_{13}$. If we choose $a=8$ and $b=8$ then $\kongru{4a^3+ 27b^2}{6}{13}$ and the corresponding elliptic curve $MJJ(\F_{13})$ is given by all pairs $(x,y)$ from $\F_13$ such that $y^2=x^3+8x+8$. 
-
-We call $MJJ(\F_{13})$ the Moon-JubJub curve. As we will see in what follows this curve is kind od special as it is possible to represent it in two alternitive forms, called a Montgomery and a twisted Edwards form (See xxx and XXX). 
-
-Since there are $169$ pairs of elements from $F_{13}$, computing the set of curve points is bit to much work and we invoke sage instead. We get
+\begin{example}[Moon-JubJub] Consider the prime field $\F_{13}$. If we choose $a=8$ and $b=8$ then $\kongru{4a^3+ 27b^2}{6}{13}$ and the corresponding elliptic curve $MJJ(\F_{13})$ is given by all pairs $(x,y)$ from $\F_13$ such that $y^2=x^3+8x+8$ holds. Since there are $169$ pairs of elements from $\F_{13}$, computing the set of curve points is a bit to much work and we invoke sage instead. We get
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
 sage: AffinePoints = [P.xy() for P in MJJ.points() if P.order() > 1]
 \end{sagecommandline}
-Combining this with the point at infinity gives the set of rational points as 
 \begin{multline*}
-MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2),\\ (7, 11), (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
+MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2), (7, 11), \\ (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
 10), (11, 6), (11, 7), (12, 5), (12, 8)\}
 \end{multline*}
+We call $MJJ(\F_{13})$ the \textit{Moon-JubJub} curve. As we will see in what follows this curve is kind of special as it is possible to represent it in two alternitive forms, called a Montgomery and a twisted Edwards form (See xxx and XXX). Curve like this are important in SNARKS as it is possible to implement them effciently as a SNARK.
+\end{example}
+\begin{example}[Bitcoin's Secp256k1 curve]To give an example of a real world, cryptographically secure curve, lets look at curve Secp256k1, which is famous for being used in the public key cryptography of Bitcoin. The prime field $\F_p$ of Secp256k1 if defined by the prime number
+$$
+p = \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663
+$$
+which has a binary representation that need $256$ bits. This implies that the $\F_p$ approximately contains $2^{256}$ many elements. So the underlying field is large. To get an image of how large the base field is, consider that the number $2^{256}$ is approximately in the same order of magnitute as the estimated number of atomes in the observeable universe. 
+
+Curve Secp256k1 is then defined by the parameters $a,b\in \F_p$ with $a=0$ and $b=7$. So we have
+$$
+\text{Secp256k1} = \{(x,y)\in \F_p\times \F_p\;| y^2 = x^3 +7\;\} 
+$$
+\begin{sagecommandline}
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: p.is_prime()
+sage: p.nbits()
+sage: FSecp256k1 = GF(p)
+sage: Secp256k1 = EllipticCurve(FSecp256k1,[0,7])
+sage: r = Secp256k1.order() # number of elements
+sage: r.is_prime()
+sage: r.nbits()
+\end{sagecommandline}
+And fortunately as we can see, sage handles those curves effordless, which makes it a good candidate for SNARK computations.
 \end{example}
 \paragraph{Affine group law}
 %group law
@@ -101,42 +158,97 @@ E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
 We know that this set defines a group, so we can add any two elements from $E_1(\F_5)$ to get a third element. 
 
-To give an example consider the elements $P=(0,1)$ and $Q=(4,2)$. Neither of these elements is the neutral element and since the $x$-coordinate of $P$ is different from the $x$-coordinate of $Q$, we know that we have to use the tangent rule, that is rule number 4 from XXX to compute the sum $R= P\oplus Q$. We get
+To give an example consider the elements $(0,1)$ and $(4,2)$. Neither of these elements is the neutral element $\Oinf$ and since the $x$-coordinate of $(0,1)$ is different from the $x$-coordinate of $(4,2)$, we know that we have to use the chord rule, that is rule number 4 from XXX to compute the sum $(0,1)\oplus (4,2)$. We get
 %\begin{tabular}{lr}
 \begin{align*}
-x_3  & = \left(\frac{y_2-y_1}{x_2-x_1}\right)^2 -x_1-x_2 \\
-     & = \left(\frac{2-1}{4-0}\right)^2 -0-4 \\
-     & = \left(\frac{1}{4}\right)^2 +1 \\
-     & = 4^2 +1 \\
-     & = 1 +1 \\
-     & = 2
-\end{align*} %&
-\begin{align*}
-y_3  & = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1 \\     
-     & = \left(\frac{2-1}{4-1} \right)\left(0-2\right) - 1 \\    
-     & = \left(\frac{1}{4} \right)\cdot 3 + 4 \\    
-     & = 4\cdot 3 + 4 \\            
-     & = 2 + 4 \\          
-     & = 1          
+x_3  & = \left(\frac{y_2-y_1}{x_2-x_1}\right)^2 -x_1-x_2 & \text{\# insert points}\\
+     & = \left(\frac{2-1}{4-0}\right)^2 -0-4  & \text{\# simplify in } \F_5\\
+     & = \left(\frac{1}{4}\right)^2 +1
+       = 4^2 +1
+       = 1 +1 
+       = 2
+\\
+\\
+y_3  & = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1  & \text{\# insert points}\\     
+     & = \left(\frac{2-1}{4-1} \right)\left(0-2\right) - 1   & \text{\# simplify in } \F_5\\    
+     & = \left(\frac{1}{4} \right)\cdot 3 + 4   
+       = 4\cdot 3 + 4
+       = 2 + 4
+       = 1          
 \end{align*} 
 %\end{tabular}
 So in our elliptic curve $E_1(\F_5)$ we get $(0,1)\oplus (4,2) =(2,1)$ and indeed the pair $(2,1)$ is an element of $E_1(\F_5)$ as expected. On the other hand we have $(0,1)\oplus (0,4) =\Oinf$, since both points have equal $x$-coordinates and inverse $y$-coordinates rendering them as inverse to each other. Adding the point $(4,2)$ to itself, we have to use the tangent rule, that is rule 3 from XXX. We get 
 \begin{align*}
-x'  & = \left(\frac{3x^2+a}{2y}\right)^2 -2x \\
-    & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2 -2\cdot 4 \\
-    & = \left(\frac{3\cdot 1+1}{4}\right)^2 +3\cdot 4 \\
-    & = \left(\frac{4}{4}\right)^2 +2 \\
-    & = 1 +2 \\
-    & = 3
+x'  & = \left(\frac{3x^2+a}{2y}\right)^2 -2x   & \text{\# insert points}\\
+    & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2 -2\cdot 4 & \text{\# simplify in } \F_5 \\
+    & = \left(\frac{3\cdot 1+1}{4}\right)^2 +3\cdot 4
+      = \left(\frac{4}{4}\right)^2 +2
+      = 1 +2 
+      = 3
+\\
+\\
+y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y  & \text{\# insert points} \\
+    & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2\left(4-3\right) - 2 & \text{\# simplify in } \F_5\\
+    & = 1\cdot 1 + 3
+      = 4
 \end{align*}
-\begin{align*}
-y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y\\
-    & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2\left(4-3\right) - 2\\
-    & = 1\cdot 1 + 3\\
-    & 4
-\end{align*}
-So in our elliptic curve $E_1(\F_5)$ we get the doubling $2\cdot (4,2)$, that is $(4,2)\oplus (4,2) =(3,4)$ and indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self inverse points, since no point has $0$ as its $y$-coordinate.
+So in our elliptic curve $E_1(\F_5)$ we get the doubling $2\cdot (4,2)$, that is $(4,2)\oplus (4,2) =(3,4)$ and indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self inverse points, since no point has $0$ as its $y$-coordinate. We can invoke sage to double check the computations. 
+\begin{sagecommandline}
+sage: F5 = GF(5)
+sage: E1 = EllipticCurve(F5,[1,1])
+sage: INF = E1(0) # point at infinity
+sage: P1 = E1(0,1)
+sage: P2 = E1(4,2)
+sage: P3 = E1(0,4)
+sage: R1 = E1(2,1)
+sage: R2 = E1(3,4)
+sage: R1 == P1+P2
+sage: INF == P1+P3
+sage: R2 == P2+P2
+sage: R2 == 2*P2
+sage: P3 == P3 + INF
+\end{sagecommandline}
+\end{example}
+\begin{example}[Moon-JubJub] Consider the Moon-JubJub curve from example XXX again. Its group of rational points $MJJ(\F_{13})$ is given by 
+\begin{multline*}
+MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2), (7, 11), \\ (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
+10), (11, 6), (11, 7), (12, 5), (12, 8)\}
+\end{multline*}
+In contrast to the group from the previous example, this group contains a self inverse point, given by $(4,0)$. To see what this means, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $MJJ(\F_{13})$. The point $(4,0)$ is therefore inverse to itself, as adding it to itself gives the neutral element. 
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: MJJ = EllipticCurve(F13,[8,8])
+sage: P = MJJ(4,0)
+sage: INF = MJJ(0) # Point at infinity
+sage: INF == P+P
+sage: INF == 2*P
+\end{sagecommandline}
+\end{example}
+\begin{exercise}
+Consider the Moon-JubJub curve from example XXX. 
+\begin{enumerate}
+\item Compute the inverse of $(10,10)$, $\Oinf$, $(4,0)$ and $(1,2)$.
+\item Compute the expression $3*(1,11) - (9,9)$.
+\item Solve the equation $x + 2(9,4) = (5,2) $ for $x\in E_1(\F_{13})$
+\item Solve the equation $x\cdot (7,11) = (8,5)$ for $x\in \Z$
+\end{enumerate}
+\end{exercise}
+\paragraph{Scalar multiplication}
+Let $E/\F_q$ an elliptic curve and $P\in E/\F_q$ a point on that curve. Then the \textbf{elliptic curve scalar multiplication} with base $P$ is given by
+$$
+[\cdot]P: \Z \to E/\F_q; m \mapsto [m]P
+$$
+where $[m]P = P+P+\ldots + P$ is the $m$-fold sum of $P$ with itself. 
 
+Elliptic curve scal multiplication is an instantiation of the exponential map XXX. As with all cyclic groups the inverse of the exponential map exist and is ... To be more precise, let $E/\F_q$ be an elliptic curve and $P,Q\in E/\F_q$ be two points. Then the elliptic curve discrete logarithm problem consists of finding a solution $m\in\Z$, such that
+\begin{equation}
+P = [m]Q
+\end{equation}
+Such an equation is also called a discrete logarithm relation between $P$ and $Q$
+
+If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
+
+\begin{example}
 Since we know that $E_1(\F_5)$ is a finite cyclic group of order $9$ and the prime factorization of $9$ is $9=3\cdot 3$, we know that $E_1(\F_5)$ must have exactly one non trivial subgroup of order $3$ and (as always) the trivial subgroup that only consists of the neutral element. This is a consequence of the fundamental theorem of cyclic groups XXX. In fact the subgroups are given by
 \begin{itemize}
 \item By definition any group is a subgroup of itself. So 
@@ -178,27 +290,8 @@ indicating that the first element is a generator and the $n$-th element is the s
 we see from our representation that $(3,4)= [4](0,1)$ as well as $(4,3)= [7](0,1)$ and since $4+7 = 2$ in $\Z_9$, the result is $(4,2)=[2](0,1)$.
 
 Finally we can use $E_1(\F_5)$ as an example to understand the concept of cofactor clearing from XXX. Since the order of $E_1(\F_5)$ is $9$ we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_1(\F_5)$ onto its prime factor group $\G_2$ by scalar multiplication with $3$. For example taking the element $(3,4)$ which is not in $\G_2$ and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $\G_2$ as expected.
-
-We can also invoke sage to double check all the computations. 
-\begin{sagecommandline}
-sage: F5 = GF(5)
-sage: E1 = EllipticCurve(F5,[1,1])
-sage: P = E1(0,1)
-sage: Q = E1(4,2)
-sage: R1 = E1(2,1)
-sage: R2 = E1(3,4)
-sage: R1 == P+Q
-sage: R2 == Q+Q
-sage: R2 == 2*Q
-\end{sagecommandline}
 \end{example}
-\begin{example}[Moon-JubJub] Consider the Moon-JubJub curve from example XXX again. Its group of rational points $MJJ(\F_{13})$ is given by 
-\begin{multline*}
-MJJ(\F_{13}) = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2), (7, 11), \\ (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
-10), (11, 6), (11, 7), (12, 5), (12, 8)\}
-\end{multline*}
-In contrast to the group from the previous example, this group contains the self inverse point $(4,0)$. To see that, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $MJJ(\F_{13})$. 
-
+\begin{example}
 Now since the order of $MJJ(\F_{13})$ is $20$ and $20 = 2^2\cdot 5$, we know that the Moon-JubJub curve contains a "large" prime order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
 
 To compute those groups we can apply the technique of cofactor clearing starting from the smallest group (the trivial group). Since the trivial group has order $1$, the apropriate cofactor is $20$ and scalar multiplication $[20](x,y)$ will result in $\Oinf$ for any element $(x,y)\in MJJ(\F_{13})$. And indeed $\Oinf$ is a generator of the trivial group $\G_1 :=\{\Oinf\}$. 
@@ -218,25 +311,7 @@ Adopting the notation from example XXX, we therefore find the following "large" 
 \begin{multline*}
 \G_5 = \{(7,11)\to(8,5)\to(8,8)\to(7,2)\to \Oinf\}
 \end{multline*}
- 
-\begin{sagecommandline}
-sage: F13 = GF(13)
-sage: MJJ = EllipticCurve(F13,[8,8])
-sage: P = MJJ(4,0)
-sage: INF = MJJ(0) # Point at infinity
-sage: INF == P+P
-sage: INF == 2*P
-\end{sagecommandline}
 \end{example}
-\begin{exercise}
-Consider the Moon-JubJub curve from example XXX. 
-\begin{enumerate}
-\item Compute the inverse of $(10,10)$, $\Oinf$, $(4,0)$ and $(1,2)$.
-\item Compute the expression $3*(1,11) - (9,9)$.
-\item Solve the equation $x + 2(9,4) = (5,2) $ for $x\in E_1(\F_{13})$
-\item Solve the equation $x\cdot (7,11) = (8,5)$ for $x\in \Z$
-\end{enumerate}
-\end{exercise}
 \paragraph{Projective short Weierstraß form}
 % https://www.cosic.esat.kuleuven.be/bcrypt/lecture%20slides/wouter.pdf
 As we can see, we had to add a special point at infinity to the definition of a short Weierstrass curve. Recalling from the definition of projective planes we know, that similar points at infinity are handled as ordinary points in projective geometry. It make therefore sense to look at the definition of a short Weierstraß curve in projective geometry.
@@ -311,12 +386,46 @@ Again, it can be shown that the points of an elliptic curve in projective space 
 \Ensure $ [X_3:Y_3:Z_3] == [X_1:Y_1:Z_1] \oplus [X_2:Y_2:Z_2]$
 \end{algorithmic}
 \end{algorithm}
+
+\begin{example}Consider the elliptic curve $E_1(F_5)$ from example (XXX). We know that in its affine representation, the set of rational points is given by 
+$$
+E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+which is defined as the set of all pairs $(x,y)\in \F_5\times \F_5$, such that the affine short Weierstrass equation $y^2 = x^3 + ax +b$ with $a=1$ and $b=1$ is satisfied.
+
+To finde the projective representation of a short Weierstrass curve with the same parameter $a=1$ and $b$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$, that satisfy the homogenous cubic equation 
+$$
+Y^2Z = X^3 + 1\cdot XZ^2 + 1\cdot Z^3
+$$
+We know from XXX, that $\F_5\mathrm{P}^2$ contains $5^2+5+1= 31$ elements, so we can take the effort and inseret all elements into equation XXX and see if both sides match. To see how this works, consider the projective point $[0:4:1]$. We know from XXX, that this point in the projective plane represents the line
+$$
+[0:4:1] = \{(0,0,0),(0,4,1),(0,3,2),(0,2,3),(0,1,4)\}
+$$  
+in the three dimensional space $\F^3$. To check whether or not $[0:4:1]$ satisfies XXX, we can insert any representative, that is we can insert any element from XXX. Each element satisfies the equation if and only if any other satisfies the equation. So we insert $(0,4,1)$ and get
+$$
+1^2\cdot 1 = 0^3 + 1\cdot 0\cdot 1^2 + 1\cdot 1^3
+$$
+which tells us that the affine point $[0:4:1]$ is indeed a solution. And as we can see, would just as well insert any other representative. For example inserting $(0,3,2)$ also satisfies XXX, since 
+$$
+3^2\cdot 2 = 0^3 + 1\cdot 0\cdot 2^2 + 1\cdot 2^3
+$$
+To find the projective reprresentation of $E_1$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstraß curve since it can not satisfy XXX for any parameter $a$ and $b$. So we can exclude it from our consideration. 
+
+Moreover a point at infinity $[X:Y:0]$ can only satisfy equation XXX for any $a$ and $b$, if $X=0$, which implies that the only point at infinity relavant for short Weierstrass elliptic curves is $[0:1:0]$, since $[0:k:0]= [0:1:0]$ for all $k$ from the finite field. So we can exclude all points at infinity except the point $[0:1:0]$.
+
+So all points that remain are the affine points $[X:Y:1]$. Inserting all of them into XXX we get the set of all projective curve points as
+$$
+E_1(\F_5\mathrm{P}^2)=\{[0:1:0], [0:1:1], [2:1:1], [3:1:1], [4:2:1], [4:3:1], [0:4:1], [2:4:1], [3:4:1]\}
+$$
+If we compare this with the affine representation we see that there is a 1:1 correspondence between the points in the affine representation XXX and the affine points in projective geometry and that the point $[0:1:0]$ represents the additional point $\Oinf$ in the projective representation.
+\end{example}
+
 \begin{exercise}
 Compare that affine addition law for short Weierstraß curves with the projective addition rule. Which branch in the projective rule corresponds to which case in the affine law? 
 \end{exercise}
 
-\paragraph{Coordinate Transformations}
-From a mathematical point of view projective and affine short Weierstraß curves describe the same thing as there is a one-to-one correspondence (an isomorphism) between both representations for any given parameters $a$ and $b$. 
+\paragraph{Coordinate Transformations} As we have seen in example XXX, there was a close relation between the affine and the projective representation of a short Weierstrass curve. This was no accident.
+In fact from a mathematical point of view projective and affine short Weierstraß curves describe the same thing as there is a one-to-one correspondence (an isomorphism) between both representations for any given parameters $a$ and $b$. 
 
 To specify the isomorphism, let $E/\F$ and $E/\F\mathrm{P}^2$ be an affine and a projective short Weierstraß curve defined for the same parameters $a$ and $b$. Then the map
 \begin{equation}
@@ -338,30 +447,6 @@ Note the only projective point $[x:y:z]$ with $z\neq 0$ that satisfys XXX is giv
 One key feature of $\Phi$ and its inverse is, that it respects the group structure, which means that $\Phi((x_1,y_1)\oplus (x_2,y_2))$ is equl to $\Phi(x_1,y_1)\oplus \Phi(x_2,y_2)$. The same holds true for the inverse map $\Phi^{-1}$.
 
 Maps with these properties are caled \textit{group isomorphisms} and from a mathematical point of view the exisrence of $\Phi$ implies, that both definition are equivalent and implementations can choose freely between both representations. 
-\paragraph{Order of an Elliptic Curve}
-An interesting question is: How many elements does a curve over a finite field contain? The first thing to note is that, since $\Phi$ from XXX is a one-to-one correspondence, affine curves have the same number of points as isomorphic projective curve. It is therefore enough to study the affine case only.
-
-Since an affine short Weierstraß curve consists of pairs of elements from $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E/\F_q$ be an affine short Weierstraß curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
-\begin{equation}
-|E/\F_q| = q +1 -t
-\end{equation}
-So roughly speaking, the number of elements in an elliptic curve is approximately equal to the size of an underlying field.
-
-\paragraph{Scalar multiplication}
-Let $E/\F_q$ an elliptic curve and $P\in E/\F_q$ a point on that curve. Then the \textbf{elliptic curve scalar multiplication} with base $P$ is given by
-$$
-[\cdot]P: \Z \to E/\F_q; m \mapsto [m]P
-$$
-where $[m]P = P+P+\ldots + P$ is the $m$-fold sum of $P$ with itself. 
-
-Elliptic curve scal multiplication is an instantiation of the exponential map XXX. As with all cyclic groups the inverse of the exponential map exist and is ... To be more precise, let $E/\F_q$ be an elliptic curve and $P,Q\in E/\F_q$ be two points. Then the elliptic curve discrete logarithm problem consists of finding a solution $m\in\Z$, such that
-\begin{equation}
-P = [m]Q
-\end{equation}
-Such an equation is also called a discrete logarithm relation between $P$ and $Q$
-
-If neither $P$ nor $Q$ is a generator of a curve, then a discrete logarithm relation does not exists. On the other hand if one of the elements is a generator, then infinite many solutions exists. 
-
 
 
 \subsection{Montgomery Curves}
@@ -588,6 +673,16 @@ is a pseudo-random function.
 \end{theorem}
 
 \section{Constructing Elliptic curves}
+\paragraph{Order of an Elliptic Curve}
+An interesting question is: How many elements does a curve over a finite field contain? The first thing to note is that, since $\Phi$ from XXX is a one-to-one correspondence, affine curves have the same number of points as isomorphic projective curve. It is therefore enough to study the affine case only.
+
+Since an affine short Weierstraß curve consists of pairs of elements from $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E/\F_q$ be an affine short Weierstraß curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
+\begin{equation}
+|E/\F_q| = q +1 -t
+\end{equation}
+So roughly speaking, the number of elements in an elliptic curve is approximately equal to the size of an underlying field.
+
+
 \subsection{The Complex Multiplication Method}
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
 % http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf

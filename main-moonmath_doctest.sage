@@ -182,31 +182,70 @@ sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
 sage: F3_2(t+1)*(F3_2(t)**2 + F3_2(2*t+2)) == F3_2(2)
 sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
 
-Sage commandline, line 35::
+Sage commandline, line 42::
+
+sage: F5 = GF(5) # define the base field
+sage: a = F5(2) # parameter a
+sage: b = F5(4) # parameter b
+sage: F5(6)*(F5(4)*F5(2)^3+F5(27)*F5(4)^2) != F5(0)
+sage: # short Weierstrass curve
+sage: E = EllipticCurve(F5,[a,b]) # y^2 == x^3 + ax +b
+sage: P = E(0,2) # 2^2 == 0^3 + 2*0 + 4
+sage: P.xy() # affine coordinates
+sage: INF = E(0) # point at infinity
+sage: try:  # point at infinity has no affine coordinates
+....:     INF.xy()
+....: except ZeroDivisionError:
+....:     pass
+
+
+Sage commandline, line 66::
 
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
-sage: [P.xy() for P in E1.points() if P.order() > 1]
+sage: try: # valid point
+....:     E1(2,1).xy() # 1^2 == 2^3 + 2 + 1
+....: except TypeError:
+....:     pass
+sage: try: # invalid point
+....:     E1(1,1).xy() # 1^2 != 1^3 + 1 + 1
+....: except TypeError:
+....:     pass
 
-Sage commandline, line 46::
+Sage commandline, line 81::
 
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
 sage: AffinePoints = [P.xy() for P in MJJ.points() if P.order() > 1]
 
-Sage commandline, line 183::
+Sage commandline, line 102::
+
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: p.is_prime()
+sage: p.nbits()
+sage: FSecp256k1 = GF(p)
+sage: Secp256k1 = EllipticCurve(FSecp256k1,[0,7])
+sage: r = Secp256k1.order() # number of elements
+sage: r.is_prime()
+sage: r.nbits()
+
+Sage commandline, line 196::
 
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
-sage: P = E1(0,1)
-sage: Q = E1(4,2)
+sage: INF = E1(0) # point at infinity
+sage: P1 = E1(0,1)
+sage: P2 = E1(4,2)
+sage: P3 = E1(0,4)
 sage: R1 = E1(2,1)
 sage: R2 = E1(3,4)
-sage: R1 == P+Q
-sage: R2 == Q+Q
-sage: R2 == 2*Q
+sage: R1 == P1+P2
+sage: INF == P1+P3
+sage: R2 == P2+P2
+sage: R2 == 2*P2
+sage: P3 == P3 + INF
 
-Sage commandline, line 222::
+Sage commandline, line 218::
 
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
@@ -215,7 +254,7 @@ sage: INF = MJJ(0) # Point at infinity
 sage: INF == P+P
 sage: INF == 2*P
 
-Sage commandline, line 746::
+Sage commandline, line 841::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -229,13 +268,13 @@ sage: for P in INF.division_points(13): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 784::
+Sage commandline, line 879::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 810::
+Sage commandline, line 905::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -248,7 +287,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 825::
+Sage commandline, line 920::
 
 sage: for d in F13:
 ....:     j= ZZ(0)
@@ -259,14 +298,14 @@ sage: for d in F13:
 ....:     print('d=',d)
 ....:     print('order=',j)
 
-Sage commandline, line 846::
+Sage commandline, line 941::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 880::
+Sage commandline, line 975::
 
 sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
@@ -275,7 +314,7 @@ sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....: (x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 980::
+Sage commandline, line 1075::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -288,7 +327,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 995::
+Sage commandline, line 1090::
 
 sage: j = ZZ(0)
 sage: for a in F13:
@@ -300,27 +339,27 @@ sage: for a in F13:
 ....:                     j=j+1
 ....:         print('curve: a=',a,'d=',d,'order:',j)
 
-Sage commandline, line 1021::
+Sage commandline, line 1116::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1049::
+Sage commandline, line 1144::
 
 sage: def Edwards_add((x1,y1),(x2,y2),a,d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1079::
+Sage commandline, line 1174::
 
 sage: F7 = GF(7)
 sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 1110::
+Sage commandline, line 1205::
 
 sage: F7t.<t> = F7[]
 sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
@@ -333,13 +372,13 @@ sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1138::
+Sage commandline, line 1233::
 
 sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 1214::
+Sage commandline, line 1309::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])
