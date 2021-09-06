@@ -1,5 +1,5 @@
 \chapter{Algebra}
-Todo: Def Subgroup, 
+Todo: Def Subgroup,
 % https://en.wikipedia.org/wiki/Subgroups_of_cyclic_groups
 Fundamental theorem of cyclic groups.
 
@@ -7,75 +7,75 @@ We gave an introduction to the basic computational skills needed for a pen \& pa
 
 When you read papers about cryptography or mathematical papers in general, you will frequently stumble across algebraic terms like \textit{groups}, \textit{fields},\textit{rings} and similar. To understand what is going on, it is necessary to get at least some understanding of these terms. In this chapter we therefore with a short introduction to those terms.
 
-In a nutshell, algebraic types like groups or fields define sets that are analog to numbers to various extend, in the sense that you can add, subtract, multiply or divide on thoses sets. 
+In a nutshell, algebraic types like groups or fields define sets that are analog to numbers to various extend, in the sense that you can add, subtract, multiply or divide on those sets.
 
-We know many example of sets that fall under those categories, like the natural numbers, the integers, the ratinal or the real numbers. they are in some sense already the most fundamental examples.
+We know many example of sets that fall under those categories, like the natural numbers, the integers, the rational or the real numbers. they are in some sense already the most fundamental examples.
 
 \section{Groups} Groups are abstractions that capture the essence of mathematical phenomena, like addition and subtraction, multiplication and division, permutations, or symmetries.
 
-To understand groups, remember back in school when we learned about addition and subtraction of integers (Forgetting about integer multiplication for a moment). We learned that we can always add two integers and that the result is guranteed to be an integer again. We also learned how to deal wih brackets, that nothing happens, when we add zero to any integer, that it doesn't matter in which order we add a given set of integers and that for every integer there is always another integer (the negative), such that when we add both together we get zero. 
+To understand groups, remember back in school when we learned about addition and subtraction of integers (Forgetting about integer multiplication for a moment). We learned that we can always add two integers and that the result is guaranteed to be an integer again. We also learned how to deal with brackets, that nothing happens, when we add zero to any integer, that it doesn't matter in which order we add a given set of integers and that for every integer there is always another integer (the negative), such that when we add both together we get zero.
 
-These conditions are the defining properties of a group and mathematicians have recognozed that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to give a formulation of what a group should be, detached from any concrete example. This allows one to handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond. 
+These conditions are the defining properties of a group and mathematicians have recognized that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to give a formulation of what a group should be, detached from any concrete example. This allows one to handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond.
 
-Distilling these rules to the smallest independend list of properties and making them abstract we arrive at the definition of a group:
+Distilling these rules to the smallest independent list of properties and making them abstract we arrive at the definition of a group:
 
 A \textbf{group} $(\G,\cdot) $ is a set $ \G$, together with a map $ \cdot: \G \times \G \to \G $, called the group law, such that the following properties hold:
 \begin{itemize}
 \item (Existence of a neutral element) There is a $e\in\G$ for all $g\in\G$, such that $e\cdot g=g$ as well as $g\cdot e = g$.
 \item (Existence of an inverse) For every $g\in\G$ there is a $g^{-1}\in\G$, such that $g\cdot g^{-1}=e$ as well as $g^{-1}\cdot g = e$.
-\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation 
+\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation
 $g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
 \end{itemize}
-Rephrasing the abstract definition in more laymans terms, a group is something, where we can do computations that resembles the behaviour of addition of integers. Therefore when the reader reads the term group they are adviced to think of something where can combine some element with another element into a new element in a way that is reversable and where the order of combining many elements doesn't matter.
+Rephrasing the abstract definition in more layman's terms, a group is something, where we can do computations that resembles the behaviour of addition of integers. Therefore when the reader reads the term group they are advised to think of something where can combine some element with another element into a new element in a way that is reversible and where the order of combining many elements doesn't matter.
 \begin{notation}
-Let $(\mathbb{G}\cdot)$ be a finite group. If there is no risk of ambigously we frquently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as a notation for the group keeping the group law implicit.
+Let $(\mathbb{G}\cdot)$ be a finite group. If there is no risk of ambiguously we frequently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as a notation for the group keeping the group law implicit.
 \end{notation}
 As we will see in what follows, groups are all over the place in cryptography and in SNARKS. In particular we will see in XXX, that the set of points on an elliptic curve define a group, which is the most important example in this book. To give some more familiar examples first:
 \begin{example}[Integer Addition and Subtraction]
 The set $(\Z,+)$ of integers together with integer addition is the archetypical example of a group, where the group law is traditionally written as $+$ (instead of $\cdot$). To compare integer addition against the abstract axioms of a group, we first see that the neutral element $e$ is the number $0$, since $a+0=a$ for all integers $a\in $ and that the inverse of a number is the negative, since $a+(-a)=0$, for all $a\in\Z$. In addition we know that $(a+b)+c=a+(b+c)$, so integers with addition are indeed a group in the abstract sense.
 \end{example}
 \begin{example}[The trivial group]
-The most basic example of a group, is group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=\bullet$. 
+The most basic example of a group, is group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=\bullet$.
 \end{example}
 %\begin{example}[Rotations]
-%To give an example of a group that has effects in the real world, consider a dice. Then our group is the set of all possible ways to rotate the dice by 90 degrees alonng an imagined axix through two opposite faces. The group law is composition of rotations. So say hold the dice with two fingers at $1$ and $6$. $1$ is the face that points towards you and $5$ is the top face. Then you first rotate the dice along the $1$-$6$ axix by 90 degrees clockwise, such that now $3$ is the top face. Then you hold the dice at $5$ and 
+%To give an example of a group that has effects in the real world, consider a dice. Then our group is the set of all possible ways to rotate the dice by 90 degrees along an imagined axis through two opposite faces. The group law is composition of rotations. So say hold the dice with two fingers at $1$ and $6$. $1$ is the face that points towards you and $5$ is the top face. Then you first rotate the dice along the $1$-$6$ axis by 90 degrees clockwise, such that now $3$ is the top face. Then you hold the dice at $5$ and
 %\end{example}
-\paragraph{Commutative Groups} When we look at the general definition of a group we see that it is somewhat different from what we know from integers. For integers we know, that it doesnt matter in which order we add two integers, as for example $4+2$ is the same as $2+4$. However we also know from example XXX, that this is not always the case in groups. 
+\paragraph{Commutative Groups} When we look at the general definition of a group we see that it is somewhat different from what we know from integers. For integers we know, that it doesn't matter in which order we add two integers, as for example $4+2$ is the same as $2+4$. However we also know from example XXX, that this is not always the case in groups.
 
-To capture the special case of a group where the order in which the group law is executed doesn't matter, the concept of so called a \textbf{commutative group} is introduced. To be more precise a group is called commutative if  $g_1\cdot g_2 = g_2 \cdot g_1$ holds for all $g_1,g_2\in\G$. 
+To capture the special case of a group where the order in which the group law is executed doesn't matter, the concept of so called a \textbf{commutative group} is introduced. To be more precise a group is called commutative if  $g_1\cdot g_2 = g_2 \cdot g_1$ holds for all $g_1,g_2\in\G$.
 \begin{notation}
 In case $(\G,\cdot)$ is a commutative group, we frequently use the so called \textit{additive notation} $(\G,+)$, that is we write $+$ instead of $\cdot$ for the group law and $-g:=g^{-1}$ for the inverse of an element $g\in\G$.
 \end{notation}
 \begin{example} Consider the group of integers with integer addition again.
 Since $a+b=b+a$ for all integers, this group is the archetypical example of a commutative group. Since there are infinite many integers, $(\Z,+)$ is not a finite group.
 \end{example}
-\begin{example} Consider our definition of modulo $6$ residue classes $(\Z_6,+)$ as defined in the addition table from example XXX. As we see the residue class $0$ is the neutral element in modulo $6$ arithmetics and the inverse of a residue class $r$ is given by $6-r$, since $r+(6-r)=6$, which is congruent to $0$, since $\Zmod{6}{6}=0$. Moreover $(r_1+r_2)+r_3=r_1+(r_2+r_3)$ is inherited from integer arithmetic.  
+\begin{example} Consider our definition of modulo $6$ residue classes $(\Z_6,+)$ as defined in the addition table from example XXX. As we see the residue class $0$ is the neutral element in modulo $6$ arithmetics and the inverse of a residue class $r$ is given by $6-r$, since $r+(6-r)=6$, which is congruent to $0$, since $\Zmod{6}{6}=0$. Moreover $(r_1+r_2)+r_3=r_1+(r_2+r_3)$ is inherited from integer arithmetic.
 
-We therefore see that $(\Z_6,+)$ is a group and since addition table XX is symmetric, we see $r_1+r_2 = r_2+r_1$ which shows that $(\Z_6,+)$ is commutative. 
+We therefore see that $(\Z_6,+)$ is a group and since addition table XX is symmetric, we see $r_1+r_2 = r_2+r_1$ which shows that $(\Z_6,+)$ is commutative.
 \end{example}
-The previous example provided us with an important example of commuative groups that are important in this book. Abstracting from this example and considering residue classes $(\Z_n,+)$ for arbitrary moduli $n$, it can be shown that $(\Z,+)$ is a commutative group with neutral element $0$ and additive inverse $n-r$ for any element $r\in\Z_n$. We call such a group the \textit{reminder class groups} of modulus $n$.
+The previous example provided us with an important example of commutative groups that are important in this book. Abstracting from this example and considering residue classes $(\Z_n,+)$ for arbitrary moduli $n$, it can be shown that $(\Z,+)$ is a commutative group with neutral element $0$ and additive inverse $n-r$ for any element $r\in\Z_n$. We call such a group the \textit{reminder class groups} of modulus $n$.
 
 Of particular importance for pairing based cryptography in general and snarks in particular are so called \textit{pairing maps} on commutative groups. To be more precise let $\G_1$, $\G_2$ and $\G_3$ be three commutative groups. For historical reasons, we write the group law on $\G_1$ and $\G_2$ in additive notation and the group law on $\G_3$ in multiplicative notation. Then a \textbf{pairing map} is a function
 \begin{equation}
 e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3
 \end{equation}
-that takes pairs $(g_1,g_2)$ (products) of elements from $\G_1$ and $\G_2$ and maps them somehow to elements from $\G_3$, such that the \textit{bilinearity} property holds: For all $g_1,g_1'\in \G_1$ and $g_2\in \G_2$ we have $e(g_1+ g_1',g_2)= e(g_1,g_2)\cdot e(g_1',g_2)$ and for all $g_1\in \G_1$ and $g_2, g_2'\in \G_2$ we have $e(g_1,g_2+ g_2')= e(g_1,g_2)\cdot e(g_1,g_2')$. 
+that takes pairs $(g_1,g_2)$ (products) of elements from $\G_1$ and $\G_2$ and maps them somehow to elements from $\G_3$, such that the \textit{bilinearity} property holds: For all $g_1,g_1'\in \G_1$ and $g_2\in \G_2$ we have $e(g_1+ g_1',g_2)= e(g_1,g_2)\cdot e(g_1',g_2)$ and for all $g_1\in \G_1$ and $g_2, g_2'\in \G_2$ we have $e(g_1,g_2+ g_2')= e(g_1,g_2)\cdot e(g_1,g_2')$.
 
 A pairing map is called \textit{non-degenerated}, if whenever the result of the pairing is the neutral element in $\G_3$, one of the input values must be the neutral element of $\G_1$ or $\G_2$. To be more precise $e(g_1,g_2)=e_{\G_3}$ implies $g_1=e_{\G_1}$ or $g_2=e_{\G_2}$.
 
-So roughly speaking bilinearity means, that it doesn't matter if we first execute the group law on any side and then apply the bilinear map of if we first applay the bilinear map and then apply the group law. Moreover non-degeneray means that the result of the pairing is zero, only if at least one of the input values is zero.
-\begin{example}Maybe the most basic example of a non-degenerate pairing is optained, if we take $\G_1$, $\G_2$ and $\G_3$ all to be the group of integers with addition $(\Z,+)$. Then the following map 
+So roughly speaking bilinearity means, that it doesn't matter if we first execute the group law on any side and then apply the bilinear map of if we first apply the bilinear map and then apply the group law. Moreover non-degeneray means that the result of the pairing is zero, only if at least one of the input values is zero.
+\begin{example}Maybe the most basic example of a non-degenerate pairing is obtained, if we take $\G_1$, $\G_2$ and $\G_3$ all to be the group of integers with addition $(\Z,+)$. Then the following map
 $$
 e(\cdot,\cdot): \Z \times \Z \to \Z \; (a,b)\mapsto a\cdot b
 $$
-defines aa non-degenerate pairing. To see that observe, that bilinearity follows from the distriutive law of integers, since for $a,b,c\in \Z$, we have $e(a+b,c)=(a+b)\cdot c = a\cdot c + b\cdot c = e(a,c)+ e(b,c)$ and the same reasoning is true for the second argument.
+defines aa non-degenerate pairing. To see that observe, that bilinearity follows from the distributive law of integers, since for $a,b,c\in \Z$, we have $e(a+b,c)=(a+b)\cdot c = a\cdot c + b\cdot c = e(a,c)+ e(b,c)$ and the same reasoning is true for the second argument.
 
 To the that $e(\cdot,\cdot)$ is non degenrate, assume that $e(a,b)=0$. Then a$\cdot b =0$ and this implies that $a$ or $b$ must be zero.
-\end{example} 
+\end{example}
 
-\begin{exercise} Consider example XXX again and let $\F_5^*$ be the set of all remainder classes from $\F_5$ without the class $0$. Then $\F_5^*=\{1,2,3,4\}$. Show that $(\F_5^*,\cdot)$ is a commutative group. 
+\begin{exercise} Consider example XXX again and let $\F_5^*$ be the set of all remainder classes from $\F_5$ without the class $0$. Then $\F_5^*=\{1,2,3,4\}$. Show that $(\F_5^*,\cdot)$ is a commutative group.
 \end{exercise}
-\begin{exercise} Generalizing the previous exercise, consider general moduli $n$ and let $\Z_n^*$ be the set of all remainder classes from $\Z_n$ without the class $0$. Then $\Z_n^*=\{1,2,\ldots,n-1\}$. Give a counter example to show that $(\Z^*_n,\cdot)$ is not a group in general. 
+\begin{exercise} Generalizing the previous exercise, consider general moduli $n$ and let $\Z_n^*$ be the set of all remainder classes from $\Z_n$ without the class $0$. Then $\Z_n^*=\{1,2,\ldots,n-1\}$. Give a counter example to show that $(\Z^*_n,\cdot)$ is not a group in general.
 
 Find a condition, such that $(\Z^*_n,\cdot)$ is a commutative group, compute the neutral element, give a closed form for the inverse of any element and proof the commutative group axioms.
 \end{exercise}
@@ -92,29 +92,29 @@ Let $\mathbb{G}$ be a finite group. Then we frquently write $ord(\mathbb{G})$ or
 \begin{example}
 Consider the remainder class groups $(\Z_6,+)$ and $(\F_5,+)$ from example XXX and example XXX and the group $(\F_5^*,\cdot)$ from exercise XX. We can easily see that the order of $(\Z_6,+)$ is $6$, the order of $(\F_5,+)$ is five and the order of $(\F_5^*,\cdot)$ is $4$.
 
-To be more general, considering arbitrary moduli $n$, then we know from Euklidean division, that the order of the remainder class group $(\Z_n,+)$ is $n$. 
+To be more general, considering arbitrary moduli $n$, then we know from Euclidean division, that the order of the remainder class group $(\Z_n,+)$ is $n$.
 \end{example}
-\begin{exercise}The RSA crypto system is based on a modulus $n$ that is typically the product of two prime numbers of size $2048$-bits. What is (approximately) the order of the rainder class group $(\Z_n,+)$ in this case? 
+\begin{exercise}The RSA crypto system is based on a modulus $n$ that is typically the product of two prime numbers of size $2048$-bits. What is (approximately) the order of the rainder class group $(\Z_n,+)$ in this case?
 \end{exercise}
-\paragraph{Generators} Of special interest, when working with groups are sets of elements that can generate the entire group, by applying the group law repeadly to those elements or their inverses only. 
+\paragraph{Generators} Of special interest, when working with groups are sets of elements that can generate the entire group, by applying the group law repeatedly to those elements or their inverses only.
 
 Of course every group $\G$ has trivially a set of generators, when we just consider every element of the group to be in the generator set. So the more interesting question is to find the smallest set of generators. Of particular interest in this regard are groups that have a single generator, that is there exist an element $g\in\G$, such that every other element from $\G$ can be computed by repeated combination of $g$ and its inverse $g^{-1}$ only. Those groups are called \textbf{cyclic groups}.
-\begin{example} The most basic example of a cyclic group are the integers $(\Z,+)$ with integer addition. To see that observe that $1$ is a generator of $\Z$, since every integer can be obtained by repeadly add either $1$ or its inverse $-1$ to itself. For example 
-$-4$ is generated by $-1$, since $-4=-1+(-1)+(-1)+(-1)$. 
+\begin{example} The most basic example of a cyclic group are the integers $(\Z,+)$ with integer addition. To see that observe that $1$ is a generator of $\Z$, since every integer can be obtained by repeatedly add either $1$ or its inverse $-1$ to itself. For example
+$-4$ is generated by $-1$, since $-4=-1+(-1)+(-1)+(-1)$.
 \end{example}
-\begin{example} Consider a modulus $n$ and the remainder class groups $(\Z_n,+)$ from example XXX. These groups are cyclic, with generator $1$, since every other element of that group can be constructed by repeadly adding the remainder class $1$ to itself. Since $\Z_n$ is also finite, we know that $(\Z_n,+)$ is a finite cyclic group of order $n$.
+\begin{example} Consider a modulus $n$ and the remainder class groups $(\Z_n,+)$ from example XXX. These groups are cyclic, with generator $1$, since every other element of that group can be constructed by repeatedly adding the remainder class $1$ to itself. Since $\Z_n$ is also finite, we know that $(\Z_n,+)$ is a finite cyclic group of order $n$.
 \end{example}
-\begin{example} Let $p\in\P$ be prime number and $(\F_p^*,\cdot)$ the finite group from exercise XXX. Then $(\F_p^*,\cdot)$ is cyclic and every element $g\in\F_q^*$ is a generator. 
+\begin{example} Let $p\in\P$ be prime number and $(\F_p^*,\cdot)$ the finite group from exercise XXX. Then $(\F_p^*,\cdot)$ is cyclic and every element $g\in\F_q^*$ is a generator.
 \end{example}
 \paragraph{The discrete Logarithm problem}
-In cryptography in general and in snark development in particular, we often do computations "in the exponent" of a generator. To see what this means, observe, that when 
+In cryptography in general and in snark development in particular, we often do computations "in the exponent" of a generator. To see what this means, observe, that when
 $\G$ is a cyclic group of order $n$ and $g\in \G$ is a generator of $\G$, then there is a map, called the \textbf{exponential map} with respect to the generator $g$
 \begin{equation}
 g^{(\cdot)}: \Z_n \to \G\; x \mapsto g^x
 \end{equation}
-where $g^x$ means "multiply $g$ $x$-times by itself and $g^0=e_{\G}$. This map has the remarkable property maps the additive group law of the remainder class group $(\Z_n,+)$ in a one-to-one correspondence to the group law of $\G$. 
+where $g^x$ means "multiply $g$ $x$-times by itself and $g^0=e_{\G}$. This map has the remarkable property maps the additive group law of the remainder class group $(\Z_n,+)$ in a one-to-one correspondence to the group law of $\G$.
 
-To see that first observe, that since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$ and since $g^{x+y}=g^x\cdot g^y$, the map respects the group laws. 
+To see that first observe, that since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$ and since $g^{x+y}=g^x\cdot g^y$, the map respects the group laws.
 
 Since the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards. The result will be the same. This is what is usually meant by saying we do our computations "in the exponent".
 \begin{example} Consider the multiplicative group $(\F_{5}^*,\cdot)$ from example XXX. We know that $\F_{5}^*$ is a cyclic group of order $4$ and that every element is a generator. Choose $3\in\F_5^*$, we then know that the map
@@ -122,12 +122,12 @@ $$
 3^{(\cdot)}: \Z_4 \to \F_5^* \; x \mapsto 3^x
 $$
 respects the group law of addition in $\Z_4$ and the group law of multiplication in $\F_5^*$.
-And indeed doing a computation like 
+And indeed doing a computation like
 \begin{align*}
 3^{2+3-2} &=3^{3}\\
           & = 2
 \end{align*}
-in the exponent gives the same result as doing the same computation in $\F*_5$, that is 
+in the exponent gives the same result as doing the same computation in $\F*_5$, that is
 \begin{align*}
 3^{2+3-2} &= 3^2 \cdot 3^3 \cdot 3^{-2}\\
           &= 4\cdot 2 \cdot (-3)^2\\
@@ -140,9 +140,9 @@ Since the exponential map is a one-to-one correspondence, that respects the grou
 \begin{equation}
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
-which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time. 
+which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time.
 
-Now consider a finite cyclic group $\G$ of order $n$ and a generator $g$ of $\G$. The \textbf{discrete logarithm problem} is then the task, to find a solution $x\in\Z_n$, to the equation 
+Now consider a finite cyclic group $\G$ of order $n$ and a generator $g$ of $\G$. The \textbf{discrete logarithm problem} is then the task, to find a solution $x\in\Z_n$, to the equation
 \begin{equation}
 h = g^x
 \end{equation}
@@ -150,24 +150,24 @@ for some given $h\in\G$. In groups where the expontial map and the discrete loga
 \paragraph{Cofactor Clearing}
 TODO: (theorem: every factor of order defines a subgroup...)
 \section{Commutative Rings}
-Thinking of integers again, we know, that there are actually two operations addition and multiplication and as we know addition defines a group structure on the set of integers. However multiplication does not define a group structure as we know that integers in general don't have multiplicative inverses. 
+Thinking of integers again, we know, that there are actually two operations addition and multiplication and as we know addition defines a group structure on the set of integers. However multiplication does not define a group structure as we know that integers in general don't have multiplicative inverses.
 
 Combinations like this are captured by the concept of a so called \textit{commutative ring with unit}. To be more precise, a commutative ring with unit $ (R, +, \cdot, 1) $ is a set $R$, provided with two maps $ +: R \cdot R \to R $ and $ \cdot: R \cdot R \to R $, called \textit{addition} and \textit{multiplication}, such that the following conditions hold:
 \begin{itemize}
 \item $ \left (R, + \right) $ is a commutative group, where the neutral element is denoted  with $ 0 $.
-\item (Commuativity of the multiplication) We have $r_1\cdot r_2 = r_2\cdot r_1$ for all $r_1, r_2\in R$. 
-\item (Existence of a unit) There is an element $1\in R$, such that $1\cdot g$ holds for all $g\in R$, 
-\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation 
-$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds. 
+\item (Commuativity of the multiplication) We have $r_1\cdot r_2 = r_2\cdot r_1$ for all $r_1, r_2\in R$.
+\item (Existence of a unit) There is an element $1\in R$, such that $1\cdot g$ holds for all $g\in R$,
+\item (Associativity) For every $g_1,g_2,g_3\in\G$ the equation
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
 \item (Distributivity) For all $ g_1, g_2, g_3 \in R $ the distributive laws
 $ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
-\begin{example}[The Ring of Integers] The set $\Z$ of integers with the usual addition and multiplication is the archetypical example of a commutative ring with unit $1$. 
+\begin{example}[The Ring of Integers] The set $\Z$ of integers with the usual addition and multiplication is the archetypical example of a commutative ring with unit $1$.
 \end{example}
 \begin{example}[Underlying commutative group of a ring] Every commutative ring with unit $(R,+,\cdot,1)$ gives rise to group, if we just forget about the multiplication
 \end{example}
-The following example is more interesting. The motivated reader is encuraged to think through this example, not so much because we need this in what follows, but more so as it helps to detach the reader from familiar styles of computation. 
-\begin{example} Let $S:=\{\bullet,\star,\odot,\otimes\}$ be a set that contains four elements and let adiition and multiplication on $S$ be defined as follows:
+The following example is more interesting. The motivated reader is encouraged to think through this example, not so much because we need this in what follows, but more so as it helps to detach the reader from familiar styles of computation.
+\begin{example} Let $S:=\{\bullet,\star,\odot,\otimes\}$ be a set that contains four elements and let addition and multiplication on $S$ be defined as follows:
 \begin{center}
   \begin{tabular}{c | c c c c c c}
     $\cup$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\\hline
@@ -191,7 +191,7 @@ $$
 $$
 To see how such a "moonmath equation" can be solved, we have to keep in mind, that rings behaves mostly like normal number when it comes to bracketing and computation rules. The only differences are the symbols and the actual way to add and multiply. With this we solve the equation for $x$ in the "usual way"
 \begin{align*}
-\otimes \circ (x \cup \odot ) &= \star & \text{ \# aplly the distributive law}\\
+\otimes \circ (x \cup \odot ) &= \star & \text{ \# aply the distributive law}\\
 \otimes \circ x \cup \otimes \circ \odot  &= \star &\# \otimes \circ \odot = \odot\\
 \otimes \circ x \cup \odot  &= \star & \text{\# concatenate the $\cup$ inverse of $\odot$ to both sides}\\
 \otimes \circ x \cup \odot \cup -\odot  &= \star \cup -\odot & \# \odot \cup -\odot = \bullet\\
@@ -213,9 +213,9 @@ can not be solved for $x$ in the usual way, since there is no multiplicative inv
 $$
 \odot \circ x = \odot
 $$
-can has not a single solution but two $x\in\{\star, \otimes\}$. Having no or two solutions is certainly not something to expect from types like $\mathbb{Q}$. 
+can has not a single solution but two $x\in\{\star, \otimes\}$. Having no or two solutions is certainly not something to expect from types like $\mathbb{Q}$.
 \end{example}
-\begin{example} Considering polynomials again, we note from their definition, that what we have called the type $R$ of the coefficients, must in fact be a commutative ring with unit, since we need addition, multiplication, commutativity and the existence of a unit for $R[x]$ to have the properties we expect. 
+\begin{example} Considering polynomials again, we note from their definition, that what we have called the type $R$ of the coefficients, must in fact be a commutative ring with unit, since we need addition, multiplication, commutativity and the existence of a unit for $R[x]$ to have the properties we expect.
 
 Now considering $R$ to be a ring, addition and multiplication of polynomials as defined in XXX, actually makes $R[x]$ into a commutative ring with unit, too, where the polynomial $1$ is the multiplicative unit.
 \end{example}
@@ -226,26 +226,26 @@ Considering the exponential map from XXX again, let $\G$ be a finite cyclic grou
 g^{x+y} &= g^x\cdot g^y & \text{for all } x,y\in\Z_n\\
 g^{x\cdot y} &= \left( g^x\right)^y & \text{for all } x,y\in\Z_n
 \end{align*}
-This of particular interest in cryptographic and snarks, as it allows for the evaluation of polynomials with coefficients in $\Z_n$ to be evaluated "in the exponent". To be more precise let $p\in \Z_n[x]$ be a polyninomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$. Then the previously defined exponential laws XXX imply that
+This of particular interest in cryptographic and snarks, as it allows for the evaluation of polynomials with coefficients in $\Z_n$ to be evaluated "in the exponent". To be more precise let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$. Then the previously defined exponential laws XXX imply that
 \begin{align*}
 g^{p(x)} & = g^{a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0}\\
          & = \left(g^{x^m}\right)^{a_m}\cdot \left(g^{x^{m-1}}\right)^{a_{m-1}}\cdot \ldots\cdot \left(g^{x}\right)^{a_1}\cdot g^{a_0}
 \end{align*}
 and hence to evaluate $p$ at some point $s$ in the exponent, we can insert $s$ into the right hand side of the last equation and evaluate the product.
- 
+
 As we will see this is a key insight to understand many snark protocols like e.g. Groth16 or XXX.
-\begin{example} To give an example for the evaluation of a polynomial in the exponent of a finite cyclic group, xonsider the exponential map 
+\begin{example} To give an example for the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map
 $$
 3^{(\cdot)}: \Z_4 \to \F_5^* \; x \mapsto 3^x
 $$
-from example XXX. Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we can evaluate the polynomial at say $x=2$ in the exponent of $3$ in two different ways. On the one hand side we can evaluate $p$ at $2$ and then write the result into the expinent, which gives
+from example XXX. Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we can evaluate the polynomial at say $x=2$ in the exponent of $3$ in two different ways. On the one hand side we can evaluate $p$ at $2$ and then write the result into the exponent, which gives
 \begin{align*}
 3^{p(2)} &=3^{2\cdot 2^2+3\cdot 2 +1}\\
           & = 3^{2\cdot 0 +2 +1}\\
           & = 3^{3}\\
           & = 2
 \end{align*}
-and on the other hand we can use the right hand side of equation to evaluate $p$ at $2$ in the exponent of $3$, which gives: 
+and on the other hand we can use the right hand side of equation to evaluate $p$ at $2$ in the exponent of $3$, which gives:
 \begin{align*}
 3^{p(2)} &= \left(3^{2^2}\right)^2 \cdot \left(3^{2}\right)^3\cdot 3^1\\
          &= \left(3^{0}\right)^2 \cdot 3^3\cdot 3\\
@@ -256,7 +256,7 @@ and on the other hand we can use the right hand side of equation to evaluate $p$
 \end{example}
 
 \section{Fields}
-In this chapter we started with the definition of a group, which we the expended into the definition of a commutative ring with unit. Those rings generalize the behaviour of integers. In this section we will look at the special case of commutative rings, where every element, other then the neutral element of addition, has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$, which are in a sense an extension of the ring of integers, that is constructed by just including newly defined multiplicative inverses (the fractions) to the integers. 
+In this chapter we started with the definition of a group, which we the expended into the definition of a commutative ring with unit. Those rings generalize the behaviour of integers. In this section we will look at the special case of commutative rings, where every element, other than the neutral element of addition, has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$, which are in a sense an extension of the ring of integers, that is constructed by just including newly defined multiplicative inverses (the fractions) to the integers.
 
 Now considering the definition of a ring XXX again, we define a \textbf{field} $ (\F, +, \cdot) $ to be a set $ \F$, together with two maps $ +: \F \cdot \F \to \F $ and $ \cdot: \F \cdot \F \to \F $, called \textit{addition} and \textit{multiplication}, such that the following conditions holds
 \begin{itemize}
@@ -268,7 +268,7 @@ $g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 If a field is iven and the definition of its addition and multiplication is not ambiguous, we will often simple write $\F$ instead of $(\F,+,\cdot)$ to describe it. We moreover write $\F^*$ to describe the multiplicative group of the field, that is the set of elements, except the neutral element of addition, with the multiplication as group law.
 
 The \textbf{characteristic} $char(\F)$ of a field $ \F $ is the smallest natural number $ n \geq 1 $, for which the $ n $ -fold sum of $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such a $ n> 0 $ exists, the field is also called to have a \textit{finite characteristic}. If, on the other hand, every finite sum of $1$ is not equal to zero, then the field is defined to have characteristic $ 0 $.
-\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no counting number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the rational numers, the characteristic $char(\mathbb{Q})$ of the field $\mathbb{Q}$ is zero. In sage rational numbers are called like this
+\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no counting number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the rational numbers, the characteristic $char(\mathbb{Q})$ of the field $\mathbb{Q}$ is zero. In sage rational numbers are called like this
 \begin{sagecommandline}
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
@@ -307,26 +307,26 @@ Both the real numbers $\mathbb{R}$ as well as the complex numbers $\mathbb{C}$ a
 Consider our remainder class ring $(\F_5,+,\cdot)$ and show that it is a field. What is the characteristic of $\F_5$?
 \end{exercise}
 \paragraph{Prime fields}
-As we have seen in the variou examples of the previous sections, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers, which is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
+As we have seen in the various examples of the previous sections, modular arithmetics behaves in many ways similar to ordinary arithmetics of integers, which is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
 
-However at the same time we have seen in XXX, that, whenever the modulus is a prime number, every remainder class other then the zero class, has a modular multiplicative inverse. This is an important observation, since it immediately implies, that in case of a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \textit{field}. Moreover since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have finite characteristic $n$ 
+However at the same time we have seen in XXX, that, whenever the modulus is a prime number, every remainder class other then the zero class, has a modular multiplicative inverse. This is an important observation, since it immediately implies, that in case of a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \textit{field}. Moreover since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have finite characteristic $n$
 
 To distinguish this important case from arbitrary reminder class rings, we write  $ (\F_p, +, \cdot) $ for the field of all remainder classes for a prime number modulus $p \in \Prim$ and call it the \textbf{prime field} of characteristic $p$.
 
-Prime fields are the foundation for many of the contemporary algebra based cryptographic systems, as they have many desireable properties. One of them is, that since these sets are finite and a prime field of characteristic $p$ can be represented on a computer in roughly $log_2(p)$ amount of space, no precision problems occure, that are for example unavoidable for computer representations of rational numbers or even the integers, because those sets are infinite.
+Prime fields are the foundation for many of the contemporary algebra based cryptographic systems, as they have many desirable properties. One of them is, that since these sets are finite and a prime field of characteristic $p$ can be represented on a computer in roughly $log_2(p)$ amount of space, no precision problems occur, that are for example unavoidable for computer representations of rational numbers or even the integers, because those sets are infinite.
 
-Since prime fields are special cases of remainder class rings, all computations remain the same. Addition and multiplication can be computed by first doing normal integer addition and multiplication and then take the remainder modulus $p$. Subtraction and division can be computed by addition or multiplication with the additive or the multiplicative inverse, respectively. The additive inverse $-x$ of a field element $x\in\F_p$ is given by $p-x$ and the multiplicative inverse of $x\neq 0$ is given by $x^{p-2}$, or can be computed using the extended Euclidean algorithm. 
+Since prime fields are special cases of remainder class rings, all computations remain the same. Addition and multiplication can be computed by first doing normal integer addition and multiplication and then take the remainder modulus $p$. Subtraction and division can be computed by addition or multiplication with the additive or the multiplicative inverse, respectively. The additive inverse $-x$ of a field element $x\in\F_p$ is given by $p-x$ and the multiplicative inverse of $x\neq 0$ is given by $x^{p-2}$, or can be computed using the extended Euclidean algorithm.
 
 Note however that these computations might not be the fastest to implement on a computer. They are however useful in this book as they are easy to compute for small prime numbers.
 \begin{example}
 The smallest field is the field $\F_2$ of characteristic $2$ as we have seen it in example XXX. It is the prime field of the prime number $2$.
 \end{example}
 \begin{example}
-To summarize the basic aspects of computation in prime fields, lets consider the prime field $\F_5$ and simplify the following expression 
+To summarize the basic aspects of computation in prime fields, lets consider the prime field $\F_5$ and simplify the following expression
 $$\left(\frac{2}{3} - 2\right)\cdot 2 $$
 A first thing to note is that since $\F_5$ is a field all rules like bracketing (distributivity), summing ect. are identical to the rules we learned in school when we where dealing with rational, real or complex numbers. We get
 \begin{align*}
-\left(\frac{2}{3} - 2\right)\cdot 2 &= 
+\left(\frac{2}{3} - 2\right)\cdot 2 &=
  \frac{2}{3}\cdot 2 - 2\cdot 2 & \text{\# distributive law}\\
  &= \frac{2\cdot 2}{3} - 2\cdot 2 & \Zmod{4}{5}=4 \\
  &= \frac{4}{3} - 4 & \text{\# multiplicative inverse of 3 is } \Zmod{3^{5-2}}{5}=2\\
@@ -336,7 +336,7 @@ A first thing to note is that since $\F_5$ is a field all rules like bracketing 
  &= 4
 \end{align*}
 In this computation we computed the multiplicative inverse of $3$ using the identity
-$x^{-1}=x^{p-2}$ in a prime field. This impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean algorithm.  To see that again, the task is to compute $x^{-1}\cdot 3 + t \cdot 5 =1$, but $t$ is actulally irrelevant. We get
+$x^{-1}=x^{p-2}$ in a prime field. This impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean algorithm.  To see that again, the task is to compute $x^{-1}\cdot 3 + t \cdot 5 =1$, but $t$ is actually irrelevant. We get
 \begin{center}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ x^{-1}_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
@@ -347,12 +347,12 @@ $x^{-1}=x^{p-2}$ in a prime field. This impractical for large prime numbers. Rec
     4 & 1 & 2  & $\cdot$ \\
   \end{tabular}
 \end{center}
-So the multiplicative inverse of $3$ in $\Z_5$ is $2$ and indeed if compute $3\cdot 2$ we get $1$ in $\F_5$. 
+So the multiplicative inverse of $3$ in $\Z_5$ is $2$ and indeed if compute $3\cdot 2$ we get $1$ in $\F_5$.
 \end{example}
 \paragraph{Square Roots}
-In this part we deal with square numbers also called \textit{quadratic residues} and \textit{square roots} in prime fields. This is of particular importance in our studies on elliptic curves as only square numbers can actually be points on an elliptic curve. 
+In this part we deal with square numbers also called \textit{quadratic residues} and \textit{square roots} in prime fields. This is of particular importance in our studies on elliptic curves as only square numbers can actually be points on an elliptic curve.
 
-To make the intuition of quadratic risidues and roots precise, let $p \in \Prim $ be a prime number and $\F_p $ its associate prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the equation
+To make the intuition of quadratic residues and roots precise, let $p \in \Prim $ be a prime number and $\F_p $ its associate prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the equation
 \begin{equation}
 x^2 = y
 \end{equation}
@@ -364,7 +364,7 @@ for the set of all square roots of $ y $ in the prime field $ \F_n $. (If $ y $ 
 
 So roughly speaking, quadratic residues are numbers such that we can take the square root from them and quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the know case of integers, where some integers like $4$ or $9$ have square roots and others like $2$ or $3$ don't (as integers).
 
-It can be shown that in any prime field every non zero element has either no square root or two of them. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. This makes sense, as the larger one can always be computed as the modulus minus the smaller one, which is the definition of the negative in prime fields. 
+It can be shown that in any prime field every non zero element has either no square root or two of them. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. This makes sense, as the larger one can always be computed as the modulus minus the smaller one, which is the definition of the negative in prime fields.
 
 
 \begin{example} [Quadratic (Non)-Residues and roots in $ \F_5 $] Let us consider our example prime field $\F_5$ again. All square numbers can be found on the main diagonal of the multiplication table XXX. As you can see, in $ \Z_5 $ only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots and we get $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
@@ -393,8 +393,8 @@ $$
 \end{array}
 $$
 \end{example}
-The legendre symbol gives a criterion to decide wheather or not an element from a prime field has a quadratic root or not. This however is not just of theoretic use, as the following so called \textit{Euler criterion} gives a compact way to actually compute the Legendre symbol. To see that, let $ p \in \Prim_{\geq 3} $ be an odd 
-Prime number and $ y \in \F_p $. Then the Legendre symbol can be computed as 
+The legendre symbol gives a criterion to decide whether or not an element from a prime field has a quadratic root or not. This however is not just of theoretic use, as the following so called \textit{Euler criterion} gives a compact way to actually compute the Legendre symbol. To see that, let $ p \in \Prim_{\geq 3} $ be an odd
+Prime number and $ y \in \F_p $. Then the Legendre symbol can be computed as
 \begin{equation}
 \label{eq: Euler_criterium}
 \left (\frac{y}{p} \right) = y^{\frac{p-1}{2}} \;.
@@ -445,48 +445,48 @@ $$
 \paragraph{Exponentiation} TO APPEAR...
 \paragraph{Extension Fields}
 % references https://blog.plover.com/math/se/finite-fields.html
-We defined prime fields in the previous section. They are the basic building blocks for cryptography in general and snarks in particular. 
+We defined prime fields in the previous section. They are the basic building blocks for cryptography in general and snarks in particular.
 
-However as we will see in XX so called \textit{pairing based} snark systems are crucially dependend on group pairings XXX defined over the group of rational points of elliptic curves. For those pairings to be non-trivial the elliptic curve must not only be defined over a prime field but over a so called \textit{extension field} of a given prime field.
+However as we will see in XX so called \textit{pairing based} snark systems are crucially dependent on group pairings XXX defined over the group of rational points of elliptic curves. For those pairings to be non-trivial the elliptic curve must not only be defined over a prime field but over a so called \textit{extension field} of a given prime field.
 
-We therefore have to understand field extensions. To understand them first observe the field $\F'$ is called an \textit{extension} of a firld $\F$, if $\F$ is a subfield of $\F'$, that is $\F$ is a subset of $\F'$ and restricting the addition and multiplication laws of $\F'$ to the subset $\F$ recovers the appropriate laws of $\F$.
+We therefore have to understand field extensions. To understand them first observe the field $\F'$ is called an \textit{extension} of a field $\F$, if $\F$ is a subfield of $\F'$, that is $\F$ is a subset of $\F'$ and restricting the addition and multiplication laws of $\F'$ to the subset $\F$ recovers the appropriate laws of $\F$.
 
-Now it can be shown, that whenever $p\in \Prim$ is a prime and $m\in\N$ a natural number, then there is a field $\F_{p^m}$ with characteristic $p$ and $p^m$ elements, such that $\F_{p^m}$ is an extension field of the prime field $\F_p$. 
+Now it can be shown, that whenever $p\in \Prim$ is a prime and $m\in\N$ a natural number, then there is a field $\F_{p^m}$ with characteristic $p$ and $p^m$ elements, such that $\F_{p^m}$ is an extension field of the prime field $\F_p$.
 
-Similar to how prime fields $\F_p$ are generated by starting with the ring of integers and then divide by a prime number $p$ and keep the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then divide them by an irreducible polynomial of degree $m$ and keep the remainder. 
+Similar to how prime fields $\F_p$ are generated by starting with the ring of integers and then divide by a prime number $p$ and keep the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then divide them by an irreducible polynomial of degree $m$ and keep the remainder.
 
 To be more precise let $P\in F_p[x]$ be an irreducible polynomial of degree $m$ with coefficients from the given prime field $\F_p$. Then the underlying set $\F_{p^m}$ of the extension field is given by the set of all polynomials with a degree less then $m$:
 \begin{equation}
 \F_{p^m}:=\{a_{m-1} x^{m-1}+a_{k-2}x^{k-2}+\ldots+a_1 x+a_0\;|\; a_i\in \F_p\}
 \end{equation}
-which can be shown to be the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by $P$. So elements of the extension field are polynomials of degree less then $m$. This is analog to how $\F_p$ is the set of all remainders, when dividing integers by $p$.   
+which can be shown to be the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by $P$. So elements of the extension field are polynomials of degree less than $m$. This is analog to how $\F_p$ is the set of all remainders, when dividing integers by $p$.
 
 Addition in then inheritec from $\F_p[x]$, which means that addition on $\F_{p^m}$ is defined as normal addition of polynomials. To be more precise, we have
 \begin{equation}
-+:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j 
++:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j
 \end{equation}
 and we can see that the neutral element is (the polynomial) $0$ and that the additive inverse is given by the polynomial with all negative coefficients.
 
 Multiplication in inheritec from $\F_p[x]$, too, but we have to divide the result by our modulus polynomial $P$, whenever the degree of the resulting polynomial is equal or greater to $m$. To be more precise, we have
 \begin{equation}
-\cdot\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P} 
+\cdot\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P}
 \end{equation}
 and we can see that the neutral element is (the polynomial) $1$. It is however not obvious from this definition how the multiplicative inverse looks.
 
-We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field and hence $\sum_{j=0}^p 1=0$. Moreover $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$ and every coefficient $a_j$ can have $p$ different values. In addition we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occures, when we restrict the elements of $\F_{p}$ to polynomials of degree zero.
+We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field and hence $\sum_{j=0}^p 1=0$. Moreover $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$ and every coefficient $a_j$ can have $p$ different values. In addition we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occurs, when we restrict the elements of $\F_{p}$ to polynomials of degree zero.
 
 One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial and in fact different choices will give different multiplication tables, since the remainders from dividing a product by $P$ will be different..
 
 It can however be shown, that the fields for different choices of $P$ are isomorphic, which means that there is a one to one identification between all of them and hence from an abstract point of view they are the same thing. From an implementations point of view however some choices are better, because they allow for faster computations.
 
-\begin{example}[The Extension field $\F_{3^2}$]In (XXX) we have constructed the prime field $\F_3$. In this example we apply the definition (XXX) of a field extension to construct $\F_{3^2}$. We start by choosing an irreducibe polynomial of degree $2$ with coefficients in $\F_3$. We try 
+\begin{example}[The Extension field $\F_{3^2}$]In (XXX) we have constructed the prime field $\F_3$. In this example we apply the definition (XXX) of a field extension to construct $\F_{3^2}$. We start by choosing an irreducibe polynomial of degree $2$ with coefficients in $\F_3$. We try
 $P(t)=t^2+1$. Maybe the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is never zero. WE compute
 \begin{align*}
 P(0) = 0^2+1 &= 1\\
 P(1) = 1^2+1 &= 2\\
 P(2) = 2^2+1 &=  1+1  = 2
 \end{align*}
-This implies, that $P$ is irreducible. The set $\F_{3^2}$ then contains all poynomials of degrees lower then two with coefficients in $\F_3$, which is precisely
+This implies, that $P$ is irreducible. The set $\F_{3^2}$ then contains all polynomials of degrees lower then two with coefficients in $\F_3$, which is precisely
 $$
 \F_{3^2}=\{0,1,2,t,t+1,t+2,2t,2t+1,2t+2\}
 $$
@@ -507,13 +507,13 @@ So our extension field contains $9$ elements as expected. Addition is  defined a
 \end{center}
 As we can see, the group $(\F_3,+)$ is a subgroup of the group $(\F_{3^2},+)$, obtained by only considering the first three rows and columns of this table.
 
-As it was the case in previozs examples, we can use the table to deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$
+As it was the case in previous examples, we can use the table to deduce the negative of any element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$
 
 Multiplication needs a bit more computation, as we first have to multiply the polynomials and whenever the result has a degree $\geq 2$, we have to divide it by $P$ and keep the remainder. To see how this works compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$
 \begin{align*}
 (t+2) \cdot (2t+2) &= \Zmod{(2t^2 + 2t + t + 1)}{(t^2+1)} \\
                    &= \Zmod{(2t^2+1)}{(t^2+1)} & \#\; 2t^2+1:t^2+1= 2 + \frac{2}{t^2+1} \\
-                   &= 2 
+                   &= 2
 \end{align*}
 So the product of $t+2$ and $2t+2$ in $\F_{3^2}$ is $2$. Doing this computation for all elements give the following multiplication table:
 \begin{center}
@@ -533,7 +533,7 @@ $\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
 As it was the case in previous examples, we can use the table to deduce the multiplicative inverse of any non-zero element from $\F_{3^2}$. For example in $\F_{3^2}$ we have $(2t+1)^{-1}= 2t+2 $, since $(2t+1) \cdot (2t+2)=1$.
 
 From the multiplication table we can also see, that the only quadratic residues in $\F_{3^2}$ are the set $\{0,1,2, t, 2t\}$, with
-$\sqrt{0}=\{0\}$, $\sqrt{1}=\{1,2\}$, $\sqrt{2}=\{t, 2t\}$, $\sqrt{t}=\{t+2,2t+1\}$ and $\sqrt{2t}=\{t+1,2t+2\}$. 
+$\sqrt{0}=\{0\}$, $\sqrt{1}=\{1,2\}$, $\sqrt{2}=\{t, 2t\}$, $\sqrt{t}=\{t+2,2t+1\}$ and $\sqrt{2t}=\{t+1,2t+2\}$.
 
 Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields, like the rational numbers. To see that lets find all $x\in\F_{3^2}$ that solve the quadratic equation $(t+1)(x^2 + (2t+2)) = 2$. So we compute:
 \begin{align*}
@@ -545,7 +545,7 @@ Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields
 (t+2)(t+1)x^2          &=(t+2)(2t+2) & \text{\# multiply with the multiplicative invers of $t+1$}\\
 x^2                    &= 2 & \text{\# 2 is quadratic residue. Take the roots.}\\
 x &\in \{t, 2t\}
-\end{align*}   
+\end{align*}
 Computations in extension fields are arguably on the edge of what can reasonbly be done with pen and paper. Fortunately sage provides us with a simple way to do the computations.
 \begin{sagecommandline}
 sage: Z3 = GF(3) # prime field
@@ -567,15 +567,15 @@ $$
 y^2 = x^3 + 4
 $$
 \end{exercise}
-\begin{exercise} Show that the polynomial $P=x^3+x+1$ from $\F_5[x]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euklidean algorithm. Then find all $x\in\F_{5^3}$ that solve the  equation 
+\begin{exercise} Show that the polynomial $P=x^3+x+1$ from $\F_5[x]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euklidean algorithm. Then find all $x\in\F_{5^3}$ that solve the  equation
 $$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
 \end{exercise}
 
-%\paragraph{Hash to Prime fields} 
+%\paragraph{Hash to Prime fields}
 % https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
 %An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
 
-%In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$. 
+%In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$.
 
 %If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
 
@@ -583,7 +583,7 @@ $$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
 
 %On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
 
-%The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY). 
+%The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY).
 
 %\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
 %Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
@@ -591,21 +591,21 @@ $$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
 %Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
 %\end{example}
 
-%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.  
+%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
 
-%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.  
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.
 
 %As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
 %\end{example}
 \section{Projective Planes}
-Projective planes are a certain type of geometry defined over some given field, that in a sense extend the concept of the ordinary Euklidean plane by including "points at infinity". 
+Projective planes are a certain type of geometry defined over some given field, that in a sense extend the concept of the ordinary Euclidean plane by including "points at infinity".
 
-Such an inclusion of infinity points makes them particulary useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol "the point at infinity" to give the set of points on the curve the structute of a group. Translating the curve into projective geometry, then includes this "point at infinity" more naturally into the set of all points on a projective plane.
+Such an inclusion of infinity points makes them particularly useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol "the point at infinity" to give the set of points on the curve the structure of a group. Translating the curve into projective geometry, then includes this "point at infinity" more naturally into the set of all points on a projective plane.
 
 To understand the idea for the construction of projective planes, note that in
 an ordinary Euclidean plane, two lines either intersect in a single point, or are parallel. In the latter case both lines are either the same, that is they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with additional "points at infinity" such that two different lines always intersect in a single point. Parallel lines intersect "at infinity".
 
-To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times F$ the set of all three tupels over $\F$ and $x\in \F^3$ with $x=(x_1,x_2,x_3)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given by
+To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times F$ the set of all three tuples over $\F$ and $x\in \F^3$ with $x=(x_1,x_2,x_3)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given by
 \begin{equation}
 L_x := \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F\}
 \end{equation}
@@ -613,11 +613,11 @@ A \textit{point} in the \textbf{projective plane} over $\F$ is then defined as s
 \begin{equation}
 \F\mathbb{P}^2:=\{L_x\;|\; x\in \F^3\text{ with } x\neq (0,0,0)\}
 \end{equation}
-It can be shown that a projective plane over a finite field $\F_{p^m}$ contains $p^{2m}+p^m+1$ many ellements. 
+It can be shown that a projective plane over a finite field $\F_{p^m}$ contains $p^{2m}+p^m+1$ many elements.
 
 To understand why $L_x$ is called a line, consider the situation, where the underlying field $\F$ are the real numbers $\mathbb{R}$. Then $\mathbb{R}^3$ can be seen as the three dimensional space and $L_{(x,y,z)}$ is then an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $x$, $y$ and $z$.
 
-The key observation here is, that points in the projective plane, are lines in the $3$-dimensional space $\F^3$, also for finite fields, the terms space and line share very little visual similarity with their counterparts over the real numbers. 
+The key observation here is, that points in the projective plane, are lines in the $3$-dimensional space $\F^3$, also for finite fields, the terms space and line share very little visual similarity with their counterparts over the real numbers.
 
 It follows from this that points $L_x\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(x_1,x_2,x_3)$, but by \textit{sets of coordinates} rather, where two different coordinates $(x_1,x_2,x_3)$ and $(x'_1,x'_2,x'_3)$, with $x_j\neq 0$ and $x_j'\neq 0$ describe the same point, if and only if there is some field element $k$, such that $(x_1,x_2,x_3) = (k\cdot x'_1,k\cdot x'_2,k\cdot x'_3)$. Descriptions like that are called \textbf{projective coordinates}.
 
@@ -625,48 +625,48 @@ It follows from this that points $L_x\in \F\mathbb{P}^2$ are not simply describe
 %https://math.mit.edu/classes/18.783/2017/Lecture1.pdf
 To distingush the (equivalence class) of projective coordinates of a line $L_x$ from the coordinates of $x$, we write $[x_1:x_2:x_3]$ for the set of all projective coordinates of $L_x$. Coordinates of the form $[x_1:x_2:1]$ are descriptions of so called \textbf{affine points} and coordinates of the form $[x_1:x_2:0]$ are descriptions of so called \textbf{points at infinity}. In particular the projective coordinate $[1:0:0]$ describes the so called \textbf{line at infinity}.
 \end{notation}
-\begin{example} Consider the field $\F_3$ from example XXX. As this field only contains, three elements it takes not to much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we knwo that it only contain $13$ elemts. 
+\begin{example} Consider the field $\F_3$ from example XXX. As this field only contains, three elements it takes not to much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we knwo that it only contain $13$ elemts.
 
-To find $\F_3\mathbb{P}^2$, we have to compute the set of all lines in $\F_3\times \F_3\times \F_3$ that intersect $(0,0,0)$. Since those lines are parameterized by tupels $(x_1,x_2,x_3)$. We compute:
+To find $\F_3\mathbb{P}^2$, we have to compute the set of all lines in $\F_3\times \F_3\times \F_3$ that intersect $(0,0,0)$. Since those lines are parameterized by tuples $(x_1,x_2,x_3)$. We compute:
 \begin{align*}
 L_{(0,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (0,0,1), (0,0,2)\}\\
 L_{(0,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,0,2), (0,0,1)\} 
+          = \{(0,0,0), (0,0,2), (0,0,1)\}
           = L_{(0,0,1)}\\
 L_{(0,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,1,0), (0,2,0)\}\\ 
+          = \{(0,0,0), (0,1,0), (0,2,0)\}\\
 L_{(0,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,1,1), (0,2,2)\}\\  
+          = \{(0,0,0), (0,1,1), (0,2,2)\}\\
 L_{(0,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,1,2), (0,2,1)\}\\  
+          = \{(0,0,0), (0,1,2), (0,2,1)\}\\
 L_{(0,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (0,2,0), (0,1,0)\}
-          = L_{(0,1,0)}\\ 
+          = L_{(0,1,0)}\\
 L_{(0,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (0,2,1), (0,1,2)\}
-          = L_{(0,1,2)}\\  
+          = L_{(0,1,2)}\\
 L_{(0,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,2,2), (0,1,1)\}  
-          = L_{(0,1,1)}\\ 
+          = \{(0,0,0), (0,2,2), (0,1,1)\}
+          = L_{(0,1,1)}\\
 L_{(1,0,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (1,0,0), (2,0,0)\}\\
 L_{(1,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (1,0,1), (2,0,2)\}\\
 L_{(1,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,0,2), (2,0,1)\}\\ 
+          = \{(0,0,0), (1,0,2), (2,0,1)\}\\
 L_{(1,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (1,1,0), (2,2,0)\}\\
 L_{(1,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (1,1,1), (2,2,2)\}\\
 L_{(1,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,1,2), (2,2,1)\}\\  
+          = \{(0,0,0), (1,1,2), (2,2,1)\}\\
 L_{(1,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (1,2,0), (2,1,0)\}\\
 L_{(1,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (1,2,1), (2,1,2)\}\\
 L_{(1,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,2,2), (2,1,1)\}\\                                                
+          = \{(0,0,0), (1,2,2), (2,1,1)\}\\
 L_{(2,0,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (2,0,0), (1,0,0)\}
           = L_{(1,0,0)}\\
@@ -675,7 +675,7 @@ L_{(2,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = L_{(1,0,2)}\\
 L_{(2,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (2,0,2), (1,0,1)\}
-          = L_{(1,0,1)}\\ 
+          = L_{(1,0,1)}\\
 L_{(2,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (2,1,0), (1,2,0)\}
           = L_{(1,2,0)}\\
@@ -684,7 +684,7 @@ L_{(2,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = L_{(1,2,2)}\\
 L_{(2,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (2,1,2), (1,2,1)\}
-          = L_{(1,2,1)}\\  
+          = L_{(1,2,1)}\\
 L_{(2,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (2,2,0), (1,1,0)\}
           = L_{(1,1,0)}\\
@@ -692,18 +692,15 @@ L_{(2,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
           = \{(0,0,0), (2,2,1), (1,1,2)\}
           = L_{(1,1,2)}\\
 L_{(2,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,2,2), (1,1,1)\}                                                         
+          = \{(0,0,0), (2,2,2), (1,1,1)\}
           = L_{(1,1,1)}
 \end{align*}
 Those lines define the $13$ points in the projective plane $\F_3\mathbb{P}$ as follows
 \begin{multline*}
 \F_3\mathbb{P} = \{ L_{(0,0,1)}, L_{(0,1,0)}, L_{(0,1,1)}, L_{(1,0,0)}, L_{(1,0,1)}, \\ L_{(1,0,2)}, L_{(1,1,0)}, L_{(1,1,1)}, L_{(1,1,2)}, L_{(1,2,0)}, L_{(1,2,1)}, L_{(1,2,2)}\}
 \end{multline*}
-To understand the abiguity in projective coordinates a bit better, lets consider the point $L_{(1,2,2)}$. As this point in the projective plane is a line in $\F_3^3$, it has the projective coordinates $(1,2,2)$ as well as $(2,1,1)$, since the former coordinate give the latter, when multiplied in $\F_3$ by the factor $2$. In addition note, that for the same reasons the points $L_{(1,2,2)}$ and $L_{(2,1,1)}$ are the same, since their underlying sets are equal.
+To understand the ambiguity in projective coordinates a bit better, lets consider the point $L_{(1,2,2)}$. As this point in the projective plane is a line in $\F_3^3$, it has the projective coordinates $(1,2,2)$ as well as $(2,1,1)$, since the former coordinate give the latter, when multiplied in $\F_3$ by the factor $2$. In addition note, that for the same reasons the points $L_{(1,2,2)}$ and $L_{(2,1,1)}$ are the same, since their underlying sets are equal.
 \end{example}
 \begin{exercise}
 Construct the so called \textit{Fano plane}, that is the projective plane over the finite field $\F_2$.
 \end{exercise}
-
-
- 
