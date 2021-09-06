@@ -8,7 +8,7 @@ _sage_const_48 = Integer(48); _sage_const_0 = Integer(0); _sage_const_58 = Integ
 import sagetex
 _st_ = sagetex.SageTeXProcessor('main-moonmath', version='2020/08/12 v3.5', version_check=True)
 try:
- _st_.current_tex_line = _sage_const_48 
+ _st_.current_tex_line = _sage_const_48
  _st_.commandline(_sage_const_0 , r"""
 sage: ZZ # A sage notation for the integer type
 sage: NN # A sage notation for the counting number type
@@ -23,7 +23,7 @@ sage: ZZ(27713).str(16) # Hexadecimal string representation
 except:
  _st_.goboom(_sage_const_58 )
 try:
- _st_.current_tex_line = _sage_const_77 
+ _st_.current_tex_line = _sage_const_77
  _st_.commandline(_sage_const_1 , r"""
 sage: n = NN(19214758032624000)
 sage: factor(n)
@@ -31,7 +31,7 @@ sage: factor(n)
 except:
  _st_.goboom(_sage_const_80 )
 try:
- _st_.current_tex_line = _sage_const_138 
+ _st_.current_tex_line = _sage_const_138
  _st_.commandline(_sage_const_2 , r"""
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
@@ -41,7 +41,7 @@ sage: ZZ(4).divides(ZZ(12))
 except:
  _st_.goboom(_sage_const_143 )
 try:
- _st_.current_tex_line = _sage_const_154 
+ _st_.current_tex_line = _sage_const_154
  _st_.commandline(_sage_const_3 , r"""
 sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
@@ -49,14 +49,14 @@ sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 except:
  _st_.goboom(_sage_const_157 )
 try:
- _st_.current_tex_line = _sage_const_213 
+ _st_.current_tex_line = _sage_const_213
  _st_.commandline(_sage_const_4 , r"""
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 """, globals(), locals(), True)
 except:
  _st_.goboom(_sage_const_215 )
 try:
- _st_.current_tex_line = _sage_const_287 
+ _st_.current_tex_line = _sage_const_287
  _st_.commandline(_sage_const_5 , r"""
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -68,7 +68,7 @@ sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 except:
  _st_.goboom(_sage_const_294 )
 try:
- _st_.current_tex_line = _sage_const_323 
+ _st_.current_tex_line = _sage_const_323
  _st_.commandline(_sage_const_6 , r"""
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
@@ -76,14 +76,14 @@ sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  
 except:
  _st_.goboom(_sage_const_326 )
 try:
- _st_.current_tex_line = _sage_const_390 
+ _st_.current_tex_line = _sage_const_390
  _st_.commandline(_sage_const_7 , r"""
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 """, globals(), locals(), True)
 except:
  _st_.goboom(_sage_const_392 )
 try:
- _st_.current_tex_line = _sage_const_465 
+ _st_.current_tex_line = _sage_const_465
  _st_.commandline(_sage_const_8 , r"""
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
@@ -92,14 +92,14 @@ sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 except:
  _st_.goboom(_sage_const_469 )
 try:
- _st_.current_tex_line = _sage_const_535 
+ _st_.current_tex_line = _sage_const_535
  _st_.commandline(_sage_const_9 , r"""
 sage: ZZ(6).xgcd(ZZ(5))
 """, globals(), locals(), True)
 except:
  _st_.goboom(_sage_const_537 )
 try:
- _st_.current_tex_line = _sage_const_583 
+ _st_.current_tex_line = _sage_const_583
  _st_.commandline(_sage_const_10 , r"""
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
@@ -109,7 +109,7 @@ sage: Z5(3)**(5-2) == Z5(3)**(-1)
 except:
  _st_.goboom(_sage_const_588 )
 try:
- _st_.current_tex_line = _sage_const_652 
+ _st_.current_tex_line = _sage_const_652
  _st_.commandline(_sage_const_11 , r"""
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -127,7 +127,7 @@ sage: p6.degree()
 except:
  _st_.goboom(_sage_const_665 )
 try:
- _st_.current_tex_line = _sage_const_686 
+ _st_.current_tex_line = _sage_const_686
  _st_.commandline(_sage_const_12 , r"""
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -141,7 +141,7 @@ sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 except:
  _st_.goboom(_sage_const_695 )
 try:
- _st_.current_tex_line = _sage_const_715 
+ _st_.current_tex_line = _sage_const_715
  _st_.commandline(_sage_const_13 , r"""
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -152,7 +152,7 @@ sage: p7(ZZ(-6)) == ZZ(-264)
 except:
  _st_.goboom(_sage_const_721 )
 try:
- _st_.current_tex_line = _sage_const_732 
+ _st_.current_tex_line = _sage_const_732
  _st_.commandline(_sage_const_14 , r"""
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -162,7 +162,7 @@ sage: p1(Z6(2)) == Z6(5)
 except:
  _st_.goboom(_sage_const_737 )
 try:
- _st_.current_tex_line = _sage_const_768 
+ _st_.current_tex_line = _sage_const_768
  _st_.commandline(_sage_const_15 , r"""
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -173,7 +173,7 @@ sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 except:
  _st_.goboom(_sage_const_774 )
 try:
- _st_.current_tex_line = _sage_const_787 
+ _st_.current_tex_line = _sage_const_787
  _st_.commandline(_sage_const_16 , r"""
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -184,7 +184,7 @@ sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 except:
  _st_.goboom(_sage_const_793 )
 try:
- _st_.current_tex_line = _sage_const_845 
+ _st_.current_tex_line = _sage_const_845
  _st_.commandline(_sage_const_17 , r"""
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -196,7 +196,7 @@ sage: A == M*B + R
 except:
  _st_.goboom(_sage_const_852 )
 try:
- _st_.current_tex_line = _sage_const_877 
+ _st_.current_tex_line = _sage_const_877
  _st_.commandline(_sage_const_18 , r"""
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
@@ -206,7 +206,7 @@ sage: p.factor()
 except:
  _st_.goboom(_sage_const_882 )
 try:
- _st_.current_tex_line = _sage_const_902 
+ _st_.current_tex_line = _sage_const_902
  _st_.commandline(_sage_const_19 , r"""
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
@@ -216,7 +216,7 @@ sage: p.factor()
 except:
  _st_.goboom(_sage_const_907 )
 try:
- _st_.current_tex_line = _sage_const_272 
+ _st_.current_tex_line = _sage_const_272
  _st_.commandline(_sage_const_20 , r"""
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
@@ -225,7 +225,7 @@ sage: QQ(1/5) / QQ(3) # Division
 except:
  _st_.goboom(_sage_const_276 )
 try:
- _st_.current_tex_line = _sage_const_296 
+ _st_.current_tex_line = _sage_const_296
  _st_.commandline(_sage_const_21 , r"""
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
@@ -235,7 +235,7 @@ sage: F2(1) / F2(1) # Division
 except:
  _st_.goboom(_sage_const_301 )
 try:
- _st_.current_tex_line = _sage_const_550 
+ _st_.current_tex_line = _sage_const_550
  _st_.commandline(_sage_const_22 , r"""
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
@@ -251,5 +251,296 @@ sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
 """, globals(), locals(), True)
 except:
  _st_.goboom(_sage_const_562 )
+_st_.current_tex_line = _sage_const_34
+_st_.blockbegin()
+try:
+ E1 = EllipticCurve([-_sage_const_2 ,_sage_const_1 ])
+ C1 = E1.plot()
+ F = GF(_sage_const_9973 )
+ E2 = EllipticCurve(F, [-_sage_const_2 ,_sage_const_1 ])
+ C2 = E2.plot()
+except:
+ _st_.goboom(_sage_const_40 )
+_st_.blockend()
+try:
+ _st_.current_tex_line = _sage_const_42
+ _st_.plot(_sage_const_0 , format='notprovided', _p_=C1)
+except:
+ _st_.goboom(_sage_const_42 )
+try:
+ _st_.current_tex_line = _sage_const_43
+ _st_.plot(_sage_const_1 , format='notprovided', _p_=C2)
+except:
+ _st_.goboom(_sage_const_43 )
+try:
+ _st_.current_tex_line = _sage_const_51
+ _st_.commandline(_sage_const_23 , r"""
+sage: F5 = GF(5) # define the base field
+sage: a = F5(2) # parameter a
+sage: b = F5(4) # parameter b
+sage: F5(6)*(F5(4)*F5(2)^3+F5(27)*F5(4)^2) != F5(0)
+sage: # short Weierstrass curve
+sage: E = EllipticCurve(F5,[a,b]) # y^2 == x^3 + ax +b
+sage: P = E(0,2) # 2^2 == 0^3 + 2*0 + 4
+sage: P.xy() # affine coordinates
+sage: INF = E(0) # point at infinity
+sage: try:  # point at infinity has no affine coordinates
+....:     INF.xy()
+....: except ZeroDivisionError:
+....:     pass
+sage: P = E.plot() # create a plotted version
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_66 )
+_st_.current_tex_line = _sage_const_79
+_st_.blockbegin()
+try:
+ F5 = GF(_sage_const_5 )
+ E1 = EllipticCurve(F5, [_sage_const_1 ,_sage_const_1 ])
+ C1 = E1.plot()
+except:
+ _st_.goboom(_sage_const_83 )
+_st_.blockend()
+try:
+ _st_.current_tex_line = _sage_const_85
+ _st_.plot(_sage_const_2 , format='notprovided', _p_=C1)
+except:
+ _st_.goboom(_sage_const_85 )
+_st_.current_tex_line = _sage_const_99
+_st_.blockbegin()
+try:
+ F13 = GF(_sage_const_13 )
+ PJJ_13 = EllipticCurve(F13, [_sage_const_8 ,_sage_const_8 ])
+ CPJJ_13 = PJJ_13.plot()
+except:
+ _st_.goboom(_sage_const_103 )
+_st_.blockend()
+try:
+ _st_.current_tex_line = _sage_const_105
+ _st_.plot(_sage_const_3 , format='notprovided', _p_=CPJJ_13)
+except:
+ _st_.goboom(_sage_const_105 )
+try:
+ _st_.current_tex_line = _sage_const_121
+ _st_.commandline(_sage_const_24 , r"""
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: p.is_prime()
+sage: p.nbits()
+sage: Fp = GF(p)
+sage: Secp256k1 = EllipticCurve(Fp,[0,7])
+sage: r = Secp256k1.order() # number of elements
+sage: r.is_prime()
+sage: r.nbits()
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_130 )
+try:
+ _st_.current_tex_line = _sage_const_234
+ _st_.commandline(_sage_const_25 , r"""
+sage: F5 = GF(5)
+sage: E1 = EllipticCurve(F5,[1,1])
+sage: INF = E1(0) # point at infinity
+sage: P1 = E1(0,1)
+sage: P2 = E1(4,2)
+sage: P3 = E1(0,4)
+sage: R1 = E1(2,1)
+sage: R2 = E1(3,4)
+sage: R1 == P1+P2
+sage: INF == P1+P3
+sage: R2 == P2+P2
+sage: R2 == 2*P2
+sage: P3 == P3 + INF
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_248 )
+try:
+ _st_.current_tex_line = _sage_const_256
+ _st_.commandline(_sage_const_26 , r"""
+sage: F13 = GF(13)
+sage: MJJ = EllipticCurve(F13,[8,8])
+sage: P = MJJ(4,0)
+sage: INF = MJJ(0) # Point at infinity
+sage: INF == P+P
+sage: INF == 2*P
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_263 )
+try:
+ _st_.current_tex_line = _sage_const_889
+ _st_.commandline(_sage_const_27 , r"""
+sage: F43 = GF(43)
+sage: F43t.<t> = F43[]
+sage: F43_6.<v> = GF(43^6, name='v', modulus=t^6+6) # t^6+6 irreducible
+sage: BLS6 = EllipticCurve (F43_6,[0 ,6])
+sage: INF = BLS6(0) # point at infinity
+sage: for P in INF.division_points(13): # PI(P) == [q]P
+....:     if P.order() == 13: # exclude point at infinity
+....:         PiP = BLS6([a.frobenius() for a in P])
+....:         qP = 43*P
+....:         if PiP == qP:
+....:             print(P.xy())
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_901 )
+try:
+ _st_.current_tex_line = _sage_const_927
+ _st_.commandline(_sage_const_28 , r"""
+sage: g1 = BLS6([13,15])
+sage: g2 = BLS6([7*v^2, 16*v^3])
+sage: g1.weil_pairing(g2,13)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_931 )
+try:
+ _st_.current_tex_line = _sage_const_953
+ _st_.commandline(_sage_const_29 , r"""
+sage: F13 = GF(13)
+sage: for A in xrange(3, 13):
+....:     if (A-2) % 4 != 0:
+....:         continue
+....:     try:
+....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
+....:         E
+....:         E.order()
+....:     except:
+....:         continue
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_964 )
+try:
+ _st_.current_tex_line = _sage_const_968
+ _st_.commandline(_sage_const_30 , r"""
+sage: for d in F13:
+....:     j= ZZ(0)
+....:     for x in F13:
+....:         for y in F13:
+....:             if x^2+y^2 == 1+d*x^2*y^2:
+....:                 j=j+1
+....:     print('d=',d)
+....:     print('order=',j)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_977 )
+try:
+ _st_.current_tex_line = _sage_const_989
+ _st_.commandline(_sage_const_31 , r"""
+sage: for x in F13:
+....:     for y in F13:
+....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
+....:             print(x,y)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_994 )
+try:
+ _st_.current_tex_line = _sage_const_1023
+ _st_.commandline(_sage_const_32 , r"""
+sage: def Edwards_add((x1,y1),(x2,y2),d):
+....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
+....: (x2)*F13(y1)*F13(y2))))
+....:     y3 = F13((F13(y1)*F13(y2)-F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13
+....: (x2)*F13(y1)*F13(y2))))
+....:     return (x3,y3)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1030 )
+try:
+ _st_.current_tex_line = _sage_const_1123
+ _st_.commandline(_sage_const_33 , r"""
+sage: F13 = GF(13)
+sage: for A in xrange(3, 13):
+....:     if (A-2) % 4 != 0:
+....:         continue
+....:     try:
+....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
+....:         E
+....:         E.order()
+....:     except:
+....:         continue
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1134 )
+try:
+ _st_.current_tex_line = _sage_const_1138
+ _st_.commandline(_sage_const_34 , r"""
+sage: j = ZZ(0)
+sage: for a in F13:
+....:     for d in F13:
+....:         j = 0
+....:         for x in F13:
+....:             for y in F13:
+....:                 if a*x^2 + y^2 == 1+d*x^2*y^2:
+....:                     j=j+1
+....:         print('curve: a=',a,'d=',d,'order:',j)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1148 )
+try:
+ _st_.current_tex_line = _sage_const_1164
+ _st_.commandline(_sage_const_35 , r"""
+sage: for x in F13:
+....:     for y in F13:
+....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
+....:             print(x,y)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1169 )
+try:
+ _st_.current_tex_line = _sage_const_1192
+ _st_.commandline(_sage_const_36 , r"""
+sage: def Edwards_add((x1,y1),(x2,y2),a,d):
+....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
+....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
+....:     return (x3,y3)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1197 )
+try:
+ _st_.current_tex_line = _sage_const_1222
+ _st_.commandline(_sage_const_37 , r"""
+sage: F7 = GF(7)
+sage: MNT4 = EllipticCurve (F7,[4 ,1])
+sage: [P.xy() for P in MNT4.points() if P.order() > 1]
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1226 )
+try:
+ _st_.current_tex_line = _sage_const_1253
+ _st_.commandline(_sage_const_38 , r"""
+sage: F7t.<t> = F7[]
+sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
+sage: MNT4 = EllipticCurve (F7_4,[4 ,1])
+sage: INF = MNT4(0) # point at infinity
+sage: for P in INF.division_points(5): # PI(P) == [q]P
+....:     if P.order() == 5: # exclude point at infinity
+....:         PiP = MNT4([a.frobenius() for a in P])
+....:         qP = 7*P
+....:         if PiP == qP:
+....:             print(P.xy())
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1264 )
+try:
+ _st_.current_tex_line = _sage_const_1281
+ _st_.commandline(_sage_const_39 , r"""
+sage: g1 = MNT4([0,1])
+sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
+sage: g1.weil_pairing(g2,5)
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1285 )
+try:
+ _st_.current_tex_line = _sage_const_1357
+ _st_.commandline(_sage_const_40 , r"""
+sage: G.<x> = GF(5^6) # embedding degree is 6
+sage: MNT6 = EllipticCurve (G,[2 ,1])
+sage: INF = MNT6(0) # point at infinity
+sage: for P in INF.division_points(7): # PI(P) == [q]P
+....:     if P.order() == 7: # exclude point at infinity
+....:         PiP = MNT6([a.frobenius() for a in P])
+....:         qP = 5*P
+....:         if PiP == qP:
+....:             print(P.xy())
+""", globals(), locals(), True)
+except:
+ _st_.goboom(_sage_const_1367 )
 _st_.endofdoc()
-
