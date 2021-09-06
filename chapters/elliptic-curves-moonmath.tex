@@ -256,7 +256,7 @@ sage: P3 == P3 + INF
 \mathit{PJJ\_13} = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2), (7, 11), \\ (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
 10), (11, 6), (11, 7), (12, 5), (12, 8)\}
 \end{multline*}
-In contrast to the group from the previous example, this group contains a self inverse point, given by $(4,0)$. To see what this means, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $MJJ(\F_{13})$. The point $(4,0)$ is therefore inverse to itself, as adding it to itself gives the neutral element. 
+In contrast to the group from the previous example, this group contains a self inverse point, given by $(4,0)$. To see what this means, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $\mathit{PJJ\_13}$. The point $(4,0)$ is therefore inverse to itself, as adding it to itself gives the neutral element. 
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
@@ -350,26 +350,40 @@ To give another example, we can immediately see that $(3,4)\oplus (4,3) = (4,2)$
 
 Finally we can use $E_1(\F_5)$ as an example to understand the concept of cofactor clearing from XXX. Since the order of $E_1(\F_5)$ is $9$ we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_1(\F_5)$ onto its prime factor group $\G_2$ by scalar multiplication with $3$. For example taking the element $(3,4)$ which is not in $\G_2$ and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $\G_2$ as expected.
 \end{example}
-\begin{example}
-Now since the order of $MJJ(\F_{13})$ is $20$ and $20 = 2^2\cdot 5$, we know that the Moon-JubJub curve contains a "large" prime order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
+In the following example we will look at the subgroups of our pen-jubjub curve, define generators and compute the logarithmic order for pen and paper computations. Then we have anothef look at the principle of cofactor clearing.
+\begin{example} Consider the pen-jubjub curve $\mathit{PJJ\_13}$ from example XXX again. Since the order of $\mathit{PJJ\_13}$ is $20$ and the prime factorization of $20$ is $2^2\cdot 5$, we know that the $\mathit{PJJ\_13}$ contains a "large" prime order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
 
-To compute those groups we can apply the technique of cofactor clearing starting from the smallest group (the trivial group). Since the trivial group has order $1$, the apropriate cofactor is $20$ and scalar multiplication $[20](x,y)$ will result in $\Oinf$ for any element $(x,y)\in MJJ(\F_{13})$. And indeed $\Oinf$ is a generator of the trivial group $\G_1 :=\{\Oinf\}$. 
+To compute those groups we can apply the technique of cofactor clearing in a try and repeat loop. We start the loop by arbitrarily choose an element $P\in \mathit{PJJ\_13}$. Then we multiply that element with the cofactor of the group, we want to compute. If the result is $\Oinf$, we try a different element and repeat the process until the result is different from the point at infinity.  
 
-To find a generator of the next smallest subgroup, which contains two elements, we have to multiply with the cofactor $10$ of $2$. Choosing $(5,11)$ we get 
-$[10](8,8)=\Oinf$, which doesn't give us a generator. However choosing $(9,4)$ we get $[10](9,4)=(4,0)$, so we found the generator $(4,0)$ of the group $\G_2=\{(4,0)\to \Oinf\}$. 
-
-To find a generator of the subgroup with $5$ elements, we multiply $(9,4)$ by the cofactor $4$ and get $[4](9,4)=(7,11)$. To finde the group of order $5$, we apply the exponential map $[\cdot](7,11): \F_5 \to MJJ(\F_{13})$ and get
+To compute a generator for the small prime order subgroup $(\mathit{PJJ\_13})_2$, first observe that the cofactor is $10$, since $20=2\cdot 10$. We then arbitrarily choose the curve point $(5,11)\in \mathit{PJJ\_13}$ and compute $[10](5,11)=\Oinf$. Since the result is the point at infinity, we have to try another curve point, say $(9,4)$. We get $[10](9,4)=(4,0)$ and we can deduce that $(4,0)$ is a generator of $(\mathit{PJJ\_13})_2$. Logarithmic order of then gives
+$$
+(\mathit{PJJ\_13})_2 = \{(4,0)\to \Oinf\}
+$$
+as expected, since we know from example XXX that $(4,0)$ is self inverse, with $(4,0)\oplus (4,0)=\Oinf$. Double checking the computations using sage: 
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: PJJ = EllipticCurve(F13,[8,8])
+sage: P = PJJ(5,11)
+sage: INF = PJJ(0)
+sage: 10*P == INF
+sage: Q = PJJ(9,4)
+sage: R = PJJ(4,0)
+sage: 10*Q == R
+\end{sagecommandline}
+We can apply the same reasoning to the "large" prime order subgroup $(\mathit{PJJ\_13})_5$, which contains $5$ elements. To compute a generator for this group, first observe that the associated cofactor is $4$, since $20=5\cdot 4$. We choose the curve point $(9,4)\in \mathit{PJJ\_13}$ again and compute $[4](9,4)=(7,11)$ and we can deduce that $(7,11)$ is a generator of $(\mathit{PJJ\_13})_5$. Using the generator $(7,11)$, we compute the exponential map $[\cdot](7,11): \F_5 \to \mathit{PJJ\_13}$ and get
 \begin{align*}
+[0](7,11) &= \Oinf\\
 [1](7,11) &= (7,11)\\
 [2](7,11) &= (8,5)\\
 [3](7,11) &= (8,8)\\
-[4](7,11) &= (7,2)\\
-[5](7,11) &= \Oinf\\
-\end{align*} 
-Adopting the notation from example XXX, we therefore find the following "large" order primegroup
-\begin{multline*}
-\G_5 = \{(7,11)\to(8,5)\to(8,8)\to(7,2)\to \Oinf\}
-\end{multline*}
+[4](7,11) &= (7,2)
+\end{align*}
+We can use this computation to write the large order prime group $(\mathit{PJJ\_13})_5$ of the pen-jubjub curve in logarithmic order, which we will use quite frequently in what follows. We get:
+$$
+(\mathit{PJJ\_13})_5 = \{(7,11)\to(8,5)\to(8,8)\to(7,2)\to \Oinf\}
+$$
+From this, we can immediately see that for example $(8,8)\oplus (7,2)= (8,5)$, since 
+$3+4=2$ in $\F_5$.
 \end{example}
 From the previous two examples, the reader might get the impression, that elliptic curve computation can be largely replaced by modular arithmetics. This however is not true in general, but only an arefact of small groups where it is possible to write the entire group in a logarithmic order. The following example gives some understanding, why this is not possible in cryptographically secure groups
 \begin{example}
