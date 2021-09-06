@@ -391,28 +391,70 @@ SEKTP BICOIN. DISCRET LOG HARDNESS PROHIBITS ADDITION IN THE FIELD...
 \end{example}
 \paragraph{Projective short Weierstraß form}
 % https://www.cosic.esat.kuleuven.be/bcrypt/lecture%20slides/wouter.pdf
-As we can see, we had to add a special point at infinity to the definition of a short Weierstrass curve. Recalling from the definition of projective planes we know, that similar points at infinity are handled as ordinary points in projective geometry. It make therefore sense to look at the definition of a short Weierstraß curve in projective geometry.
+As we have seen in the previous section, describing elliptic curves as pairs of points that satisfy a certain equation is relatively straight forward. However in order to define a group structure on the set of points, we had to add a special point at infinity to act as the neutral element. 
 
-To see what a short Weierstraß curve in projective coordinates is, let $\F_{q}$ be a finite field and $a,b\in \F_q$ two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$. Then a \textbf{short Weierstrass elliptic curve} $E/\F_q$ over $\F_q$ in its projective representation is the set
+Recalling from the definition of projective planes XXX we know, that points at infinity are handled as ordinary points in projective geometry. It make therefore sense to look at the definition of a short Weierstraß curve in projective geometry.
+
+To see what a short Weierstraß curve in projective coordinates is, let $\F$ be a finite field of order $q$ and characteristic $>3$, $a,b\in \F$ two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$ and $\F\mathrm{P}^2$ the projective plane over $\F$. Then a \textbf{short Weierstrass elliptic curve} over $\F$ in its projective representation is the set
 \begin{equation}
 \label{def_short_weierstrass_curve}
-E/\F_q\mathbb{P}^2 = \{[x:y:z]\in \F_q\mathbb{P}^2\;|\; y^2\cdot z = x^3+a\cdot x\cdot z^2 + b\cdot z^3 \}
+E(\F\mathrm{P}^2) = \{[X:Y:Z]\in \F\mathrm{P}^2\;|\; Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3 \}
 \end{equation}
-of all points $[x:y:z]\in \F_q\mathbb{P}^2$ from the projective plane, that satisfy the \textit{homogenous} cubic equation $y^2\cdot z = x^3+a\cdot x\cdot z^2 + b\cdot z^3$.
+of all points $[X:Y:Z]\in \F\mathrm{P}^2$ from the projective plane, that satisfy the \textit{homogenous} cubic equation $Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3$.
 
-As we have seen in XXX, in projective geometry points at infinity are given by equivalence classes $[x:y:0]$. Inserting representatives $(x_1,x_2,0)\in [x:y:0]$ from those classes into the defining homogenous cubic equations gives
+To understand how the point at infinity is unified in this definition, recall from XXX that, in projective geometry points at infinity are given by homogeneous coordinates $[X:Y:0]$. Inserting representatives $(x_1,y_1,0)\in [X:Y:0]$ from those classes into the defining homogenous cubic equations gives
 \begin{align*}
-y^2\cdot 0 & = x^3+a\cdot x\cdot 0^2 + b\cdot 0^3 & \Leftrightarrow \\
-0 & = x^3
+y_1^2\cdot 0 & = x_1^3+a\cdot x_1\cdot 0^2 + b\cdot 0^3 & \Leftrightarrow \\
+0 & = x_1^3
 \end{align*} 
-which shows that the only projective point at infinity that is a point on the curve is the class $[0,1,0]$. This point is the projective representation of $\mathcal{O}$. The projective representation of a short Weierstraß curve therefore has the advantage to not need a special symbol to represent the special "point at infinity" $\mathcal{O}$ from the affine definition. 
+which shows that the only point at infinity that is also a point on a projective short Weierstraß curve is the class 
+$$
+[0,1,0] = \{(0,y,0)\;|\; y\in \F\}
+$$
+This point is the projective representation of $\mathcal{O}$. The projective representation of a short Weierstraß curve therefore has the advantage to not need a special symbol to represent the point at infinity $\mathcal{O}$ from the affine definition.
+\begin{example} To get an intuition of how an elliptic curve in projective geometry looks, consider curve $E_1(\F_5)$ from example (XXX). We know that in its affine representation, the set of rational points is given by 
+$$
+E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+$$
+which is defined as the set of all pairs $(x,y)\in \F_5\times \F_5$, such that the affine short Weierstrass equation $y^2 = x^3 + ax +b$ with $a=1$ and $b=1$ is satisfied.
 
-As we have seen in XXX, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its rational points, described geometrically by the chord and tangent rule. This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appered whenever the chord did not have a third intersection point with the curve.
+To finde the projective representation of a short Weierstrass curve with the same parameters $a=1$ and $b=1$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$, that satisfy the homogenous cubic equation 
+$$
+y_1^2z_1 = x_1^3 + 1\cdot x_1 z_1^2 + 1\cdot z_1^3
+$$
+for any representative $(x_1,y_1,z_1)\in [X:Y:Z]$. We know from XXX, that the projective plane $\F_5\mathrm{P}^2$ contains $5^2+5+1= 31$ elements, so we can take the effort and inseret all elements into equation XXX and see if both sides match.
 
-One of the key features of projective coordinates is now, that in projective space it is guranteed that any chord will always intersect the curve in three points, so the geometric picture simplifies as we don't need to consider external points and associated cases.
+For example, consider the projective point $[0:4:1]$. We know from XXX, that this point in the projective plane represents the line
+$$
+[0:4:1] = \{(0,0,0),(0,4,1),(0,3,2),(0,2,3),(0,1,4)\}
+$$  
+in the three dimensional space $\F^3$. To check whether or not $[0:4:1]$ satisfies XXX, we can insert any representative, that is we can insert any element from XXX. Each element satisfies the equation if and only if any other satisfies the equation. So we insert $(0,4,1)$ and get
+$$
+1^2\cdot 1 = 0^3 + 1\cdot 0\cdot 1^2 + 1\cdot 1^3
+$$
+which tells us that the affine point $[0:4:1]$ is indeed a solution. And as we can see, would just as well insert any other representative. For example inserting $(0,3,2)$ also satisfies XXX, since 
+$$
+3^2\cdot 2 = 0^3 + 1\cdot 0\cdot 2^2 + 1\cdot 2^3
+$$
+To find the projective reprresentation of $E_1$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstraß curve since it can not satisfy XXX for any parameter $a$ and $b$. So we can exclude it from our consideration. 
 
+Moreover a point at infinity $[X:Y:0]$ can only satisfy equation XXX for any $a$ and $b$, if $X=0$, which implies that the only point at infinity relavant for short Weierstrass elliptic curves is $[0:1:0]$, since $[0:k:0]= [0:1:0]$ for all $k$ from the finite field. So we can exclude all points at infinity except the point $[0:1:0]$.
 
-Again, it can be shown that the points of an elliptic curve in projective space form a commutative group with respect to the tangent and chord rule, such that the projective point $[0:1:0]$ is the neutral element and the additive inverse of an element $[x:y:z]$ is given by $[x:-y:z]$. The addition law is then usually described by the following algorithm, that minimizes the number of needed additions and multiplications in the base field. 
+So all points that remain are the affine points $[X:Y:1]$. Inserting all of them into XXX we get the set of all projective curve points as
+\begin{multline*}
+E_1(\F_5\mathrm{P}^2)=\{[0:1:0], [0:1:1], [2:1:1], [3:1:1], \\ [4:2:1], [4:3:1], [0:4:1], [2:4:1], [3:4:1]\}
+\end{multline*}
+If we compare this with the affine representation we see that there is a 1:1 correspondence between the points in the affine representation XXX and the affine points in projective geometry and that the point $[0:1:0]$ represents the additional point $\Oinf$ in the projective representation.
+\end{example} 
+\begin{exercise}
+Compute the projective representation of the pen-jubjub curve and the logarithmic order of its large prime order subgroup with respect to the generator $(7,11)$.
+\end{exercise}
+\paragraph{Projective Group law}
+As we have seen in XXX, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its rational points, described geometrically by the chord and tangent rule. This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appered whenever the chord or the tangent did not have a third intersection point with the curve.
+
+One of the key features of projective coordinates is now, that in projective space it is guranteed that any chord will always intersect the curve in three points and any tangent will intersect in two points including the tangent point. So the geometric picture simplifies as we don't need to consider external symbols and associated cases.
+
+Again, it can be shown that the points of an elliptic curve in projective space form a commutative group with respect to the tangent and chord rule, such that the projective point $[0:1:0]$ is the neutral element and the additive inverse of a point $[X:Y:Z]$ is given by $[X:-Y:Z]$. The addition law is then usually described by the following algorithm, that minimizes the number of needed additions and multiplications in the base field. 
 % https://www.hyperelliptic.org/EFD/precomp.pdf
 
 \begin{algorithm}\caption{Projective Weierstraß Addition Law}
@@ -463,48 +505,15 @@ Again, it can be shown that the points of an elliptic curve in projective space 
 \Ensure $ [X_3:Y_3:Z_3] == [X_1:Y_1:Z_1] \oplus [X_2:Y_2:Z_2]$
 \end{algorithmic}
 \end{algorithm}
+%\begin{example}[Polynomial evaluation on secret points]
+%Since scalar multiplication is assumed to be a one way function, it can be used to encrypt computations. For example it can be used to proof identities of bounded degree polynomials (with some probability), without actually revealing the polynomials. To see what this means, consider the moon-jubjub curve $MJJ(\F_{13})$ from XXX and the set $\F_{13}[x]_{\leq 2}$ of all polynomials with coefficiants in $\F_{13}$ and maximum degree $2$.
 
-\begin{example}Consider the elliptic curve $E_1(F_5)$ from example (XXX). We know that in its affine representation, the set of rational points is given by 
-$$
-E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
-$$
-which is defined as the set of all pairs $(x,y)\in \F_5\times \F_5$, such that the affine short Weierstrass equation $y^2 = x^3 + ax +b$ with $a=1$ and $b=1$ is satisfied.
+%Now assume that there are two parties $A$ and $B$ such that $A$ choose polynomial $P_A$ and $B$ chooses polynomial $P_B$ from $\F_{13}[x]_{\leq 2}$. The task is to check (with some probability) weather or not $P_A$ equals $P_B$ without actually revealing any information about the polynomials. 
 
-To finde the projective representation of a short Weierstrass curve with the same parameter $a=1$ and $b$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$, that satisfy the homogenous cubic equation 
-$$
-Y^2Z = X^3 + 1\cdot XZ^2 + 1\cdot Z^3
-$$
-We know from XXX, that $\F_5\mathrm{P}^2$ contains $5^2+5+1= 31$ elements, so we can take the effort and inseret all elements into equation XXX and see if both sides match. To see how this works, consider the projective point $[0:4:1]$. We know from XXX, that this point in the projective plane represents the line
-$$
-[0:4:1] = \{(0,0,0),(0,4,1),(0,3,2),(0,2,3),(0,1,4)\}
-$$  
-in the three dimensional space $\F^3$. To check whether or not $[0:4:1]$ satisfies XXX, we can insert any representative, that is we can insert any element from XXX. Each element satisfies the equation if and only if any other satisfies the equation. So we insert $(0,4,1)$ and get
-$$
-1^2\cdot 1 = 0^3 + 1\cdot 0\cdot 1^2 + 1\cdot 1^3
-$$
-which tells us that the affine point $[0:4:1]$ is indeed a solution. And as we can see, would just as well insert any other representative. For example inserting $(0,3,2)$ also satisfies XXX, since 
-$$
-3^2\cdot 2 = 0^3 + 1\cdot 0\cdot 2^2 + 1\cdot 2^3
-$$
-To find the projective reprresentation of $E_1$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstraß curve since it can not satisfy XXX for any parameter $a$ and $b$. So we can exclude it from our consideration. 
+%This task can be solved, by evaluating the polynomials at a secret point in the exponent of a (DFHM-PROPERTY) group and then compare the results.
 
-Moreover a point at infinity $[X:Y:0]$ can only satisfy equation XXX for any $a$ and $b$, if $X=0$, which implies that the only point at infinity relavant for short Weierstrass elliptic curves is $[0:1:0]$, since $[0:k:0]= [0:1:0]$ for all $k$ from the finite field. So we can exclude all points at infinity except the point $[0:1:0]$.
-
-So all points that remain are the affine points $[X:Y:1]$. Inserting all of them into XXX we get the set of all projective curve points as
-$$
-E_1(\F_5\mathrm{P}^2)=\{[0:1:0], [0:1:1], [2:1:1], [3:1:1], [4:2:1], [4:3:1], [0:4:1], [2:4:1], [3:4:1]\}
-$$
-If we compare this with the affine representation we see that there is a 1:1 correspondence between the points in the affine representation XXX and the affine points in projective geometry and that the point $[0:1:0]$ represents the additional point $\Oinf$ in the projective representation.
-\end{example}
-\begin{example}[Polynomial evaluation on secret points]
-Since scalar multiplication is assumed to be a one way function, it can be used to encrypt computations. For example it can be used to proof identities of bounded degree polynomials (with some probability), without actually revealing the polynomials. To see what this means, consider the moon-jubjub curve $MJJ(\F_{13})$ from XXX and the set $\F_{13}[x]_{\leq 2}$ of all polynomials with coefficiants in $\F_{13}$ and maximum degree $2$.
-
-Now assume that there are two parties $A$ and $B$ such that $A$ choose polynomial $P_A$ and $B$ chooses polynomial $P_B$ from $\F_{13}[x]_{\leq 2}$. The task is to check (with some probability) weather or not $P_A$ equals $P_B$ without actually revealing any information about the polynomials. 
-
-This task can be solved, by evaluating the polynomials at a secret point in the exponent of a (DFHM-PROPERTY) group and then compare the results.
-
-So we assume that there is some trusted third party $C$ that chooses a publically known generator of a large prime order subgroup of $MJJ(\F_{13})$, say  a secrete point $s\in\F_{13}$, say $s=2$. $C$ then c
-\end{example}
+%So we assume that there is some trusted third party $C$ that chooses a publically known generator of a large prime order subgroup of $MJJ(\F_{13})$, say  a secrete point $s\in\F_{13}$, say $s=2$. $C$ then c
+%\end{example}
 
 
 \begin{exercise}
@@ -514,22 +523,22 @@ Compare that affine addition law for short Weierstraß curves with the projectiv
 \paragraph{Coordinate Transformations} As we have seen in example XXX, there was a close relation between the affine and the projective representation of a short Weierstrass curve. This was no accident.
 In fact from a mathematical point of view projective and affine short Weierstraß curves describe the same thing as there is a one-to-one correspondence (an isomorphism) between both representations for any given parameters $a$ and $b$. 
 
-To specify the isomorphism, let $E/\F$ and $E/\F\mathrm{P}^2$ be an affine and a projective short Weierstraß curve defined for the same parameters $a$ and $b$. Then the map
+To specify the isomorphism, let $E(\F)$ and $E(\F\mathrm{P}^2)$ be an affine and a projective short Weierstraß curve defined for the same parameters $a$ and $b$. Then the map
 \begin{equation}
-\Phi : E/\F_q \to E/\F_q\mathbb{P}^2\;:\;
+\Phi : E(\F) \to E(\F\mathrm{P}^2)\;:\;
 \begin{array}{lcl}
 (x,y)       &\mapsto & [x:y:1]\\
 \mathcal{O} &\mapsto & [0:1:0]
 \end{array}
 \end{equation}
-maps points from a the affine representation to points from the projective representation of a short Weierstraß curve, that is if the pair of points $(x,y)$ saisfies the affine equation $y^2= x^3 + ax + b$, then all homogeneous coordinates $(x_1,x_2,x_3)\in [x:y:1]$ satisfy the projective equation $x_2^2\cdot x_3= x_1^3 + ax_2\cdot x_3^2 + b\cdot x_3^3$. The inverse is given by the map
+maps points from a the affine representation to points from the projective representation of a short Weierstraß curve, that is if the pair of points $(x,y)$ saisfies the affine equation $y^2= x^3 + ax + b$, then all homogeneous coordinates $(x_1,y_1,z_1)\in [x:y:1]$ satisfy the projective equation $y_1^2\cdot z_1= x_1^3 + ay_1\cdot z_1^2 + b\cdot z_1^3$. The inverse is given by the map
 \begin{equation}
-\Phi^{-1} : E/\F_q\mathbb{P}^2\to E/\F_q \;:\; [x:y:z] \mapsto \begin{cases}
-(\frac{x}{z},\frac{y}{z}) & \text{ if } z\neq 0\\
-\mathcal{O} & \text{ if } z=0
+\Phi^{-1} : E(\F\mathbb{P}^2)\to E(\F) \;:\; [X:Y:Z] \mapsto \begin{cases}
+(\frac{X}{Z},\frac{Y}{Z}) & \text{ if } Z\neq 0\\
+\mathcal{O} & \text{ if } Z=0
 \end{cases}
 \end{equation}
-Note the only projective point $[x:y:z]$ with $z\neq 0$ that satisfys XXX is given by the class $[0:1:0]$. 
+Note the only projective point $[X:Y:Z]$ with $Z\neq 0$ that satisfys XXX is given by the class $[0:1:0]$. 
 
 One key feature of $\Phi$ and its inverse is, that it respects the group structure, which means that $\Phi((x_1,y_1)\oplus (x_2,y_2))$ is equl to $\Phi(x_1,y_1)\oplus \Phi(x_2,y_2)$. The same holds true for the inverse map $\Phi^{-1}$.
 
@@ -541,29 +550,64 @@ Maps with these properties are caled \textit{group isomorphisms} and from a math
 History and use of them (otimized scalar multiplication)
 
 \paragraph{Affine Montgomery Form}
-To see what a Montgomery curve in affine coordinates is, let $\F_q$ be a finite field of characteristic $char(\F_q)>2$ and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2 \neq 4$. Then a \textbf{Montomery elliptic curve} $M(\F_q)$ over $\F_q$ in its affine representation is the set
+To see what a Montgomery curve in affine coordinates is, let $\F$ be a finite field of characteristic $>2$ and $A,B\in \F$ two field elements such that $B\neq 0$ and $A^2 \neq 4$. Then a \textbf{Montomery elliptic curve} $M(\F)$ over $\F$ in its affine representation is the set
 \begin{equation}
 \label{def_short_weierstrass_curve}
-M(\F_q) = \{(x,y)\in \F_q\times \F_q\;|\; B\cdot y^2 = x^3 + A\cdot x^2 + x  \} \bigcup \{\Oinf\}
+M(\F) = \{(x,y)\in \F\times \F\;|\; B\cdot y^2 = x^3 + A\cdot x^2 + x  \} \bigcup \{\Oinf\}
 \end{equation}
-of all pairs of field elements $(x,y)\in \F_q\times \F_q$, that satisfy the Montgomery cubic equation $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distingushid symbol $\Oinf$, called the \textbf{point at infinity}.
+of all pairs of field elements $(x,y)\in \F\times \F$, that satisfy the Montgomery cubic equation $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distingushid symbol $\Oinf$, called the \textbf{point at infinity}.
 
 Despite the fact that Montgomery curves look different then short Weierstrass curve, they are in fact just a special way to describe certain short Weierstrass curves. In fact every curve in affine Montgomery form can be transformed into an elliptic curve in Weierstrass form. To see that assume that a curve in Montgomery form $B y^2 = x^3 + A x^2 + x$ is given. The associated Weierstrass form is then
 $$
 y^2 = x^3 + \frac{3-A^2}{3B^2}\cdot x + \frac{2A^3-9A}{27B^3}
 $$
  
-On the other hand, an elliptic curve over base field $\F_q$ in Weierstrass form $E: y^2 = x^3 + a x + b$ can be converted to Montgomery form if and only if the following conditions hold:
+On the other hand, an elliptic curve $E(\F)$ over base field $\F$ in Weierstrass form $y^2 = x^3 + a x + b$ can be converted to Montgomery form if and only if the following conditions hold:
 \begin{itemize}
-\item The number of points on $E(F_q)$ is divisible by $4$
-\item The polynomial $z^3 + a z + b \in \F_q[z]$ has at least one root $\alpha\in\F_q$
-\item $3\alpha^2 + a$ is a quadratic residue in $\F_q$.
+\item The number of points on $E(F)$ is divisible by $4$
+\item The polynomial $z^3 + a z + b \in \F[z]$ has at least one root $z_0\in\F$
+\item $3z_0^2 + a$ is a quadratic residue in $\F$.
 \end{itemize}
+When these conditions are satisfied, then for $s=({\sqrt{3z_0^{2}+a}})^{-1}$ the equivalent Montgomery curve is defined by the equation
+$$
+sy^{2}=x^{3}+(3z_0 s)x^{2}+x
+$$
+In the following example we will look at our pen-jubjub curve again and show that it is actually a Montgomery curve.
+\begin{example}Consider the prime field $\F_{13}$ and the pen-jubjub curve $\mathit{PJJ\_13}$ from example XXX. To see that it is a Montgomery curve, we have to check the properties from XXX: 
 
-When these conditions are satisfied, then for $s=({\sqrt{3\alpha^{2}+a}})^{-1}$ the equivalent Montgomery curve is given by
+Since the order  of $\mathit{PJJ\_13}$ is $20$, which is divisible by $4$, the first requirement is meet. Next, since $a=8$ and $b=8$, we have check if the polynomial $P(z) = z^3 + 8z + 8$ has a root in $\F_{13}$. We simply evaluate $P$ at all numbers $z\in \F_{13}$ a find that $P(4)=0$, so a root is given by $z_0=4$. In a last step we have to check, that $3\cdot z_0^2 + a$ has a root in $\F_{13}$. We compute
+\begin{align*}
+3z_0^2 + a & = 3\cdot 4^2 + 8 \\
+           & = 3 \cdot 3 + 8 \\
+           & = 9 + 8 \\
+           & = 4
+\end{align*}
+To see if $4$ is a quadratic residue, we can use Eulers criterium XXX to compute the Legendre symbol of $4$. We get:
 $$
-sy^{2}=x^{3}+(3\alpha s)x^{2}+x
+\left(\frac{4}{13}\right) = 4^{\frac{13-1}{2}} = 4^6 = 1
+$$ 
+so $4$ indeed has a root in $\F_{13}$. In fact computing a root of $4$ in $\F_{13}$ is easy, since the integer root $2$ of $4$ is also one of its roots in $\F_{13}$
+
+Now since all requiremts are meet, we have shown that $\mathit{PJJ\_13}$ is indeed a Montgomery curve and we can use XXX to compute its associated Montgomery form. We compute
+\begin{align*}
+s & = \left(\sqrt{3\cdot z_0^2 +8}\right)^{-1} \\
+  & = 2^{-1} & \text{\# Fermat's little theorem} \\
+  & = 2^{13-2} & \text{\# }\Zmod{2048}{13} = 7\\
+  & = 7
+\end{align*}
+The defining equation for the Montgomery form of our pen-jubjub curve is then given by the following equation
+\begin{align*}
+sy^{2} & =x^{3}+(3z_0 s)x^{2}+x  & \Rightarrow\\
+7\cdot y^{2} & =x^{3}+(3\cdot 4 \cdot 7)x^{2}+x &\Leftrightarrow\\
+7\cdot y^{2} & =x^{3}+6x^{2}+x
+\end{align*}
+So we get the defining parameters as $B= 7$ and $A=6$ and we can write the pen-jubjub curve in its affine Montgomery representation as
 $$
+\mathit{PJJ\_13} = \{(x,y)\in \F_{13}\times \F_{13}\;|\; 7\cdot y^{2} =x^{3}+6x^{2}+x \}\bigcup \{\Oinf\}
+$$ 
+\end{example}
+TODO: POINT TRANSFORMATION + EXAMPLE FOR POINT TRANSFORMATION
+
 So we see that Montgomery curves a special cases of short Weierstrass curves. As such they have a group structure defined on the set of their points, which can also be derived from a chord and tangent rule. In accordance with short Weierstrass curves, it can be shown that the identity $x_1=x_2$ implies $y_2=\pm y_1$, which shows that the following rules are a complete description of the affine addition law.
 \begin{itemize}
 \item (Neutral element) Point at infinity $\Oinf$ is the neutral element.
