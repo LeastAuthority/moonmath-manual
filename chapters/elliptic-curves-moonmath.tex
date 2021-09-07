@@ -605,10 +605,72 @@ So we get the defining parameters as $B= 7$ and $A=6$ and we can write the pen-j
 $$
 \mathit{PJJ\_13} = \{(x,y)\in \F_{13}\times \F_{13}\;|\; 7\cdot y^{2} =x^{3}+6x^{2}+x \}\bigcup \{\Oinf\}
 $$ 
+Now that we have the abstract definition of our pen-jubjub curve in Montgomery form, we can compute the set of points, by inserting all pairs $(x,y)\in\F_{13}\times \F_{13}$ similar to how we computed the curve points in its Weierstraß representation. We get
+\begin{multline*}
+\mathit{PJJ\_13} = \{\Oinf, (0, 0),(1, 4),(1, 9),(2, 4),(2, 9),(3, 5),(3, 8),(4, 4),(4, 9),\\ (5, 1),(5, 12),(7, 1),(7, 12),(8, 1),(8, 12),(9, 2),(9, 11),(10, 3),(10, 10)\}
+\end{multline*}
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: L_MPJJ = []
+....: for x in F13:
+....:     for y in F13:
+....:         if F13(7)*y^2 == x^3 + F13(6)*x^2 +x:
+....:             L_MPJJ.append((x,y))
+sage: MPJJ = Set(L_MPJJ)
+sage: # does not compute the point at infinity
+\end{sagecommandline}
 \end{example}
-TODO: POINT TRANSFORMATION + EXAMPLE FOR POINT TRANSFORMATION
+\paragraph{Affine Montgomery coordinate transformation} Comparing the Montogomery representation of the previous example with the Weierstraß representation of the same curve, we see that there is a 1:1 correspondence between the curve points in both examples. This is no accident. In fact if $M_{A,B}$ is a Montgomery curve and $E_{a,b}$ a Weierstraß curve with $a = \frac{3-A^2}{3B^2}$ and $b= \frac{2A^2 -9A}{27B^3}$ then the function
+\begin{equation}
+\Phi: M_{A,B} \to E_{a,b}\; : \; (x,y) \mapsto \left(\frac{3x + A}{3B}, \frac{y}{B}\right)
+\end{equation}
+maps all points in Montgomery representation onto the points in Weierstraß representation. This map is a 1:1 correspondence (am isomorphism) and its inverse map is given by
+\begin{equation}
+\Phi^{-1}: E_{a,b} \to M_{A,B}\; : \; (x,y) \mapsto \left(s\cdot(x-z_0), s\cdot y\right)
+\end{equation}
+where $z_0$ is a root of the polynomial $z^3 + a z + b \in \F[z]$ and $s=({\sqrt{3z_0^{2}+a}})^{-1}$. Using this map, it is therefore possible for implementations of Montgomery curves to freely transit between the Weierstraß and the Montgomery representation. Note however that according to XXX not every Weierstraß curve is a Montgomery curve, as all of the properties from XXX have to be satisfied. The map $\Phi^{-1}$ therefore does not always exists. 
+\begin{example} Consider our pen-jubjub curve again. In example XXX we derive its Weierstraß representation and in example XXX we derive its Montgomery representation. 
 
-So we see that Montgomery curves a special cases of short Weierstrass curves. As such they have a group structure defined on the set of their points, which can also be derived from a chord and tangent rule. In accordance with short Weierstrass curves, it can be shown that the identity $x_1=x_2$ implies $y_2=\pm y_1$, which shows that the following rules are a complete description of the affine addition law.
+To see how the coordinate transformation $\Phi$ works in this example, lets map points from the Montogomery representation onto points from the Weierstraß representation. Inserting for example the point $(0,0)$ from the Montomery representation XXX into $\Phi$ gives
+\begin{align*}
+\Phi(0,0) & = \left(\frac{3\cdot 0 + A}{3B}, \frac{0}{B}\right) \\
+          & = \left(\frac{3\cdot 0 + 6}{3\cdot 7}, \frac{0}{7}\right) \\
+          & = \left(\frac{6}{8}, 0\right) \\
+          & = \left(4, 0\right) \\
+\end{align*}
+So the Montgomery point $(0,0)$ maps to the self inverse point $(4,0)$ of the Weierstraß representation. On the other hand we can use our computations of $s=7$ and $z_0=4$ from XXX, to compute the inverse map $\Phi^{-1}$, which maps point on the Weiertraß representation to points on the Mongomery form. Inserting for example $(4,0)$ we get
+\begin{align*}
+\Phi^{-1}(4,0) & = \left(s\cdot(4-z_0), s\cdot 0\right)\\
+               & = \left(7\cdot(4-4), 0\right)\\
+               & = (0,0)
+\end{align*}
+So as expected, the inverse maps maps the Weierstraß point back to where it came from on the Montgomery form. We can invoke sage to proof that our computation of $\Phi$ is correct:
+\begin{sagecommandline}
+sage: # Compute PHI of Montgomery form:
+sage: L_PHI_MPJJ = []
+sage: for (x,y) in L_MPJJ: # LMJJ as defined previously                                   
+....:     v = (F13(3)*x + F13(6))/(F13(3)*F13(7))
+....:     w = y/F13(7)
+....:     L_PHI_MPJJ.append((v,w))
+sage: PHI_MPJJ = Set(L_PHI_MPJJ)
+sage: # Computation Weierstrass form
+sage: C_WPJJ = EllipticCurve(F13,[8,8]) 
+sage: L_WPJJ = [P.xy() for P in C_WPJJ.points() if P.order() > 1]
+sage: WPJJ = Set(L_WPJJ)
+sage: # check PHI(Montgomery) == Weierstrass
+sage: WPJJ == PHI_MPJJ
+sage: # check the inverse map PHI^(-1)
+sage: L_PHIINV_WPJJ = []
+sage: for (v,w) in L_WPJJ:
+....:     x = F13(7)*(v-F13(4))
+....:     y = F13(7)*w
+....:     L_PHIINV_WPJJ.append((x,y))
+sage: PHIINV_WPJJ = Set(L_PHIINV_WPJJ)
+sage: MPJJ == PHIINV_WPJJ
+\end{sagecommandline}
+\end{example}
+
+\paragraph{Montgomery group law} So we see that Montgomery curves a special cases of short Weierstrass curves. As such they have a group structure defined on the set of their points, which can also be derived from a chord and tangent rule. In accordance with short Weierstrass curves, it can be shown that the identity $x_1=x_2$ implies $y_2=\pm y_1$, which shows that the following rules are a complete description of the affine addition law.
 \begin{itemize}
 \item (Neutral element) Point at infinity $\Oinf$ is the neutral element.
 \item (Additive inverse ) The addivive inverse of $\mathcal{O}$ is $\mathcal{O}$ and for any other curve point $(x,y) \in M(\F_q)\textbackslash \{\mathcal{O}\}$, the additive inverse is given by $(x,-y)$.
@@ -643,18 +705,68 @@ $$
 % TODO: https://maths-people.anu.edu.au/~brent/pd/Subramanya-thesis.pdf
 % x-ccordinate only aka differential arithmetics on Montgomery curves
 \subsection{Twisted Edwards Curves}
-On of our main goals is do implement example snarks defined over the scalar field of our BLS6 curve. In particular we want to do elliptic curve cryptography inside of circuits. To do so we need an elliptic curve that we can implement as a circuit over the scalar field of BLS6. 
+As we have seen in XXX both Weierstrass and Montgomery curves have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
 
-As we have seen in XXX Weierstrass curve have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
-
-Edwards curves are particular useful here as they have a compact addition law that works for all point. Implementing that rule therefore needs no branching. 
+Twisted Edwards curves are particular useful here as they have a compact and easy to implement addition law that works for all point, including the point at infinity. Implementing that rule therefore needs no branching. 
 \paragraph{Twisted Edwards Form}
 % https://eprint.iacr.org/2008/013.pdf
-In this section we describe curves, that are defined over finite fields of characteristics $\neq 2$. An affine \textbf{twisted Edwards curve} over a finite field $\F$ is a curve, defined by the equation
-$$E/\F:a\cdot x^2+y^2= 1+d\cdot x^2y^2$$ 
-where $x,y\in \F$ and $d\in \F\backslash\{0,1\}$ and $d\in \F\backslash\{1\}$ with $a\neq d$ Assuming that $a$ has a root in $\F$ and $d$ has no root in $\F$. Such a curve is called an Edwards curve (non twisted), if $a=1$.
+To see what an affine \textbf{twisted Edwards curve} looks like, let $\F$ be a finite field of characteristic $>2$ and $a,d\in \F\backslash\{0\}$ two non zero field elements, such that $a$ is a quadratic residue and $d$ is a quadratic non residue. Then a \textbf{twisted Edwards ellipti curve} in its affine representation is the set
+\begin{equation}
+E(\F)=\{(x,y)\in\F\times\F\;|\; a\cdot x^2+y^2= 1+d\cdot x^2y^2\}
+\end{equation} 
+of all pairs $(x,y)$ from $\F\times \F$, that satisfy the twisted Edwards equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$. A twisted Edwards curve is just called an Edwards curve (non twisted), if the parameter $a$ is equal to $1$.
 
-The most remarkable fact about twisted Edwards curves is their simple addition law.  the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
+Twisted Edwards curves are equivalent to Montgomery curves in the sense that for every twisted Edwards curve there is a Montgomery curve and a way to map the points of one curve in a 1:1 correspondence onto the other and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery curve is then defined by the Montgomery equation
+\begin{equation}
+\frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
+\end{equation}
+On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ with $B\neq 0$ and $A^2\neq 4$ can gives rise to a twisted Edwards curve defined by the equation 
+\begin{equation}
+(\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
+\end{equation}
+\begin{example}Consider the pen jubjub curve from example XXX again. We know from XXX that it is a Montgomery curve and since Montgomery curves are equivalent to twisted Edwards curve, we want to write that curve in twisted Edwards form. We use XXX and compute the parameters $a$ and $d$ as
+\begin{align*}
+a & = \frac{A+2}{B} & \text{\# insert A=6 and B=7}\\
+  & = \frac{8}{7} & \text{\# } 7^{-1}= 2 \\
+  & = 3\\
+  \\
+d & = \frac{A-2}{B} \\
+  & = \frac{4}{7} \\
+  & = 8 
+\end{align*}
+So we get the defining parameters as $a= 3$ and $d=8$. To see that $a$ is a quadratic residue and $d$ is a quadratic non residue, we compute the Legendre symbols of $a$ and $d$ using the Euler criterium. We get
+\begin{align*}
+\left(\frac{3}{13}\right) &= 3^{\frac{13-1}{2}} \\
+                          & = 3^6 
+                          & = 1\\
+                          \\
+\left(\frac{8}{13}\right) &= 8^{\frac{13-1}{2}} \\
+                          & = 8^6 
+                          & = 12
+                          & = -1                     
+\end{align*}
+We can write the pen-jubjub curve in its affine twisted Edwards representation as
+$$
+\mathit{PJJ\_13} = \{(x,y)\in \F_{13}\times \F_{13}\;|\; 3\cdot x^{2} + y^2 =1+ 8\cdot x^{2}\cdot y^2 \}
+$$ 
+Now that we have the abstract definition of our pen-jubjub curve in twisted Edwards form, we can compute the set of points, by inserting all pairs $(x,y)\in\F_{13}\times \F_{13}$ similar to how we computed the curve points in its Weierstraß or Edwards representation. We get
+\begin{multline*}
+\mathit{PJJ\_13} = \{(0, 1),(0, 12),(1, 2),(1, 11),(2, 6),(2, 7),(3, 0),(5, 5),(5, 8),(6, 4),\\
+(6, 9),(7, 4),(7, 9),(8, 5),(8, 8),(10, 0),(11, 6),(11, 7),(12, 2),(12, 11)\}
+\end{multline*}
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: L_EPJJ = []
+....: for x in F13:
+....:     for y in F13:
+....:         if F13(3)*x^2 + y^2 == 1+ F13(8)*x^2*y^2:
+....:             L_EPJJ.append((x,y))
+sage: EPJJ = Set(L_EPJJ)
+\end{sagecommandline}
+
+
+\end{example}
+\paragraph{Twisted Edwards group law}The most remarkable fact about twisted Edwards curves from the perspective of this book is their simple addition law.  the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
 $$
 (x_1, y_1) + (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
 $$
@@ -676,14 +788,7 @@ As Edwards curves have such simple non branching addition laws that work for all
 %Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
 %\end{example}
 
-The twisted Edwards form is just another wa to describe Montgomery elliptic curve. In fact every curve in twisted Edwards form can be transformed into an elliptic curve in Montgomery form and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery form is then
-$$
-\frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
-$$
-On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ (WITH STUFF) can be transformed into a twisted Edwards curve 
-$$
-(\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
-$$
+
 
 \subsection{STUFF}
 
