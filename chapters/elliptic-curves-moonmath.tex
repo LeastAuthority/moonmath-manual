@@ -1,4 +1,5 @@
 \chapter{Elliptic Curves}
+TODO: Elliptic Curve asymmetric cryptography examples. Private key, generator, public key. 
 %references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
 Generally speaking, elliptic curves are "curves" defined in geometric planes like the Euklidean or the projective plane over some given field. One of the key features of elliptic curves over finite fields from the point of view of cryptography is their set of points has a group law, such that the resulting group is finite and cyclic and it is believed that the discrete logarithm problem on these groups is hard. 
 
@@ -43,16 +44,17 @@ C2 = E2.plot()
 \sageplot[scale=.5]{C2}
 \end{center}
 % TODO: PLOT BOTH CURVES ON THE SAME LINE NOT BELOW EACH OTHER
-Both elliptic curves are defined by the same short Weierstraß equation $y^2 = x^3-2x+1$, but the first curve is define in the real affine plane $\mathbb{R}^2$, while the second one is defined in the affine plane $\F_{9973}^2$. Every blue dot represents a pair $(x,y)$ that is solution to $y^2 = x^3-2x+1$ and as we can see the second curve hardly looks like a geometric structure one would naturally call a curve. So the geometric intuitions from $\R^2$ is kind of obfuscated in curves over finite fields.
+Both elliptic curves are defined by the same short Weierstraß equation $y^2 = x^3-2x+1$, but the first curve is define in the real affine plane $\mathbb{R}^2$, that is the pair $(x,y)$ contains real numbers, while the second one is defined in the affine plane $\F_{9973}^2$, which means that both $x$ and $y$ are from the prime field $\F_{9973}$. Every blue dot represents a pair $(x,y)$ that is solution to $y^2 = x^3-2x+1$ and as we can see the second curve hardly looks like a geometric structure one would naturally call a curve. So the geometric intuitions from $\R^2$ is kind of obfuscated in curves over finite fields.
 
 The identity $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$ ensures that the curve is  non-singular, which basically means that the curve has no cusps or self-intersections.
 
-When dealing with elliptic curves compuations can quickly become cumbersome and tedious. So on the one hand side the reader is adviced to do as many compuations in a pen and paper style as possible. This helps a lot to get a deeper understanding for the details. On the other hand side however, compuations are sometimes simply to large to be done by hand and one might get lost in the details. Fortunately sage is very helpful in dealing with elliptic curves. One we to define elliptic curves and work is them goes like this:
+When dealing with elliptic curves compuations can quickly become cumbersome and tedious. So on the one hand side the reader is adviced to do as many compuations in a pen and paper style as possible. This helps a lot to get a deeper understanding for the details. On the other hand side however, compuations are sometimes simply to large to be done by hand and one might get lost in the details. Fortunately sage is very helpful in dealing with elliptic curves. It is there a goal of this book to introduce the reader to the great elliptic curve capabilities of sage. One we to define elliptic curves and work is them goes like this:
 \begin{sagecommandline}
 sage: F5 = GF(5) # define the base field
 sage: a = F5(2) # parameter a
 sage: b = F5(4) # parameter b
-sage: F5(6)*(F5(4)*F5(2)^3+F5(27)*F5(4)^2) != F5(0)
+sage: # check non-sigularity
+sage: F5(6)*(F5(4)*a^3+F5(27)*b^2) != F5(0)
 sage: # short Weierstrass curve 
 sage: E = EllipticCurve(F5,[a,b]) # y^2 == x^3 + ax +b 
 sage: P = E(0,2) # 2^2 == 0^3 + 2*0 + 4
@@ -117,17 +119,26 @@ Curve Secp256k1 is then defined by the parameters $a,b\in \F_p$ with $a=0$ and $
 $$
 \mathit{Secp256k1} = \{(x,y)\in \F_p\times \F_p\;| y^2 = x^3 +7\;\} 
 $$
-Clearly Secp256k1 is a curve, to large to do computations by hand. It is therefore very usefull to understand that sage handles those curve efficiently. For example, while the order of Secp256k1 is large, sage is able to compute it efficiently.
+Clearly Secp256k1 is a curve, to large to do computations by hand, since it can be shown that $\mathit{Secp256k1}$ contains 
+$$
+r = \scriptstyle 11579208923731619542357098500868790785283756427907490438260516
+3141518161494337
+$$
+many elements, were $r$ is a prime number that also has a binary representation of $256$ bits. Cryptographically secure elliptic curves are therefore not useful in pen and paper computations. Fortunately sage handles large curve efficiently:
 \begin{sagecommandline}
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: # Hexadecimal representation
+sage: p.str(16)
 sage: p.is_prime()
 sage: p.nbits()
 sage: Fp = GF(p)
 sage: Secp256k1 = EllipticCurve(Fp,[0,7])
 sage: r = Secp256k1.order() # number of elements
+sage: r.str(16)
 sage: r.is_prime()
 sage: r.nbits()
 \end{sagecommandline}
+%\seqsplit{115792089237316195423570985008687907853269984665640564039457584007908834671663}
 \end{example}
 \begin{exercise}
 Look-up the definition of curve BLS12-381, implement it in sage and computes its order.
@@ -150,6 +161,25 @@ Using the technique of point compression, we can replace the $y$-ccordinate in e
 Note that the numbers $7,\ldots, 12$ are the negatives (additive inverses) of the numbers $1,\ldots, 6$ in modular $13$ arithmetics and that $-0=0$. Calling the compression bit a "sign bit" therefore makes sense.
 
 To recover the uncompressed point of say $(5,1)$, we insert the $x$-ccordinate $5$ into the Weierstraß equation and get $y^2 = 5^3 + 8\cdot 5 +8 = 4$. As expected $4$ is a quadratic residue in $\F_{13}$ with roots $\sqrt{4}= \{2,11\}$. Now since the sign bit of the point is $1$, we have to choose the root closer to the modulus $13$ which is $11$. The uncompressed point is therefore $(5,11)$. 
+\end{example}
+Looking at the previous examples, compression rate looks not very impressive. The followin example therefore looks at the Secp256k1 curve to show that compression is actually useful.
+\begin{example}
+Consider the Secp256k1 curve from example XXX again. The following code involves sage to generate a random affine curve point, we then apply our compression method   
+\begin{sagecommandline}
+sage: P = Secp256k1.random_point().xy()
+sage: P
+sage: # uncompressed affine point size
+sage: ZZ(P[0]).nbits()+ZZ(P[1]).nbits()
+sage: # compute the compression
+sage: if P[1] > Fp(-1)/Fp(2):
+....:     PARITY = 1
+....: else:
+....:     PARITY = 0
+sage: PCOMPRESSED = [P[0],PARITY]
+sage: PCOMPRESSED
+sage: # compressed affine point size
+sage: ZZ(PCOMPRESSED[0]).nbits()+ZZ(PCOMPRESSED[1]).nbits()
+\end{sagecommandline}
 \end{example}
 \paragraph{Affine group law}
 %group law
@@ -234,7 +264,7 @@ y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y  & \text{\# insert
     & = 1\cdot 1 + 3
       = 4
 \end{align*}
-So in our elliptic curve $E_1(\F_5)$ we get the doubling $2\cdot (4,2)$, that is $(4,2)\oplus (4,2) =(3,4)$ and indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self inverse points, since no point has $0$ as its $y$-coordinate. We can invoke sage to double check the computations. 
+So in our elliptic curve $E_1(\F_5)$ we get the doubling $2\cdot (4,2)$, that is $(4,2)\oplus (4,2) =(3,4)$ and indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self inverse points other then the neutral element $\Oinf$, since no point has $0$ as its $y$-coordinate. We can invoke sage to double check the computations. 
 \begin{sagecommandline}
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
@@ -256,7 +286,7 @@ sage: P3 == P3 + INF
 \mathit{PJJ\_13} = \{\Oinf, (1, 2), (1, 11), (4, 0), (5, 2), (5, 11), (6, 5), (6, 8), (7,2), (7, 11), \\ (8, 5), (8, 8), (9, 4), (9, 9), (10, 3), (10,
 10), (11, 6), (11, 7), (12, 5), (12, 8)\}
 \end{multline*}
-In contrast to the group from the previous example, this group contains a self inverse point, given by $(4,0)$. To see what this means, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $\mathit{PJJ\_13}$. The point $(4,0)$ is therefore inverse to itself, as adding it to itself gives the neutral element. 
+In contrast to the group from the previous example, this group contains a self inverse point, which is different from the neutral element, given by $(4,0)$. To see what this means, observe that we can not add $(4,0)$ to itself using the tangent rule 3 from XXX, as the $y$-coordinate is zero. Instead we have to use rule 2, since $0=-0$. We therefore get $(4,0)\oplus (4,0)=\Oinf$ in $\mathit{PJJ\_13}$. The point $(4,0)$ is therefore inverse to itself, as adding it to itself gives the neutral element. 
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
@@ -264,6 +294,23 @@ sage: P = MJJ(4,0)
 sage: INF = MJJ(0) # Point at infinity
 sage: INF == P+P
 sage: INF == 2*P
+\end{sagecommandline}
+\end{example}
+\begin{example}
+Consider the Secp256k1 curve from example XXX again. The following code involves sage to generate a random affine curve point, we then apply our compression method   
+\begin{sagecommandline}
+sage: P = Secp256k1.random_point()
+sage: Q = Secp256k1.random_point()
+sage: INF = Secp256k1(0)
+sage: R1 = -P
+sage: R2 = P + Q
+sage: R3 = Secp256k1.order()*P
+sage: P.xy()
+sage: Q.xy()
+sage: (ZZ(R1[0]).str(16), ZZ(R1[1]).str(16))
+sage: R2.xy()
+sage: R3 == INF
+sage: P[1]+R1[1] == Fp(0) # -(x,y) = (x,-y)
 \end{sagecommandline}
 \end{example}
 \begin{exercise}
@@ -572,7 +619,7 @@ When these conditions are satisfied, then for $s=({\sqrt{3z_0^{2}+a}})^{-1}$ the
 $$
 sy^{2}=x^{3}+(3z_0 s)x^{2}+x
 $$
-In the following example we will look at our pen-jubjub curve again and show that it is actually a Montgomery curve.
+If those properties are meet it is therefore possible to transform certain Weierstrass curve into Montgomery form. In the following example we will look at our pen-jubjub curve again and show that it is actually a Montgomery curve.
 \begin{example}Consider the prime field $\F_{13}$ and the pen-jubjub curve $\mathit{PJJ\_13}$ from example XXX. To see that it is a Montgomery curve, we have to check the properties from XXX: 
 
 Since the order  of $\mathit{PJJ\_13}$ is $20$, which is divisible by $4$, the first requirement is meet. Next, since $a=8$ and $b=8$, we have check if the polynomial $P(z) = z^3 + 8z + 8$ has a root in $\F_{13}$. We simply evaluate $P$ at all numbers $z\in \F_{13}$ a find that $P(4)=0$, so a root is given by $z_0=4$. In a last step we have to check, that $3\cdot z_0^2 + a$ has a root in $\F_{13}$. We compute
@@ -586,7 +633,7 @@ To see if $4$ is a quadratic residue, we can use Eulers criterium XXX to compute
 $$
 \left(\frac{4}{13}\right) = 4^{\frac{13-1}{2}} = 4^6 = 1
 $$ 
-so $4$ indeed has a root in $\F_{13}$. In fact computing a root of $4$ in $\F_{13}$ is easy, since the integer root $2$ of $4$ is also one of its roots in $\F_{13}$
+so $4$ indeed has a root in $\F_{13}$. In fact computing a root of $4$ in $\F_{13}$ is easy, since the integer root $2$ of $4$ is also one of its roots in $\F_{13}$. The other root is given by $13-4=9$.
 
 Now since all requiremts are meet, we have shown that $\mathit{PJJ\_13}$ is indeed a Montgomery curve and we can use XXX to compute its associated Montgomery form. We compute
 \begin{align*}
@@ -705,18 +752,22 @@ $$
 % TODO: https://maths-people.anu.edu.au/~brent/pd/Subramanya-thesis.pdf
 % x-ccordinate only aka differential arithmetics on Montgomery curves
 \subsection{Twisted Edwards Curves}
-As we have seen in XXX both Weierstrass and Montgomery curves have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs, which are costly when implemented in circuits/r1cs. It is therefore advantageous to look for curves with a more simple addition/doubling rule.
+As we have seen in XXX both Weierstrass and Montgomery curves have somewhat complicated addition and doubling laws as many cases have to be distinguished. Those cases translate to branches in computer programs.
 
-Twisted Edwards curves are particular useful here as they have a compact and easy to implement addition law that works for all point, including the point at infinity. Implementing that rule therefore needs no branching. 
+In the context of SNARK development two compuational models for bounded computations, called \textit{circuits} and \textit{rank-1 constraint systems}, are used and program-branches are undesireably costly, when implemented in those models. It is therefore advantageous to look for curves with an addition/doubling rule, that requires no branches and as few field operations as possible.
+
+Twisted Edwards curves are particular useful here as a subclass of these curves has a compact and easy to implement addition law that works for all point, including the point at infinity. Implementing that rule therefore needs no branching. 
 \paragraph{Twisted Edwards Form}
 % https://eprint.iacr.org/2008/013.pdf
-To see what an affine \textbf{twisted Edwards curve} looks like, let $\F$ be a finite field of characteristic $>2$ and $a,d\in \F\backslash\{0\}$ two non zero field elements, such that $a$ is a quadratic residue and $d$ is a quadratic non residue. Then a \textbf{twisted Edwards ellipti curve} in its affine representation is the set
+To see what an affine \textbf{twisted Edwards curve} looks like, let $\F$ be a finite field of characteristic $>2$ and $a,d\in \F\backslash\{0\}$ two non zero field elements with $a\neq d$. Then a \textbf{twisted Edwards ellipti curve} in its affine representation is the set
 \begin{equation}
 E(\F)=\{(x,y)\in\F\times\F\;|\; a\cdot x^2+y^2= 1+d\cdot x^2y^2\}
 \end{equation} 
-of all pairs $(x,y)$ from $\F\times \F$, that satisfy the twisted Edwards equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$. A twisted Edwards curve is just called an Edwards curve (non twisted), if the parameter $a$ is equal to $1$.
+of all pairs $(x,y)$ from $\F\times \F$, that satisfy the twisted Edwards equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$. A twisted Edwards curve is called an Edwards curve (non twisted), if the parameter $a$ is equal to $1$ and is called a \textbf{snark friendly} twisted Edwards curve if the parameter $a$ is a quadratic residue and the parameter $d$ is a quadratic non residue.
 
-Twisted Edwards curves are equivalent to Montgomery curves in the sense that for every twisted Edwards curve there is a Montgomery curve and a way to map the points of one curve in a 1:1 correspondence onto the other and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery curve is then defined by the Montgomery equation
+As we can see from the definition, affine twisted Edwards curve look somewhat different from Weierstraß curves as their affine representation does not need a special symbol to represent the point at infinity. In fact we we will see that the pair $(0,1)$ is always a point on any twisted Edwards curve and that it takes the role of the point at infinity.
+
+Despite the different looks however, twisted Edwards curves are equivalent to Montgomery curves in the sense that for every twisted Edwards curve there is a Montgomery curve and a way to map the points of one curve in a 1:1 correspondence onto the other and vice versa. To see that assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery curve is then defined by the Montgomery equation
 \begin{equation}
 \frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
 \end{equation}
@@ -724,30 +775,29 @@ On the other hand a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ with $B\neq 0$ and 
 \begin{equation}
 (\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
 \end{equation}
+Recalling from XXX that Montgomery curves are just a special class of Weierstraß, we now know that twisted Edwards curve are special Weierstraß curves too. So the more general way to describe elliptic curves are Weierstraß curves.
 \begin{example}Consider the pen jubjub curve from example XXX again. We know from XXX that it is a Montgomery curve and since Montgomery curves are equivalent to twisted Edwards curve, we want to write that curve in twisted Edwards form. We use XXX and compute the parameters $a$ and $d$ as
 \begin{align*}
 a & = \frac{A+2}{B} & \text{\# insert A=6 and B=7}\\
-  & = \frac{8}{7} & \text{\# } 7^{-1}= 2 \\
-  & = 3\\
+  & = \frac{8}{7} = 3 & \text{\# } 7^{-1}= 2 \\
   \\
 d & = \frac{A-2}{B} \\
-  & = \frac{4}{7} \\
-  & = 8 
+  & = \frac{4}{7} = 8 
 \end{align*}
-So we get the defining parameters as $a= 3$ and $d=8$. To see that $a$ is a quadratic residue and $d$ is a quadratic non residue, we compute the Legendre symbols of $a$ and $d$ using the Euler criterium. We get
+So we get the defining parameters as $a= 3$ and $d=8$. Since our goal is to use this curve later on in implementations of pen and paper snarks, lets show that tiny-jubjub is moreover a \textit{snark friendly} twisted Edwards curve. To see that, we  have to show that $a$ is a quadratic residue and $d$ is a quadratic non residue. We therefore compute the Legendre symbols of $a$ and $d$ using the Euler criterium. We get
 \begin{align*}
 \left(\frac{3}{13}\right) &= 3^{\frac{13-1}{2}} \\
                           & = 3^6 
-                          & = 1\\
+                            = 1\\
                           \\
 \left(\frac{8}{13}\right) &= 8^{\frac{13-1}{2}} \\
                           & = 8^6 
-                          & = 12
-                          & = -1                     
+                            = 12
+                            = -1                     
 \end{align*}
-We can write the pen-jubjub curve in its affine twisted Edwards representation as
+which proofs that tiny-jubjub is snark friendly. We can write the tiny-jubjub curve in its affine twisted Edwards representation as
 $$
-\mathit{PJJ\_13} = \{(x,y)\in \F_{13}\times \F_{13}\;|\; 3\cdot x^{2} + y^2 =1+ 8\cdot x^{2}\cdot y^2 \}
+\mathit{TJJ\_13} = \{(x,y)\in \F_{13}\times \F_{13}\;|\; 3\cdot x^{2} + y^2 =1+ 8\cdot x^{2}\cdot y^2 \}
 $$ 
 Now that we have the abstract definition of our pen-jubjub curve in twisted Edwards form, we can compute the set of points, by inserting all pairs $(x,y)\in\F_{13}\times \F_{13}$ similar to how we computed the curve points in its Weierstraß or Edwards representation. We get
 \begin{multline*}
@@ -766,13 +816,37 @@ sage: EPJJ = Set(L_EPJJ)
 
 
 \end{example}
-\paragraph{Twisted Edwards group law}The most remarkable fact about twisted Edwards curves from the perspective of this book is their simple addition law.  the sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on such an Edwards curve $E$ is given by
+\paragraph{Twisted Edwards group law}As we have seen, twisted Edwards curves are equivalent to Montgomery curves and as such also have a group law. However, in contrast to Montgomery and Weierstraß curves, the group law of snark friendly twisted Edwards curves can be described by single computation, that works in all cases, no matter if we add the neutral element, inverse, or if have to double a point. To see how the group law looks like, first observe that the point $(0,1)$ is
+a solution to $a\cdot x^{2} + y^2 =1+ d\cdot x^{2}\cdot y^2$ for any curve. The sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on an Edwards curve $E(\F)$ is then given by
 $$
-(x_1, y_1) + (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
+(x_1, y_1) \oplus (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
 $$
-The point $(0,1)$ is the neutral element of the addition law. The inverse of a point $(x_1, y_1)$ on $E$ is $(-x_1, y1)$. The addition law is very simple to implement and it can also be used for point doubling. It also works for the neutral element, for inverses..
-
-As Edwards curves have such simple non branching addition laws that work for all points, including the neutral element and inverses, they are a interesting for snarks as they can be implemented with only a few constraints in circuits.
+and it can be shown that the point $(0,1)$ serves as the neutral element and the inverse of a point $(x_1, y_1)$ is given by $(-x_1, y1)$.
+\begin{example} Lets look at the tiny-jubjub curve in Edwards form from example XXX again. As we have seen, this curve is given by
+\begin{multline*}
+\mathit{PJJ\_13} = \{(0, 1),(0, 12),(1, 2),(1, 11),(2, 6),(2, 7),(3, 0),(5, 5),(5, 8),(6, 4),\\
+(6, 9),(7, 4),(7, 9),(8, 5),(8, 8),(10, 0),(11, 6),(11, 7),(12, 2),(12, 11)\}
+\end{multline*}
+To get an undertanding of the twisted Edwards addition law, lets first add the neutral element $(0,1)$ to itself. We apply the group law XXX and get
+\begin{align*}
+(0, 1) \oplus (0, 1) &= \left(\frac{0\cdot 1+1 \cdot 0}{1 +8\cdot0\cdot 0\cdot 1\cdot 1},\frac{1\cdot 1-3\cdot 0\cdot 0}{1-8\cdot 0\cdot 0\cdot 1\cdot 1}\right)\\
+                     & = (0,1)
+\end{align*}
+So as expected, adding the neutral element to itself gives the neutral element again. Now lets add the neutral element to some other curve point. We get
+\begin{align*}
+(0, 1) \oplus (8, 5) &= \left(\frac{0\cdot 5+1 \cdot 8}{1 +8\cdot0\cdot 8\cdot 1\cdot 5},\frac{1\cdot 5 - 3\cdot 0\cdot 8}{1-8\cdot 0\cdot 8\cdot 1\cdot 5}\right)\\
+                     & = (8,5)
+\end{align*}
+Again as expected adding the neutral element to any element will give the element again. Given any curve point $(x,y)$, we know that the inverse is given by $(-x,y)$. To see how the addition of a point to its inverse works out we therefore compute 
+\begin{align*}
+(5, 5) \oplus (8, 5) &= \left(\frac{5\cdot 5+5 \cdot 8}{1 +8\cdot 5\cdot 8\cdot 5\cdot 5},\frac{5\cdot 5 - 3\cdot 5\cdot 8}{1-8\cdot 5\cdot 8\cdot 5\cdot 5}\right)\\
+                     &= \left(\frac{12+1}{1 +5},\frac{12 - 3}{1-5}\right)\\
+                     &= \left(\frac{0}{6},\frac{12 + 10}{1+8}\right)\\
+                     &= \left(0,\frac{9}{9}\right)\\
+                     &=  (0,1)
+\end{align*}
+So adding a curve point to its inverse gives the neutral element, as expected. As we have seen from these examples the twisted Edwards addition law handles edge cases particulary nice and in a unified way.
+\end{example}
 
 %\begin{example}[Non twisted Edwards curves have order 4 points]
 %In this example, we will show that every Edwards curve has a point of order $4$. To see that let $E$ be an arbitrary Edwards curve ($a=1$). Then the point $(1,0)$ is on that curve, since $1^2+0^2= 1+d 1^2 0^2$. We compute 
@@ -782,7 +856,7 @@ As Edwards curves have such simple non branching addition laws that work for all
 %[2]\left(\frac{1 0 +1 0}{1 +d 1 1 0 0},\frac{00-1\cdot 1}{1-d1 1 00}\right)=\\
 %[2](0,-1)=\\
 %\left(\frac{0(-1)+(-1)0}{1 +d 0 0 (-1)(-1)},\frac{(-1)(-1)-00}{1-d00(-1)(-1)}\right) =\\
-(0,1)
+%(0,1)
 %\end{align*} 
 
 %Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
@@ -790,45 +864,7 @@ As Edwards curves have such simple non branching addition laws that work for all
 
 
 
-\subsection{STUFF}
-
-
-
-\paragraph{Keys}
-- Keys on elliptic curves
-- compressed keys
-
-
-
-
-\begin{example}Lets consider the curve $E_1/\F_5$ from example XXX again. We have 
-$$
-E_1/\F_5 = \{\Oinf, (0,0),(2,0),(3,0)\}
-$$
-So as always $\Oinf$ is the neutral element. Since all elements have $0$ as their y-coordinate, it follows that all of them are self inverse, that is $-P=P$. To add, say $(2,0)$ and $(3,0)$ we use the addition rule, since their x-coordinates differ, we get 
-\begin{align*}
-(0,0)+(2,0)= \left(3,0\right)\\
-(0,0)+(3,0)= \left(2,0\right)\\
-(2,0)+(3,0)= \left(0,0\right)\\ 
-\end{align*}
-As we can see $(0,2)$ is not a generator of the group since 
-$[1](0,2)=(0,2)$, $[2](0,2)=(0,2)+(0,2)= \Oinf$. HMM I GUESS THERE IS SOMETHING WRONG HERE. THREE TWO ELEMENT SUBGROUPS SHOULDN'T EXIST??
-\end{example}
-\begin{example}Consider our prime field $F_5$ from (XXX). If we choose $a=1$ and $b=1$ then $4a^3+ 27b^2 = 1 \neq  0 $ and the corresponding elliptic curve $E/\F_{3}$ is given by all pairs $(x,y)$ from $\F_5$ such that $y^2=x^3+x+1$. We can find this set simply by trying all 25 combinations of pairs. We get
-$$
-E_2/\F_5 = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
-$$
-So our elliptic curve contains 9 elements and the trace $t$ is therefore $-3$.
-\end{example}
-
-
-\paragraph{Cryptographically secure elliptic curves} Not all elliptic curves satisfy the requirements from applied cryptography .... Here is a list of properties a curve should satisfy:
-
-\begin{enumerate}
-\item TECHNOBOB
-\end{enumerate}
-
-\subsection{twists}
+\section{twists}
 
 \section{Pairings}
 In this section, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 

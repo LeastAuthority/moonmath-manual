@@ -182,12 +182,13 @@ sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
 sage: F3_2(t+1)*(F3_2(t)**2 + F3_2(2*t+2)) == F3_2(2)
 sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
 
-Sage commandline, line 51::
+Sage commandline, line 52::
 
 sage: F5 = GF(5) # define the base field
 sage: a = F5(2) # parameter a
 sage: b = F5(4) # parameter b
-sage: F5(6)*(F5(4)*F5(2)^3+F5(27)*F5(4)^2) != F5(0)
+sage: # check non-sigularity
+sage: F5(6)*(F5(4)*a^3+F5(27)*b^2) != F5(0)
 sage: # short Weierstrass curve
 sage: E = EllipticCurve(F5,[a,b]) # y^2 == x^3 + ax +b
 sage: P = E(0,2) # 2^2 == 0^3 + 2*0 + 4
@@ -199,18 +200,37 @@ sage: try:  # point at infinity has no affine coordinates
 ....:     pass
 sage: P = E.plot() # create a plotted version
 
-Sage commandline, line 121::
+Sage commandline, line 128::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: # Hexadecimal representation
+sage: p.str(16)
 sage: p.is_prime()
 sage: p.nbits()
 sage: Fp = GF(p)
 sage: Secp256k1 = EllipticCurve(Fp,[0,7])
 sage: r = Secp256k1.order() # number of elements
+sage: r.str(16)
 sage: r.is_prime()
 sage: r.nbits()
 
-Sage commandline, line 238::
+Sage commandline, line 168::
+
+sage: P = Secp256k1.random_point().xy()
+sage: P
+sage: # uncompressed affine point size
+sage: ZZ(P[0]).nbits()+ZZ(P[1]).nbits()
+sage: # compute the compression
+sage: if P[1] > Fp(-1)/Fp(2):
+....:     PARITY = 1
+....: else:
+....:     PARITY = 0
+sage: PCOMPRESSED = [P[0],PARITY]
+sage: PCOMPRESSED
+sage: # compressed affine point size
+sage: ZZ(PCOMPRESSED[0]).nbits()+ZZ(PCOMPRESSED[1]).nbits()
+
+Sage commandline, line 268::
 
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
@@ -226,7 +246,7 @@ sage: R2 == P2+P2
 sage: R2 == 2*P2
 sage: P3 == P3 + INF
 
-Sage commandline, line 260::
+Sage commandline, line 290::
 
 sage: F13 = GF(13)
 sage: MJJ = EllipticCurve(F13,[8,8])
@@ -235,7 +255,22 @@ sage: INF = MJJ(0) # Point at infinity
 sage: INF == P+P
 sage: INF == 2*P
 
-Sage commandline, line 363::
+Sage commandline, line 301::
+
+sage: P = Secp256k1.random_point()
+sage: Q = Secp256k1.random_point()
+sage: INF = Secp256k1(0)
+sage: R1 = -P
+sage: R2 = P + Q
+sage: R3 = Secp256k1.order()*P
+sage: P.xy()
+sage: Q.xy()
+sage: (ZZ(R1[0]).str(16), ZZ(R1[1]).str(16))
+sage: R2.xy()
+sage: R3 == INF
+sage: P[1]+R1[1] == Fp(0) # -(x,y) = (x,-y)
+
+Sage commandline, line 410::
 
 sage: F13 = GF(13)
 sage: PJJ = EllipticCurve(F13,[8,8])
@@ -246,7 +281,7 @@ sage: Q = PJJ(9,4)
 sage: R = PJJ(4,0)
 sage: 10*Q == R
 
-Sage commandline, line 612::
+Sage commandline, line 659::
 
 sage: F13 = GF(13)
 sage: L_MPJJ = []
@@ -257,7 +292,7 @@ sage: L_MPJJ = []
 sage: MPJJ = Set(L_MPJJ)
 sage: # does not compute the point at infinity
 
-Sage commandline, line 648::
+Sage commandline, line 695::
 
 sage: # Compute PHI of Montgomery form:
 sage: L_PHI_MPJJ = []
@@ -281,7 +316,7 @@ sage: for (v,w) in L_WPJJ:
 sage: PHIINV_WPJJ = Set(L_PHIINV_WPJJ)
 sage: MPJJ == PHIINV_WPJJ
 
-Sage commandline, line 757::
+Sage commandline, line 807::
 
 sage: F13 = GF(13)
 sage: L_EPJJ = []
@@ -291,7 +326,7 @@ sage: L_EPJJ = []
 ....:             L_EPJJ.append((x,y))
 sage: EPJJ = Set(L_EPJJ)
 
-Sage commandline, line 1077::
+Sage commandline, line 1113::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -305,13 +340,13 @@ sage: for P in INF.division_points(13): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1115::
+Sage commandline, line 1151::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1141::
+Sage commandline, line 1177::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -324,7 +359,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1156::
+Sage commandline, line 1192::
 
 sage: for d in F13:
 ....:     j= ZZ(0)
@@ -335,14 +370,14 @@ sage: for d in F13:
 ....:     print('d=',d)
 ....:     print('order=',j)
 
-Sage commandline, line 1177::
+Sage commandline, line 1213::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1211::
+Sage commandline, line 1247::
 
 sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
@@ -351,7 +386,7 @@ sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....: (x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1311::
+Sage commandline, line 1347::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -364,7 +399,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1326::
+Sage commandline, line 1362::
 
 sage: j = ZZ(0)
 sage: for a in F13:
@@ -376,27 +411,27 @@ sage: for a in F13:
 ....:                     j=j+1
 ....:         print('curve: a=',a,'d=',d,'order:',j)
 
-Sage commandline, line 1352::
+Sage commandline, line 1388::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1380::
+Sage commandline, line 1416::
 
 sage: def Edwards_add((x1,y1),(x2,y2),a,d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1410::
+Sage commandline, line 1446::
 
 sage: F7 = GF(7)
 sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 1441::
+Sage commandline, line 1477::
 
 sage: F7t.<t> = F7[]
 sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
@@ -409,13 +444,13 @@ sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1469::
+Sage commandline, line 1505::
 
 sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 1545::
+Sage commandline, line 1581::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])
