@@ -861,7 +861,289 @@ So adding a curve point to its inverse gives the neutral element, as expected. A
 
 %Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
 %\end{example}
+\section{Elliptic Curves Pairings} As we have seen in XXX abstractly, sometimes groups comes with the notation of a so called pairing map, which is a non-degenerate bilinar map, from two groups into another group.
 
+Elliptic curves have a few structures, like the Weil or the Tate map, that qualifies as pairing.   
+
+\paragraph{Embedding Degrees}In this book we are in particular interested in so called pairing friendly elliptic curves. 
+
+To be more precise, let $\F$ be a finite field, $E(\F)$ an elliptic curve over $\F$, and $n$ a prime number that divides the order of $E(\F)$. The embedding degree of $E(\F)$ with respect to $n$ is then the smallest integer $k$ such that $n$ divides $q^k-1$.
+\begin{example} To get a better intuition of the embedding degree, lets consider the elliptic curve $E_1(\F_5)$ from example XXX. We know from XXX that the order of $E_1(\F_5)$ is $9$ and since the only prime factor of $9$ is $3$, we compute the ebedding degree of $E_1(\F_5)$ with respect to $3$. 
+
+To find that embedding degree we have to find the smallest integer $k$, such that $3$ divides $q^k-1= 5^k-1$. We try and increment until we find a proper $k$. 
+\begin{align*}
+k=1 &\text{: } 5^1-1 = 4 & \text{ not divisible by } 3\\ 
+k=2 &\text{: } 5^2-1 = 24 & \text{ divisible by } 3
+\end{align*} 
+So we know that the embedding degree of $E_1(\F_5)$ is $2$ relative to the the prime factor $3$.
+\end{example}
+\begin{example} Lets consider the tiny jubjub curve $\mathit{TJJ\_13}$ from example XXX. We know from XXX that the order of $\mathit{TJJ\_13}$ is $20$ and that the order therefore has two prime factors. A "large" prime factor $5$ and a small prime factor $2$. 
+
+We start by computing the ebedding degree of $\mathit{TJJ\_13}$ with respect to the large prime factor $5$. To find that embedding degree we have to find the smallest integer $k$, such that $5$ divides $q^k-1= 13^k-1$. We try and increment until we find a proper $k$. 
+\begin{align*}
+k=1 &\text{: } 13^1-1 = 12 & \text{ not divisible by } 5\\ 
+k=2 &\text{: } 13^2-1 = 168 & \text{ not divisible by } 5\\ 
+k=3 &\text{: } 13^3-1 = 2196 & \text{ not divisible by } 5\\ 
+k=4 &\text{: } 13^4-1 = 28560 & \text{ divisible by } 5
+\end{align*} 
+So we know that the embedding degree of $\mathit{TJJ\_13}$ is $4$ relative to the the prime factor $5$.
+
+
+In real world applications, like on pairing friendly elliptic curves as for example BLS\_12-381, usually only the embedding degree of the large prime factor are relevant, which in case of out tiny-jubjub curve, is represented by $5$. It should however be noted that every prime factor of a curves order has its own notation of embedding degree despite the fact that this is mostly irrelevant in applications.
+
+To find the embedding degree of the small prime factor $2$ we have to find the smallest integer $k$, such that $2$ divides $q^k-1= 13^k-1$. We try and increment until we find a proper $k$. 
+\begin{align*}
+k=1 &\text{: } 13^1-1 = 12 & \text{ divisible by } 2
+\end{align*} 
+So we know that the embedding degree of $\mathit{TJJ\_13}$ is $1$ relative to the the prime factor $2$. So as we have seen, different prime factors can have different embedding degrees in general.
+\begin{sagecommandline}
+sage: p = 13
+sage: # large prime factor
+sage: n = 5
+sage: for k in range(1,5): # Fermat's little theorem
+....:     if (p^k-1)%n == 0:
+....:         break
+sage: k
+sage: # small prime factor
+sage: n = 2
+sage: for k in range(1,2): # Fermat's little theorem
+....:     if (p^k-1)%n == 0:
+....:         break
+sage: k
+\end{sagecommandline}
+\end{example}
+\begin{example} To give an example of a cryptographically secure real worl elliptic curve that does not have a small embedding degree lets look at curve secp256k1 again. We know from XXX that the order of this curve is a prime number, so we only have a single embedding degree.
+
+To test potential embedding degrees $k$, say in the range $1\ldots 1000$, we can invoke sage and compute:
+\begin{sagecommandline}
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: n = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+sage: for k in range(1,1000):
+....:     if (p^k-1)%n == 0:
+....:         break
+sage: k
+\end{sagecommandline}
+So we see that secp256k1 has at least no embedding degree $k<1000$, which renders secp256k1 as a curve that has no small embedding degree. A property that is of importance later on.
+\end{example}
+\paragraph{Elliptic Curves over extension fields} Suppose that $p$ is a prime number and $\F_p$ its associated prime field. We know from XXX, that the fields $\F_{p^m}$ are extensions of $\F_p$ in the sense that $\F_{p}$ is a subfield of $\F_{p^m}$. 
+
+
+
+
+------ goes to extension fields......
+
+To be more general a field $\F_{p^r}$ is a subfield of a field $\F_{p^s}$, if and only $r$ divides $s$. And from this we can deduces, that for any given fixed prime number, we there are nested sequences of fields
+\begin{equation}
+\F_p \subset \F_{p^{s_1}} \subset \cdots \subset \F_{p^{s_k}}
+\end{equation}
+whenever the power $s_j$ divides the power $s_{j+1}$, such that $\F_{p^{s_j}}$ is a subfield of $\F_{p^{s_{j+1}}}$. 
+
+To get a more intuitive picture of that look at example XXX again and observe how the prime field $\F_3$ actually sits inside the extension field $\F_{3^2}$. 
+
+-----------
+
+This implies that we can extend the affine plane an elliptic curve is defined on, by changing the base field to any extension field. To be more precise let 
+$E(\F)=\{ (x,y)\in \F \times \F \;|\; y^2 = x^3 +a\cdot x +b \}$ be an affine short Weierstrass curve, with parameters $a$ and $b$ taken from $\F$. If $\F'$ is any extension field of $\F$, then we extend the domain of the curve by defining
+\begin{equation}
+E(\F')=\{ (x,y)\in \F' \times \F' \;|\; y^2 = x^3 +a\cdot x +b \}
+\end{equation}   
+So while we did not change the defining parameters, we consider curve points from the affine plane over the extension field now.
+\begin{example} Conider the prime field $\F_5$ from example XXX and the elliptic curve $E_1(\F_5)$ from example XXX. Since we know from XXX that $\F_{5^2}$ is an extension field of $\F_5$, we can extend the definition of $E_1(\F_5)$ to define a curve over $\F_{5^2}$:
+$$
+E_1(\F_{5^2}) = \{ (x,y)\in \F\times \F \;|\; y^2 = x^3 + x +1 \}
+$$
+Since $\F_{5^2}$ contains $25$ points, in order to compute the set $E_1(\F_{5^2})$, we have to try $25\cdot 25 = 625$ pairs, which is probably a bit to much for the avarage motivated reader. Instaed we involve sage to compute the curve for us. To do so choose the representation of $\F_{5^2}$ from XXX. We get:
+\begin{sagecommandline}
+sage: F5= GF(5)
+sage: F5t.<t> = F5[] 
+sage: P = F5t(t^2+2)
+sage: P.is_irreducible()
+sage: F5_2.<t> = GF(5^2, name='t', modulus=P)
+sage: E1F5_2 = EllipticCurve(F5_2,[1,1])
+sage: E1F5_2.order()
+\end{sagecommandline}
+So curve $E_1(\F_{5^2})$ consist of $27$ points, in contrast to curve $E_1(\F_{5})$, which consists of $9$ points. Printing the points gives
+\begin{multline*}
+E_1(\F_{5^2}) = \{\Oinf, (0, 4), (0, 1), (3, 4), (3, 1), (4, 3), (4, 2), (2, 4), (2, 1),\\ 
+(4t + 3, 3t + 4), (4t + 3, 2t + 1),  (3t + 2, t), (3t + 2, 4t),\\ 
+(2t + 2, t), (2t + 2, 4t), (2t + 1, 4t + 4), (2t + 1, t + 1),\\ 
+(2t + 3, 3), (2t + 3, 2), (t + 3, 2t + 4), (t + 3, 3t + 1),\\ 
+(3t + 1, t + 4), (3t + 1, 4t + 1), (3t + 3, 3), (3t + 3, 2), (1, 4t)
+\}
+\end{multline*}
+As we can see, curve $E_1(\F_5)$ is a subset of curve $E(\F_{5^2})$, which is implied from $\F_5$ being a subfield of $\F_{5^2}$.
+\end{example}
+\paragraph{Full Torsion groups} The fundamental theorem of finite cyclic groups XXX implies, that every prime factor $n$ of a cyclic groups order defines a subgroup of the size of the prime factor. We called such a subgroup an $n$-torsion group. We have seen many of those subgroups in the examples XXX and XXX.
+
+Now when we consider elliptic curve extensions as defined in XXX, we could ask, what happens to the $n$-torsion groups in the extension. One might intuitively think that their expension just parallels the extension of the curve. For example when $E(\F_p)$ is a curve over prime field $\F_p$, with some $n$-torsion group $\G$ and when we extend the curve to $E(\F_{p^m})$, then there is a bigger $n$-torstion group, such that $\G$ is a subgroup. Naively this would make sense, as $E(\F_p)$ is a subcurve of $E(\F_{p^m})$. 
+
+However the real situation is a bit more surprising then that. To see that, let $\F_p$ be a prime field and $E(\F_p)$ an elliptic curve of order $r$, with embedding degree $k$ and $n$-torsion group $E(\F_p)[n]$ for same prime factor $n$ of $r$. Then it can be shown that the $n$-torsion group $E(\F_{p^m})[n]$ of a curve extension is equal to $E(\F_p)[n]$, as long as the power $m$ is less then the embedding degree $k$ of $E(\F_p)$. 
+
+However for the prime power $p^m$, for any $m\geq k$, $E(\F_{p^m})[n]$ is strictly larger then $E(\F_p)[n]$ and contains $E(\F_p)[n]$ as a subgroup. We call the $n$-torsion group $E(\F_{p^k})[n]$ of the extension of $E$ over $\F_{p^k}$ the \textbf{full $n$-torsion group} of that elliptic curve. It can be shown that it contains $n^2$ many elements and consists of $n+1$ subgroups, one of which is $E(\F_{p})[n]$.
+
+So roughly speaking, when we consider towers of curve extensions $E(\F_{p^m})$, ordered by the prime power $m$, then the $n$-torsion group stays constant for every level $m$ small then the embedding degee, while it suddenly blossoms into a larger group on level $k$, with $n+1$ subgroups and it then stays like that for any level $m$ larger then $k$. In other words, once the extension field is big enough to find on emore point of order $n$ (that is not defined over the base field), then we actually find all of the points in the full torsion group.
+\begin{example} Consider curve $E_1(\F_5)$ again. We know that it contains a $3$-torsion group and that the embedding degree of $3$ is $2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in XXX. 
+
+Since that curve is small, in order to find the full $3$-torsion, we can loop through all elements of $E_1(\F_{5^2})$ and check check the defining equation $[3]P= \Oinf$. Invoking sage we compute
+\begin{sagecommandline}
+sage: INF = E1F5_2(0) # Point at infinity
+sage: L_E1_3 = []
+sage: for p in E1F5_2:
+....:     if 3*p == INF:
+....:         L_E1_3.append(p)
+\end{sagecommandline}
+we get
+$$
+E_1[3] = \{\Oinf,(1,t),(1,4t),(2,1),(2,4), (2t + 1,t + 1),
+ (2t + 1, 4t + 4), (3t + 1,t + 4), (3t + 1, 4t + 1) \}
+$$
+\end{example}
+\begin{example} Consider the tiny jubjub curve from example XXX. we know from XXX that it contains a $5$-torsion group and that the embedding degree of $5$ is $4$. This implies that we can find the full $5$-torsion group $\mathit{TJJ\_13}[5]$ in the curve extension $\mathit{TJJ\_13}(\F_{13^4})$. 
+
+To compute the full torsion, first observe that since $\F_{13^4}$ contains $28561$ element, computing $\mathit{TJJ\_13}(\F_{13^4})$ means checking $28561^2=815730721$ elements. From each of these curve points $P$, we then have to check the equation $[5]P=\Oinf$. Doing this for $815730721$ is a bit to slow even on a computer.
+
+Fortunate sage has a way to loop through points of given order efficiently. The following sage code then gives a way to compute the full torsion group:
+\begin{sagecommandline}
+sage: # define the extension field
+sage: F13= GF(13) # prime field
+sage: F13t.<t> = F13[] # polynomials over t
+sage: P = F13t(t^4+2) # irreducible polynomial of degree 4
+sage: P.is_irreducible()
+sage: F13_4.<t> = GF(13^4, name='t', modulus=P) # F_{13^4}
+sage: TJJF13_4 = EllipticCurve(F13_4,[8,8]) # tiny jubjub extension
+sage: # compute the full 5-torsion
+sage: L_TJJF13_4_5 = []
+sage: INF = TJJF13_4(0)
+sage: for P in INF.division_points(5): # [5]P == INF
+....:     L_TJJF13_4_5.append(P)
+sage: len(L_TJJF13_4_5)
+\end{sagecommandline}
+So as expected we get a group that contains $5^2=25$ elements. As its rather tedious to write this group down and as we don't need in what follows we skipp writing it. To see that the embedding degree $4$ is actually the smallerst prime power to find the full $5$-torsion group, lets compute the $5$-torsion group over of the tiny-jubjub curve the extension field $\F_{13^3}$. We get 
+\begin{sagecommandline}
+sage: # define the extension field
+sage: P = F13t(t^3+2) # irreducible polynomial of degree 3
+sage: P.is_irreducible()
+sage: F13_3.<t> = GF(13^3, name='t', modulus=P) # F_{13^3}
+sage: TJJF13_3 = EllipticCurve(F13_3,[8,8]) # tiny jubjub extension
+sage: # compute the 5-torsion
+sage: L_TJJF13_3_5 = []
+sage: INF = TJJF13_3(0)
+sage: for P in INF.division_points(5): # [5]P == INF
+....:     L_TJJF13_3_5.append(P)
+sage: len(L_TJJF13_3_5)
+sage: L_TJJF13_3_5
+\end{sagecommandline}
+So as we can see the $5$-torsion group of tiny-jubjub over $\F_{13^3}$ is equal to the $5$-torsion group of tiny-jubjub over $\F_{13}$ itself. 
+\end{example}
+\begin{example} 
+% https://www.sikoba.com/docs/SKOR_SV_Pairing_Based_Crypto.pdf
+Lets look at curve Secp256k1. We know from XXX that the curve is of some prime order $r$ and hence the only $n$-torsion group to consider is the curve itself. So the curve group is the $r$-torsion. 
+
+However in order to find the full $r$-torsion of Secp256k1, we need to compute the embedding degree $k$ and as we have seen in XXX it is at least not small. We know from Fermat's little theorem that a finite embedding degree must exist, though. It can be shown that it is given by
+$$
+k = \scriptstyle 192986815395526992372618308347813175472927379845817397100860523586360249056 
+$$
+which is a 256bit number. So the embedding degree is huge, which implies that the fiel extension $\F_{p^k}$ is huge too. To understand how big $\F_{p^k}$ is, recall that an element of $\F_{p^m}$ can be represented as a string $[x_0,\ldots,x_m]$ of $m$ elements, each containing a number from the prime field $\F_p$. Now in the case of Secp256k1, such a representation has $k$-many entries, each of $256$ bits in size. So without any optimizations, representing such an element would need $k\cdot 256$ bits, which is to much to be reprsented in the observable universe.
+\end{example}
+\paragraph{Torsion-Subgroups}As we have stated above, any full $n$-torsion group contains $n+1$ cyclic subgroups, two of which are of particular interest in pairing based elliptic curve cryptography. To characzerize these groups we need to consider the so called \textit{Frobenious} endomorphism
+\begin{equation}
+\phi : E(\F) \to E(\F): \;\; 
+\begin{array}{lcl}
+(x,y)       &\mapsto & (x^p,y^p)\\
+\Oinf &\mapsto & \Oinf
+\end{array} 
+\end{equation}
+of an alliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$. It can be shown that $\phi$ maps curve points to curve points. The first thing to note is that in case that $\F$ is a prime field, the Frobenious endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields, due to Fermat's little theorem XX. So the Frobenious map is more interesting over prime field extensions.
+
+With the Frobenious map at hand, we can now characterise two important subgroups of the full $n$-torsion. The first subgroup is the $n$-torsion group that already exists in the curve over the base field. In pairing based cryptography this group is usually written as $\G_1$, assuming that the prime factor '$n$' in the definition is implicitly given. Since we know that the Frobenious map, acts trivially on curve over the prime field we can define $\G_1$ as:
+\begin{equation}
+\G_1[n] := \{(x,y)\in E[n]\;| \phi(x,y) = (x,y)\;\}
+\end{equation}
+In more mathematical terms this definition means, that $\G_1$ is the \textit{Eigenspace} of the Frobenious map with respect to the \textit{Eigenvalue} $1$.
+
+Now it can be shown, that there is another subgroup of the full $n$-torsion group that can be characterized by the Frobenious map. In the context of so called type $3$ pairing based cyrptography this subgroup is usually called $\G_2$ and it defined as 
+\begin{equation}
+\G_2[n] := \{(x,y)\in E[n]\;| \phi(x,y) = [p](x,y)\;\}
+\end{equation}
+So in mathematical terms $\G_2$ is the \textit{Eigenspace} of the Frobenious map with respect to the \textit{Eigenvalue} $p$.
+\begin{notation}
+If the prime factor $n$ of the curves order is clear from the contect, we sometimes simply write $\G_1$ and $\G_2$ to mean $\G_1[n]$ and $\G_2[n]$, respectively.
+\end{notation}
+
+It should be noted however that sometimes other definitions of $\G_2$ appear in the literature, however in the context of pairing based cryptography, this is the most common one. It is particulary useful, as we can define hash functions that map into $\G_2$, which is not possible for all subgroups of the full $n$-torsion.
+
+\paragraph{Pairing} In this part we consider pairing functions defined on certrain subgroups of some full torsion groups of an elliptic curve. To be more precise let 
+$E(\F_p)$ be an elliptic curve of order $r$ and embedding degree $k$, let $n$ be a prime factor of $r$, $E[n]$ the full torsion group of the curve and $\G_1$ as well as $\G_2$ two subgroups of $E[n]$. Then an \textbf{elliptic curve pairing} is a bilinear, non-degenerate map
+\begin{equation}
+e(\cdot,\cdot) : \G_1 \times \G_2 \to \F_{p^k}
+\end{equation} 
+in the sense of our definition XXX. In practise, the embedding degree is usuall a small number like $2$, $4$, $6$ or $12$ and the prime factor $n$ is the largest prime factor of the curves order. In addition $\G_1$ is usually choosen to be the $n$-torsion group of the curve $E(\F_p)$ over the base field.
+
+
+% http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf
+% p. 396ff
+
+\section{Constructing elliptic curves}
+\paragraph{The Trace of an elliptic curve} We know from XXX that elliptic curves over finite fields are cyclic groups of finite order. An interesting question therefore is, if it is possible to estimate the number of elements that curve contains. A first thing to note is then that, since affine curves are in 1:1 correspondence with projective curves, it is enough to look at the affine situation. 
+
+Now, since an affine short Weierstraß curve consists of pairs $(x,y)$ of elements from a finite field $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the number of curve points can not be arbitrarily large, since it can contain at most $q^2+1$ many elements. 
+
+There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E(\F)$ be an affine short Weierstraß curve over a finite field $(\F)$ of order $q$ and let $|E(\F)|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace} of the curve, such that $|t| \leq 2\sqrt{q}$ and
+\begin{equation}
+|E(\F)| = q +1 -t
+\end{equation}
+A positive trace therefore implies, that the curve contains less points then the underlying field and a negative trace means that the curve contains more point. However the estimation $|t| \leq 2\sqrt{q}$ implies that the difference is not very large in either direction and the number of elements in an elliptic curve is always approximately in the same order of magnitute as the size of an underlying field.
+\begin{example} Consider the elliptic curve $E_1(\F_5)$ from example XXX. We know that it contains $9$ curve points. Since the order of $\F_5$ is $5$ we compute the trace of $E_1(\F)$ to be $t=-3$, since the Hasse bound is given by
+$$
+9 = 5 + 1 - (-3)
+$$
+And indeed we have $|t| \leq 2\sqrt{q}$, since $\sqrt{5}> 2.23$ and 
+$|-3|= 3 \leq 4.46 = 2\cdot 2.23< 2\cdot \sqrt{5}$.
+\end{example}
+\begin{example} To compute the trace of the tiny-jubjub curve, oberse from example XXX, that the order of $\mathit{PJJ\_13}$ is $20$. Since the order of $\F_{13}$ is $13$, we can therefore use the Hasse bound and compute the trace as $t=-6$, since
+$$
+20 = 13 + 1 - (-6)
+$$
+Again we have $|t| \leq 2\sqrt{q}$, since $\sqrt{13}> 3.60$ and 
+$|-6|= 6 \leq 7.20 = 2\cdot 3.60< 2\cdot \sqrt{13}$.
+\end{example}
+\begin{example}To compute the trace of Secp256k1, recall from example XXX, that this curve is defined over a prime field with $p$ elements and that the order of that group is given by $r$, with  
+\begin{align*}
+p &= \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663\\
+r &= \scriptstyle 115792089237316195423570985008687907852837564279074904382605163141518161494337
+\end{align*}
+Using the Hesse bound $r = p + 1 -t$, we therefore compute $t= p+1 -r$, which gives the trace of curve Secp256k1 as 
+$$
+t = \scriptstyle 432420386565659656852420866390673177327
+$$
+So as we can see Secp256k1 contains less elements then its underlying field. However  the difference is tiny, since the order of Secp256k1 is in the same order of magnitute as the order of the underlying field. Compared to $p$ and $r$, $t$ is tiny.
+\begin{sagecommandline}
+sage: p = RR(115792089237316195423570985008687907853269984665640564039457584007908834671663)
+sage: r = RR(115792089237316195423570985008687907852837564279074904382605163141518161494337)
+sage: t = p + RR(1) -r
+sage: abs(t) <= 2*sqrt(p)
+\end{sagecommandline}
+\end{example}
+
+\subsection{The Complex Multiplication Method}
+% the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
+% http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf
+% https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf
+% https://www.ams.org/journals/mcom/2007-76-260/S0025-5718-07-01980-1/S0025-5718-07-01980-1.pdf
+% https://graui.de/code/elliptic2/ //draw curves
+% https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf proposition 2.1
+\begin{itemize}
+\item Choose a prime number $p\in\Prim$ and integers $t,D\in\Z$, such that the equation $-Dv^2 = 4p - t^2$ has solutions $\pm v \in \Z$.
+\item If one of the values $p+1-t$ or $p+1+t$ a prime number, then proceed to the next steps, otherwise we go back to step 1.
+\item Compute the set $CL(Dv^2)=\{(a,b,c)\;|\; a,b,c\in\Z, |b|\leq a \leq \sqrt{\frac{Dv^2}{3}},a\leq c, b^2-4ac=-Dv^2, (a,b,c)=1WHATISTHIS?\}$. If $|b|=a$ or $a=c$, then $b\geq 0$.
+\item Compute $H_D(x)=\Pi_{(a,b,c)\in CL(D)} (x-j(\frac{-b+\sqrt{-Dv^2}}{2a}))$
+\item Round the coefficients of $H_D$ to the closed integers.
+\item Compute $H_{D,p} =H_D \; mod_p$
+\item Find a root $j$ of $H_{D,p}$ 
+\item If $j\neq 0$ or $j\neq 1728$, then choose $c\in \F_p$ and define the elliptic curve $E/\F_p$ defined by $y^2 = x^3 + 3kx+2k$ for $k= \frac{j}{1728-j}$.
+\item Compute the order of $E/\F_p$. If it divides either $p+1-u$ or $p+1-u$, then $E/\F_p$ is the result.
+\item Otherwise choose $c\in \F_p$ with $c\neq 1$ and $c\neq 0$ and define the elliptic curve $E'/\F_p$ defined by $y^2 = x^3 + 3kc^2x+2kc^3$ for $k= \frac{j}{1728-j}$.
+\end{itemize}
 
 
 \section{twists}
@@ -944,36 +1226,7 @@ defined for any binary string $s=(s_1,\ldots,s_n)$ by $H(s)= [a_0\cdot \Pi_{j=1}
 is a pseudo-random function.
 \end{theorem}
 
-\section{Constructing Elliptic curves}
-\paragraph{Order of an Elliptic Curve}
-An interesting question is: How many elements does a curve over a finite field contain? The first thing to note is that, since $\Phi$ from XXX is a one-to-one correspondence, affine curves have the same number of points as isomorphic projective curve. It is therefore enough to study the affine case only.
 
-Since an affine short Weierstraß curve consists of pairs of elements from $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the curve can contain at most $q^2+1$ many elements. There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E/\F_q$ be an affine short Weierstraß curve over a finite field $\F_q$ and let $|E/\F_q|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace}, with $|t| \leq 2\sqrt{q}$ and
-\begin{equation}
-|E/\F_q| = q +1 -t
-\end{equation}
-So roughly speaking, the number of elements in an elliptic curve is approximately equal to the size of an underlying field.
-
-
-\subsection{The Complex Multiplication Method}
-% the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
-% http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf
-% https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf
-% https://www.ams.org/journals/mcom/2007-76-260/S0025-5718-07-01980-1/S0025-5718-07-01980-1.pdf
-% https://graui.de/code/elliptic2/ //draw curves
-% https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf proposition 2.1
-\begin{itemize}
-\item Choose a prime number $p\in\Prim$ and integers $t,D\in\Z$, such that the equation $-Dv^2 = 4p - t^2$ has solutions $\pm v \in \Z$.
-\item If one of the values $p+1-t$ or $p+1+t$ a prime number, then proceed to the next steps, otherwise we go back to step 1.
-\item Compute the set $CL(Dv^2)=\{(a,b,c)\;|\; a,b,c\in\Z, |b|\leq a \leq \sqrt{\frac{Dv^2}{3}},a\leq c, b^2-4ac=-Dv^2, (a,b,c)=1WHATISTHIS?\}$. If $|b|=a$ or $a=c$, then $b\geq 0$.
-\item Compute $H_D(x)=\Pi_{(a,b,c)\in CL(D)} (x-j(\frac{-b+\sqrt{-Dv^2}}{2a}))$
-\item Round the coefficients of $H_D$ to the closed integers.
-\item Compute $H_{D,p} =H_D \; mod_p$
-\item Find a root $j$ of $H_{D,p}$ 
-\item If $j\neq 0$ or $j\neq 1728$, then choose $c\in \F_p$ and define the elliptic curve $E/\F_p$ defined by $y^2 = x^3 + 3kx+2k$ for $k= \frac{j}{1728-j}$.
-\item Compute the order of $E/\F_p$. If it divides either $p+1-u$ or $p+1-u$, then $E/\F_p$ is the result.
-\item Otherwise choose $c\in \F_p$ with $c\neq 1$ and $c\neq 0$ and define the elliptic curve $E'/\F_p$ defined by $y^2 = x^3 + 3kc^2x+2kc^3$ for $k= \frac{j}{1728-j}$.
-\end{itemize}
 \section{Classes of elliptic curves}
 In this section we describes ways to describe elliptic curves different from the general Weierstrass form. Alternative descriptions are sometimes useful because of DIFFERENT ways to express the group laws
 

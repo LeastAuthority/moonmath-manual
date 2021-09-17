@@ -326,7 +326,88 @@ sage: L_EPJJ = []
 ....:             L_EPJJ.append((x,y))
 sage: EPJJ = Set(L_EPJJ)
 
-Sage commandline, line 1113::
+Sage commandline, line 899::
+
+sage: p = 13
+sage: # large prime factor
+sage: n = 5
+sage: for k in range(1,5): # Fermat's little theorem
+....:     if (p^k-1)%n == 0:
+....:         break
+sage: k
+sage: # small prime factor
+sage: n = 2
+sage: for k in range(1,2): # Fermat's little theorem
+....:     if (p^k-1)%n == 0:
+....:         break
+sage: k
+
+Sage commandline, line 918::
+
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: n = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+sage: for k in range(1,1000):
+....:     if (p^k-1)%n == 0:
+....:         break
+sage: k
+
+Sage commandline, line 956::
+
+sage: F5= GF(5)
+sage: F5t.<t> = F5[]
+sage: P = F5t(t^2+2)
+sage: P.is_irreducible()
+sage: F5_2.<t> = GF(5^2, name='t', modulus=P)
+sage: E1F5_2 = EllipticCurve(F5_2,[1,1])
+sage: E1F5_2.order()
+
+Sage commandline, line 988::
+
+sage: INF = E1F5_2(0) # Point at infinity
+sage: L_E1_3 = []
+sage: for p in E1F5_2:
+....:     if 3*p == INF:
+....:         L_E1_3.append(p)
+
+Sage commandline, line 1006::
+
+sage: # define the extension field
+sage: F13= GF(13) # prime field
+sage: F13t.<t> = F13[] # polynomials over t
+sage: P = F13t(t^4+2) # irreducible polynomial of degree 4
+sage: P.is_irreducible()
+sage: F13_4.<t> = GF(13^4, name='t', modulus=P) # F_{13^4}
+sage: TJJF13_4 = EllipticCurve(F13_4,[8,8]) # tiny jubjub extension
+sage: # compute the full 5-torsion
+sage: L_TJJF13_4_5 = []
+sage: INF = TJJF13_4(0)
+sage: for P in INF.division_points(5): # [5]P == INF
+....:     L_TJJF13_4_5.append(P)
+sage: len(L_TJJF13_4_5)
+
+Sage commandline, line 1022::
+
+sage: # define the extension field
+sage: P = F13t(t^3+2) # irreducible polynomial of degree 3
+sage: P.is_irreducible()
+sage: F13_3.<t> = GF(13^3, name='t', modulus=P) # F_{13^3}
+sage: TJJF13_3 = EllipticCurve(F13_3,[8,8]) # tiny jubjub extension
+sage: # compute the 5-torsion
+sage: L_TJJF13_3_5 = []
+sage: INF = TJJF13_3(0)
+sage: for P in INF.division_points(5): # [5]P == INF
+....:     L_TJJF13_3_5.append(P)
+sage: len(L_TJJF13_3_5)
+sage: L_TJJF13_3_5
+
+Sage commandline, line 1120::
+
+sage: p = RR(115792089237316195423570985008687907853269984665640564039457584007908834671663)
+sage: r = RR(115792089237316195423570985008687907852837564279074904382605163141518161494337)
+sage: t = p + RR(1) -r
+sage: abs(t) <= 2*sqrt(p)
+
+Sage commandline, line 1366::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -340,13 +421,13 @@ sage: for P in INF.division_points(13): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1151::
+Sage commandline, line 1404::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1177::
+Sage commandline, line 1430::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -359,7 +440,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1192::
+Sage commandline, line 1445::
 
 sage: for d in F13:
 ....:     j= ZZ(0)
@@ -370,14 +451,14 @@ sage: for d in F13:
 ....:     print('d=',d)
 ....:     print('order=',j)
 
-Sage commandline, line 1213::
+Sage commandline, line 1466::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1247::
+Sage commandline, line 1500::
 
 sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
@@ -386,7 +467,7 @@ sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....: (x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1347::
+Sage commandline, line 1600::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -399,7 +480,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1362::
+Sage commandline, line 1615::
 
 sage: j = ZZ(0)
 sage: for a in F13:
@@ -411,27 +492,27 @@ sage: for a in F13:
 ....:                     j=j+1
 ....:         print('curve: a=',a,'d=',d,'order:',j)
 
-Sage commandline, line 1388::
+Sage commandline, line 1641::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1416::
+Sage commandline, line 1669::
 
 sage: def Edwards_add((x1,y1),(x2,y2),a,d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1446::
+Sage commandline, line 1699::
 
 sage: F7 = GF(7)
 sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 1477::
+Sage commandline, line 1730::
 
 sage: F7t.<t> = F7[]
 sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
@@ -444,13 +525,13 @@ sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1505::
+Sage commandline, line 1758::
 
 sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 1581::
+Sage commandline, line 1834::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])
