@@ -991,6 +991,7 @@ sage: L_E1_3 = []
 sage: for p in E1F5_2:
 ....:     if 3*p == INF:
 ....:         L_E1_3.append(p)
+sage: E1_3 = Set(L_E1_3) # Full 3-torsion set
 \end{sagecommandline}
 we get
 $$
@@ -1017,6 +1018,7 @@ sage: INF = TJJF13_4(0)
 sage: for P in INF.division_points(5): # [5]P == INF
 ....:     L_TJJF13_4_5.append(P)
 sage: len(L_TJJF13_4_5)
+sage: TJJF13_4_5 = Set(L_TJJF13_4_5)
 \end{sagecommandline}
 So as expected we get a group that contains $5^2=25$ elements. As its rather tedious to write this group down and as we don't need in what follows we skipp writing it. To see that the embedding degree $4$ is actually the smallerst prime power to find the full $5$-torsion group, lets compute the $5$-torsion group over of the tiny-jubjub curve the extension field $\F_{13^3}$. We get 
 \begin{sagecommandline}
@@ -1031,7 +1033,7 @@ sage: INF = TJJF13_3(0)
 sage: for P in INF.division_points(5): # [5]P == INF
 ....:     L_TJJF13_3_5.append(P)
 sage: len(L_TJJF13_3_5)
-sage: L_TJJF13_3_5
+sage: TJJF13_3_5 = Set(L_TJJF13_3_5) # full $5$-torsion
 \end{sagecommandline}
 So as we can see the $5$-torsion group of tiny-jubjub over $\F_{13^3}$ is equal to the $5$-torsion group of tiny-jubjub over $\F_{13}$ itself. 
 \end{example}
@@ -1047,23 +1049,23 @@ which is a 256bit number. So the embedding degree is huge, which implies that th
 \end{example}
 \paragraph{Torsion-Subgroups}As we have stated above, any full $n$-torsion group contains $n+1$ cyclic subgroups, two of which are of particular interest in pairing based elliptic curve cryptography. To characzerize these groups we need to consider the so called \textit{Frobenious} endomorphism
 \begin{equation}
-\phi : E(\F) \to E(\F): \;\; 
+\pi : E(\F) \to E(\F): \;\; 
 \begin{array}{lcl}
 (x,y)       &\mapsto & (x^p,y^p)\\
 \Oinf &\mapsto & \Oinf
 \end{array} 
 \end{equation}
-of an alliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$. It can be shown that $\phi$ maps curve points to curve points. The first thing to note is that in case that $\F$ is a prime field, the Frobenious endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields, due to Fermat's little theorem XX. So the Frobenious map is more interesting over prime field extensions.
+of an alliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$. It can be shown that $\pi$ maps curve points to curve points. The first thing to note is that in case that $\F$ is a prime field, the Frobenious endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields, due to Fermat's little theorem XX. So the Frobenious map is more interesting over prime field extensions.
 
 With the Frobenious map at hand, we can now characterise two important subgroups of the full $n$-torsion. The first subgroup is the $n$-torsion group that already exists in the curve over the base field. In pairing based cryptography this group is usually written as $\G_1$, assuming that the prime factor '$n$' in the definition is implicitly given. Since we know that the Frobenious map, acts trivially on curve over the prime field we can define $\G_1$ as:
 \begin{equation}
-\G_1[n] := \{(x,y)\in E[n]\;| \phi(x,y) = (x,y)\;\}
+\G_1[n] := \{(x,y)\in E[n]\;| \pi(x,y) = (x,y)\;\}
 \end{equation}
 In more mathematical terms this definition means, that $\G_1$ is the \textit{Eigenspace} of the Frobenious map with respect to the \textit{Eigenvalue} $1$.
 
 Now it can be shown, that there is another subgroup of the full $n$-torsion group that can be characterized by the Frobenious map. In the context of so called type $3$ pairing based cyrptography this subgroup is usually called $\G_2$ and it defined as 
 \begin{equation}
-\G_2[n] := \{(x,y)\in E[n]\;| \phi(x,y) = [p](x,y)\;\}
+\G_2[n] := \{(x,y)\in E[n]\;| \pi(x,y) = [p](x,y)\;\}
 \end{equation}
 So in mathematical terms $\G_2$ is the \textit{Eigenspace} of the Frobenious map with respect to the \textit{Eigenvalue} $p$.
 \begin{notation}
@@ -1071,24 +1073,119 @@ If the prime factor $n$ of the curves order is clear from the contect, we someti
 \end{notation}
 
 It should be noted however that sometimes other definitions of $\G_2$ appear in the literature, however in the context of pairing based cryptography, this is the most common one. It is particulary useful, as we can define hash functions that map into $\G_2$, which is not possible for all subgroups of the full $n$-torsion.
-
-\paragraph{Pairing} In this part we consider pairing functions defined on certrain subgroups of some full torsion groups of an elliptic curve. To be more precise let 
-$E(\F_p)$ be an elliptic curve of order $r$ and embedding degree $k$, let $n$ be a prime factor of $r$, $E[n]$ the full torsion group of the curve and $\G_1$ as well as $\G_2$ two subgroups of $E[n]$. Then an \textbf{elliptic curve pairing} is a bilinear, non-degenerate map
+\begin{example} Consider the curve $E_1(\F_5)$ from example XXX again. As we have seen this curve has embedding degree $k=2$ and a full $3$-torsion group is given by
+$$
+E_1[3] = \{\Oinf,(2,1),(2,4), (1,t), (1,4t),(2t + 1,t + 1),
+ (2t + 1, 4t + 4), (3t + 1,t + 4), (3t + 1, 4t + 1) \}
+$$
+According to the general theory, $E_1[3]$ contains $4$ soubgroups and we chan characterise the subgroups $\G_1$ and $\G_2$ using the Frobenious endomorphism. Unfortunately at the time of this writing sage did have a predifined Frobenious endomorphism for elliptic curves, so we have to use the Frobenious endomorphism of the underlying field as a temorary workaround. We compute 
+\begin{sagecommandline}
+sage: L_G1 = []
+sage: for P in E1_3: 
+....:     PiP = E1F5_2([a.frobenius() for a in P]) # pi(P)
+....:     if P == PiP:
+....:         L_G1.append(P)
+sage: G1 = Set(L_G1)
+\end{sagecommandline}
+So as expected the group $\G_1=\{\Oinf, (2,4), (2,1)\}$ is identical to the $3$-torsion group of the (unextended) curve over the prime field $E_1(\F_5)$. We can use almost the same algorithm to compute the group $\G_2$ and get 
+\begin{sagecommandline}
+sage: L_G2 = []
+sage: for P in E1_3: 
+....:     PiP = E1F5_2([a.frobenius() for a in P]) # pi(P)
+....:     pP = 5*P # [5]P
+....:     if pP == PiP:
+....:         L_G2.append(P)
+sage: G2 = Set(L_G2)
+\end{sagecommandline}
+so we compute the the second subgroup of the full $3$-torsion group of curve $E_1$ as the set $\G_2 = \{\Oinf, (1,t), (1,4t)\}$. 
+\end{example}
+\begin{example}
+Considering the tiny-jubjub curve $\mathit{TJJ\_13}$ from example XXX. In example XXX we computed its full $5$ torsion, which is a group that has $6$ subgroups. We compute $G1$ using sage as:
+\begin{sagecommandline}
+sage: L_TJJ_G1 = []
+sage: for P in TJJF13_4_5: 
+....:     PiP = TJJF13_4([a.frobenius() for a in P]) # pi(P)
+....:     if P == PiP:
+....:         L_TJJ_G1.append(P)
+sage: TJJ_G1 = Set(L_TJJ_G1)
+\end{sagecommandline}
+We get $\G1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$
+\begin{sagecommandline}
+sage: L_TJJ_G1 = []
+sage: for P in TJJF13_4_5: 
+....:     PiP = TJJF13_4([a.frobenius() for a in P]) # pi(P)
+....:     pP = 13*P # [5]P
+....:     if pP == PiP:
+....:         L_TJJ_G1.append(P)
+sage: TJJ_G1 = Set(L_TJJ_G1)
+\end{sagecommandline}
+$\G_2 = \{\Oinf, (9t^2 + 7,t^3 + 11t,), (9t^2 + 7, 12t^3 + 2t), (4t^2 + 7,5t^3 + 10t),(4t^2 + 7,8t^3 + 3t)\}$
+\end{example}
+\begin{example}Consider Bitcoin's curve Secp256k1 again. Since the group $\G_1$ is identical to the torsion group of the unextended curve and since Secp256k1 has prime order, we know, that in thi case $\G_1$ is identical to Secp256k1. It is however infeasible not just to compute $\G_2$ itself, but to even compute an avarage element of $\G_2$ as elements need to much storage to be representable in this universe.
+\end{example}
+\paragraph{The Weil Pairing} In this part we consider a pairing function defined on
+full torsion groups of elliptic curves. To be more precise let $E(\F_p)$ be an elliptic curve of order $r$ and embedding degree $k$, $n$ a prime factor of $r$ and $E[n]$ the full torsion group of the curve w.r.t. $n$. Then the \textbf{Weil pairing} is a bilinear, non-degenerate map
 \begin{equation}
-e(\cdot,\cdot) : \G_1 \times \G_2 \to \F_{p^k}
+e(\cdot,\cdot) : E[n] \times E[n] \to \F_{p^k}
 \end{equation} 
-in the sense of our definition XXX. In practise, the embedding degree is usuall a small number like $2$, $4$, $6$ or $12$ and the prime factor $n$ is the largest prime factor of the curves order. In addition $\G_1$ is usually choosen to be the $n$-torsion group of the curve $E(\F_p)$ over the base field.
+in the sense of definition XXX. The precise mathematical definition of how the Weil pairing is defined need the concept of \textit{divisors}, which we dom't really need in this book, as it can be effciently computed using \textbf{Miller's algorithm} without any understanding of the machinery of divisors.
+
+To understand Miller's algorithm, let $P=(x_1)$ and $Q$ be two curve point from the full $n$-torsion of the elliptic curve, both of which are not the point at infinity and let $(b_0,b_1,\ldots,b_t)$ be the binary representation of $n$ with $b_t\neq 0$.
+We define fiel elements
+\begin{equation}
+h_{P,Q} = 
+\begin{cases}
+\frac{•}{•}
+\end{cases}
+\end{equation}
+
+ The algorithm  
+\begin{algorithm}\caption{Projective Weierstraß Addition Law}
+\label{alg_projective_group_law}
+% https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Standard_Projective_Coordinates
+\begin{algorithmic}[0]
+\Require $P,Q \in E[n]$, $b_0,\ldots, b_t\in \{0,1\}$ with
+$n= b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_t\cdot 2^t$
+\Procedure{Miller's Algorithm}{$P,Q$}
+\State $T \gets P$
+\State $f\gets 1$
+\For{$j\gets t-1,\ldots, 0$}
+	\State $f\gets f^2\cdot h_{T,T}$
+	\State $T\gets 2\cdot T$
+	\If{$b_j == 1$}
+		\State $f \gets f\cdot h_{T,P}$
+		\State $T \gets T + P$
+	\EndIf
+\EndFor
+
+\State \textbf{return} $f$
+\EndProcedure
+\Ensure $ something$
+\end{algorithmic}
+\end{algorithm}
+
+
+In practise, the embedding degree is usuall a small number like $2$, $4$, $6$ or $12$ and the prime factor $n$ is the largest prime factor of the curves order. In addition $\G_1$ is usually choosen to be the $n$-torsion group of the curve $E(\F_p)$ over the base field.
 
 
 % http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf
 % p. 396ff
 
-\section{Constructing elliptic curves}
-\paragraph{The Trace of an elliptic curve} We know from XXX that elliptic curves over finite fields are cyclic groups of finite order. An interesting question therefore is, if it is possible to estimate the number of elements that curve contains. A first thing to note is then that, since affine curves are in 1:1 correspondence with projective curves, it is enough to look at the affine situation. 
+\section{Constructing elliptic curves} Well tested, cryptographically secure elliptic curves like Secp256k1 from example XXX are known for quite some time now. It is however often necessary in cutting edge cryptography to design and instantiate new elliptic curves, with very specific properties. 
+
+In the context of SNARK development it was for example necessary to design a curve that is efficient to implement incide of a SNARK circuit to enable primitives like elliptic curve Diffie Hellman inside a SNARK. Such a curve is give by the Baby-JubJub curve from XXX, which we have paralled in our tiny-JubJub curve. As we have seen those curves are examples of so called twisted Edwards curves and as such have easy to implement addition laws that work without branching. 
+
+Another requirement in the context of SNARKS are the pairing friendly curves with low embedding degree as defined in XXX. Those curves serve as the foundation of all pairing based zero-knowledge proofs and famous examples are the BLS\_12 curves orde the NMT curves.
+
+The major goal of this section is to explain the most important method to design elliptic curves, called the \textit{complex multiplication method}. We will apply this method to synthezise a particular BLS\_6 curve, the most insecure BLS\_6 curve, which will serve as the main curve to build our pen and paper snarks on. As we will see, this curve has a "large" prime factor subgroup of order $13$, which implies, that we can use our tiny-jubjub curve to implement certain elliptic curve cryptographic primitives in circuits over our BLS\_6 curve. 
+ 
+\paragraph{The Trace of Frobenious} To understand the complex multiplication method of elliptic curve, we have to define the so called \textit{trace} of an elliptic curve first.
+
+We know from XXX that elliptic curves over finite fields are cyclic groups of finite order. An interesting question therefore is, if it is possible to estimate the number of elements that curve contains. A first thing to note is then that, since affine curves are in 1:1 correspondence with projective curves, it is enough to look at the affine situation. 
 
 Now, since an affine short Weierstraß curve consists of pairs $(x,y)$ of elements from a finite field $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the number of curve points can not be arbitrarily large, since it can contain at most $q^2+1$ many elements. 
 
-There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E(\F)$ be an affine short Weierstraß curve over a finite field $(\F)$ of order $q$ and let $|E(\F)|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace} of the curve, such that $|t| \leq 2\sqrt{q}$ and
+There is however a more precise estimation, usually called the \textbf{Hasse bound}. To understand it, let $E(\F)$ be an affine short Weierstraß curve over a finite field $(\F)$ of order $q$ and let $|E(\F)|$ be the number of elements in that curve. Then there is an integer $t\in \Z$ called the \textbf{trace of Frobenious} of the curve, such that $|t| \leq 2\sqrt{q}$ and
 \begin{equation}
 |E(\F)| = q +1 -t
 \end{equation}
@@ -1124,20 +1221,59 @@ sage: t = p + RR(1) -r
 sage: abs(t) <= 2*sqrt(p)
 \end{sagecommandline}
 \end{example}
-
+\paragraph{The Discriminant} Recalling from the definition of Weierstraß elliptic curves, we have seen that the equation $y^2 = x^3 + ax +b$ defines an elliptic curve over a finite field $\F_q$, only if the expression $\Zmod{4a^3+27b^2}{p}\neq 0$. Defining the \textbf{discriminant} $D$ of an elliptic curve as 
+\begin{equation}
+D = -16(4a^3 + 27 b^2)
+\end{equation}
+we can rephrase this requirement and say that equation $y^2 = x^3 + ax +b$ defines an elliptic curve over a finite field $\F_q$, only if the discriminant $D$ of that curve in non zero. 
 \subsection{The Complex Multiplication Method}
+As we have seen in the previous sections, elliptic curve have various defining properties, like the order and its prime factors, the embedding degree, the cardinality of the base field. The so called \textit{complex multiplication} (CM) gives a practical method for constructing elliptic curves with pre-defined restrictions on the order.
+
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
 % http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf
 % https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf
 % https://www.ams.org/journals/mcom/2007-76-260/S0025-5718-07-01980-1/S0025-5718-07-01980-1.pdf
 % https://graui.de/code/elliptic2/ //draw curves
 % https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf proposition 2.1
+
+The CM-method usually starts by choosing the number $q = p^m$ for some prime number $p$ and counting number $m\in \N$ with $m\geq 1$, which will define the base field $\F_q$ of the curve $E(\F_q)$ we want to construct. We assume $p>3$ to simplify things in what follows. 
+
+Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)$=0. The choice of $t$ implies the curves order $r$, since $r=p+1-r$ by the Hasse bound XXX. Both $q$ and $t$ can not be arbitrary, but must be choosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist, such that $D<0$ as well as $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$ and the equation
+\begin{equation}
+     4q  = t^2 + Dv^2 
+\end{equation}
+holds. If those numbers exist, we know that we can construct a curve $E(\F_q)$, such that the order of the curve is $|E(\F_q)|= q+1-t$. It is the content of the CM-method then to actually construct such a curve, that is finding the parameters $a$ and $b$ in the defining Weiertraß equation, such that the curve has the desired order $r$. 
+
+Finding solutions to equation XXX, can be achieved in different ways, which we will not look much into. In general it can be said, that there are well known constrctions for elliptic curve families like the BLS (ECT) families, that provides families of solutions. In what follows we will look at one type curves the BLS-family, which gives an entire rane of solutions.
+
+Assuming that proper parameters $q$, $t$, $D$ are found, we have to compute the so called \textit{Hilbert class} polynomial $H_D\in \Z[x]$ of the parameter $D$, which is a polynomial with integer coefficients. Computing this polynomial needs high pecision arithmetics to avoid rounding errors and fortunately sage handles this well. 
+
+To compute the Hilbert class polyninomial of $D$, we first have to compute the so called ideal class group, which for our purposes can be represented as the  follwing set
+\begin{multline*}
+ICG(D)=\{(A,B,C)\;|\; A,B,C\in\Z, D = B^2-4AC, gcd(A,B,C)=1, \\
+|B|\leq A \leq \sqrt{\frac{|D|}{3}}, A\leq C, 
+\text{ if } B< 0 \text{ then } |B| < A < C\}
+\end{multline*} 
+To compute the Hilbert class polynomial from this set, the so called \textit{$j$-invariant} is needed, which is complex function from the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as
+\begin{equation}
+j: \mathbb{H} \to \mathbb{C}
+\end{equation}
+For the sake of this book it is not importanted to actually understand the $j$-invariant function. We can use sage to compute it a similar way as we use is to computer other well known functions as the sin or exponential function. 
+
+With a way to compute the $j$-invariant and the precomputed set of the ideal class group at hand, we can now compute the Hilbert class polynomial as
+\begin{equation}
+H_D(z) = \Pi_{(A,B,C)\in ICG(D)} \left(x - j\left(\frac{-B + \sqrt{D}}{2A}\right)\right))
+\end{equation}
+So what we do is we take an element $(A,B,C)$ from the set $ICG(D)$ that we computed in the previous step, insert the term $\frac{-B + \sqrt{D}}{2A}$ as an argument into the $j$-invariant function and use the result as 
+
+The computational problem with this definition of the polynomial $H_D$ is, that some of the values $j(\frac{-B + \sqrt{D}}{2A})$ might be complex, irrational numbers that a computer can only approximate. As a result, the computation of $H_D$ might be imprecise, leading to a situation where its coefficients are not integers as expected. This is purely a precision problem and if the precision is choosen sufficiently high, we can safely round the result to the closed integer to compute the actual definition of $H_D$.
+
+In the next step we use the Hilbert class polynomial $H_D\in \Z[x]$ and project it to a polynomial with coefficients in the base field $\F_q$ as choosen in the first step. We do this by simply computing the new coefficients as the old coefficients modulus $p$, that is we compute
+\begin{equation}
+\tilde{a}_j = \Zmod{a_j}{p}
+\end{equation}
+for all coefficients $a_j$ from $H_D$. We call this new polynomial 
 \begin{itemize}
-\item Choose a prime number $p\in\Prim$ and integers $t,D\in\Z$, such that the equation $-Dv^2 = 4p - t^2$ has solutions $\pm v \in \Z$.
-\item If one of the values $p+1-t$ or $p+1+t$ a prime number, then proceed to the next steps, otherwise we go back to step 1.
-\item Compute the set $CL(Dv^2)=\{(a,b,c)\;|\; a,b,c\in\Z, |b|\leq a \leq \sqrt{\frac{Dv^2}{3}},a\leq c, b^2-4ac=-Dv^2, (a,b,c)=1WHATISTHIS?\}$. If $|b|=a$ or $a=c$, then $b\geq 0$.
-\item Compute $H_D(x)=\Pi_{(a,b,c)\in CL(D)} (x-j(\frac{-b+\sqrt{-Dv^2}}{2a}))$
-\item Round the coefficients of $H_D$ to the closed integers.
 \item Compute $H_{D,p} =H_D \; mod_p$
 \item Find a root $j$ of $H_{D,p}$ 
 \item If $j\neq 0$ or $j\neq 1728$, then choose $c\in \F_p$ and define the elliptic curve $E/\F_p$ defined by $y^2 = x^3 + 3kx+2k$ for $k= \frac{j}{1728-j}$.
