@@ -1226,6 +1226,10 @@ sage: abs(t) <= 2*sqrt(p)
 D = -16(4a^3 + 27 b^2)
 \end{equation}
 we can rephrase this requirement and say that equation $y^2 = x^3 + ax +b$ defines an elliptic curve over a finite field $\F_q$, only if the discriminant $D$ of that curve in non zero. 
+\paragraph{The $j$-invariant} 
+\begin{equation}
+j(E) = 1728\frac{4a^3}{4a^3+ 27b^2}
+\end{equation}
 \subsection{The Complex Multiplication Method}
 As we have seen in the previous sections, elliptic curve have various defining properties, like the order and its prime factors, the embedding degree, the cardinality of the base field. The so called \textit{complex multiplication} (CM) gives a practical method for constructing elliptic curves with pre-defined restrictions on the order.
 
@@ -1238,9 +1242,9 @@ As we have seen in the previous sections, elliptic curve have various defining p
 
 The CM-method usually starts by choosing the number $q = p^m$ for some prime number $p$ and counting number $m\in \N$ with $m\geq 1$, which will define the base field $\F_q$ of the curve $E(\F_q)$ we want to construct. We assume $p>3$ to simplify things in what follows. 
 
-Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)$=0. The choice of $t$ implies the curves order $r$, since $r=p+1-r$ by the Hasse bound XXX. Both $q$ and $t$ can not be arbitrary, but must be choosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist, such that $D<0$ as well as $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$ and the equation
+Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)$=0. The choice of $t$ implies the curves order $r$, since $r=p+1-t$ by the Hasse bound XXX. Both $q$ and $t$ can not be arbitrary, but must be choosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist, such that $D<0$ as well as $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$ and the equation
 \begin{equation}
-     4q  = t^2 + Dv^2 
+     4q  = t^2 + |D|v^2 
 \end{equation}
 holds. If those numbers exist, we know that we can construct a curve $E(\F_q)$, such that the order of the curve is $|E(\F_q)|= q+1-t$. It is the content of the CM-method then to actually construct such a curve, that is finding the parameters $a$ and $b$ in the defining Weiertraß equation, such that the curve has the desired order $r$. 
 
@@ -1272,14 +1276,126 @@ In the next step we use the Hilbert class polynomial $H_D\in \Z[x]$ and project 
 \begin{equation}
 \tilde{a}_j = \Zmod{a_j}{p}
 \end{equation}
-for all coefficients $a_j$ from $H_D$. We call this new polynomial 
+for all coefficients $a_j$ from $H_D$. We write $H_{D,p}$ and call this new polynomial  the projected Hilbert class polynomial. Every root $j$ of $H_{D,p}$ defines a set $E_j(\F_q)$ of elliptic curves that are related in some sense, that we will not explore any further. What is important for us though, is to indentify those curves, that have the desired trace of Frobenious $t$ and therefore the order we wanted.
+
+To compute the actual curve we have to distinguish a few different cases, based on the choice of the root $j$ and of the parameter $D$. We start with chosing some quadratic non-residue $c_2\in \F_q$ and some cubic non residue $c_4\in \F_q$ and if $j\neq 0$ or $j\neq \Zmod{1728}{q}$ we compute $c_1=\Zmod{\frac{j}{1728 -j}}{q}$. The following table is then guranteed to define a curve with an order $r= q+1 -t$, which is the one we initially wanted.
 \begin{itemize}
-\item Compute $H_{D,p} =H_D \; mod_p$
-\item Find a root $j$ of $H_{D,p}$ 
-\item If $j\neq 0$ or $j\neq 1728$, then choose $c\in \F_p$ and define the elliptic curve $E/\F_p$ defined by $y^2 = x^3 + 3kx+2k$ for $k= \frac{j}{1728-j}$.
-\item Compute the order of $E/\F_p$. If it divides either $p+1-u$ or $p+1-u$, then $E/\F_p$ is the result.
-\item Otherwise choose $c\in \F_p$ with $c\neq 1$ and $c\neq 0$ and define the elliptic curve $E'/\F_p$ defined by $y^2 = x^3 + 3kc^2x+2kc^3$ for $k= \frac{j}{1728-j}$.
-\end{itemize}
+\item Case $j \neq 0 $ and $j\neq \Zmod{1728}{q}$. A curve with the correct order is defined by one of the following equations 
+\begin{equation}
+y^2 = x^3 + 3c_1x + 2c_1 \text{\;\; or \;\; } y^2 = x^3 + 3c_1c_2^2x + 2c_1c_2^3
+\end{equation}
+\item Case $j = 0 $ and $D\neq -3$. A curve with the correct order is defined by one of the following equations 
+\begin{equation}
+y^2 = x^3 + 1 \text{\;\; or \;\; } y^2 = x^3 + c_2^3
+\end{equation}
+\item Case $j = 0 $ and $D= -3$. A curve with the correct order is defined by one of the following equations 
+\begin{align*}
+y^2 = x^3 +1 & \text{\;\; or \;\; } y^2 = x^3 + c_2^3 \text{ \;\; or}\\  
+y^2 = x^3 + c_3^2 & \text{\;\; or \;\; } y^2 = c_3^2 c_2^3 \text{\;\; or}\\
+y^2 = x^3 + c_3^{-2} & \text{\;\; or \;\; }  y^2 = x^3 + c_3^{-2}c_2^3 
+\end{align*}
+\item Case $j = \Zmod{1728}{q} $ and $D\neq -4$. A curve with the correct order is defined by one of the following equations 
+\begin{equation}
+y^2 = x^3 + x \text{\;\; or \;\; } y^2 = x^3 + c_2^2x
+\end{equation}
+\item Case $j = \Zmod{1728}{q} $ and $D= -4$. A curve with the correct order is defined by one of the following equations 
+\begin{align*}
+y^2 = x^3 +x & \text{\;\; or \;\; } y^2 = x^3 + c_2x \text{ \;\; or}\\  
+y^2 = x^3 + c_2^2x & \text{\;\; or \;\; } y^2 = x^3 + c_2^3x
+\end{align*}
+\end{itemize} 
+To decide the proper defining Weierstraß equation, we therefore have to compute the order of any of the potential curves above and the choose the one that fits out initial requirements. Since $H_{-3,q}(x)=x$ and $H_{-4,q}= \Zmod{x-1728}{q}$ the previous cases are exhaustive.
+\begin{example} Consider curve $E_1(\F_5)$ from example XXX. We want to use the complex multiplication method to derive that curve from scratch. Since $E_1(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from example XX that its trace of Frobenious is $t=-3$, which also implies that $q$ and $|t|$ are coprime. 
+
+We then have to find parameters $D,v\in\Z$ with $D<0$ and $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$, such that $4q = t^2+ |D|v^2$ holds. We get
+\begin{align*}
+4q & = t^2+ |D|v^2 & \Rightarrow \\
+20 & = (-3)^2 + |D|v^2 & \Leftrightarrow \\
+11 & = |D|v^2
+\end{align*}
+Now since $11$ is a prime number, the only solution is $|D|=11$ and $v=1$ here. So $D=-11$ and since the Euklidean division of $-11$ by $4$ is $-11 = -3\cdot 4 +1$ we have $\Zmod{-11}{4}=1$, which shows that $D=-11$ is a proper choice.
+
+In the next step, we have to compute the Hilbert class polynomial $H_{-11}$ and to do so, we first have to find the set $ICG(D)$. To comute that set, observe, that since $\sqrt{\frac{|D|}{3}}\approx 1.915<2$, we know from $A\leq \sqrt{\frac{|D|}{3}}$ and $A\in\Z$ that $A$ must be either $0$ or $1$. 
+
+For $A=0$, we know $B=0$ from the constraint $|B|\leq A$, but in this case there can be no $C$ satisfying $-11= B^2 -4AC$. So we try $A=1$ and deduce $B\in\{-1,0,1\}$ from the constraint $|B|\leq A$. The case $B=-1$ can be excluded since then $B<0$ has to imply $|B|<A$. In addition, the case $B=0$ can be exclude as there can be integer $C$ with $-11 = -4C$ since $11$ is a prime number. 
+
+This leaves the case $B=1$ and we compute $C=3$ from the equation $-11 = 1^2 -4C$, which gives the solution $(A,B,C)=(1,1,3)$ and we get
+$$
+ICG(D)=\{(1,1,3)\}
+$$
+With the set $ICG(D)$ at hand we can compute the Hilbert class polynomial of $D=-11$. To do so, we have to insert the term $\frac{-1+\sqrt{-11}}{2\cdot1}$ into the $j$-function. To do so first observe that $\sqrt{-11}=i\sqrt{11}$, where $i$ is the imaginary unit, defined by $i^2=-1$. Using this, we can invoke sagemath to compute the $j$-invariant and get 
+$$
+H_{-11}(x) = x - j\left(\frac{-1+i\sqrt{11}}{2}\right) = x + 32768
+$$
+So as we can see, in this particular case, the Hilbert class polynomial is a linear function with a single integer corefficiant. In the next step we have to project it onto a polynomial from $\F_5[x]$, by computing the modular $5$ remainder of the corefficuents $1$ and $32768$. We get $\Zmod{32768}{5}=3$ from which follows that the projected Hilbert class polynomial is  
+$$
+H_{-11,5}(x)=x+3
+$$ 
+considered as a polynomial from $\F_5[x]$. As we can see the only root of this polynomial is $j=2$, since $H_{-11,5}(2)=2+3=0$. We therefore have a situation with $j\neq 0$ and $j\neq 1728$, which tells us that we have to compute the parameter
+$$
+c_1=\frac{2}{1728-2}
+$$
+in modular $5$ arithmetics. Since $\Zmod{1728}{5}=3$, we get $c_1=2$. Then we have to check if the curve $E(\F_5)$ defined by the Weierstraß  $y^2 = x^3 + 3\cdot 2 x + 2\cdot 2$ has the correct order. We invoke sage and find that the order is indeed $9$, so it is a curve with the required parameters and we are done.
+
+Note however that in real world applications, it might be usefull to choose parameters $a$ and $b$ that have certain properties, e.g. to be a small as possible. As we know from XXX, choosing any quadratic residue $d\in \F_5$ gives a curve of the same order defined by $y^2 = x^2 + a k^2 x + bk^3$. Since $4$ is a quadratic residue in $\F_4$, we can transform the curve defined by 
+$y^2 = x^3 +x+4$ into the curve $y^2 = x^3 + 4^2 + 4\cdot 4^3$ which gives 
+$$
+y^2 = x^3 + x +1
+$$
+which is the curve $E_1(\F_5)$, that we used extensively throughout this book. So using the complex multiplication method, we were able to derive a curve with spacific properties from scratch.
+\end{example}
+\begin{example} Consider the tiny jubjub curve $\mathit{TJJ\_13}$ from example XXX. We want to use the complex multiplication method to derive that curve from scratch. Since $\mathit{TJJ\_13}$ is a curve of order $r=9$ over the prime field of order $q=13$, we know from example XX that its trace of Frobenious is $t=-6$, which also implies that $q$ and $|t|$ are coprime. 
+
+We then have to find parameters $D,v\in\Z$ with $D<0$ and $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$, such that $4q = t^2+ |D|v^2$ holds. We get
+\begin{align*}
+4q & = t^2+ |D|v^2 & \Rightarrow \\
+4\cdot 13 & = (-6)^2+ |D|v^2 & \Rightarrow \\
+52 & = 36 + |D|v^2 & \Leftrightarrow \\
+16 & = |D|v^2
+\end{align*}
+This equation has two solutions for $(D,v)$, given by $(-4,\pm 2)$ and $(-16,\pm 1)$. Now looking at the first solution, we know that the case $D=-4$ impplies $j=1728$ and the constructed curve is defined by a Weierstraß equation XXX that has a vanishing parameter $b=0$. We can therforefore conclude that choosing $D=-4$ will not help us reconstructing $\mathit{TJJ\_13}$. It will produce curves with order $20$, just not the one we are looking for.
+
+So we choose the second solution $D=-16$ and in the next step, we have to compute the Hilbert class polynomial $H_{-16}$. To do so, we first have to find the set $ICG(D)$. To comute that set, observe, that since $\sqrt{\frac{|-16|}{3}}\approx 2.31<3$, we know from $A\leq \sqrt{\frac{|-16|}{3}}$ and $A\in\Z$ that $A$ must be in the range $0..2$. So we loop through all possible values of $A$ and through all possible values of $B$ under the constraints $|B|\leq A$ and if $B<0$ then $|B|<A$
+and the compute potential $C$'s from $-16 = B^2 -4AC$. We get the following two solution $(1,0,4)$ and $(2,0,2)$, giving  
+% sage has precomputed Hilbert class polynomials 
+% https://doc.sagemath.org/html/en/reference/databases/sage/databases/db_class_polynomials.html
+we get
+$$
+ICG(D)=\{(1,0,4),(2,0,2)\}
+$$
+With the set $ICG(D)$ at hand we can compute the Hilbert class polynomial of $D=-16$. We can invoke sagemath to compute the $j$-invariant and get 
+\begin{align*}
+H_{-16}(x) &= \left(x - j\left(\frac{i\sqrt{16}}{2}\right)\right)
+ \left(x - j\left(\frac{i\sqrt{16}}{4}\right)\right) \\
+           &= (x- 287496)(x-1728)
+\end{align*}
+So as we can see, in this particular case, the Hilbert class polynomial is a quadratic function with two integer corefficiant. In the next step we have to project it onto a polynomial from $\F_5[x]$, by computing the modular $5$ remainder of the corefficuents $1$, $287496$ and $1728$. We get $\Zmod{287496}{13}=1$ and $\Zmod{1728}{13}=2$ from which follows that the projected Hilbert class polynomial is  
+$$
+H_{-11,5}(x)=(x-1)(x-12)= (x+12)(x+1)
+$$ 
+considered as a polynomial from $\F_5[x]$. So we have two roots given by $j=1$ and $j=12$. We alrady know that $j=12$ is the wrong root to construct the tiny jubjub curve, since $\Zmod{1728}{13}=2$ and that case can not construct a curbe with $b\neq 0$. So we choose $j=1$.
+
+Another way to decide the proper root, is to compute the $j$-invariant of the tiny-jubjub curve. We get
+\begin{align*}
+j(\mathit{TJJ\_13}) & = 12\frac{4\cdot 8^3}{4\cdot 8^3+ 1\cdot 8^2}\\
+                    & = 12\frac{4\cdot 5}{4\cdot 5+ 12}\\
+                    & = 12\frac{7}{7+ 12}\\
+                    & = 12\frac{7}{7+ 12}\\
+                    & = 1
+\end{align*}
+which is equal to the root $j=1$ of the Hilbert class polynomial $H_{-16,13}$ as expected. We therefore have a situation with $j\neq 0$ and $j\neq 1728$, which tells us that we have to compute the parameter
+$$
+c_1=\frac{1}{12-1}
+$$
+in modular $5$ arithmetics. Since $\Zmod{1728}{13}=12$, we get $c_1=6$. Then we have to check if the curve $E(\F_5)$ defined by the Weierstraß  $y^2 = x^3 + 3\cdot 6 x + 2\cdot 6$ has the correct order. We invoke sage and find that the order is indeed $9$, so it is a curve with the required parameters and we are done.
+
+Note however that in real world applications, it might be usefull to choose parameters $a$ and $b$ that have certain properties, e.g. to be a small as possible. As we know from XXX, choosing any quadratic residue $d\in \F_5$ gives a curve of the same order defined by $y^2 = x^2 + a k^2 x + bk^3$. Since $4$ is a quadratic residue in $\F_4$, we can transform the curve defined by 
+$y^2 = x^3 +x+4$ into the curve $y^2 = x^3 + 4^2 + 4\cdot 4^3$ which gives 
+$$
+y^2 = x^3 + x +1
+$$
+which is the curve $E_1(\F_5)$, that we used extensively throughout this book. So using the complex multiplication method, we were able to derive a curve with spacific properties from scratch.
+\end{example}
 
 
 \section{twists}
@@ -1993,6 +2109,10 @@ We choose the generator $g_2 = (x^3+2x^2+4x,x^5+2x^4+4x^3+3x^2+3)$
 
 \begin{remark}
 Note however that our MNT6 curve discriminant $D=-16(4a^3 + 27 b^2)= -16(4\cdot 2^3 + 27\cdot 1^2)=-944$, while our MNT4 curve has discriminsnt XXX. Hence our example curves are not those guranteed by theorem XXX. Those curve are both given by $y^2= x^3 + 2x +1$ over $\F_5$ and $\F_7$, respectively. However as both curves have the same defining equation, we rather choose examples that are visually distinguishable by their defining equations.
+
+
+
+
 \end{remark}
 
 \subsection{Edwards curve cycles}
