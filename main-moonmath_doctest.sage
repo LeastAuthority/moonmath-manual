@@ -440,21 +440,22 @@ sage: for P in TJJF13_4_5:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
 
-Sage commandline, line 1216::
+Sage commandline, line 1270::
 
-sage: p = RR(115792089237316195423570985008687907853269984665640564039457584007908834671663)
-sage: r = RR(115792089237316195423570985008687907852837564279074904382605163141518161494337)
-sage: t = p + RR(1) -r
-sage: abs(t) <= 2*sqrt(p)
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: r = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+sage: t = p + 1 -r
+sage: t.nbits()
+sage: abs(RR(t)) <= 2*sqrt(RR(p))
 
-Sage commandline, line 1252::
+Sage commandline, line 1307::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: F = GF(p)
 sage: j = F(1728)*((F(4)*F(0)^3)/(F(4)*F(0)^3+F(27)*F(7)^2))
 sage: j == F(0)
 
-Sage commandline, line 1294::
+Sage commandline, line 1351::
 
 sage: elliptic_j(CC(i))
 sage: # j-function only defined for positive imaginary arguments
@@ -467,7 +468,7 @@ sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2)
 sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2).imag().round()
 sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2).real().round()
 
-Sage commandline, line 1463::
+Sage commandline, line 1520::
 
 sage: D = -3
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
@@ -480,7 +481,7 @@ sage: v.is_integer()
 sage: 4*p == t^2 + abs(D)*v^2
 sage: v
 
-Sage commandline, line 1479::
+Sage commandline, line 1536::
 
 sage: F = GF(p)
 sage: for c2 in F:
@@ -496,7 +497,7 @@ sage: for c3 in F:
 ....:         break
 sage: c3
 
-Sage commandline, line 1495::
+Sage commandline, line 1552::
 
 sage: C1 = EllipticCurve(F,[0,1])
 sage: C1.order() == r
@@ -511,7 +512,7 @@ sage: C5.order() == r
 sage: C6 = EllipticCurve(F,[0,c3^(-2)*c2^3])
 sage: C6.order() == r
 
-Sage commandline, line 1518::
+Sage commandline, line 1575::
 
 sage: b1=86844066927987146567678238756515930889952488499230423029593188005931626003754
 sage: for b2 in F:
@@ -527,7 +528,7 @@ sage: for b2 in F:
 ....:         pass
 sage: b2
 
-Sage commandline, line 1757::
+Sage commandline, line 1814::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -541,13 +542,13 @@ sage: for P in INF.division_points(13): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 1795::
+Sage commandline, line 1852::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1821::
+Sage commandline, line 1878::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -560,7 +561,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 1836::
+Sage commandline, line 1893::
 
 sage: for d in F13:
 ....:     j= ZZ(0)
@@ -571,14 +572,14 @@ sage: for d in F13:
 ....:     print('d=',d)
 ....:     print('order=',j)
 
-Sage commandline, line 1857::
+Sage commandline, line 1914::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 1891::
+Sage commandline, line 1948::
 
 sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
@@ -587,7 +588,7 @@ sage: def Edwards_add((x1,y1),(x2,y2),d):
 ....: (x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 1991::
+Sage commandline, line 2048::
 
 sage: F13 = GF(13)
 sage: for A in xrange(3, 13):
@@ -600,7 +601,7 @@ sage: for A in xrange(3, 13):
 ....:     except:
 ....:         continue
 
-Sage commandline, line 2006::
+Sage commandline, line 2063::
 
 sage: j = ZZ(0)
 sage: for a in F13:
@@ -612,27 +613,27 @@ sage: for a in F13:
 ....:                     j=j+1
 ....:         print('curve: a=',a,'d=',d,'order:',j)
 
-Sage commandline, line 2032::
+Sage commandline, line 2089::
 
 sage: for x in F13:
 ....:     for y in F13:
 ....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
 ....:             print(x,y)
 
-Sage commandline, line 2060::
+Sage commandline, line 2117::
 
 sage: def Edwards_add((x1,y1),(x2,y2),a,d):
 ....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
 ....:     return (x3,y3)
 
-Sage commandline, line 2090::
+Sage commandline, line 2147::
 
 sage: F7 = GF(7)
 sage: MNT4 = EllipticCurve (F7,[4 ,1])
 sage: [P.xy() for P in MNT4.points() if P.order() > 1]
 
-Sage commandline, line 2121::
+Sage commandline, line 2178::
 
 sage: F7t.<t> = F7[]
 sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
@@ -645,13 +646,13 @@ sage: for P in INF.division_points(5): # PI(P) == [q]P
 ....:         if PiP == qP:
 ....:             print(P.xy())
 
-Sage commandline, line 2149::
+Sage commandline, line 2206::
 
 sage: g1 = MNT4([0,1])
 sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
 sage: g1.weil_pairing(g2,5)
 
-Sage commandline, line 2225::
+Sage commandline, line 2282::
 
 sage: G.<x> = GF(5^6) # embedding degree is 6
 sage: MNT6 = EllipticCurve (G,[2 ,1])

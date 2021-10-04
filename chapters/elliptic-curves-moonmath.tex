@@ -1124,49 +1124,103 @@ $\G_2 = \{\Oinf, (9t^2 + 7,t^3 + 11t,), (9t^2 + 7, 12t^3 + 2t), (4t^2 + 7,5t^3 +
 \begin{example}Consider Bitcoin's curve Secp256k1 again. Since the group $\G_1$ is identical to the torsion group of the unextended curve and since Secp256k1 has prime order, we know, that in thi case $\G_1$ is identical to Secp256k1. It is however infeasible not just to compute $\G_2$ itself, but to even compute an avarage element of $\G_2$ as elements need to much storage to be representable in this universe.
 \end{example}
 \paragraph{The Weil Pairing} In this part we consider a pairing function defined on
-full torsion groups of elliptic curves. To be more precise let $E(\F_p)$ be an elliptic curve of order $r$ and embedding degree $k$, $n$ a prime factor of $r$ and $E[n]$ the full torsion group of the curve w.r.t. $n$. Then the \textbf{Weil pairing} is a bilinear, non-degenerate map
+the subgroups $\G_1[r]$ and $\G_2[r]$ of the full $r$-torsion $E[r]$ of a short Weierstraß elliptic curve. To be more precise let $E(\F_p)$ be an elliptic curve of embedding degree $k$, such that $r$ is a prime factor of its order. Then the \textbf{Weil pairing} is a bilinear, non-degenerate map
 \begin{equation}
-e(\cdot,\cdot) : E[n] \times E[n] \to \F_{p^k}
+e(\cdot,\cdot) : \G_1[r] \times \G_2[r] \to \F_{p^k}\; ;\; 
+(P,Q)\mapsto (-1)^r \cdot \frac{f_{r,P}(Q)}{f_{r,Q}(P)}
 \end{equation} 
-in the sense of definition XXX. The precise mathematical definition of how the Weil pairing is defined need the concept of \textit{divisors}, which we dom't really need in this book, as it can be effciently computed using \textbf{Miller's algorithm} without any understanding of the machinery of divisors.
-
-To understand Miller's algorithm, let $P=(x_1)$ and $Q$ be two curve point from the full $n$-torsion of the elliptic curve, both of which are not the point at infinity and let $(b_0,b_1,\ldots,b_t)$ be the binary representation of $n$ with $b_t\neq 0$.
-We define fiel elements
-\begin{equation}
-h_{P,Q} = 
-\begin{cases}
-\frac{•}{•}
-\end{cases}
-\end{equation}
-
- The algorithm  
-\begin{algorithm}\caption{Projective Weierstraß Addition Law}
+where the extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ are computed by \textbf{Miller's algorithm}:
+\begin{algorithm}\caption{Miller's algorithm for short Weierstraß curves $y^2 = x^3 +ax +b$}
 \label{alg_projective_group_law}
-% https://en.wikibooks.org/wiki/Cryptography/Prime_Curve/Standard_Projective_Coordinates
+% https://www.math.u-bordeaux.fr/~damienrobert/csi2018/pairings.pdf
 \begin{algorithmic}[0]
-\Require $P,Q \in E[n]$, $b_0,\ldots, b_t\in \{0,1\}$ with
-$n= b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_t\cdot 2^t$
+\Require $r>3$, $P \in E[r]$, $Q\in E[r]$ and
+\State $b_0,\ldots, b_t\in \{0,1\}$ with $r= b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_t\cdot 2^t$ and $b_t=1$
 \Procedure{Miller's Algorithm}{$P,Q$}
-\State $T \gets P$
-\State $f\gets 1$
+\If{$P = \Oinf$ or $Q = \Oinf$ or $P = Q$}
+	\State \textbf{return} $f_{r,P}(Q) \gets (-1)^r$
+\EndIf
+\State $(x_T,y_T) \gets (x_P,y_P)$
+\State $f_1\gets 1$
+\State $f_2\gets 1$
 \For{$j\gets t-1,\ldots, 0$}
-	\State $f\gets f^2\cdot h_{T,T}$
-	\State $T\gets 2\cdot T$
-	\If{$b_j == 1$}
-		\State $f \gets f\cdot h_{T,P}$
-		\State $T \gets T + P$
+	\State $m \gets \frac{3\cdot x_T^2+a}{2\cdot y_T}$	
+    \State $f_1 \gets f_1^2\cdot (y_Q - y_T - m\cdot(x_Q-x_T))$
+	\State $f_2 \gets f_2^2\cdot (x_Q + 2x_T -m^2)$
+	\State $x_{2T} \gets m^2 - 2 x_T$
+	\State $y_{2T} \gets -y_T - m\cdot (x_{2T}-x_T)$
+	\State $(x_T,y_T)\gets (x_{2T},y_{2T})$ 
+	\If{$b_j = 1$}
+		\State $m \gets \frac{y_T -y_P}{x_T - x_P}$
+		\State $f_1 \gets f_1\cdot (y_Q -y_T -m\cdot (x_Q - x_T))$
+		\State $f_2 \gets f_2\cdot (x_Q + (x_P+x_T) - m^2)$
+		\State $x_{T+P} \gets m^2 -x_T -x_P$
+		\State $y_{T+P}\gets -y_T - m\cdot (x_{T+P}-x_T)$
+		\State $(x_T,y_T)\gets (x_{T+P},y_{T+P})$
 	\EndIf
 \EndFor
-
-\State \textbf{return} $f$
+\State $f_1 \gets f_1\cdot (x_Q - x_T)$
+\State \textbf{return} $f_{r,P}(Q) \gets \frac{f_1}{f_2}$
 \EndProcedure
-\Ensure $ something$
 \end{algorithmic}
 \end{algorithm}
+Understanding in detail how the algorithm works requires the concept of \textit{divisors}, which we don't really need in this book. The interested reader might look at [REFERENCES]
 
+In real world application of pairing friendly elliptic curves, the embedding degree is usuall a small number like $2$, $4$, $6$ or $12$ and the number $r$ is the largest prime factor of the curves order.
+\begin{example}Consider curve $E_1(\F_5)$ from example XXX. Since the only prime factor of the groups order is $3$ we can not compute the Weil pairing on this group using our definition of Miller's algorithm. In fact since $\G_1$ is of order $3$, executing the if statement on line XXX will lead to a division by zero error in the computation of the slope $m$.
+\end{example}
+\begin{example} Consider the tiny-jubjub curve $\mathit{TJJ\_13}(\F_{13})$ from example XXX again. We want to instantiate the general definition of the Weil pairing for this example. To do so, recall that we have see in example XXX, its embedding degree is $4$ and that we have the following type-3 pairing groups:
+$$
+\begin{array}{lcr}
+\G_1 = \{\Oinf, (7,2), (8,8), (8,5), (7,11)\} & \text{ and } &
+\G_2 = \{\Oinf, (9t^2 + 7,t^3 + 11t, ), (9t^2 + 7, 12t^3 + 2t), 
+(4t^2 + 7, 5t^3 + 10t), (4t^2 + 7, 8t^33 + 3t)\}
+\end{array}
+$$
+where $\G_1$ and $\G_2$ are subgroups of the full $5$-torsion found in the curve $\mathit{TJJ\_13}(\F_{13})$. The type-3 Weil pairing is a map $e(\cdot,\cdot): \G_1 \times \G_2 \to \F_{5^2}$. From the first if-statement in Miller's algorithm, we can deduce that 
+$e(\Oinf,Q)=1$ as well as $e(P,\Oinf)=1$ for all arguments $P\in\G_1$ and $Q\in \G_2$. So in order to compute a non-trivial Weil pairing we choose the arguments 
+$P=(2,4)$ and $Q=(1,t)$. 
 
-In practise, the embedding degree is usuall a small number like $2$, $4$, $6$ or $12$ and the prime factor $n$ is the largest prime factor of the curves order. In addition $\G_1$ is usually choosen to be the $n$-torsion group of the curve $E(\F_p)$ over the base field.
-
+In order to compute the pairing $e((2,4),(1,t))$ we have to compute the extension field elements $f_{3,P}(Q)$ and $f_{3,Q}(P)$ applying Miller's algorithm. Do do so first observe that we have $3 = 1\cdot 2^0 + 1 \cdot 2^0$, so we get $t=1$ as well as $b_0=1$ and $b_1=1$. The loop therefore only needs to be executed a single time. 
+We initiate $(x_T,y_T) = (2,4)$ as well as $f_1=1$ and $f_2=1$. Then 
+\begin{align*}
+m & = \frac{3\cdot x_T^2 +a}{2\cdot y_T}\\
+  & = \frac{3\cdot 2^2 +1}{2\cdot 4}
+    = \frac{3}{3}\\
+  & = 1\\
+  \\
+f_1 & = f_1^2\cdot (y_Q - y_T - m\cdot(x_Q-x_T)) \\
+    & = 1^2\cdot (t - 4 - 1\cdot(1-2))
+      = t-4+1\\
+    & = t+2\\
+    \\
+f_2 & =  f_2^2\cdot (x_Q + 2x_T -m^2)\\
+    & = 1^2\cdot (1 + 2\cdot 2 -1^2)
+      = (1 + 4 -1)\\
+    & = 4\\
+\\  
+x_{2T} & =  m^2 - 2 x_T\\
+       & =  1^2 - 2\cdot 2
+         = -3\\
+       & = 2 \\  
+\\
+y_{2T} & = -y_T - m\cdot (x_{2T}-x_T)\\
+       & = -4 - 1\cdot (2-2)
+         = -4\\
+       & = 1
+\end{align*}
+So we update $(x_T,y_T) =(2,1)$ and since $b_0=1$ we have to execute the if statement on line XXX in the for loop. However since we only loop a single time, we don't need to compute $y_{T+P}$, since we only need the updated $x_T$ in the final step. We get:
+\begin{align*}
+m & =  \frac{y_T -y_P}{x_T - x_P}\\
+  & =  \frac{1 -4}{2 - x_P}\\
+\\
+f_1 & = f_1\cdot (y_Q -y_T -m\cdot (x_Q - x_T))\\
+\\
+f_2 & = f_2\cdot (x_Q + (x_P+x_T) - m^2)\\
+\\
+x_{T+P} & = m^2 -x_T -x_P\\
+\end{align*}
+\end{example}
 
 % http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf
 % p. 396ff
@@ -1214,10 +1268,11 @@ t = \scriptstyle 432420386565659656852420866390673177327
 $$
 So as we can see Secp256k1 contains less elements then its underlying field. However  the difference is tiny, since the order of Secp256k1 is in the same order of magnitute as the order of the underlying field. Compared to $p$ and $r$, $t$ is tiny.
 \begin{sagecommandline}
-sage: p = RR(115792089237316195423570985008687907853269984665640564039457584007908834671663)
-sage: r = RR(115792089237316195423570985008687907852837564279074904382605163141518161494337)
-sage: t = p + RR(1) -r
-sage: abs(t) <= 2*sqrt(p)
+sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
+sage: r = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+sage: t = p + 1 -r
+sage: t.nbits()
+sage: abs(RR(t)) <= 2*sqrt(RR(p))
 \end{sagecommandline}
 \end{example} 
 \paragraph{The $j$-invariant} As we have seen in XXX two elliptic curve $E_1(\F)$ defined by $y^2 = x^3 + ax +b$ and $E_2(\F)$ defined by $y^2 + a'x + b'$ are strictly isomorphic, if and only if there is a quadratic residue $d\in \F$, such that $a' = a d^2$ and $b' = b d^3$. 
@@ -1268,7 +1323,9 @@ As we have seen in the previous sections, elliptic curves have various defining 
 
 The method usually starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct, such that $q = p^m$ for some prime number $p$ and counting number $m\in \N$ with $m\geq 1$. We assume $p>3$ to simplify things in what follows. 
 
-Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)=0$ holds true. The choice of $t$ also defines the curves order $r$, since $r=p+1-t$ by the Hasse bound XXX, so choosing $t$, will define the large order subgroup as well as all small cofactors. $r$ has to be defined in such a way, that the elliptic curve meats the security requirements of the application it is designed for. 
+Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)=0$ holds true. The choice of $t$ also defines the curves order $r$, since $n=p+1-t$ by the Hasse bound XXX, so choosing $t$, will define the large order subgroup as well as all small cofactors. $r$ has to be defined in such a way, that the elliptic curve meats the security requirements of the application it is designed for. 
+
+Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of the curve, since $k$ is defined as the smallest number, such that the order $n$ divides the number $q^k-1$.
 
 In order for the complex multiplication method to work, both $q$ and $t$ can not be arbitrary, but must be choosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist, such that $D<0$ as well as $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$ and the equation
 \begin{equation}
