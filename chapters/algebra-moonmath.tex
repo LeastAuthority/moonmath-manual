@@ -140,15 +140,285 @@ Since the exponential map is a one-to-one correspondence, that respects the grou
 \begin{equation}
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
-which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time.
+which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time. We will look at this and similar problems in more detail in the next section.
+\subsection{Cryptographic Groups} In this section, we will look at families of groups, which are believed to satisfy certain so called \textit{computational hardness assumptions}, the latter of which is a term to express the hypothesis that a particular problem cannot be solved efficiently (where efficiently typically means "in polynomial time of a given security parameter") in the groups of consideration. 
+\begin{example} 
+To highlight the concept of a computational hardness assumption, consider the group of integers $\Z$ from example XXX. One of the best known and most researched examples of computational hardness is the assumption that the factorization of integers into prime numbers as explained in XXX can not be solved by any algorithm in polynomial time with respect to the bit-length of the integer.
 
-Now consider a finite cyclic group $\G$ of order $n$ and a generator $g$ of $\G$. The \textbf{discrete logarithm problem} is then the task, to find a solution $x\in\Z_n$, to the equation
+To be more precise the computational hardness assumption of integer factorization assumes that given any integer $z\in\Z$ with bit-length $b$, there is no integer $k$ and no algorithm with run time complexity $\mathcal{O}(b^k)$, that is able to find prime numbers $p_1, p_2,\ldots,p_j\in\Prim$, such that $z=p_1\cdot p_2\cdot \ldots\cdot p_j$. 
+
+Generally speaking, this hardness assumption was proven to be false, since Shor's algorithm shows that integer factorization is at least efficiently possible on a quantum computer, since the run time complexity of this algorithm is $\mathcal{O}(b^3)$. However no such algorithm is known on a classical computer.
+
+In the realm of classical computers however, we still have to call the non existence of such an algorithm an "assumption" because to date, there is no proof that it is actually impossible to find some. The problem is that it is hard to reason about algorithms that we don't know.
+
+So despite the fact that there is currently no know algorithm that can factor integers efficiently on a classical computer, we can not exclude that such an algorithm might exist in principal and someone eventually will discover it in the future.
+
+However what still makes the assumption plausible, despite the absense of any actual proof, is the fact that after decades of extensive search still no such algorithm has been found.
+\end{example}
+In what follows, we will describe a few computational hardness assumptions that arrise in the context of groups in cryptography, as we will need them throughout the book.
+\paragraph{The discret logarithm assumption} The so called discrete logarithm problem is one of the most fundamental assumptions in cryptography. To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$.  We know from XXX that there is a so called exponential map 
+$g^{(\cdot)}: \Z_r \to \G:\; x\mapsto g^x$, which maps the residue classes from module $r$ arithmetic onto the group in a $1:1$ correspondence. The \textbf{discrete logarithm problem} is then the task to find inverses to this map, that is, to find a solution $x\in\Z_r$, to the equation
 \begin{equation}
 h = g^x
 \end{equation}
-for some given $h\in\G$. In groups where the expontial map and the discrete logarithm map are believed to be examples of one way functions, it is computationally hard to find solutions to this equation.
+for some given $h\in\G$. The \textbf{discrete logarithm assumption (DL-A)} is then the assumption that there exists no algorithm with run time polynimial in the "security parameter $log_2(r)$, that is able to compute some $x$ if ony $h$, $g$ and $g^x$ are given in $\G$. If this is the case for $\G$ we call $\G$ a \textit{DL-A group}.
+
+Rephrasing the previous definition into simple words, DL-A groups are believed to have the property, that it is infeasible to compute some number $x$ that solves the equation $h=g^x$ for given $h$ and $g$, assuming that the size of the group $r$ is large enough.
+\begin{example}[Public key cryptography]
+One the most basic examples of an application for DL-A groups is in public key cryptography, where some pair $(\G,g)$ is publically agreed on, such that $\G$ is a finite cyclic group sufficiently large order $r$, where it is believed that the discrete logarithm assumption holds and $g$ is a generator of $\G$.
+
+In this setting a secret key is nothing but some number $sk\in \Z_r$ and the associated public key $pk$ is the group element $pk=g^{sk}$. Since discrete logarithms are assumed to be hard it is therefore infisible for an attacker to compute the secret key from the public key, since it is believed to be hard to find solutions $x$ to the equation 
+$$
+pk = g^{x}
+$$ 
+\end{example}
+As the previous example shows, it is an important practical problem to identify DL-A groups. Unfortunately it is easy to see, that it does not make sense to assume the hardness of the discrete logarithm problem in all finite cyclic groups. Counterexamples are common and easy to construct. 
+\begin{example}[Modular arithmetics for Fermat's primes] It is widely believed that the discrete logarithm problem is hard in multiplicative groups $\Z_p^*$ of prime number modular arithmetics. However this is not true in general. To see that consider any so called Fermat's prime, which is a prime number $p\in\Prim$, such that $p=2^n+1$ for some number $n$.
+
+We know from XXX, that in this case $\Z_p^* = \{1,2,\ldots, p-1\}$ is group with respect to integer multiplication in modular $p$ arithmetics and since $p=2^n+1$, the order of $\Z_p^*$ is $2^n$, which implies that the associated security parameter is given by $log_2(2^n)=n$.
+
+We show that in this case $\Z_p^*$ is not a DL-A group, by constructing an algorithm, which is able compute some $x\in\Z_{2^n}$ for any given generator $g$ and arbitry element $h$ of $\F_p^*$, such that
+$$
+h = g^x
+$$
+holds and the run time complexity of the constrcted algorithm is $\mathcal{O}(n^2)$, which is quadratic in the security parameter $n=log_2(2^n)$.  
+
+To define such an algorithm, lets assume that the generator $g$ is a public constant and that a group element $h$ is given. Our task is to compute $x$ efficiently. 
+
+A first thing to note is that since $x$ is a number in modular $2^n$ aithmetic, we can write the binary representation of $x$ as
+$$
+x = c_0\cdot 2^0 + c_1\cdot 2^1 + \cdots + c_n \cdot 2^n
+$$
+with binary coefficients $c_j\in\{0,1\}$. In particular $x$ as an $n$-bit number, if interpreted as an integer. 
+
+We then use this representation to construct an algorithm that computes the bits $c_j$ one after another, starting at $c_0$. To see how this can be achieved, observe that we can determine $c_0$ by raising the input $h$ to the power of $2^{n-1}$ in $\F_p^*$. We use the exponential laws and compute 
+\begin{align*}
+h^{2^{n-1}} & = \left(g^x\right)^{2^{n-1}}\\
+            & = \left(g^{c_0\cdot 2^0 + c_1\cdot 2^1 + \ldots + c_n\cdot 2^n}\right)^{2^{n-1}}\\
+            & = g^{c_0\cdot 2^{n-1}}\cdot g^{c_1\cdot 2^1\cdot 2^{n-1}} \cdot 
+            g^{c_2\cdot 2^2\cdot 2^{n-1}} \cdots g^{c_n\cdot 2^n\cdot 2^{n-1}}\\
+            & = g^{c_0 2^{n-1}}\cdot g^{c_1\cdot 2^0\cdot 2^{n}} \cdot
+            g^{c_2\cdot 2^1\cdot 2^{n}} \cdots g^{c_n\cdot 2^{n-1}\cdot 2^{n}}
+\end{align*}
+Now since $g$ is a generator and $\F_p^*$ is cyclic of order $2^n$, we know $g^{2^n}=1$ and therefore $g^{k\cdot 2^n}= 1^k=1$. From this follows that all but the first factor in the last expressen are equal to $1$ and we can simplify the expression into
+$$
+h^{2^{n-1}} = g^{c_0 2^{n-1}}
+$$ 
+Now in case $c_0=0$, we get $h^{2^{n-1}} = g^0=1$ and in case $c_0=1$ we get 
+$h^{2^{n-1}} = g^{2^{n-1}}\neq 1$ (To see that $g^{2^{n-1}}\neq 1$, recall that $g$ is a generator of $\F_p^*$ and hence is cyclic of order $2^n$, which implies $g^y\neq 1$ for all $y<2^n$).
+
+So raising $h$ to the power of $2^{n-1}$ determines $c_0$ and we can apply the same reasoning to the coefficient $c_1$ by raising $h\cdot g^{-c_0\cdot 2^0}$ to the power of $2^{n-2}$. This approach can then be repeated until all the coefficients $c_j$ of $x$ are found.
+
+Assuming that exponentiation in $\F_p^*$ can be done in logarithmic run time complexity $log(p)$, it follows that our algorithm has a run time complexity of 
+$\mathcal{O}(log^2(p))=\mathcal{O}(n^2)$, since we have to execute $n$ exponentiations to determine the $n$ binary coefficients of $x$. 
+
+From this follows that whenever $p$ is a Fermat's prime, the discrete logarithm assumption does not hold in $F_p^*$.
+\end{example}
+\paragraph{The decisional Diffi Hellman assumption}
+To describe the decisional Diffie–Hellman assumption , let $\G$ be a finite cyclic group od order $r$ and let $g$ be a generator of $\G$. The DDH assumption then assumes that there is no algorithm that has a run time complexity polynomial in the security parameter $s= log(r)$, that is able to distiguish the so called DDH-tripple $(g^a,g^b, g^{ab})$ from any tripple $(g^a,g^b,g^c)$ for randomly and independently choosen parameters $a,b,c\in \Z_r$. If this is the case for $\G$ we call $\G$ a DDH-A group.
+
+It is easy to see that DDH-A is a stronger assumption then DL-A, in the sense that the discrete logarithm assumption is neccessary for the dicisional Diffi Hellman assumption to hold, but not the other way around. 
+
+To see why, assume that the discrete logarithm assumption does not hold. In that case given a genrator $g$ and a group element $h$, it is easy to compute some residue class $x\in\Z_p$ with $h=g^x$. Then the dicisional Diffi-Hellman assumption could not hold, since given some tripple ($ g^a , g^b , z )$, one could efficiently decide whether $z = g^{ab}$ by first computing the discrete logarithm $b$ of  $g^b$, then compute $g^{ab}= (g^a)^b$ and decide whether or not $z=g^{ab}$.
+
+On the other hand, the following example shows, that there are groups where the discrete logarithm assumption holds but the decisional Diffi Hellman assumption does not hold:
+\begin{example}[Efficiently computable pairings] Let $\G$ be a finite, cyclic group of order $r$ with generator $g$, such that the discrete logarithm assumtion holds and such that there is a pairing map $e(\cdot,\cdot): \G \times \G \to \G_T$ for some target group $\G_T$ that is computable in polynomial time of the parameter $log(r)$. 
+
+In a setting like this it is easy to show that DDH-A can not hold, since given some tripple ($ g^a , g^b , z )$, it is possible to decide in polynomial times w.r.t $log(r)$ whether $z=g^{ab}$ or not. To see that check 
+$$
+e(g^a,g^b)=e(g,z)
+$$Since the bilinierity properties of $e(\cdot,\cdot)$ imply $e(g^a,g^b)= e(g,g)^{ab}= e(g,g^{ab})$ and $e(g,y)=e(g,y')$ implies $y=y'$ due to the non degeneray property, the equality decides $z=e^{ab}$.
+\end{example} 
+It follows that DDH-A is indeed weaker then DL-A and groups with efficient pairings can not be DDH-A groups. As the following example shows, another important class of groups, where DDH-A does not hold are the multiplicative groups of prime number residue classes.
+\begin{example}Let $p$ be a prime number and $\Z_p^*=\{1,2,\ldots,p-1\}$ the multiplicative group of modular $p$ arithmetics as in example XXX. As we have seen in XXX, this group is finite and cyclic of order $p-1$ and every element $g\neq 1$ is a generator.
+
+To see that $\F_p^*$ can not be a DDH-A group recall from XXX that the Legendre symbol $\left(\frac{x}{p}\right)$ of any $x\in \F_p^*$ is efficiently computable by Euler's formular. But the  Legendre symbol of $g^{a}$ reveals if $a$ is even or odd. Given $g^{a}$, $g^{b}$ and $g^{ab}$, one can thus efficiently compute and compare the least significant bit of $a$, $b$ and $a b$, respectively, which provides a probabilistic method to distinguish $g^{ab}$ from a random group element $g^c$. 
+\end{example}
+\paragraph{The computational Diffi Hellman assumption}
+To describe the computational Diffie-Hellman assumption, let $\G$ be a finite cyclic group od order $r$ and let $g$ be a generator of $\G$. The computational Diffi-Hellman assumption, then assumes that given randomly and independently choosen residue classes $a,b\in\Z_r$, it is not possible to compute $g^{ab}$ if only $g$, $g^a$ and $g^b$ (but not $a$ and $b$) are known. If this is the case for $\G$ we call $\G$ a CDH-A group.
+
+In general it is not know if CDH-A is a stronger assumption then DL-A, or if both assumptions are equivalent. It is known that DL-A is necessary for CDH-A but the other direction is currently not well understood. In particular there are no groups known where DL-A holds but CDH-A does not hold.
+% https://web.stanford.edu/class/cs259c/finalpapers/dlp-cdh.pdf
+
+To see why the discrete logarithm assumption is necessary, assume that it does not hold. So given a genrator $g$ and a group element $h$, it is easy to compute some residue class $x\in\Z_p$ with $h=g^x$. In that case the computational Diffi-Hellman assumption can not hold, since given $g$, $g^a$ and $g^b$, one can efficiently compute $b$ and hence is able to compute $g^{ab}=(g^a)^b$ from this data.
+
+The computational Diffi-Hellman assumption is a weaker assumption then the decisional Diffi Hellman assumption, which means that there are groups where CDH-A holds and DDH-A does not holdm while there can not be groups such that DDH-A holds but CDH-A does not hold. To see that assume that it is efficiently possible to compute $g^{ab}$ from $g$, $g^a$ and $g^b$. Then, given $(g^a,g^b,z)$ it is of course easy to decide if $z=g^{ab}$ or not. 
+
+From the CDH-A various variations and specializations are known. For example the so called \textit{square computational Diffi Hellman assumption} asumes, that given $g$ and $g^x$ it is computationally hard to compute $g^{x^2}$ while the so called \textit{inverse computational Diffi Hellman assumption} asumes, that given $g$ and $g^x$ it is computationally hard to compute $g^{x^{-1}}$. 
+
 \paragraph{Cofactor Clearing}
 TODO: (theorem: every factor of order defines a subgroup...)
+\subsection{Hashing to Groups}
+\paragraph{Hash functions} Generally speaking, a hash function is any function that can be used to map data of arbitrary size to fixed-size values. Since binary strings of arbitrary length are a general way to represent arbitrary data, we can understand a general \textbf{hash function} as a map 
+\begin{equation}
+H: \{0,1\}^* \to \{0,1\}^k
+\end{equation}
+where $\{0,1\}^*$ represents the set of all binary strings of arbitrary but finite length and $\{0,1\}^k$ represents the set of all binary strings that have a length of exactly $k$ bits. So in our definition a hash function maps binary strings of arbitrary size onto binary strings of size exactly $k$. We call the images of $H$, that is the values returned by the hash function \textit{hash values}, \textit{digests}, or simply \textit{hashes}.
+
+A hash function must be deterministic, that is inserting the same input $x$ into $H$, so image $H(x)$ must always be the same. In addition a hash function should be as uniform as possible, which means that it should map input values as evenly as possible over its output range. In mathematical terms every length $k$ string from $\{0,1\}^k$ should be generated with roughly the same probability.  
+\begin{example}[$k$-truncation hash] One of the most basic hash functions 
+$H_k:\{0,1\}^*\to \{0,1\}^k$ is given by simply truncating every binary string $s$ of size $s.len()> k$ to a string of size $k$ and by filling any string $s'$ of size $s'.len()<0$ with zeros. To make this hash function deterministic, we define that both truncation and filling should happen "on the left".
+
+For example if $k=3$, $x_1=(0000101011101010011101010101)$ and $x_2=1$ then $H(x_1)=(101)$ and $H(x_2)=(001)$. It is easy to see that this hash function is deterministic and uniform.
+\end{example}
+Of particular interest are so called \textit{cryptographic} hash functions, which are hash functions that are also \textit{one-way functions}, which essentially means that given a string $y$ from $\{0,1\}^k$ its practically infeasible to find a string $x\in\{0,1\}^*$ such that $H(x)=y$ holds. This property is usually called \textit{preimage-resistence}. 
+
+In addition it should be infeasible to find to strings $x_1,x_2 \in\{0,1\}^*$, such that $H(x_1)=H(x_2)$, which is called \textit{collision resistence}. It is important to note though, that collisions always exists, since a function $H: \{0,1\}^* \to \{0,1\}^k$ inevitable maps infinite many values onto the same hash. In fact, for any hash function with digests of length $k$, finding a preimage to a given digest can always be done using a brute force search in $2^k$ evaluation steps. It should just be practically impossible to compute those values and statistically very unlikely to generate two of them by chance. 
+
+A third property of a cryptographic hash function is, that small changes in the input string like flipping a single bit, should generate hash values that look completely different from each other.
+
+As cryptographically secure hash functions map tiny changes in input values onto large change in the output, implementation errors that change the outcome are usually easy to spot by comparing them to expected output values. The definition of cryptographically secure hash function are therefore usually acompanied by some test vectors of common inputs and expected digests. Since the empty string $''$ is the only string of length $0$ a common test vector is the expected digest of the empty string.
+\begin{example}[$k$-truncation hash] Considering the $k$-truncation hash from example XXX. Since the empty string has length $0$ it follows that the digest of the empty string is string of length $k$ that only contains $0$'s. i.e 
+$$
+H_k('')= (000\ldots 000)
+$$
+It is pretty obvious from the definition of $H_k$ that this simple hash function is not a cryptographic hash function. In particular every digest is its onw preimage, since $H_k(y)=y$ for every string of size exactly $k$. Finding preimages is therefore easy. 
+
+In addition it is easy to construct collusions as all strings of size $>k$ that share the same $k$-bits "on the right" are mapped to the same hash value.
+
+Also this hash function is not very chaotic, as changing bits that are not part of the $k$ right most bits don't change the digest at all.  
+\end{example}
+Computing cryptographically secure hash function in pen and paper style is possible but tedious. Fortunately sage can import the \textit{PyCrypto} library, which is intended to provide a reliable and stable base for writing Python programs that require cryptographic functions. The following examples explains how to use PyCrypto in sage.
+\begin{example}An example of a hash function that is generally believed to be a cryptographically secure hash function is the so called \textit{SHA256} hash, which in our notation is a function
+$$
+SHA256: \{0,1\}^* \to \{0,1\}^{256}
+$$
+that maps binary strings of arbitrary length onto binary strings of length $256$. To evaluate a proper implementation of the $SHA256$ hash function the giest of the empty string is supposed to be
+$$
+SHA256('')= e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+$$
+For better human readability it is common practise to represent the digest of a string, not in its binary form but in a hexadecimal representation. We can use sage to compute $SHA256$ and freely transit between binary, hexadecimal and decimal representations. To do so we have to import PyCrypto and then load $SHA\_256$:
+\begin{sagecommandline}
+sage: import Crypto
+sage: from Crypto.Hash import SHA256
+sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+sage: d = SHA256.new('')
+sage: str = d.hexdigest()
+sage: type(str)
+sage: d = ZZ('0x'+ str) # conversion to integer type
+sage: d.str(16) == str
+sage: d.str(16) == test
+sage: d.str(16)
+sage: d.str(2)
+sage: d.str(10)
+\end{sagecommandline}
+\end{example}
+
+\paragraph{Hashing to cyclic groups} As we have seen in the previous paragraph general hash functions map binary strings of arbitrary length onto binary strings of length $k$ for some parameter $k$. In various cryptographic primitives it is however desireable to not simply hash to binary strings of fixed length but to hash into algebraic structures like groups, while keeping (some of) the properties like preimiage or collision resistence. 
+
+Hash functions like this can be defined for various algebraic structures, but in a sense, the most fundamental ones are hash functions that map into groups, because they can usually be extended easily to map into other structures like rings or fields. 
+
+To give a more precise definition, let $\G$ be a group and $\{0,1\}^*$ the set of all finite, binary strings, then a \textbf{hash-to-group} function is a deterministic map
+\begin{equation}
+H : \{0,1\}^* \to \G
+\end{equation}
+Common properties of hash functions, like uniformity are desireable but not always realized in actual real world instantiations of hash-to-group functions, so we skip those requirements for now and keep the definition very general.
+
+As the following example shows hashing to finite cyclic groups can be trivially achieved for the price of some undesireable properties of the hash function:
+\begin{example}[Naive cyclic group hash] Let $\G$ be a finite cyclic group. If the task is to implement a hash-to-$\G$ function, one immediate approach might be the following:
+
+Choose an ordinary hash function $H:\{0,1\}^*\to \{0,1\}^k$ for some parameter $k$
+and interpret the image $H(s)$ as the binary representation of an integer, that is consider $H(s)\in \Z$. Then choose a generator $g$ of $\G$ and define the new hash-to-$\G$ function as a concatenation of the exponential map $g^{(\cdot)}$ of $g$ with the hash function $H$, that is define the new hash-to-$\G$ function as
+$$
+H_{g} : \{0,1\}^* \to \G:\; s \mapsto g^{H(s)} 
+$$
+Constructing a hash-to-group function like this is easy to implement for cyclic groups and might be good enough in certain applications. It is however almost never adequate in cryptographic applications as discrete log relations might be constructible between two given hash value $H_g(s)$ and $H_g(t)$. 
+
+To see that, assume that $\G$ is of order $r$ and that $H(s)\in\Z_r$ has a multiplicative inverse in modular $r$ arithmetics. In that case we can compute $x=H(t)\cdot H(s)^{-1}$ and have found a discrete log relation between the group hash value, that is some $x$ with $H_g(t) = (H_g(s))^x$ since
+\begin{align*}
+H_g(t) & = (H_g(s))^x & \Leftrightarrow \\
+g^{H(t)} & = g^{H(s)\cdot x} & \Leftrightarrow \\
+g^{H(t)} & = g^{H(t)}
+\end{align*}
+\end{example}
+Applications where discrete log relations between hash values are undesireable therefore need different approaches and many of those approaches start with a way to hash into the sets $\Z_n$ of modular $n$ arithmetics. 
+\paragraph{Hashing into modular arithmetics} One of the most widely used applications of hash-into-group functions are hash functions that map into the set $\Z_n$ of modular $n$ arithmetics for some modulus $n$. Different approaches to construct such a function are known, but but probably the two most used are based on the insight that the images of arbitrary hash functions can be interpreted as binary representations of integers.
+
+The first method of hashing into $\Z_n$ is constructed by observing, that if $n$ is a modulus, with a bit-length of $k$, then every binary string $(b_0,b_1,\ldots,b_{k-1})$ of length $k-1$ can be interpreted as an element $x\in\Z_n$, by defining
+\begin{equation}
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{k-1}\cdot 2^{k-1}
+\end{equation} 
+since by construction $x$ is always smaller then $n$ and hence $x\in\{0,1,\ldots,n-1\}$. From this follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-group function can be constructed by
+\begin{equation}
+H_{Z_n}: \{0,1\}^* \to \Z_n: \; s \mapsto 
+H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k-1}
+\end{equation}
+where $H(s)_j$ means the $j$'s bit of the image binary string $H(s)$ of the original binary hash function. 
+
+A drawback of this hash function is that the distribution of the hash values in $\Z_n$ is not even. In fact if $n-2^{k-1}\neq 0$, then by design the function will never hash onto values larger then $2^{k-1}$. An advantage is that potential properties like preimage or collision resistence of the original hash function $H(\cdot)$ are preserved. 
+
+Despite the fact that distribution is not even, it is sometimes used in applications. The reasoning is, that if $k$ is a cryptographically reasonable number like $128$ or larger, the number of elements $n-2^{k-1}$ that the hash function misses, is tiny compared to the numbers that it hashes to and the loss in security is only a single bit.
+
+The second widely used method of hashing into $\Z_n$ is constructed by observing, that if $n$ is a modulus, with a bit-length of $k_1$ and $H:\{0,1\}^*\to {0,1}^{k_2}$ is a hash function that produces digests of size $k_2$, with $k_2>k_1$, then a hash-to-group function can be constructed by interpreting the image of $H$ as binary representation of a integer and then take the modulus by $n$ to map into $\Z_n$. To be more precise 
+\begin{equation}
+H'_{Z_n}: \{0,1\}^* \to \Z_n: \; s \mapsto 
+\Zmod{\left(H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k_2}\cdot 2^{k_2}\right)}{n}
+\end{equation}
+where $H(s)_j$ means the $j$'s bit of the image binary string $H(s)$ of the original binary hash function. 
+
+A drawback of this hash function is that computing the modulus requires some computational effort. So $H'_{Z_n}$ is more expensive then $H_{\Z_n}$.
+
+Also something to look out for, is the fact that the distribution of the hash values in $\Z_n$ might not even, depending on the size of the difference $k_2-k_1$.
+
+An advantage is that potential properties like preimage or collision resistence of the original hash function $H(\cdot)$ are preserved and distributen is even provided that $k_1$ and $k_2$ are choosen properly. 
+
+A thid method that can sometimes be found in implementations is the so called \textit{try and increment method}. To underatand this method, observe that if $n$ is a modulus, with an bit-length of $k$ and $H:\{0,1\}^*\to {0,1}^{k}$ is a hash function, then the integer
+\begin{equation}
+x = H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k}
+\end{equation}
+is an element of $\Z_n$, whenever $x<n$. So hashing to $\Z_n$ can be achieved by computing $x$ and then try to see if $x\in\Z_n$. If this is the case than the hash is done and if not the string $s$ is modified and the process is repeated. For example a suteable, deterministic modificatio could be to extend the string by some $k_2$-bit counter. A try and increment algorithm would then work like this:
+\begin{algorithm}\caption{Hash-to-$\Z_n$}
+\label{alg_projective_group_law}
+\begin{algorithmic}[0]
+\Require $n \in \Z$ with $bit\_length(n)=k$ and $s\in\{0,1\}^*$
+\Procedure{Try-and-Increment}{$n,k,s$}
+\State $c \gets 0$
+\Repeat
+\State $c\gets c+1$
+\State $s' \gets s||c$
+\State $x \gets H(s')_0\cdot 2^0 + H(s')_1\cdot 2^1 + \ldots + H(s')_{k}\cdot 2^{k}$
+\Until{$x<n$}
+\State \textbf{return} $x$
+\EndProcedure
+\Ensure $ x\in \Z_n$
+\end{algorithmic}
+\end{algorithm}
+
+If $k$ is suficiently large, the probability for $x<n$ is very high and the repeat loop will almost always be executed a single time only. A drawback is however that the probability to execute the loop multiple times is not zero. 
+
+Once some hash function into modular arithmetics is found it can often be combined with additional techniques to hash into more general finite cyclif groups. The following paragraphs describes a few of thos methods widely adopted in snark development.
+\paragraph{Pederson Hashes}
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
+\begin{definition}[Pedersen's Hash function]
+Let $\mathbb{G}$ be a cyclic group of order $r$ and $\{g_1, \ldots, g_k\} \subset \mathbb{G}$ a uniform randomly generated set of generators of $\mathbb{G}$. Then \textbf{Pedersen’s hash function} 
+$$
+H : \left(\F_r\right)^k \to \mathbb{G}
+$$
+is defined for any message $M = (M_1,\ldots,M_k)\in \F_r \times \cdots \times \F_r$, 
+by $H(M) =\Pi_{j=1}^k [M_j]g_j$.
+\end{definition}
+SIMPLE WORD DESCRIPTION
+\begin{remark} Of course Pedersen's hash function can be combined with a hash-to-field function as described in XXX to give a function that maps ordinary bit strings to group points. However
+for this function to be secure, it is necessary to proof that there is no known discrete log relations between the elements of the generator set.
+
+It can be shown that collision resistance is equivalent to the hardness of the discrete log problem XXX.
+\end{remark}
+\begin{example}
+
+\end{example}
+\paragraph{Posaidon Hashes}
+\subsection{Special Functions}
+\begin{theorem}[Pseudo-Randomness in cyclic groups]
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
+Let $\mathbb{G}$ be a cyclic group of order $r$, such that DDT is hard in $\mathbb{G}$, let $g$ be a generator and $\{a_0,a_1,\ldots,a_n\}\subset \F_{r}^*$ a uniform randomly generated set of invertible field elements, from the scalar field of $\mathbb{G}$. Then the function
+$$
+H: \{0,1\}^n \to \mathbb{G}
+$$
+defined for any binary string $s=(s_1,\ldots,s_n)$ by $H(s)= [a_0\cdot \Pi_{j=1}^n a_j^{s_j}]g$
+is a pseudo-random function.
+\end{theorem}
+
+
 \section{Commutative Rings}
 Thinking of integers again, we know, that there are actually two operations addition and multiplication and as we know addition defines a group structure on the set of integers. However multiplication does not define a group structure as we know that integers in general don't have multiplicative inverses.
 

@@ -863,6 +863,10 @@ So adding a curve point to its inverse gives the neutral element, as expected. A
 %\end{example}
 \section{Elliptic Curves Pairings} As we have seen in XXX abstractly, sometimes groups comes with the notation of a so called pairing map, which is a non-degenerate bilinar map, from two groups into another group.
 
+In this section, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
+
+We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
+
 Elliptic curves have a few structures, like the Weil or the Tate map, that qualifies as pairing.   
 
 \paragraph{Embedding Degrees}In this book we are in particular interested in so called pairing friendly elliptic curves. 
@@ -1170,19 +1174,26 @@ In real world application of pairing friendly elliptic curves, the embedding deg
 \begin{example}Consider curve $E_1(\F_5)$ from example XXX. Since the only prime factor of the groups order is $3$ we can not compute the Weil pairing on this group using our definition of Miller's algorithm. In fact since $\G_1$ is of order $3$, executing the if statement on line XXX will lead to a division by zero error in the computation of the slope $m$.
 \end{example}
 \begin{example} Consider the tiny-jubjub curve $\mathit{TJJ\_13}(\F_{13})$ from example XXX again. We want to instantiate the general definition of the Weil pairing for this example. To do so, recall that we have see in example XXX, its embedding degree is $4$ and that we have the following type-3 pairing groups:
-$$
-\begin{array}{lcr}
-\G_1 = \{\Oinf, (7,2), (8,8), (8,5), (7,11)\} & \text{ and } &
-\G_2 = \{\Oinf, (9t^2 + 7,t^3 + 11t, ), (9t^2 + 7, 12t^3 + 2t), 
+\begin{align*}
+\G_1 & = \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}\\
+\G_2 & = \{\Oinf, (9t^2 + 7,t^3 + 11t), (9t^2 + 7, 12t^3 + 2t), 
 (4t^2 + 7, 5t^3 + 10t), (4t^2 + 7, 8t^33 + 3t)\}
+\end{align*}
+where $\G_1$ and $\G_2$ are subgroups of the full $5$-torsion found in the curve $\mathit{TJJ\_13}(\F_{13^4})$. The type-3 Weil pairing is a map $e(\cdot,\cdot): \G_1 \times \G_2 \to \F_{13^4}$. From the first if-statement in Miller's algorithm, we can deduce that 
+$e(\Oinf,Q)=1$ as well as $e(P,\Oinf)=1$ for all arguments $P\in\G_1$ and $Q\in \G_2$. So in order to compute a non-trivial Weil pairing we choose the arguments 
+$P=(7,2)$ and $Q=(9t^2 + 7, 12t^3 + 2t)$. 
+
+In order to compute the pairing $e((7,2),(9t^2 + 7, 12t^3 + 2t))$ we have to compute the extension field elements $f_{5,P}(Q)$ and $f_{5,Q}(P)$ applying Miller's algorithm. Do do so first observe that we have $5 = 1\cdot 2^0 + 0 \cdot 2^1 + 1\cdot 2^2$, so we get $t=2$ as well as $b_0=1$, $b_1=0$ and $b_2=1$. The loop therefore needs to be executed two times. 
+
+Computing $f_{5,P}(Q)$, we initiate $(x_T,y_T) = (7,2)$ as well as $f_1=1$ and $f_2=1$. Then 
+$$
+\begin{array}{l|l|lllllll}
+j & b_j & m & f_1 & f_2 & x_{2T} & y_{2T} & x_{T+P} & y_{T+P}\\
+\hline\\
+1 & \cdot & 
 \end{array}
 $$
-where $\G_1$ and $\G_2$ are subgroups of the full $5$-torsion found in the curve $\mathit{TJJ\_13}(\F_{13})$. The type-3 Weil pairing is a map $e(\cdot,\cdot): \G_1 \times \G_2 \to \F_{5^2}$. From the first if-statement in Miller's algorithm, we can deduce that 
-$e(\Oinf,Q)=1$ as well as $e(P,\Oinf)=1$ for all arguments $P\in\G_1$ and $Q\in \G_2$. So in order to compute a non-trivial Weil pairing we choose the arguments 
-$P=(2,4)$ and $Q=(1,t)$. 
 
-In order to compute the pairing $e((2,4),(1,t))$ we have to compute the extension field elements $f_{3,P}(Q)$ and $f_{3,Q}(P)$ applying Miller's algorithm. Do do so first observe that we have $3 = 1\cdot 2^0 + 1 \cdot 2^0$, so we get $t=1$ as well as $b_0=1$ and $b_1=1$. The loop therefore only needs to be executed a single time. 
-We initiate $(x_T,y_T) = (2,4)$ as well as $f_1=1$ and $f_2=1$. Then 
 \begin{align*}
 m & = \frac{3\cdot x_T^2 +a}{2\cdot y_T}\\
   & = \frac{3\cdot 2^2 +1}{2\cdot 4}
@@ -1596,23 +1607,8 @@ which we might call secp256k1. As we have seen the complex multiplication method
 %\section{twists}
 %I think this hax to wait for Volume 2, due to timing constraints...
 
-\section{Pairings}
-In this section, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
+\section{Hashing to Curves} 
 
-We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
-
-\subsection{Hashing to Curve}
-In various cryptographic primitives the ability to generate elliptic curve points from binary strings that have properties similar to those of cryptographically secure hash functions is desireable. We call this hash-to-curve.
-
-Of particular interest are constructions, that not only hash to curve points, but where the images have spacial properties, like being in the pairing groupd $\mathbb{G}_1$ or $\mathbb{G}_2$.
-
-Thinking about hashing to curves and hashing to certain subgroups in particular maybe the most obvious thing that comes to mind, is to simply hash to the scalar field of the eliptic curve and then use a generator of the subgroup taget and multiply the generator with the hash value in that scalar field. The result is a valid curve point that is guranteed to be in the desired subgroup. 
-
-To be more precise given an elliptic curve $E/\F$, a subgroup $\mathbb{G}$ of $E$ of order $r$, a generator $g$ of $\mathbb{G}$, a bit-string $s$ and a hash function $H: \{0,1\}^* \to \F_{r}$, then $[H(s)]g$ is an element of $\mathbb{G}$ and hence $H':  \{0,1\}^* \to \mathbb{G}$ with $H'(s):= [H(s)]g$ is a hash function. 
-
-This naive approach however is almost never adequate in cryptographic applications as a discrete log relation is always know between any two given hash value $H'(s)$ and $H'(t)$. In fact for $H(s)\neq 0$, we can define $x= H(t)/H(s)$ and then have $[x]H'(s)=H'(t)$.
-
-So we need a different approach:
 \paragraph{Try and increment hash functions}
 One of the most straight forward ways to hash a bitstring onto an eliptic curve point, in a  secure way, is to use a cryptographic hash function together with one of the methods we described in XXX to hash to the base field of the curve. Ideally the hash function generates an image that is at least one bit longer then the bit representation of the base field modulus.
 
@@ -1642,37 +1638,6 @@ First generic try and increment can be used, followed by a cofactor clearing ste
 Second, the try step not only checks if the curve point actually exists, but also if it is a point in $\mathbb{G}_1$. If its not then the increment step is executed until a valid point is found. This is possible in most applications, since $\mathbb{G}_1$ is usually the by fare largest subgroup in $E$ and the probability to find a point in it is large.
 
 The situation for $\mathbb{G}_2$ as defined in XXX is different and the try and increment method usually fails to find hash values in $\mathbb{G}_2$. For once $\mathbb{G}_2$ is defined in $E$ over an extension field, not the prime field itself, so hashing to $\F$ must be extended into a hash to the extension field. This is possible, but not desireable ventually, because even if we find valid curve points in the curve, $\mathbb{G}_2$. We therefore need different approaches for hashing into $\mathbb{G}_2$
-
-\paragraph{Pederson Hashes}
-% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
-\begin{definition}[Pedersen's Hash function]
-Let $\mathbb{G}$ be a cyclic group of order $r$ and $\{g_1, \ldots, g_k\} \subset \mathbb{G}$ a uniform randomly generated set of generators of $\mathbb{G}$. Then \textbf{Pedersen’s hash function} 
-$$
-H : \left(\F_r\right)^k \to \mathbb{G}
-$$
-is defined for any message $M = (M_1,\ldots,M_k)\in \F_r \times \cdots \times \F_r$, 
-by $H(M) =\Pi_{j=1}^k [M_j]g_j$.
-\end{definition}
-SIMPLE WORD DESCRIPTION
-\begin{remark} Of course Pedersen's hash function can be combined with a hash-to-field function as described in XXX to give a function that maps ordinary bit strings to group points. However
-for this function to be secure, it is necessary to proof that there is no known discrete log relations between the elements of the generator set.
-
-It can be shown that collision resistance is equivalent to the hardness of the discrete log problem XXX.
-\end{remark}
-\begin{example}
-
-\end{example}
-\paragraph{Posaidon Hashes}
-\subsection{Special Functions}
-\begin{theorem}[Pseudo-Randomness in cyclic groups]
-% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
-Let $\mathbb{G}$ be a cyclic group of order $r$, such that DDT is hard in $\mathbb{G}$, let $g$ be a generator and $\{a_0,a_1,\ldots,a_n\}\subset \F_{r}^*$ a uniform randomly generated set of invertible field elements, from the scalar field of $\mathbb{G}$. Then the function
-$$
-H: \{0,1\}^n \to \mathbb{G}
-$$
-defined for any binary string $s=(s_1,\ldots,s_n)$ by $H(s)= [a_0\cdot \Pi_{j=1}^n a_j^{s_j}]g$
-is a pseudo-random function.
-\end{theorem}
 
 
 \section{Classes of elliptic curves}
