@@ -249,6 +249,7 @@ From the CDH-A various variations and specializations are known. For example the
 \paragraph{Cofactor Clearing}
 TODO: (theorem: every factor of order defines a subgroup...)
 \subsection{Hashing to Groups}
+% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
 \paragraph{Hash functions} Generally speaking, a hash function is any function that can be used to map data of arbitrary size to fixed-size values. Since binary strings of arbitrary length are a general way to represent arbitrary data, we can understand a general \textbf{hash function} as a map 
 \begin{equation}
 H: \{0,1\}^* \to \{0,1\}^k
@@ -315,39 +316,94 @@ H : \{0,1\}^* \to \G
 Common properties of hash functions, like uniformity are desireable but not always realized in actual real world instantiations of hash-to-group functions, so we skip those requirements for now and keep the definition very general.
 
 As the following example shows hashing to finite cyclic groups can be trivially achieved for the price of some undesireable properties of the hash function:
-\begin{example}[Naive cyclic group hash] Let $\G$ be a finite cyclic group. If the task is to implement a hash-to-$\G$ function, one immediate approach might be the following:
+\begin{example}[Naive cyclic group hash] Let $\G$ be a finite cyclic group. If the task is to implement a hash-to-$\G$ function, one immediate approach can be based on the observation that binary strings of size $k$, can be interpreted as integers $z\in\Z$ in the range $0\leq z < 2^k$. 
 
-Choose an ordinary hash function $H:\{0,1\}^*\to \{0,1\}^k$ for some parameter $k$
-and interpret the image $H(s)$ as the binary representation of an integer, that is consider $H(s)\in \Z$. Then choose a generator $g$ of $\G$ and define the new hash-to-$\G$ function as a concatenation of the exponential map $g^{(\cdot)}$ of $g$ with the hash function $H$, that is define the new hash-to-$\G$ function as
+To be more precise, choose an ordinary hash function $H:\{0,1\}^*\to \{0,1\}^k$ for some parameter $k$ and a generator $g$ of $\G$. Then the expression
 $$
-H_{g} : \{0,1\}^* \to \G:\; s \mapsto g^{H(s)} 
+z_{H(s)}= H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_k \cdot 2^k
+$$
+is a positive integer, where $H(s)_j$ means the bit at the $j$-th position of $H(s)$. A hash-to-group function for the group $\G$ can then be defined as a concatenation of the exponential map $g^{(\cdot)}$ of $g$ with the interpretation of $H(s)$ as an integer: 
+$$
+H_{g} : \{0,1\}^* \to \G:\; s \mapsto g^{z_{H(s)}} 
 $$
 Constructing a hash-to-group function like this is easy to implement for cyclic groups and might be good enough in certain applications. It is however almost never adequate in cryptographic applications as discrete log relations might be constructible between two given hash value $H_g(s)$ and $H_g(t)$. 
 
-To see that, assume that $\G$ is of order $r$ and that $H(s)\in\Z_r$ has a multiplicative inverse in modular $r$ arithmetics. In that case we can compute $x=H(t)\cdot H(s)^{-1}$ and have found a discrete log relation between the group hash value, that is some $x$ with $H_g(t) = (H_g(s))^x$ since
+To see that, assume that $\G$ is of order $r$ and that $z_{H(s)}$ has a multiplicative inverse in modular $r$ arithmetics. In that case we can compute $x=z_{H(t)}\cdot z_{H(s)}^{-1}$ in $\Z_r$ and have found a discrete log relation between the group hash values, that is we have found some $x$ with $H_g(t) = (H_g(s))^x$ since
 \begin{align*}
 H_g(t) & = (H_g(s))^x & \Leftrightarrow \\
-g^{H(t)} & = g^{H(s)\cdot x} & \Leftrightarrow \\
-g^{H(t)} & = g^{H(t)}
+g^{z_{H(t)}} & = g^{z_{H(s)}\cdot x} & \Leftrightarrow \\
+g^{z_{H(t)}} & = g^{z_{H(t)}}
 \end{align*}
 \end{example}
-Applications where discrete log relations between hash values are undesireable therefore need different approaches and many of those approaches start with a way to hash into the sets $\Z_n$ of modular $n$ arithmetics. 
-\paragraph{Hashing into modular arithmetics} One of the most widely used applications of hash-into-group functions are hash functions that map into the set $\Z_n$ of modular $n$ arithmetics for some modulus $n$. Different approaches to construct such a function are known, but but probably the two most used are based on the insight that the images of arbitrary hash functions can be interpreted as binary representations of integers.
+Applications where discrete log relations between hash values are undesireable therefore need different approaches and many of those approaches start with a way to hash into the sets $\Z_r$ of modular $r$ arithmetics. 
+\paragraph{Hashing to modular arithmetics} One of the most widely used applications of hash-into-group functions are hash functions that map into the set $\Z_r$ of modular $r$ arithmetics for some modulus $r$. Different approaches to construct such a function are known, but probably the most used once are based on the insight that the images of arbitrary hash functions can be interpreted as binary representations of integers as explained in example XXX.
 
-The first method of hashing into $\Z_n$ is constructed by observing, that if $n$ is a modulus, with a bit-length of $k$, then every binary string $(b_0,b_1,\ldots,b_{k-1})$ of length $k-1$ can be interpreted as an element $x\in\Z_n$, by defining
+From this interpretation follows that one simple method of hashing into $\Z_r$ is constructed by observing, that if $r$ is a modulus, with a bit-length of $k=r.nbits()$, then every binary string $(b_0,b_1,\ldots,b_{k-2})$ of length $k-1$ defines an integer $z$ in the rage $0\leq z < 2^{k-1}\leq r $, by defining
 \begin{equation}
-x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{k-1}\cdot 2^{k-1}
-\end{equation} 
-since by construction $x$ is always smaller then $n$ and hence $x\in\{0,1,\ldots,n-1\}$. From this follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-group function can be constructed by
+z = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{k-2}\cdot 2^{k-2}
+\end{equation}
+Now since $z<r$, we know that $z$ is guranteed to be in the set $\{0,1,\ldots,r-1\}$ and hence can be interpreted as an element of $\Z_r$. From this follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-group function can be constructed by
 \begin{equation}
-H_{Z_n}: \{0,1\}^* \to \Z_n: \; s \mapsto 
-H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k-1}
+H_{r.nbits()-1}: \{0,1\}^* \to \Z_r: \; s \mapsto 
+H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-2}\cdot 2^{k-2}
 \end{equation}
 where $H(s)_j$ means the $j$'s bit of the image binary string $H(s)$ of the original binary hash function. 
 
-A drawback of this hash function is that the distribution of the hash values in $\Z_n$ is not even. In fact if $n-2^{k-1}\neq 0$, then by design the function will never hash onto values larger then $2^{k-1}$. An advantage is that potential properties like preimage or collision resistence of the original hash function $H(\cdot)$ are preserved. 
+A drawback of this hash function is that the distribution of the hash values in $\Z_r$ is not necessarily uniform. In fact if $r-2^{k-1}\neq 0$, then by design $H_{r.nbits()-1}$ will never hash onto values $z\geq 2^{k-1}$. Good moduli $r$ are therefore as close to $2^{k-1}$ as possible, why less good moduli are closer to $2^k$. In the worst case, that is $r=2^k-1$, it misses $2^{k-1}-1$, that is almost half of all elements, from $\Z_r$.
+% TODO: DOUBLE CHECK THIS REASONING.
 
-Despite the fact that distribution is not even, it is sometimes used in applications. The reasoning is, that if $k$ is a cryptographically reasonable number like $128$ or larger, the number of elements $n-2^{k-1}$ that the hash function misses, is tiny compared to the numbers that it hashes to and the loss in security is only a single bit.
+An advantage is that properties like preimage or collision resistence of the original hash function $H(\cdot)$ are preserved.
+\begin{example} To give an implementation of the $H_{r.nbits()-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from example XXX and define a hash into $\Z_{16}$ by
+$$
+H_{16.nbits()-1}: \{0,1\}^* \to \Z_{16}:\; s\mapsto
+SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_4\cdot 2^4 
+$$
+Since $k=16.nbits()=5$ and $16-2^{k-1}=0$ this hash maps uniformly onto $\Z_{16}$. We can invoke sage to implement it e.g. like this:
+\begin{sagecommandline}
+sage: import Crypto 
+sage: from Crypto.Hash import SHA256
+sage: def Hash5(x):
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
+....:     d = d.str(2)[-4:]
+....:     return ZZ(d, base=2)
+sage: Hash5('')
+\end{sagecommandline}
+We can then use sage to apply this function to a large set of input values in order to plot a visualization of the distribution over the set $\{0,\ldots,15\}$. Executing over $500$ input values gives:
+\begin{sagesilent}
+H1 = list_plot([Hash5(ZZ(i).str(2)) for i in range(500)])
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{H1} 
+\end{center}
+To get an intuition of uniformity, we can count the number of times the hash function $H_{16.nbits()-1}$ maps onto each number in the set $\{0,1,\ldots,15\}$ in a loop of $100000$ hashes and compare that to the ideal uniform distribution, which would map exactly 6250 samples to each element. This gives the following result:
+\begin{sagesilent}
+arr = []
+arr = [0 for i in range(16)]
+for i in range(100000):
+    arr[Hash5(ZZ(i).str(2))] +=1
+H2 = list_plot(arr, ymin=0,ymax=10000)
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{H2} 
+\end{center}
+The uniformity of the distribution problem becomes apparent if we want to construcht a similar hash function for $\Z_r$ for any $r$ in the range $17\leq r \leq 31$. In this case the definition of the hash function is exactly the same as for $\Z_{16}$ and hence the images will not exceed the value $16$. So for example in case of hashing to $\Z_{31}$ the hash function never maps to any value larger then $16$, leaving almost half of all numbers out of the image range.
+\begin{sagesilent}
+arr = []
+arr = [0 for i in range(31)]
+for i in range(100000):
+    arr[Hash5(ZZ(i).str(2))] +=1
+H3 = list_plot(arr, ymin=0,ymax=10000)
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{H3} 
+\end{center}
+\end{example}
+% We can do better thn this
+ 
+
+
 
 The second widely used method of hashing into $\Z_n$ is constructed by observing, that if $n$ is a modulus, with a bit-length of $k_1$ and $H:\{0,1\}^*\to {0,1}^{k_2}$ is a hash function that produces digests of size $k_2$, with $k_2>k_1$, then a hash-to-group function can be constructed by interpreting the image of $H$ as binary representation of a integer and then take the modulus by $n$ to map into $\Z_n$. To be more precise 
 \begin{equation}
@@ -388,36 +444,46 @@ If $k$ is suficiently large, the probability for $x<n$ is very high and the repe
 
 Once some hash function into modular arithmetics is found it can often be combined with additional techniques to hash into more general finite cyclif groups. The following paragraphs describes a few of thos methods widely adopted in snark development.
 \paragraph{Pederson Hashes}
+% T. P. Pedersen. “Non-interactive and information-theoretic secure verifiable secret shar- ing”. In: Annual International Cryptology Conference. Springer. 1991, pp. 129–140.
 % https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
-\begin{definition}[Pedersen's Hash function]
-Let $\mathbb{G}$ be a cyclic group of order $r$ and $\{g_1, \ldots, g_k\} \subset \mathbb{G}$ a uniform randomly generated set of generators of $\mathbb{G}$. Then \textbf{Pedersen’s hash function} 
-$$
-H : \left(\F_r\right)^k \to \mathbb{G}
-$$
-is defined for any message $M = (M_1,\ldots,M_k)\in \F_r \times \cdots \times \F_r$, 
-by $H(M) =\Pi_{j=1}^k [M_j]g_j$.
-\end{definition}
-SIMPLE WORD DESCRIPTION
-\begin{remark} Of course Pedersen's hash function can be combined with a hash-to-field function as described in XXX to give a function that maps ordinary bit strings to group points. However
-for this function to be secure, it is necessary to proof that there is no known discrete log relations between the elements of the generator set.
+The so called \textbf{Pedersen hash function} provides a way to map binary inputs of fixed size $k$ onto elements of finite cyclic groups, that avoids discrete log relations between the images as they occure in the naive approach XXX. Combining it with a classical hash function provides a hash function that maps strings of arbitrary lenth onto group elements. 
 
-It can be shown that collision resistance is equivalent to the hardness of the discrete log problem XXX.
-\end{remark}
-\begin{example}
+To be more pecise, let $j$ be an integer, $\G$ a finite cyclic group of order $r$ and $\{g_1, \ldots, g_j\} \subset \G$ a uniform randomly generated set of generators of $\G$. Then \textbf{Pedersen’s hash function} is defined as
+\begin{equation}
+H_{Ped} : \left(\Z_r\right)^j \to \G:\; (x_1,\ldots,x_j)\mapsto \Pi_{i=1}^j g_j^{x_j}
+\end{equation}
+It can be shown, that Pedersen’s  hash  function  is  collision-resistant under the assumption that $\G$ is a DL-A group. However it is important to note, that Pedersen hashes cannot be assumed to be pseudorandom and should therefore not be used where a hash function serves as an approximation of a random oracle.
 
-\end{example}
-\paragraph{Posaidon Hashes}
-\subsection{Special Functions}
-\begin{theorem}[Pseudo-Randomness in cyclic groups]
-% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
-Let $\mathbb{G}$ be a cyclic group of order $r$, such that DDT is hard in $\mathbb{G}$, let $g$ be a generator and $\{a_0,a_1,\ldots,a_n\}\subset \F_{r}^*$ a uniform randomly generated set of invertible field elements, from the scalar field of $\mathbb{G}$. Then the function
-$$
-H: \{0,1\}^n \to \mathbb{G}
-$$
-defined for any binary string $s=(s_1,\ldots,s_n)$ by $H(s)= [a_0\cdot \Pi_{j=1}^n a_j^{s_j}]g$
-is a pseudo-random function.
-\end{theorem}
+From an implementation perspective, it is important to derive the set of generators $\{g_1,\ldots,g_j\}$ in such a way that they are as uniform and random as possible. In particular any known discrete log relation between two generators, that is, any known $x\in \Z_r$ with $g_h = (g_i)^x$ must be avoided.
 
+To see how Pedersen hashes can be used to define an actual hash-to-group function according to our definition, we can use any of the hash-to-$\Z_r$ functions as we have derived them in XXX. 
+%\begin{example} In this example, let $\G$ be a finite cyclic group of order $r$ and $\{g_1,\ldots,g_j\}$ a set of uniformly and randomly sampled set of generators of $\G$. To instantiate a Pedersen hash in combination with a hash-to-group function $H_{mod_r}$ as defined in XXX, let $k$ be the bit-length of the group order $r$ and $H:\{0,1\}^*\to \{0,1\}^{j\cdot k}$ some general hash function.
+
+\paragraph{MimC Hashes}
+% https://eprint.iacr.org/2016/492
+\paragraph{Pseudo Random Functions in DDH-A groups}
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf 
+As noted in XXX, Pederson's hash function does not have the properties a random function and should therefore not be instantiated as such. To look at a construction that serves as random oracle function in groups where the dicisional Diffi-Hellman construction is assumed to hold true let $\G$ be a DDH-A group of order $r$ with generator $g$ and $\{a_0,a_1,\ldots,a_k\}\subset \Z_{r}^*$ a uniform randomly generated set of numbers invertible in modular $r$ arithmetics. Then a pseudo-random function is given by
+\begin{equation}
+F_{rand}: \{0,1\}^{k+1} \to \G:\; (b_0,\ldots,b_k)\mapsto g^{b_0\cdot \Pi_{i=1}^k a_i^{b_i}}
+\end{equation}
+Of course if $H:\{0,1\}^*\to \{0,1\}^{k+1}$ is a random oracle, then the concation of $F_{rand}$ and $H$, defines a random oracle 
+\begin{equation}
+H_{rand,\G}:\{0,1\}^* \to \G:\; s\mapsto F_{rand}(H(s))
+\end{equation}
+
+%\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
+%Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
+%$$\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}$$
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
+%\end{example}
+
+%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
+
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.
+
+%As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
+%\end{example}
 
 \section{Commutative Rings}
 Thinking of integers again, we know, that there are actually two operations addition and multiplication and as we know addition defines a group structure on the set of integers. However multiplication does not define a group structure as we know that integers in general don't have multiplicative inverses.
@@ -524,6 +590,7 @@ and on the other hand we can use the right hand side of equation to evaluate $p$
          &= 2
 \end{align*}
 \end{example}
+\paragraph{Hashing to Commutative Rings} As we have seen in XXX various constructions for hashing-to-groups are known and used in applications. As commutative rings are abelian groups, when we simply forget about the multiplicative structure, hash-to-group constructions can be applied for hashing into commutative rings, too. This is possible in general as the codomain of a general hash function $\{0,1\}^*$ is just the set of binary strings of arbitrary but finite lenth, which hash no algebraic structure that the hash function must respect.
 
 \section{Fields}
 In this chapter we started with the definition of a group, which we the expended into the definition of a commutative ring with unit. Those rings generalize the behaviour of integers. In this section we will look at the special case of commutative rings, where every element, other than the neutral element of addition, has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$, which are in a sense an extension of the ring of integers, that is constructed by just including newly defined multiplicative inverses (the fractions) to the integers.
@@ -711,8 +778,11 @@ $$
 %\end{definition}
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
-
 \paragraph{Exponentiation} TO APPEAR...
+\paragraph{Hashing into Prime fields} 
+An important problem in snark development is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are often defined over prime fields and hashing to a curve then might start with hashing to the prime field. It is therefore of importance to understand who to hash into prime fields.
+
+To understand it, note that in XXX we have looked at a few constructions of how to hash into the residue class rings $\Z_n$ for arbitrary $n>1$. As prime fiels are just special instances of those rings, all hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
 \paragraph{Extension Fields}
 % references https://blog.plover.com/math/se/finite-fields.html
 We defined prime fields in the previous section. They are the basic building blocks for cryptography in general and snarks in particular.
@@ -840,33 +910,7 @@ $$
 \begin{exercise} Show that the polynomial $P=x^3+x+1$ from $\F_5[x]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euklidean algorithm. Then find all $x\in\F_{5^3}$ that solve the  equation
 $$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
 \end{exercise}
-
-%\paragraph{Hash to Prime fields}
-% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
-%An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
-
-%In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$.
-
-%If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
-
-%For example in the extreme case $k=1$, $H$ only maps to $\{0,1\}\subset \F_q$. The best possible case is therefore $k=m-1$. In that case only the highest XXX numbers (DO THE COMPUTATION) are missing from the distribution.
-
-%On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
-
-%The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY).
-
-%\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
-%Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
-%$$\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}$$
-%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
-%\end{example}
-
-%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
-
-%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.
-
-%As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
-%\end{example}
+\paragraph{Hashing into extension fields} In XXX we have seen how to hash into prime fields. As elements of extension fields can be seen as polynomials over prime fields, hashing into extension fields is therefore possible, if every coefficient of the polynimial is hashed independently. 
 \section{Projective Planes}
 Projective planes are a certain type of geometry defined over some given field, that in a sense extend the concept of the ordinary Euclidean plane by including "points at infinity".
 

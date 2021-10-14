@@ -155,7 +155,7 @@ sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 291::
+Sage commandline, line 292::
 
 sage: import Crypto
 sage: from Crypto.Hash import SHA256
@@ -170,20 +170,32 @@ sage: d.str(16)
 sage: d.str(2)
 sage: d.str(10)
 
-Sage commandline, line 542::
+Sage commandline, line 362::
+
+sage: import Crypto
+sage: from Crypto.Hash import SHA256
+sage: def Hash5(x):
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
+....:     d = d.str(2)[-4:]
+....:     return ZZ(d, base=2)
+sage: Hash5('')
+
+Sage commandline, line 609::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 566::
+Sage commandline, line 633::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 820::
+Sage commandline, line 890::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
@@ -469,19 +481,6 @@ sage: p = 1157920892373161954235709850086879078532699846656405640394575840079088
 sage: F = GF(p)
 sage: j = F(1728)*((F(4)*F(0)^3)/(F(4)*F(0)^3+F(27)*F(7)^2))
 sage: j == F(0)
-
-Sage commandline, line 1362::
-
-sage: elliptic_j(CC(i))
-sage: # j-function only defined for positive imaginary arguments
-sage: try:
-....:     elliptic_j(CC(0))
-....: except PariError:
-....:     pass
-sage: # root at (-1+i)/2
-sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2)
-sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2).imag().round()
-sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2).real().round()
 
 Sage commandline, line 1531::
 
