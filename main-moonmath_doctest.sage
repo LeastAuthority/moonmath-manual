@@ -182,20 +182,33 @@ sage: def Hash5(x):
 ....:     return ZZ(d, base=2)
 sage: Hash5('')
 
-Sage commandline, line 609::
+Sage commandline, line 420::
+
+sage: import Crypto
+sage: from Crypto.Hash import SHA256
+sage: Z23 = Integers(23)
+sage: def Hash_mod23(x, k2):
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
+....:     d = d.str(2)[-k2:]
+....:     d = ZZ(d, base=2)
+....:     return Z23(d)
+
+Sage commandline, line 645::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 633::
+Sage commandline, line 669::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 890::
+Sage commandline, line 926::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
