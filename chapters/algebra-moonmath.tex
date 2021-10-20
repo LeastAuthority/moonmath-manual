@@ -140,15 +140,387 @@ Since the exponential map is a one-to-one correspondence, that respects the grou
 \begin{equation}
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
-which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time.
+which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time. We will look at this and similar problems in more detail in the next section.
+\subsection{Cryptographic Groups} In this section, we will look at families of groups, which are believed to satisfy certain so called \textit{computational hardness assumptions}, the latter of which is a term to express the hypothesis that a particular problem cannot be solved efficiently (where efficiently typically means "in polynomial time of a given security parameter") in the groups of consideration. 
+\begin{example} 
+To highlight the concept of a computational hardness assumption, consider the group of integers $\Z$ from example XXX. One of the best known and most researched examples of computational hardness is the assumption that the factorization of integers into prime numbers as explained in XXX can not be solved by any algorithm in polynomial time with respect to the bit-length of the integer.
 
-Now consider a finite cyclic group $\G$ of order $n$ and a generator $g$ of $\G$. The \textbf{discrete logarithm problem} is then the task, to find a solution $x\in\Z_n$, to the equation
+To be more precise the computational hardness assumption of integer factorization assumes that given any integer $z\in\Z$ with bit-length $b$, there is no integer $k$ and no algorithm with run time complexity $\mathcal{O}(b^k)$, that is able to find prime numbers $p_1, p_2,\ldots,p_j\in\Prim$, such that $z=p_1\cdot p_2\cdot \ldots\cdot p_j$. 
+
+Generally speaking, this hardness assumption was proven to be false, since Shor's algorithm shows that integer factorization is at least efficiently possible on a quantum computer, since the run time complexity of this algorithm is $\mathcal{O}(b^3)$. However no such algorithm is known on a classical computer.
+
+In the realm of classical computers however, we still have to call the non existence of such an algorithm an "assumption" because to date, there is no proof that it is actually impossible to find some. The problem is that it is hard to reason about algorithms that we don't know.
+
+So despite the fact that there is currently no know algorithm that can factor integers efficiently on a classical computer, we can not exclude that such an algorithm might exist in principal and someone eventually will discover it in the future.
+
+However what still makes the assumption plausible, despite the absense of any actual proof, is the fact that after decades of extensive search still no such algorithm has been found.
+\end{example}
+In what follows, we will describe a few computational hardness assumptions that arrise in the context of groups in cryptography, as we will need them throughout the book.
+\paragraph{The discret logarithm assumption} The so called discrete logarithm problem is one of the most fundamental assumptions in cryptography. To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$.  We know from XXX that there is a so called exponential map 
+$g^{(\cdot)}: \Z_r \to \G:\; x\mapsto g^x$, which maps the residue classes from module $r$ arithmetic onto the group in a $1:1$ correspondence. The \textbf{discrete logarithm problem} is then the task to find inverses to this map, that is, to find a solution $x\in\Z_r$, to the equation
 \begin{equation}
 h = g^x
 \end{equation}
-for some given $h\in\G$. In groups where the expontial map and the discrete logarithm map are believed to be examples of one way functions, it is computationally hard to find solutions to this equation.
+for some given $h\in\G$. The \textbf{discrete logarithm assumption (DL-A)} is then the assumption that there exists no algorithm with run time polynimial in the "security parameter $log_2(r)$, that is able to compute some $x$ if ony $h$, $g$ and $g^x$ are given in $\G$. If this is the case for $\G$ we call $\G$ a \textit{DL-A group}.
+
+Rephrasing the previous definition into simple words, DL-A groups are believed to have the property, that it is infeasible to compute some number $x$ that solves the equation $h=g^x$ for given $h$ and $g$, assuming that the size of the group $r$ is large enough.
+\begin{example}[Public key cryptography]
+One the most basic examples of an application for DL-A groups is in public key cryptography, where some pair $(\G,g)$ is publically agreed on, such that $\G$ is a finite cyclic group sufficiently large order $r$, where it is believed that the discrete logarithm assumption holds and $g$ is a generator of $\G$.
+
+In this setting a secret key is nothing but some number $sk\in \Z_r$ and the associated public key $pk$ is the group element $pk=g^{sk}$. Since discrete logarithms are assumed to be hard it is therefore infisible for an attacker to compute the secret key from the public key, since it is believed to be hard to find solutions $x$ to the equation 
+$$
+pk = g^{x}
+$$ 
+\end{example}
+As the previous example shows, it is an important practical problem to identify DL-A groups. Unfortunately it is easy to see, that it does not make sense to assume the hardness of the discrete logarithm problem in all finite cyclic groups. Counterexamples are common and easy to construct. 
+\begin{example}[Modular arithmetics for Fermat's primes] It is widely believed that the discrete logarithm problem is hard in multiplicative groups $\Z_p^*$ of prime number modular arithmetics. However this is not true in general. To see that consider any so called Fermat's prime, which is a prime number $p\in\Prim$, such that $p=2^n+1$ for some number $n$.
+
+We know from XXX, that in this case $\Z_p^* = \{1,2,\ldots, p-1\}$ is group with respect to integer multiplication in modular $p$ arithmetics and since $p=2^n+1$, the order of $\Z_p^*$ is $2^n$, which implies that the associated security parameter is given by $log_2(2^n)=n$.
+
+We show that in this case $\Z_p^*$ is not a DL-A group, by constructing an algorithm, which is able compute some $x\in\Z_{2^n}$ for any given generator $g$ and arbitry element $h$ of $\F_p^*$, such that
+$$
+h = g^x
+$$
+holds and the run time complexity of the constrcted algorithm is $\mathcal{O}(n^2)$, which is quadratic in the security parameter $n=log_2(2^n)$.  
+
+To define such an algorithm, lets assume that the generator $g$ is a public constant and that a group element $h$ is given. Our task is to compute $x$ efficiently. 
+
+A first thing to note is that since $x$ is a number in modular $2^n$ aithmetic, we can write the binary representation of $x$ as
+$$
+x = c_0\cdot 2^0 + c_1\cdot 2^1 + \cdots + c_n \cdot 2^n
+$$
+with binary coefficients $c_j\in\{0,1\}$. In particular $x$ as an $n$-bit number, if interpreted as an integer. 
+
+We then use this representation to construct an algorithm that computes the bits $c_j$ one after another, starting at $c_0$. To see how this can be achieved, observe that we can determine $c_0$ by raising the input $h$ to the power of $2^{n-1}$ in $\F_p^*$. We use the exponential laws and compute 
+\begin{align*}
+h^{2^{n-1}} & = \left(g^x\right)^{2^{n-1}}\\
+            & = \left(g^{c_0\cdot 2^0 + c_1\cdot 2^1 + \ldots + c_n\cdot 2^n}\right)^{2^{n-1}}\\
+            & = g^{c_0\cdot 2^{n-1}}\cdot g^{c_1\cdot 2^1\cdot 2^{n-1}} \cdot 
+            g^{c_2\cdot 2^2\cdot 2^{n-1}} \cdots g^{c_n\cdot 2^n\cdot 2^{n-1}}\\
+            & = g^{c_0 2^{n-1}}\cdot g^{c_1\cdot 2^0\cdot 2^{n}} \cdot
+            g^{c_2\cdot 2^1\cdot 2^{n}} \cdots g^{c_n\cdot 2^{n-1}\cdot 2^{n}}
+\end{align*}
+Now since $g$ is a generator and $\F_p^*$ is cyclic of order $2^n$, we know $g^{2^n}=1$ and therefore $g^{k\cdot 2^n}= 1^k=1$. From this follows that all but the first factor in the last expressen are equal to $1$ and we can simplify the expression into
+$$
+h^{2^{n-1}} = g^{c_0 2^{n-1}}
+$$ 
+Now in case $c_0=0$, we get $h^{2^{n-1}} = g^0=1$ and in case $c_0=1$ we get 
+$h^{2^{n-1}} = g^{2^{n-1}}\neq 1$ (To see that $g^{2^{n-1}}\neq 1$, recall that $g$ is a generator of $\F_p^*$ and hence is cyclic of order $2^n$, which implies $g^y\neq 1$ for all $y<2^n$).
+
+So raising $h$ to the power of $2^{n-1}$ determines $c_0$ and we can apply the same reasoning to the coefficient $c_1$ by raising $h\cdot g^{-c_0\cdot 2^0}$ to the power of $2^{n-2}$. This approach can then be repeated until all the coefficients $c_j$ of $x$ are found.
+
+Assuming that exponentiation in $\F_p^*$ can be done in logarithmic run time complexity $log(p)$, it follows that our algorithm has a run time complexity of 
+$\mathcal{O}(log^2(p))=\mathcal{O}(n^2)$, since we have to execute $n$ exponentiations to determine the $n$ binary coefficients of $x$. 
+
+From this follows that whenever $p$ is a Fermat's prime, the discrete logarithm assumption does not hold in $F_p^*$.
+\end{example}
+\paragraph{The decisional Diffi Hellman assumption}
+To describe the decisional Diffie–Hellman assumption , let $\G$ be a finite cyclic group od order $r$ and let $g$ be a generator of $\G$. The DDH assumption then assumes that there is no algorithm that has a run time complexity polynomial in the security parameter $s= log(r)$, that is able to distiguish the so called DDH-tripple $(g^a,g^b, g^{ab})$ from any tripple $(g^a,g^b,g^c)$ for randomly and independently choosen parameters $a,b,c\in \Z_r$. If this is the case for $\G$ we call $\G$ a DDH-A group.
+
+It is easy to see that DDH-A is a stronger assumption then DL-A, in the sense that the discrete logarithm assumption is neccessary for the dicisional Diffi Hellman assumption to hold, but not the other way around. 
+
+To see why, assume that the discrete logarithm assumption does not hold. In that case given a genrator $g$ and a group element $h$, it is easy to compute some residue class $x\in\Z_p$ with $h=g^x$. Then the dicisional Diffi-Hellman assumption could not hold, since given some tripple ($ g^a , g^b , z )$, one could efficiently decide whether $z = g^{ab}$ by first computing the discrete logarithm $b$ of  $g^b$, then compute $g^{ab}= (g^a)^b$ and decide whether or not $z=g^{ab}$.
+
+On the other hand, the following example shows, that there are groups where the discrete logarithm assumption holds but the decisional Diffi Hellman assumption does not hold:
+\begin{example}[Efficiently computable pairings] Let $\G$ be a finite, cyclic group of order $r$ with generator $g$, such that the discrete logarithm assumtion holds and such that there is a pairing map $e(\cdot,\cdot): \G \times \G \to \G_T$ for some target group $\G_T$ that is computable in polynomial time of the parameter $log(r)$. 
+
+In a setting like this it is easy to show that DDH-A can not hold, since given some tripple ($ g^a , g^b , z )$, it is possible to decide in polynomial times w.r.t $log(r)$ whether $z=g^{ab}$ or not. To see that check 
+$$
+e(g^a,g^b)=e(g,z)
+$$Since the bilinierity properties of $e(\cdot,\cdot)$ imply $e(g^a,g^b)= e(g,g)^{ab}= e(g,g^{ab})$ and $e(g,y)=e(g,y')$ implies $y=y'$ due to the non degeneray property, the equality decides $z=e^{ab}$.
+\end{example} 
+It follows that DDH-A is indeed weaker then DL-A and groups with efficient pairings can not be DDH-A groups. As the following example shows, another important class of groups, where DDH-A does not hold are the multiplicative groups of prime number residue classes.
+\begin{example}Let $p$ be a prime number and $\Z_p^*=\{1,2,\ldots,p-1\}$ the multiplicative group of modular $p$ arithmetics as in example XXX. As we have seen in XXX, this group is finite and cyclic of order $p-1$ and every element $g\neq 1$ is a generator.
+
+To see that $\F_p^*$ can not be a DDH-A group recall from XXX that the Legendre symbol $\left(\frac{x}{p}\right)$ of any $x\in \F_p^*$ is efficiently computable by Euler's formular. But the  Legendre symbol of $g^{a}$ reveals if $a$ is even or odd. Given $g^{a}$, $g^{b}$ and $g^{ab}$, one can thus efficiently compute and compare the least significant bit of $a$, $b$ and $a b$, respectively, which provides a probabilistic method to distinguish $g^{ab}$ from a random group element $g^c$. 
+\end{example}
+\paragraph{The computational Diffi Hellman assumption}
+To describe the computational Diffie-Hellman assumption, let $\G$ be a finite cyclic group od order $r$ and let $g$ be a generator of $\G$. The computational Diffi-Hellman assumption, then assumes that given randomly and independently choosen residue classes $a,b\in\Z_r$, it is not possible to compute $g^{ab}$ if only $g$, $g^a$ and $g^b$ (but not $a$ and $b$) are known. If this is the case for $\G$ we call $\G$ a CDH-A group.
+
+In general it is not know if CDH-A is a stronger assumption then DL-A, or if both assumptions are equivalent. It is known that DL-A is necessary for CDH-A but the other direction is currently not well understood. In particular there are no groups known where DL-A holds but CDH-A does not hold.
+% https://web.stanford.edu/class/cs259c/finalpapers/dlp-cdh.pdf
+
+To see why the discrete logarithm assumption is necessary, assume that it does not hold. So given a genrator $g$ and a group element $h$, it is easy to compute some residue class $x\in\Z_p$ with $h=g^x$. In that case the computational Diffi-Hellman assumption can not hold, since given $g$, $g^a$ and $g^b$, one can efficiently compute $b$ and hence is able to compute $g^{ab}=(g^a)^b$ from this data.
+
+The computational Diffi-Hellman assumption is a weaker assumption then the decisional Diffi Hellman assumption, which means that there are groups where CDH-A holds and DDH-A does not holdm while there can not be groups such that DDH-A holds but CDH-A does not hold. To see that assume that it is efficiently possible to compute $g^{ab}$ from $g$, $g^a$ and $g^b$. Then, given $(g^a,g^b,z)$ it is of course easy to decide if $z=g^{ab}$ or not. 
+
+From the CDH-A various variations and specializations are known. For example the so called \textit{square computational Diffi Hellman assumption} asumes, that given $g$ and $g^x$ it is computationally hard to compute $g^{x^2}$ while the so called \textit{inverse computational Diffi Hellman assumption} asumes, that given $g$ and $g^x$ it is computationally hard to compute $g^{x^{-1}}$. 
+
 \paragraph{Cofactor Clearing}
 TODO: (theorem: every factor of order defines a subgroup...)
+\subsection{Hashing to Groups}
+% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
+\paragraph{Hash functions} Generally speaking, a hash function is any function that can be used to map data of arbitrary size to fixed-size values. Since binary strings of arbitrary length are a general way to represent arbitrary data, we can understand a general \textbf{hash function} as a map 
+\begin{equation}
+H: \{0,1\}^* \to \{0,1\}^k
+\end{equation}
+where $\{0,1\}^*$ represents the set of all binary strings of arbitrary but finite length and $\{0,1\}^k$ represents the set of all binary strings that have a length of exactly $k$ bits. So in our definition a hash function maps binary strings of arbitrary size onto binary strings of size exactly $k$. We call the images of $H$, that is the values returned by the hash function \textit{hash values}, \textit{digests}, or simply \textit{hashes}.
+
+A hash function must be deterministic, that is inserting the same input $x$ into $H$, so image $H(x)$ must always be the same. In addition a hash function should be as uniform as possible, which means that it should map input values as evenly as possible over its output range. In mathematical terms every length $k$ string from $\{0,1\}^k$ should be generated with roughly the same probability.  
+\begin{example}[$k$-truncation hash] One of the most basic hash functions 
+$H_k:\{0,1\}^*\to \{0,1\}^k$ is given by simply truncating every binary string $s$ of size $s.len()> k$ to a string of size $k$ and by filling any string $s'$ of size $s'.len()<0$ with zeros. To make this hash function deterministic, we define that both truncation and filling should happen "on the left".
+
+For example if $k=3$, $x_1=(0000101011101010011101010101)$ and $x_2=1$ then $H(x_1)=(101)$ and $H(x_2)=(001)$. It is easy to see that this hash function is deterministic and uniform.
+\end{example}
+Of particular interest are so called \textit{cryptographic} hash functions, which are hash functions that are also \textit{one-way functions}, which essentially means that given a string $y$ from $\{0,1\}^k$ its practically infeasible to find a string $x\in\{0,1\}^*$ such that $H(x)=y$ holds. This property is usually called \textit{preimage-resistence}. 
+
+In addition it should be infeasible to find to strings $x_1,x_2 \in\{0,1\}^*$, such that $H(x_1)=H(x_2)$, which is called \textit{collision resistence}. It is important to note though, that collisions always exists, since a function $H: \{0,1\}^* \to \{0,1\}^k$ inevitable maps infinite many values onto the same hash. In fact, for any hash function with digests of length $k$, finding a preimage to a given digest can always be done using a brute force search in $2^k$ evaluation steps. It should just be practically impossible to compute those values and statistically very unlikely to generate two of them by chance. 
+
+A third property of a cryptographic hash function is, that small changes in the input string like flipping a single bit, should generate hash values that look completely different from each other.
+
+As cryptographically secure hash functions map tiny changes in input values onto large change in the output, implementation errors that change the outcome are usually easy to spot by comparing them to expected output values. The definition of cryptographically secure hash function are therefore usually acompanied by some test vectors of common inputs and expected digests. Since the empty string $''$ is the only string of length $0$ a common test vector is the expected digest of the empty string.
+\begin{example}[$k$-truncation hash] Considering the $k$-truncation hash from example XXX. Since the empty string has length $0$ it follows that the digest of the empty string is string of length $k$ that only contains $0$'s. i.e 
+$$
+H_k('')= (000\ldots 000)
+$$
+It is pretty obvious from the definition of $H_k$ that this simple hash function is not a cryptographic hash function. In particular every digest is its onw preimage, since $H_k(y)=y$ for every string of size exactly $k$. Finding preimages is therefore easy. 
+
+In addition it is easy to construct collusions as all strings of size $>k$ that share the same $k$-bits "on the right" are mapped to the same hash value.
+
+Also this hash function is not very chaotic, as changing bits that are not part of the $k$ right most bits don't change the digest at all.  
+\end{example}
+Computing cryptographically secure hash function in pen and paper style is possible but tedious. Fortunately sage can import the \textit{PyCrypto} library, which is intended to provide a reliable and stable base for writing Python programs that require cryptographic functions. The following examples explains how to use PyCrypto in sage.
+\begin{example}An example of a hash function that is generally believed to be a cryptographically secure hash function is the so called \textit{SHA256} hash, which in our notation is a function
+$$
+SHA256: \{0,1\}^* \to \{0,1\}^{256}
+$$
+that maps binary strings of arbitrary length onto binary strings of length $256$. To evaluate a proper implementation of the $SHA256$ hash function the giest of the empty string is supposed to be
+$$
+SHA256('')= e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+$$
+For better human readability it is common practise to represent the digest of a string, not in its binary form but in a hexadecimal representation. We can use sage to compute $SHA256$ and freely transit between binary, hexadecimal and decimal representations. To do so we have to import PyCrypto and then load $SHA\_256$:
+\begin{sagecommandline}
+sage: import Crypto
+sage: from Crypto.Hash import SHA256
+sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+sage: d = SHA256.new('')
+sage: str = d.hexdigest()
+sage: type(str)
+sage: d = ZZ('0x'+ str) # conversion to integer type
+sage: d.str(16) == str
+sage: d.str(16) == test
+sage: d.str(16)
+sage: d.str(2)
+sage: d.str(10)
+\end{sagecommandline}
+\end{example}
+
+\paragraph{Hashing to cyclic groups} As we have seen in the previous paragraph general hash functions map binary strings of arbitrary length onto binary strings of length $k$ for some parameter $k$. In various cryptographic primitives it is however desireable to not simply hash to binary strings of fixed length but to hash into algebraic structures like groups, while keeping (some of) the properties like preimiage or collision resistence. 
+
+Hash functions like this can be defined for various algebraic structures, but in a sense, the most fundamental ones are hash functions that map into groups, because they can usually be extended easily to map into other structures like rings or fields. 
+
+To give a more precise definition, let $\G$ be a group and $\{0,1\}^*$ the set of all finite, binary strings, then a \textbf{hash-to-group} function is a deterministic map
+\begin{equation}
+H : \{0,1\}^* \to \G
+\end{equation}
+Common properties of hash functions, like uniformity are desireable but not always realized in actual real world instantiations of hash-to-group functions, so we skip those requirements for now and keep the definition very general.
+
+As the following example shows hashing to finite cyclic groups can be trivially achieved for the price of some undesireable properties of the hash function:
+\begin{example}[Naive cyclic group hash] Let $\G$ be a finite cyclic group. If the task is to implement a hash-to-$\G$ function, one immediate approach can be based on the observation that binary strings of size $k$, can be interpreted as integers $z\in\Z$ in the range $0\leq z < 2^k$. 
+
+To be more precise, choose an ordinary hash function $H:\{0,1\}^*\to \{0,1\}^k$ for some parameter $k$ and a generator $g$ of $\G$. Then the expression
+$$
+z_{H(s)}= H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_k \cdot 2^k
+$$
+is a positive integer, where $H(s)_j$ means the bit at the $j$-th position of $H(s)$. A hash-to-group function for the group $\G$ can then be defined as a concatenation of the exponential map $g^{(\cdot)}$ of $g$ with the interpretation of $H(s)$ as an integer: 
+$$
+H_{g} : \{0,1\}^* \to \G:\; s \mapsto g^{z_{H(s)}} 
+$$
+Constructing a hash-to-group function like this is easy to implement for cyclic groups and might be good enough in certain applications. It is however almost never adequate in cryptographic applications as discrete log relations might be constructible between two given hash value $H_g(s)$ and $H_g(t)$. 
+
+To see that, assume that $\G$ is of order $r$ and that $z_{H(s)}$ has a multiplicative inverse in modular $r$ arithmetics. In that case we can compute $x=z_{H(t)}\cdot z_{H(s)}^{-1}$ in $\Z_r$ and have found a discrete log relation between the group hash values, that is we have found some $x$ with $H_g(t) = (H_g(s))^x$ since
+\begin{align*}
+H_g(t) & = (H_g(s))^x & \Leftrightarrow \\
+g^{z_{H(t)}} & = g^{z_{H(s)}\cdot x} & \Leftrightarrow \\
+g^{z_{H(t)}} & = g^{z_{H(t)}}
+\end{align*}
+\end{example}
+Applications where discrete log relations between hash values are undesireable therefore need different approaches and many of those approaches start with a way to hash into the sets $\Z_r$ of modular $r$ arithmetics. 
+\paragraph{Hashing to modular arithmetics} One of the most widely used applications of hash-into-group functions are hash functions that map into the set $\Z_r$ of modular $r$ arithmetics for some modulus $r$. Different approaches to construct such a function are known, but probably the most used once are based on the insight that the images of arbitrary hash functions can be interpreted as binary representations of integers as explained in example XXX.
+
+From this interpretation follows that one simple method of hashing into $\Z_r$ is constructed by observing, that if $r$ is a modulus, with a bit-length of $k=r.nbits()$, then every binary string $(b_0,b_1,\ldots,b_{k-2})$ of length $k-1$ defines an integer $z$ in the rage $0\leq z < 2^{k-1}\leq r $, by defining
+\begin{equation}
+z = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{k-2}\cdot 2^{k-2}
+\end{equation}
+Now since $z<r$, we know that $z$ is guranteed to be in the set $\{0,1,\ldots,r-1\}$ and hence can be interpreted as an element of $\Z_r$. From this follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-group function can be constructed by
+\begin{equation}
+H_{r.nbits()-1}: \{0,1\}^* \to \Z_r: \; s \mapsto 
+H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-2}\cdot 2^{k-2}
+\end{equation}
+where $H(s)_j$ means the $j$'s bit of the image binary string $H(s)$ of the original binary hash function. 
+
+A drawback of this hash function is that the distribution of the hash values in $\Z_r$ is not necessarily uniform. In fact if $r-2^{k-1}\neq 0$, then by design $H_{r.nbits()-1}$ will never hash onto values $z\geq 2^{k-1}$. Good moduli $r$ are therefore as close to $2^{k-1}$ as possible, why less good moduli are closer to $2^k$. In the worst case, that is $r=2^k-1$, it misses $2^{k-1}-1$, that is almost half of all elements, from $\Z_r$.
+% TODO: DOUBLE CHECK THIS REASONING.
+
+An advantage is that properties like preimage or collision resistence of the original hash function $H(\cdot)$ are preserved.
+\begin{example} To give an implementation of the $H_{r.nbits()-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from example XXX and define a hash into $\Z_{16}$ by
+$$
+H_{16.nbits()-1}: \{0,1\}^* \to \Z_{16}:\; s\mapsto
+SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_4\cdot 2^4 
+$$
+Since $k=16.nbits()=5$ and $16-2^{k-1}=0$ this hash maps uniformly onto $\Z_{16}$. We can invoke sage to implement it e.g. like this:
+\begin{sagecommandline}
+sage: import Crypto 
+sage: from Crypto.Hash import SHA256
+sage: def Hash5(x):
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
+....:     d = d.str(2)[-4:]
+....:     return ZZ(d, base=2)
+sage: Hash5('')
+\end{sagecommandline}
+We can then use sage to apply this function to a large set of input values in order to plot a visualization of the distribution over the set $\{0,\ldots,15\}$. Executing over $500$ input values gives:
+\begin{sagesilent}
+H1 = list_plot([Hash5(ZZ(i).str(2)) for i in range(500)])
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{H1} 
+\end{center}
+To get an intuition of uniformity, we can count the number of times the hash function $H_{16.nbits()-1}$ maps onto each number in the set $\{0,1,\ldots,15\}$ in a loop of $100000$ hashes and compare that to the ideal uniform distribution, which would map exactly 6250 samples to each element. This gives the following result:
+\begin{sagesilent}
+arr = []
+arr = [0 for i in range(16)]
+for i in range(100000):
+    arr[Hash5(ZZ(i).str(2))] +=1
+H2 = list_plot(arr, ymin=0,ymax=10000)
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{H2} 
+\end{center}
+The uniformity of the distribution problem becomes apparent if we want to construcht a similar hash function for $\Z_r$ for any $r$ in the range $17\leq r \leq 31$. In this case the definition of the hash function is exactly the same as for $\Z_{16}$ and hence the images will not exceed the value $16$. So for example in case of hashing to $\Z_{31}$ the hash function never maps to any value larger then $16$, leaving almost half of all numbers out of the image range.
+\begin{sagesilent}
+arr = []
+arr = [0 for i in range(31)]
+for i in range(100000):
+    arr[Hash5(ZZ(i).str(2))] +=1
+H3 = list_plot(arr, ymin=0,ymax=10000)
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{H3} 
+\end{center}
+\end{example}
+% We can do better thn this
+ 
+The second widely used method of hashing into $\Z_r$ is constructed by observing, that if $r$ is a modulus, with a bit-length of $r.bits()=k_1$ and $H:\{0,1\}^*\to \{0,1\}^{k_2}$ is a hash function that produces digests of size $k_2$, with $k_2\geq k_1$, then a hash-to-group function can be constructed by interpreting the image of $H$ as binary representation of a integer and then take the modulus by $r$ to map into $\Z_r$. To be more precise 
+\begin{equation}
+H'_{mod_r}: \{0,1\}^* \to \Z_r: \; s \mapsto 
+\Zmod{\left(H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k_2}\cdot 2^{k_2}\right)}{n}
+\end{equation}
+where $H(s)_j$ means the $j$'s bit of the image binary string $H(s)$ of the original binary hash function. 
+
+A drawback of this hash function is that computing the modulus requires some computational effort. In addition the distribution of the hash values in $\Z_r$ might not be even, depending on the difference $2^{k_2+1}-r$. An advantage is that potential properties like preimage or collision resistence of the original hash function $H(\cdot)$ are preserved and the distributen can be made almost uniform, with only neglectable bias, depending on what modulus $r$ and images size $k_2$ are choosen.
+\begin{example} To give an implementation of the $H_{mod_r}$ hash function, we use  $k_2$-bit truncation of the $SHA256$ hash from example XXX and define a hashes into $\Z_{23}$ by
+\begin{multline*}
+H_{mod_{23},k_2}: \{0,1\}^* \to \Z_{23}:\; \\
+s\mapsto
+\Zmod{\left(SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_{k_2}\cdot 2^{k_2}\right)}{23} 
+\end{multline*}
+We want to use various instantiations of $k_2$, to visualize the impact of truncation lenth on the distrubution of the hashes in $\Z_{23}$. We can invoke sage to implement it e.g. like this:
+\begin{sagecommandline}
+sage: import Crypto 
+sage: from Crypto.Hash import SHA256
+sage: Z23 = Integers(23)
+sage: def Hash_mod23(x, k2):
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
+....:     d = d.str(2)[-k2:]
+....:     d = ZZ(d, base=2)
+....:     return Z23(d)
+\end{sagecommandline}
+We can then use sage to apply this function to a large set of input values in order to plot visualizations of the distribution over the set $\{0,\ldots,22\}$ for various values of $k_2$ by counting the number of times it maps onto each number in a loop of $100000$ hashes. We get
+\begin{sagesilent}
+arr1 = []
+arr1 = [0 for i in range(23)]
+for i in range(100000):
+    arr1[Hash_mod23(ZZ(i).str(2),5)] +=1
+H3 = list_plot(arr1, ymin=0,ymax=10000,color='red', legend_label='k=5')
+arr2 = []
+arr2 = [0 for i in range(23)]
+for i in range(100000):
+    arr2[Hash_mod23(ZZ(i).str(2),7)] +=1
+H4 = list_plot(arr2, ymin=0,ymax=10000,color='blue', legend_label='k=7')
+arr3 = []
+arr3 = [0 for i in range(23)]
+for i in range(100000):
+    arr3[Hash_mod23(ZZ(i).str(2),9)] +=1
+H5 = list_plot(arr3, ymin=0,ymax=10000,color='yellow', legend_label='k=9')
+arr4 = []
+arr4 = [0 for i in range(23)]
+for i in range(100000):
+    arr4[Hash_mod23(ZZ(i).str(2),16)] +=1
+H6 = list_plot(arr4, ymin=0,ymax=10000,color='black', legend_label='k=16')
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.6]{H3+H4+H5+H6} 
+\end{center}
+\end{example}
+A third method that can sometimes be found in implementations is the so called \textit{try and increment method}. To underatand this method, we define an integer $z\in\Z$ from any hash value $H(s)$ as we did in the previous methods, that is we define $z = H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k}$. 
+
+Hashing into $\Z_r$ is then achievable by first computing $z$ and then try to see if $z\in\Z_r$. If this is the case than the hash is done and if not the string $s$ is modified in a deterministic way and the process is repeated until a sutable number $z$ is found. A suiteable, deterministic modification could be to concatenate the original string by some bit counter. A try and increment algorithm would then work like in algorithm XXX
+\begin{algorithm}\caption{Hash-to-$\Z_n$}
+\label{alg_projective_group_law}
+\begin{algorithmic}[0]
+\Require $r \in \Z$ with $r.nbits()=k$ and $s\in\{0,1\}^*$
+\Procedure{Try-and-Increment}{$r,k,s$}
+\State $c \gets 0$
+\Repeat
+\State $c\gets c+1$
+\State $s' \gets s||c$
+\State $z \gets H(s')_0\cdot 2^0 + H(s')_1\cdot 2^1 + \ldots + H(s')_{k}\cdot 2^{k}$
+\Until{$z<r$}
+\State \textbf{return} $x$
+\EndProcedure
+\Ensure $ z\in \Z_r$
+\end{algorithmic}
+\end{algorithm}
+
+Depending on the parameters, this method can be very efficient. In fact, if $k$ is suficiently large and $r$ is close to $2^{k+1}$, the probability for $z<r$ is very high and the repeat loop will almost always be executed a single time only. A drawback is however that the probability to execute the loop multiple times is not zero. 
+
+Once some hash function into modular arithmetics is found it can often be combined with additional techniques to hash into more general finite cyclif groups. The following paragraphs describes a few of thos methods widely adopted in snark development.
+\paragraph{Pederson Hashes}
+% T. P. Pedersen. “Non-interactive and information-theoretic secure verifiable secret shar- ing”. In: Annual International Cryptology Conference. Springer. 1991, pp. 129–140.
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
+The so called \textbf{Pedersen hash function} provides a way to map binary inputs of fixed size $k$ onto elements of finite cyclic groups, that avoids discrete log relations between the images as they occure in the naive approach XXX. Combining it with a classical hash function provides a hash function that maps strings of arbitrary lenth onto group elements. 
+
+To be more pecise, let $j$ be an integer, $\G$ a finite cyclic group of order $r$ and $\{g_1, \ldots, g_j\} \subset \G$ a uniform randomly generated set of generators of $\G$. Then \textbf{Pedersen’s hash function} is defined as
+\begin{equation}
+H_{Ped} : \left(\Z_r\right)^j \to \G:\; (x_1,\ldots,x_j)\mapsto \Pi_{i=1}^j g_j^{x_j}
+\end{equation}
+It can be shown, that Pedersen’s  hash  function  is  collision-resistant under the assumption that $\G$ is a DL-A group. However it is important to note, that Pedersen hashes cannot be assumed to be pseudorandom and should therefore not be used where a hash function serves as an approximation of a random oracle.
+
+From an implementation perspective, it is important to derive the set of generators $\{g_1,\ldots,g_j\}$ in such a way that they are as uniform and random as possible. In particular any known discrete log relation between two generators, that is, any known $x\in \Z_r$ with $g_h = (g_i)^x$ must be avoided.
+
+To see how Pedersen hashes can be used to define an actual hash-to-group function according to our definition, we can use any of the hash-to-$\Z_r$ functions as we have derived them in XXX. 
+%\begin{example} In this example, let $\G$ be a finite cyclic group of order $r$ and $\{g_1,\ldots,g_j\}$ a set of uniformly and randomly sampled set of generators of $\G$. To instantiate a Pedersen hash in combination with a hash-to-group function $H_{mod_r}$ as defined in XXX, let $k$ be the bit-length of the group order $r$ and $H:\{0,1\}^*\to \{0,1\}^{j\cdot k}$ some general hash function.
+
+\paragraph{MimC Hashes}
+% https://eprint.iacr.org/2016/492
+\paragraph{Pseudo Random Functions in DDH-A groups}
+% https://fmouhart.epheme.re/Crypto-1617/TD08.pdf 
+As noted in XXX, Pederson's hash function does not have the properties a random function and should therefore not be instantiated as such. To look at a construction that serves as random oracle function in groups where the dicisional Diffi-Hellman construction is assumed to hold true let $\G$ be a DDH-A group of order $r$ with generator $g$ and $\{a_0,a_1,\ldots,a_k\}\subset \Z_{r}^*$ a uniform randomly generated set of numbers invertible in modular $r$ arithmetics. Then a pseudo-random function is given by
+\begin{equation}
+F_{rand}: \{0,1\}^{k+1} \to \G:\; (b_0,\ldots,b_k)\mapsto g^{b_0\cdot \Pi_{i=1}^k a_i^{b_i}}
+\end{equation}
+Of course if $H:\{0,1\}^*\to \{0,1\}^{k+1}$ is a random oracle, then the concation of $F_{rand}$ and $H$, defines a random oracle 
+\begin{equation}
+H_{rand,\G}:\{0,1\}^* \to \G:\; s\mapsto F_{rand}(H(s))
+\end{equation}
+
+%\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
+%Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
+%$$\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}$$
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
+%\end{example}
+
+%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
+
+%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.
+
+%As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
+%\end{example}
+
 \section{Commutative Rings}
 Thinking of integers again, we know, that there are actually two operations addition and multiplication and as we know addition defines a group structure on the set of integers. However multiplication does not define a group structure as we know that integers in general don't have multiplicative inverses.
 
@@ -254,6 +626,7 @@ and on the other hand we can use the right hand side of equation to evaluate $p$
          &= 2
 \end{align*}
 \end{example}
+\paragraph{Hashing to Commutative Rings} As we have seen in XXX various constructions for hashing-to-groups are known and used in applications. As commutative rings are abelian groups, when we simply forget about the multiplicative structure, hash-to-group constructions can be applied for hashing into commutative rings, too. This is possible in general as the codomain of a general hash function $\{0,1\}^*$ is just the set of binary strings of arbitrary but finite lenth, which hash no algebraic structure that the hash function must respect.
 
 \section{Fields}
 In this chapter we started with the definition of a group, which we the expended into the definition of a commutative ring with unit. Those rings generalize the behaviour of integers. In this section we will look at the special case of commutative rings, where every element, other than the neutral element of addition, has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$, which are in a sense an extension of the ring of integers, that is constructed by just including newly defined multiplicative inverses (the fractions) to the integers.
@@ -441,8 +814,11 @@ $$
 %\end{definition}
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
-
 \paragraph{Exponentiation} TO APPEAR...
+\paragraph{Hashing into Prime fields} 
+An important problem in snark development is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are often defined over prime fields and hashing to a curve then might start with hashing to the prime field. It is therefore of importance to understand who to hash into prime fields.
+
+To understand it, note that in XXX we have looked at a few constructions of how to hash into the residue class rings $\Z_n$ for arbitrary $n>1$. As prime fiels are just special instances of those rings, all hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
 \paragraph{Extension Fields}
 % references https://blog.plover.com/math/se/finite-fields.html
 We defined prime fields in the previous section. They are the basic building blocks for cryptography in general and snarks in particular.
@@ -570,33 +946,7 @@ $$
 \begin{exercise} Show that the polynomial $P=x^3+x+1$ from $\F_5[x]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euklidean algorithm. Then find all $x\in\F_{5^3}$ that solve the  equation
 $$(2t^2+4)(x-(t^2+4t+2))= (2t+3)$$
 \end{exercise}
-
-%\paragraph{Hash to Prime fields}
-% https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
-%An important problem in elliptic curve cryptography and in its implementations as a snark is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX those curves are usually defined over prime fields and hashing to a curve often starts with hashing to the prime field. In this paragraph we therefore look at common techniques to hash to a prime field.
-
-%In what follows let $\F_{q}$ be a prime field, such that $q$ is a prime number with $m$-digits in its binary representation, i.e. $|p_{base_2}|=m$ and let $H:\{0,1\}^* \to \{0,1\}^k$ be a hash function. The methods to map $H$ onto $\F_{q}$ depend on $k$.
-
-%If $k\leq m-1$, then every image $H(data)$ if interpreted as an integer in its base-2 representation, is smaller then $p$ and hence can directly be interpreted as an element of $\F_{q}$. So in this case $H:\{0,1\}^* \to \F_q$ can be used unchanged. The drawback of this simple method, is that the bigger the difference between $k$ and $m$ is, the more will the distribution of $H$ deviate from uniformity.
-
-%For example in the extreme case $k=1$, $H$ only maps to $\{0,1\}\subset \F_q$. The best possible case is therefore $k=m-1$. In that case only the highest XXX numbers (DO THE COMPUTATION) are missing from the distribution.
-
-%On the other hand if $k\geq m$, then there are basically two commonly used methods to map the output of $H$ onto $\F_q$. The first is to simply forget all leading $k-m+1$-bits from the image of $H$, which brings you back to our previous consideration.
-
-%The second method is to interpret $H(data)$ as an integer and then compute the modulus $ \Zmod{H(data)}{p}$. This also introduces a small bias (COMPUTATION FROM THE FORUM ENTRY).
-
-%\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
-%Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
-%$$\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}$$
-%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
-%\end{example}
-
-%\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
-
-%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.
-
-%As we can see this hash function has the drawback of an uneven distribution in $\F_{13}$. In fact this hash function is unable to map to values from $\{8,9,10,11,12\}$ as those numbers have a $1$-bit in position $4$. However as we will see in XXX, this hash is cheaper to implement as a circuit as no expensive modulus operation has to be used.
-%\end{example}
+\paragraph{Hashing into extension fields} In XXX we have seen how to hash into prime fields. As elements of extension fields can be seen as polynomials over prime fields, hashing into extension fields is therefore possible, if every coefficient of the polynimial is hashed independently. 
 \section{Projective Planes}
 Projective planes are a certain type of geometry defined over some given field, that in a sense extend the concept of the ordinary Euclidean plane by including "points at infinity".
 
@@ -605,101 +955,103 @@ Such an inclusion of infinity points makes them particularly useful in the descr
 To understand the idea for the construction of projective planes, note that in
 an ordinary Euclidean plane, two lines either intersect in a single point, or are parallel. In the latter case both lines are either the same, that is they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with additional "points at infinity" such that two different lines always intersect in a single point. Parallel lines intersect "at infinity".
 
-To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times F$ the set of all three tuples over $\F$ and $x\in \F^3$ with $x=(x_1,x_2,x_3)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given by
+To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times F$ the set of all three tuples over $\F$ and $x\in \F^3$ with $x=(X,Y,Z)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given by
 \begin{equation}
-L_x := \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F\}
+[X:Y:Z] := \{(k\cdot X,k\cdot Y, k\cdot Z)\;|\; k\in\F\}
 \end{equation}
 A \textit{point} in the \textbf{projective plane} over $\F$ is then defined as such a \textit{line} and the projective plane is the set of all such points, that is
 \begin{equation}
-\F\mathbb{P}^2:=\{L_x\;|\; x\in \F^3\text{ with } x\neq (0,0,0)\}
+\F\mathbb{P}^2:=\{[X:Y:Z]\;|\; (X,Y,Z)\in \F^3\text{ with } (X,Y,Z)\neq (0,0,0)\}
 \end{equation}
 It can be shown that a projective plane over a finite field $\F_{p^m}$ contains $p^{2m}+p^m+1$ many elements.
 
-To understand why $L_x$ is called a line, consider the situation, where the underlying field $\F$ are the real numbers $\mathbb{R}$. Then $\mathbb{R}^3$ can be seen as the three dimensional space and $L_{(x,y,z)}$ is then an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $x$, $y$ and $z$.
+To understand why $[X:Y:Z]$ is called a line, consider the situation, where the underlying field $\F$ are the real numbers $\mathbb{R}$. Then $\mathbb{R}^3$ can be seen as the three dimensional space and $[X:Y:Z]$ is then an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $X$, $Y$ and $Z$.
 
 The key observation here is, that points in the projective plane, are lines in the $3$-dimensional space $\F^3$, also for finite fields, the terms space and line share very little visual similarity with their counterparts over the real numbers.
 
-It follows from this that points $L_x\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(x_1,x_2,x_3)$, but by \textit{sets of coordinates} rather, where two different coordinates $(x_1,x_2,x_3)$ and $(x'_1,x'_2,x'_3)$, with $x_j\neq 0$ and $x_j'\neq 0$ describe the same point, if and only if there is some field element $k$, such that $(x_1,x_2,x_3) = (k\cdot x'_1,k\cdot x'_2,k\cdot x'_3)$. Descriptions like that are called \textbf{projective coordinates}.
+It follows from this that points $[X:Y:Z]\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(X,Y,Z)$, but by \textit{sets of coordinates} rather, where two different coordinates $(X_1,Y_1,Z_1)$ and $(X_2,Y_2,Z_2)$, with describe the same point, if and only if there is some field element $k$, such that $(X_1,Y_1,Z_1) = (k\cdot X_2,k\cdot Y_2,k\cdot Z_2)$. Point $[X:Y:Z]$ are called \textbf{projective coordinates}.
 
 \begin{notation}[Projective coordinates]
 %https://math.mit.edu/classes/18.783/2017/Lecture1.pdf
-To distingush the (equivalence class) of projective coordinates of a line $L_x$ from the coordinates of $x$, we write $[x_1:x_2:x_3]$ for the set of all projective coordinates of $L_x$. Coordinates of the form $[x_1:x_2:1]$ are descriptions of so called \textbf{affine points} and coordinates of the form $[x_1:x_2:0]$ are descriptions of so called \textbf{points at infinity}. In particular the projective coordinate $[1:0:0]$ describes the so called \textbf{line at infinity}.
+Projective coordinates of the form $[X:Y:1]$ are descriptions of so called \textbf{affine points} and projective coordinates of the form $[X:Y:0]$ are descriptions of so called \textbf{points at infinity}. In particular the projective coordinate $[1:0:0]$ describes the so called \textbf{line at infinity}.
 \end{notation}
 \begin{example} Consider the field $\F_3$ from example XXX. As this field only contains, three elements it takes not to much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we knwo that it only contain $13$ elemts.
 
 To find $\F_3\mathbb{P}^2$, we have to compute the set of all lines in $\F_3\times \F_3\times \F_3$ that intersect $(0,0,0)$. Since those lines are parameterized by tuples $(x_1,x_2,x_3)$. We compute:
 \begin{align*}
-L_{(0,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,0,1), (0,0,2)\}\\
-L_{(0,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,0,2), (0,0,1)\}
-          = L_{(0,0,1)}\\
-L_{(0,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,1,0), (0,2,0)\}\\
-L_{(0,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,1,1), (0,2,2)\}\\
-L_{(0,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,1,2), (0,2,1)\}\\
-L_{(0,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,2,0), (0,1,0)\}
-          = L_{(0,1,0)}\\
-L_{(0,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,2,1), (0,1,2)\}
-          = L_{(0,1,2)}\\
-L_{(0,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (0,2,2), (0,1,1)\}
-          = L_{(0,1,1)}\\
-L_{(1,0,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,0,0), (2,0,0)\}\\
-L_{(1,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,0,1), (2,0,2)\}\\
-L_{(1,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,0,2), (2,0,1)\}\\
-L_{(1,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,1,0), (2,2,0)\}\\
-L_{(1,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,1,1), (2,2,2)\}\\
-L_{(1,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,1,2), (2,2,1)\}\\
-L_{(1,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,2,0), (2,1,0)\}\\
-L_{(1,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,2,1), (2,1,2)\}\\
-L_{(1,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (1,2,2), (2,1,1)\}\\
-L_{(2,0,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,0,0), (1,0,0)\}
-          = L_{(1,0,0)}\\
-L_{(2,0,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,0,1), (1,0,2)\}
-          = L_{(1,0,2)}\\
-L_{(2,0,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,0,2), (1,0,1)\}
-          = L_{(1,0,1)}\\
-L_{(2,1,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,1,0), (1,2,0)\}
-          = L_{(1,2,0)}\\
-L_{(2,1,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,1,1), (1,2,2)\}
-          = L_{(1,2,2)}\\
-L_{(2,1,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,1,2), (1,2,1)\}
-          = L_{(1,2,1)}\\
-L_{(2,2,0)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,2,0), (1,1,0)\}
-          = L_{(1,1,0)}\\
-L_{(2,2,1)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,2,1), (1,1,2)\}
-          = L_{(1,1,2)}\\
-L_{(2,2,2)} &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
-          = \{(0,0,0), (2,2,2), (1,1,1)\}
-          = L_{(1,1,1)}
+[0:0:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,1), (0,0,2)\}\\
+[0:0:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,0,2), (0,0,1)\}
+          = [0:0:1]\\
+[0:1:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,1,0), (0,2,0)\}\\
+[0:1:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,1,1), (0,2,2)\}\\
+[0:1:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,1,2), (0,2,1)\}\\
+[0:2:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,2,0), (0,1,0)\}
+          = [0:1:0]\\
+[0:2:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,2,1), (0,1,2)\}
+          = [0:1:2]\\
+[0:2:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(0,2,2), (0,1,1)\}
+          = [0:1:1]\\
+[1:0:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,0,0), (2,0,0)\}\\
+[1:0:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,0,1), (2,0,2)\}\\
+[1:0:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,0,2), (2,0,1)\}\\
+[1:1:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,1,0), (2,2,0)\}\\
+[1:1:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,1,1), (2,2,2)\}\\
+[1:1:2]&= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,1,2), (2,2,1)\}\\
+[1:2:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,2,0), (2,1,0)\}\\
+[1:2:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,2,1), (2,1,2)\}\\
+[1:2:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(1,2,2), (2,1,1)\}\\
+[2:0:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,0,0), (1,0,0)\}
+          = [1:0:0]\\
+[2:0:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,0,1), (1,0,2)\}
+          = [1:0:2]\\
+[2:0:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,0,2), (1,0,1)\}
+          = [1:0:1]\\
+[2:1:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,1,0), (1,2,0)\}
+          = [1:2:0]\\
+[2:1:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,1,1), (1,2,2)\}
+          = [1:2:2]\\
+[2:1:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,1,2), (1,2,1)\}
+          = [1:2:1]\\
+[2:2:0] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,2,0), (1,1,0)\}
+          = [1:1:0]\\
+[2:2:1] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,2,1), (1,1,2)\}
+          = [1:1:2]\\
+[2:2:2] &= \{(k\cdot x_1,k\cdot x_2, k\cdot x_3)\;|\; k\in\F_3\}
+          = \{(2,2,2), (1,1,1)\}
+          = [1:1:1]
 \end{align*}
 Those lines define the $13$ points in the projective plane $\F_3\mathbb{P}$ as follows
 \begin{multline*}
-\F_3\mathbb{P} = \{ L_{(0,0,1)}, L_{(0,1,0)}, L_{(0,1,1)}, L_{(1,0,0)}, L_{(1,0,1)}, \\ L_{(1,0,2)}, L_{(1,1,0)}, L_{(1,1,1)}, L_{(1,1,2)}, L_{(1,2,0)}, L_{(1,2,1)}, L_{(1,2,2)}\}
+\F_3\mathbb{P} = \{ [0:0:1], [0:1:0], [0:1:1], [0:1:2], [1:0:0], [1:0:1], \\ [1:0:2], [1:1:0], [1:1:1], [1:1:2], [1:2:0], [1:2:1], [1:2:2]\}
 \end{multline*}
-To understand the ambiguity in projective coordinates a bit better, lets consider the point $L_{(1,2,2)}$. As this point in the projective plane is a line in $\F_3^3$, it has the projective coordinates $(1,2,2)$ as well as $(2,1,1)$, since the former coordinate give the latter, when multiplied in $\F_3$ by the factor $2$. In addition note, that for the same reasons the points $L_{(1,2,2)}$ and $L_{(2,1,1)}$ are the same, since their underlying sets are equal.
+This projective plane contains $9$ affine points, three points at infinity and one line at infinity.
+
+To understand the ambiguity in projective coordinates a bit better, lets consider the point $[1:2:2]$. As this point in the projective plane is a line in $\F_3^3$, it has the projective coordinates $(1,2,2)$ as well as $(2,1,1)$, since the former coordinate give the latter, when multiplied in $\F_3$ by the factor $2$. In addition note, that for the same reasons the points $[1:2:2]$ and $[2:1:1]$ are the same, since their underlying sets are equal.
 \end{example}
 \begin{exercise}
 Construct the so called \textit{Fano plane}, that is the projective plane over the finite field $\F_2$.
