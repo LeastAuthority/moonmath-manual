@@ -188,7 +188,7 @@ One of the key properties of an elliptic curve is that it is possible to define 
 
 The origin of this law can be understood in a geometric picture and is known as the \textit{chord-and-tangent rule}. In the affine representation of a short Weierstraß curve, the rule can be described in the following way:
 \begin{itemize}
-\item (Point addition) Let $P, Q\in E(\F)\textbackslash \{\Oinf\}$ with $P\neq Q$ be two distinct points on an elliptic curve, that are both not the point at infinity. Then the sum of $P$ and $Q$ is defined as follows: Consider the line $l$ which intersects the curve in $P$ and $Q$. If $l$ intersects the elliptic curve at a third point $R'$, define the sum $R=P+Q$ of $P$ and $Q$ as the reflection of $R'$ at the $x$-axis. If it does not intersect the curve at a third point define the sum to be the point at infinity $\Oinf$. It can be shown, that no such chord-line will intersect the curve in more then three points, so addition is not ambigious.
+\item (Point addition) Let $P, Q\in E(\F)\textbackslash \{\Oinf\}$ with $P\neq Q$ be two distinct points on an elliptic curve, that are both not the point at infinity. Then the sum of $P$ and $Q$ is defined as follows: Consider the line $l$ which intersects the curve in $P$ and $Q$. If $l$ intersects the elliptic curve at a third point $R'$, define the sum $R=P\oplus Q$ of $P$ and $Q$ as the reflection of $R'$ at the $x$-axis. If it does not intersect the curve at a third point define the sum to be the point at infinity $\Oinf$. It can be shown, that no such chord-line will intersect the curve in more then three points, so addition is not ambigious.
 \item (Point doubling) Let $P \in E(\F)\textbackslash \{\Oinf\}$ be a point on an elliptic curve, that is not the point at infinity. Then the sum of $P$ with itself (the doubling) is defined as follows: Consider the line wich is tangent to the elliptic curve at $P$, if this line intersects the elliptic curve at a second point $R'$. The sum $2P=P+P$ is then the reflection of $R'$ at the $x$-axis. If it does not intersect the curve at a third point define the sum to be the point at infinity $\Oinf$. It can be shown, It can be shown, that no such tangent-line will intersect the curve in more then two points, so addition is not ambigious.
 \item (Point at infinity) We define the point at infinity $\Oinf$ as the neutral ement of addition, that is we define $P+\Oinf = P$ for all points $P\in E(\F)$.
 \end{itemize}
@@ -200,8 +200,8 @@ To translate the geometric description into algebraic equations, first observe t
 \item (Additive inverse ) The addivive inverse of $\mathcal{O}$ is $\mathcal{O}$ and for any other curve point $(x,y) \in E(\F)\textbackslash \{\mathcal{O}\}$, the additive inverse is given by $(x,-y)$.
 \item (Addition rule) For any two curve points $P, Q \in E(\F)$ addition is defined by one of the following three cases:
 \begin{enumerate}
-\item (Adding the neutral element) If $Q=\Oinf$, then the sum is defined as $P+Q=P$.
-\item (Adding inverse elements)  If $P=(x,y)$ and $Q=(x,-y)$, the sum is defined as $P+Q=\Oinf$.
+\item (Adding the neutral element) If $Q=\Oinf$, then the sum is defined as $P\oplus Q=P$.
+\item (Adding inverse elements)  If $P=(x,y)$ and $Q=(x,-y)$, the sum is defined as $P\oplus Q=\Oinf$.
 \item (Adding non self-inverse equal points) If $P=(x,y)$ and $Q=(x,y)$ with $y\neq 0$, the sum $2P=(x',y')$ is defined by
 $$
 \begin{array}{llr}
@@ -217,10 +217,11 @@ y_3 = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1
 \end{array} 
 $$
 \end{enumerate}
- 
 \end{itemize} 
 Note that short Weierstraß curve points $P$ with $P=(x,0)$ are inverse to themselfs, which implies $2P=\Oinf$ in this case.
-
+\begin{notation}
+Let $\F$ be a field and $E(\F)$ be an elliptic curve over $\F$. We write $\oplus$ for the group law on $E(\F)$ and $(E(\F),\oplus)$ for the group of rational points.
+\end{notation}
 As we can see, it is very efficient to compute inverses on elliptic curves. However computing the addition of elliptic curve points in the affine representation needs to consider many cases and involves extensive finite field divisions. As we will see in the next paragraph this can be simplified in projective coordinates.
 
 To get some practical impression of how the group law on an elliptic curve is computed, lets look at some actual cases: 
@@ -861,17 +862,20 @@ So adding a curve point to its inverse gives the neutral element, as expected. A
 
 %Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
 %\end{example}
-\section{Elliptic Curves Pairings} As we have seen in XXX abstractly, sometimes groups comes with the notation of a so called pairing map, which is a non-degenerate bilinar map, from two groups into another group.
+\section{Elliptic Curves Pairings} As we have seen in XXX some groups comes with the notation of a so called pairing map, which is a non-degenerate bilinar map, from two groups into another group.
 
-In this section, we discuss \textit{pairings}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
+In this section, we discuss \textit{pairings on elliptic curves}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
 
-We start out by defining pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
+We start out by defining elliptic curve pairings and discussing a simple application which bears some resemblance to the more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm which makes these pairings practical rather than just theoretically interesting.
 
 Elliptic curves have a few structures, like the Weil or the Tate map, that qualifies as pairing.   
 
-\paragraph{Embedding Degrees}In this book we are in particular interested in so called pairing friendly elliptic curves. 
+\paragraph{Embedding Degrees}As we will see in what follows, every elliptic curve gives rise to a pairing map. However as we will see in example XXX, not every such pairing is efficiently computeable. So in order to distingush curves with efficiently computable pairings from the rest, we need to start with an introduction to the so called \textbf{embedding degree} of a curve. 
 
-To be more precise, let $\F$ be a finite field, $E(\F)$ an elliptic curve over $\F$, and $n$ a prime number that divides the order of $E(\F)$. The embedding degree of $E(\F)$ with respect to $n$ is then the smallest integer $k$ such that $n$ divides $q^k-1$.
+To understand this term, let $\F$ be a finite field, $E(\F)$ an elliptic curve over $\F$, and $n$ a prime number that divides the order of $E(\F)$. The embedding degree of $E(\F)$ with respect to $n$ is then the smallest integer $k$ such that $n$ divides $q^k-1$. 
+
+Fermat's little theorem XXX implies, that every curve has at least \textit{some} embedding degree $k$, since at least $k=n-1$ is always a solution to the congruency 
+$\kongru{q^k}{1}{n}$ which implies that the remainder of the integer division of $q^k-1$ by $n$ is $0$.
 \begin{example} To get a better intuition of the embedding degree, lets consider the elliptic curve $E_1(\F_5)$ from example XXX. We know from XXX that the order of $E_1(\F_5)$ is $9$ and since the only prime factor of $9$ is $3$, we compute the ebedding degree of $E_1(\F_5)$ with respect to $3$. 
 
 To find that embedding degree we have to find the smallest integer $k$, such that $3$ divides $q^k-1= 5^k-1$. We try and increment until we find a proper $k$. 
@@ -929,29 +933,12 @@ sage: k
 \end{sagecommandline}
 So we see that secp256k1 has at least no embedding degree $k<1000$, which renders secp256k1 as a curve that has no small embedding degree. A property that is of importance later on.
 \end{example}
-\paragraph{Elliptic Curves over extension fields} Suppose that $p$ is a prime number and $\F_p$ its associated prime field. We know from XXX, that the fields $\F_{p^m}$ are extensions of $\F_p$ in the sense that $\F_{p}$ is a subfield of $\F_{p^m}$. 
-
-
-
-
------- goes to extension fields......
-
-To be more general a field $\F_{p^r}$ is a subfield of a field $\F_{p^s}$, if and only $r$ divides $s$. And from this we can deduces, that for any given fixed prime number, we there are nested sequences of fields
-\begin{equation}
-\F_p \subset \F_{p^{s_1}} \subset \cdots \subset \F_{p^{s_k}}
-\end{equation}
-whenever the power $s_j$ divides the power $s_{j+1}$, such that $\F_{p^{s_j}}$ is a subfield of $\F_{p^{s_{j+1}}}$. 
-
-To get a more intuitive picture of that look at example XXX again and observe how the prime field $\F_3$ actually sits inside the extension field $\F_{3^2}$. 
-
------------
-
-This implies that we can extend the affine plane an elliptic curve is defined on, by changing the base field to any extension field. To be more precise let 
+\paragraph{Elliptic Curves over extension fields} Suppose that $p$ is a prime number and $\F_p$ its associated prime field. We know from XXX, that the fields $\F_{p^m}$ are extensions of $\F_p$ in the sense that $\F_{p}$ is a subfield of $\F_{p^m}$. This implies that we can extend the affine plane an elliptic curve is defined on, by changing the base field to any extension field. To be more precise let 
 $E(\F)=\{ (x,y)\in \F \times \F \;|\; y^2 = x^3 +a\cdot x +b \}$ be an affine short Weierstrass curve, with parameters $a$ and $b$ taken from $\F$. If $\F'$ is any extension field of $\F$, then we extend the domain of the curve by defining
 \begin{equation}
 E(\F')=\{ (x,y)\in \F' \times \F' \;|\; y^2 = x^3 +a\cdot x +b \}
 \end{equation}   
-So while we did not change the defining parameters, we consider curve points from the affine plane over the extension field now.
+So while we did not change the defining parameters, we consider curve points from the affine plane over the extension field now. Since $\F\subset \F'$ it can be shown that the original elliptic curve $E(\F)$ is a sub curve of the extension curve $E(\F')$.
 \begin{example} Conider the prime field $\F_5$ from example XXX and the elliptic curve $E_1(\F_5)$ from example XXX. Since we know from XXX that $\F_{5^2}$ is an extension field of $\F_5$, we can extend the definition of $E_1(\F_5)$ to define a curve over $\F_{5^2}$:
 $$
 E_1(\F_{5^2}) = \{ (x,y)\in \F\times \F \;|\; y^2 = x^3 + x +1 \}
@@ -975,7 +962,7 @@ E_1(\F_{5^2}) = \{\Oinf, (0, 4), (0, 1), (3, 4), (3, 1), (4, 3), (4, 2), (2, 4),
 (3t + 1, t + 4), (3t + 1, 4t + 1), (3t + 3, 3), (3t + 3, 2), (1, 4t)
 \}
 \end{multline*}
-As we can see, curve $E_1(\F_5)$ is a subset of curve $E(\F_{5^2})$, which is implied from $\F_5$ being a subfield of $\F_{5^2}$.
+As we can see, curve $E_1(\F_5)$ sits inside curve $E(\F_{5^2})$, which is implied from $\F_5$ being a subfield of $\F_{5^2}$.
 \end{example}
 \paragraph{Full Torsion groups} The fundamental theorem of finite cyclic groups XXX implies, that every prime factor $n$ of a cyclic groups order defines a subgroup of the size of the prime factor. We called such a subgroup an $n$-torsion group. We have seen many of those subgroups in the examples XXX and XXX.
 
@@ -1334,48 +1321,58 @@ As we have seen in the previous sections, elliptic curves have various defining 
 
 The method usually starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct, such that $q = p^m$ for some prime number $p$ and counting number $m\in \N$ with $m\geq 1$. We assume $p>3$ to simplify things in what follows. 
 
-Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)=0$ holds true. The choice of $t$ also defines the curves order $r$, since $n=p+1-t$ by the Hasse bound XXX, so choosing $t$, will define the large order subgroup as well as all small cofactors. $r$ has to be defined in such a way, that the elliptic curve meats the security requirements of the application it is designed for. 
+Next the trace of Frobenious $t\in \Z$ of the curve is choosen, such that $p$ and $t$ are coprime, i.e. such that $gcd(p,t)=0$ holds true. The choice of $t$ also defines the curves order $r$, since $r=p+1-t$ by the Hasse bound XXX, so choosing $t$, will define the large order subgroup as well as all small cofactors. $r$ has to be defined in such a way, that the elliptic curve meats the security requirements of the application it is designed for. 
 
-Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of the curve, since $k$ is defined as the smallest number, such that the order $n$ divides the number $q^k-1$.
+Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of any prime order subgroup of the curve, since $k$ is defined as the smallest number, such that the prime order $n$ divides the number $q^k-1$.
 
 In order for the complex multiplication method to work, both $q$ and $t$ can not be arbitrary, but must be choosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist, such that $D<0$ as well as $\Zmod{D}{4}=0$ or $\Zmod{D}{4}=1$ and the equation
 \begin{equation}
      4q  = t^2 + |D|v^2 
 \end{equation}
-holds. If those numbers exist, we call $D$ the \textit{CM-discriminant} and we know that we can construct a curve $E(\F_q)$ over a finite field $\F_q$, such that the order of the curve is $|E(\F_q)|= q+1-t$. It is the content of the complex multiplication method to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weiertraß equation, such that the curve has the desired order $r$. 
+holds. If those numbers exist, we call $D$ the \textit{CM-discriminant} and we know that we can construct a curve $E(\F_q)$ over a finite field $\F_q$, such that the order of the curve is $|E(\F_q)|= q+1-t$. 
+
+It is the content of the complex multiplication method to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weiertraß equation, such that the curve has the desired order $r$. 
 
 Finding solutions to equation XXX, can be achieved in different ways, which we will not look much into. In general it can be said, that there are well known constrctions for elliptic curve families like the BLS (ECT) families, that provides families of solutions. In what follows we will look at one type curves the BLS-family, which gives an entire rane of solutions.
 
-Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so called \textit{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the underlying set of the so called \textit{ideal class group} of $D$, which for our purposes can be represented as:
+Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so called \textit{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
 \begin{multline*}
 ICG(D)=\{(A,B,C)\;|\; A,B,C\in\Z, D = B^2-4AC, gcd(A,B,C)=1, \\
 |B|\leq A \leq \sqrt{\frac{|D|}{3}}, A\leq C, 
 \text{ if } B< 0 \text{ then } |B| < A < C\}
 \end{multline*} 
-On way to compute this set, is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $A$ in the range $[0,\ldots,A_{max}]$ as well as through all the integers $B$ in the range $[-A_{max},\ldots,A_{max}]$ and to see if there is an integer $C$, that satisfies $D = B^2-4AC$ and the rest of the requirements in XXX.
+One way to compute this set, is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $A$ in the range $[0,\ldots,A_{max}]$ as well as through all the integers $B$ in the range $[-A_{max},\ldots,A_{max}]$ and to see if there is an integer $C$, that satisfies $D = B^2-4AC$ and the rest of the requirements in XXX.
 
-To compute the Hilbert class polynomial, the so called \textit{$j$-invariant} (or $j$-function) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as
+To compute the Hilbert class polynomial, the so called \textit{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as
 \begin{equation}
 j: \mathbb{H} \to \mathbb{C}
 \end{equation}
-For the sake of this book it is not importanted to actually understand the $j$-function and we can use sage to compute it in a similar way as we would use sage to computer any other well known functions. It should be noted however, that the computation of the $j$-function in sage is sometimes prone to precision errors. For example the $j$-function has a root in $\frac{-1+i\sqrt{3}}{2}$, which sage only approximates. Therefore using sage to compute the $j$-function, we need to take precision loss into account and eventually round to the nearest integer.
-%\begin{sagecommandline}
-%sage: elliptic_j(CC(i))
-%sage: # j-function only defined for positive imaginary arguments
-%sage: try:
-%....:     elliptic_j(CC(0))
-%....: except PariError:
-%....:     pass
-%sage: # root at (-1+i)/2
-%sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2)
-%sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2).imag().round()
-%sage: elliptic_j((-1+CC(i)*sqrt(CC(3)))/2).real().round()
-%\end{sagecommandline}
+Roughly speaking what this means is that the $j$-functions takes complex numbers 
+$(x +i\cdot y)$ with positive imaginary part $y>0$ as inputs and returns a complex number $j(x+i\cdot y)$ as result.
 
-With a way to compute the $j$-function and the precomputed set $ICG(D)$ of the ideal class group at hand, we can now compute the Hilbert class polynomial as
+For the sake of this book it is not importanted to actually understand the $j$-function and we can use sage to compute it in a similar way as we would use sage to computer any other well known function. It should be noted however, that the computation of the $j$-function in sage is sometimes prone to precision errors. For example the $j$-function has a root in $\frac{-1+i\sqrt{3}}{2}$, which sage only approximates. Therefore using sage to compute the $j$-function, we need to take precision loss into account and eventually round to the nearest integer.
+\begin{sagecommandline}
+sage: z = ComplexField(100)(0,1)
+sage: z # (0+1i)
+sage: elliptic_j(z)
+sage: # j-function only defined for positive imaginary arguments
+sage: z = ComplexField(100)(1,-1)
+sage: try:
+....:     elliptic_j(z)
+....: except PariError:
+....:     pass
+sage: # root at (-1+i sqrt(3))/2
+sage: z = ComplexField(100)(-1,sqrt(3))/2
+sage: elliptic_j(z)
+sage: elliptic_j(z).imag().round()
+sage: elliptic_j(z).real().round()
+\end{sagecommandline}
+With a way to compute the $j$-function and the precomputed set $ICG(D)$ at hand, we can now compute the Hilbert class polynomial as
 \begin{equation}
 H_D(x) = \Pi_{(A,B,C)\in ICG(D)} \left(x - j\left(\frac{-B + \sqrt{D}}{2A}\right)\right)
 \end{equation}
+So what we do is we loop over all elements $(A,B,C)$ from the set $ICG(D)$ and compute the $j$-function at the point $\frac{-B + \sqrt{D}}{2A}$, where $D$ is the CM-discriminant that we decided in a previous step. The result then defines a factor of the Hilbert class polynomial and all factors are multiplied together.
+
 It can be shown, that the Hilbert class polynomial is an integer polynomial, but actual computations need high pecision arithmetics to avoid approximation errors, that usually occure in computer approximations of the $j$-function as shown above. So in case the calculated Hilbert class polynomial does not have integer coefficients, we need to round the result to the nearest integer. Given that the precision we used was high enough, the result will be correct.
 
 In the next step we use the Hilbert class polynomial $H_D\in \Z[x]$ and project it to a polynomial $H_{D,q}\in\F_q[x]$ with coefficients in the base field $\F_q$ as choosen in the first step. We do this by simply computing the new coefficients as the old coefficients modulus $p$, that is if $H_D(x)= a_mx^m +a_{m-1}x^{m-1}+\ldots + a_1 x + a_0$ we compute the $q$-modulus of each coefficient
@@ -1383,37 +1380,39 @@ $\tilde{a}_j = \Zmod{a_j}{p}$ which defines the \textit{projected Hilbert class 
 $$
 H_{D,p}(x)=\tilde{a}_mx^m +\tilde{a}_{m-1}x^{m-1}+\ldots + \tilde{a}_1 x + \tilde{a}_0
 $$
-We then search for roots of $H_{D,p}$, since every root $j_0$ of $H_{D,p}$ defines a family of elliptic curves over $\F_q$, which all have a $j$-invariant equal to $j_0$. However not all of them must have the correct trace of Frobenious and therefore might have a wrong order. 
+We then search for roots of $H_{D,p}$, since every root $j_0$ of $H_{D,p}$ defines a family of elliptic curves over $\F_q$, which all have a $j$-invariant XXX equal to $j_0$. We can pick any root and all of them will lead to proper curves eventually.
 
-To compute a actual curve with the correct order, we have to distinguish a few different cases, based on our choice of the root $j_0$ and of the CM-discriminant $D$. If $j\neq 0$ or $j\neq \Zmod{1728}{q}$ we compute $c_1=\frac{j}{(\Zmod{1728}{q}) -j}$ and then we chose some arbitrary quadratic non-residue $c_2\in \F_q$ and some arbitrary cubic non residue $c_3\in \F_q$. 
+However some of the curves with the correct $j$-invariant might have an order different from the one we initially decided on. So we need a way to decide on a curve with the correct order. 
+
+To compute such a curve, we have to distinguish a few different cases, based on our choice of the root $j_0$ and of the CM-discriminant $D$. If $j_0\neq 0$ or $j_0\neq \Zmod{1728}{q}$ we compute $c_1=\frac{j_0}{(\Zmod{1728}{q}) -j_0}$ and then we chose some arbitrary quadratic non-residue $c_2\in \F_q$ and some arbitrary cubic non residue $c_3\in \F_q$. 
 
 The following table is guranteed to define a curve with the correct order $r= q+1 -t$, for the trace of Frobenious $t$ we initally decided on:
 \begin{itemize}
-\item Case $j \neq 0 $ and $j\neq \Zmod{1728}{q}$. A curve with the correct order is defined by one of the following equations 
+\item Case $j_0 \neq 0 $ and $j_0\neq \Zmod{1728}{q}$. A curve with the correct order is defined by one of the following equations 
 \begin{equation}
 y^2 = x^3 + 3c_1x + 2c_1 \text{\;\; or \;\; } y^2 = x^3 + 3c_1c_2^2x + 2c_1c_2^3
 \end{equation}
-\item Case $j = 0 $ and $D\neq -3$. A curve with the correct order is defined by one of the following equations 
+\item Case $j_0 = 0 $ and $D\neq -3$. A curve with the correct order is defined by one of the following equations 
 \begin{equation}
 y^2 = x^3 + 1 \text{\;\; or \;\; } y^2 = x^3 + c_2^3
 \end{equation}
-\item Case $j = 0 $ and $D= -3$. A curve with the correct order is defined by one of the following equations 
+\item Case $j_0 = 0 $ and $D= -3$. A curve with the correct order is defined by one of the following equations 
 \begin{align*}
 y^2 = x^3 +1 & \text{\;\; or \;\; } y^2 = x^3 + c_2^3 \text{ \;\; or}\\  
 y^2 = x^3 + c_3^2 & \text{\;\; or \;\; } y^2 = c_3^2 c_2^3 \text{\;\; or}\\
 y^2 = x^3 + c_3^{-2} & \text{\;\; or \;\; }  y^2 = x^3 + c_3^{-2}c_2^3 
 \end{align*}
-\item Case $j = \Zmod{1728}{q} $ and $D\neq -4$. A curve with the correct order is defined by one of the following equations 
+\item Case $j_0 = \Zmod{1728}{q} $ and $D\neq -4$. A curve with the correct order is defined by one of the following equations 
 \begin{equation}
 y^2 = x^3 + x \text{\;\; or \;\; } y^2 = x^3 + c_2^2x
 \end{equation}
-\item Case $j = \Zmod{1728}{q} $ and $D= -4$. A curve with the correct order is defined by one of the following equations 
+\item Case $j_0 = \Zmod{1728}{q} $ and $D= -4$. A curve with the correct order is defined by one of the following equations 
 \begin{align*}
 y^2 = x^3 +x & \text{\;\; or \;\; } y^2 = x^3 + c_2x \text{ \;\; or}\\  
 y^2 = x^3 + c_2^2x & \text{\;\; or \;\; } y^2 = x^3 + c_2^3x
 \end{align*}
 \end{itemize} 
-To decide the proper defining Weierstraß equation, we therefore have to compute the order of any of the potential curves above and then choose the one that fits out initial requirements. Since $H_{-3,q}(x)=x$ and $H_{-4,q}= x-(\Zmod{1728}{q})$ the previous cases are exhaustive.
+To decide the proper defining Weierstraß equation, we therefore have to compute the order of any of the potential curves above and then choose the one that fits out initial requirements. Since it can be shown that the Hilbert class polynomials for the CM-discriminants $D=-3$ and $D=-4$ are given by  $H_{-3,q}(x)=x$ and $H_{-4,q}= x-(\Zmod{1728}{q})$ (EXERCISE) the previous cases are exhaustive.
 
 To summarize, using the complex multiplication method, it is possible to synthezise elliptic curve with predefined order over predefined base fields from scratch. However the curves that are constructed this way are just some representatives of a larger class of curves, all of which have the same order. In applications it is therefore sometimes more advantageous to choose a different representative from that class. To do so recall from XXX, that any curve defined by the Weierstraß equation $y^2 = x^3 + ax b$ is isomorphic to a curve of the form $y^2 = x^3 + ad^2 x + bd^3$ for some quadratic residue $d\in \F_q$. 
 
@@ -1607,69 +1606,28 @@ which we might call secp256k1. As we have seen the complex multiplication method
 %\section{twists}
 %I think this hax to wait for Volume 2, due to timing constraints...
 
-\section{Hashing to Curves} 
-
-\paragraph{Try and increment hash functions}
-One of the most straight forward ways to hash a bitstring onto an eliptic curve point, in a  secure way, is to use a cryptographic hash function together with one of the methods we described in XXX to hash to the base field of the curve. Ideally the hash function generates an image that is at least one bit longer then the bit representation of the base field modulus.
-
-The image in the base field can then be interpreted as the $x$-coordinate of the curve point and the two possible $y$-coordinates are then derived from the curve equation, while one of the bits that exceeded the modulus determines which of the two $y$-coordinates to choose.
-
-Such an approach would be easy to implement and deterministic and it will conserve the cryptographic properties of the original hash function. However not all $x$-ccordinates genrated in such a way, will result in quadratic residues, when inserted into the defining equation. It follows that not all field elements give rise to actual curve points. In fact
-% https://www.cs.umd.edu/users/gasarch/TOPICS/res/burgess.pdf
-on a prime field, only half of the field elements are quadratic residues and hence assuming an even distribution of the hash values in the field, this method would fail to generate a curve point in about half of the attempts. 
-
-One way to account for this problem is the so called \textit{try and increment} method. Its basic assumption is, that hashing different values, the result will eventually lead to a valid curve point. 
-
-Therefore instead of simply hashing a string $s$ to the field the concatenation of $s$ with additional bytes is hashed to the field instead. The bytes are initially zero and interpreted as an unsigned integer. If the first \textit{try} of hashing to the field does not result in a valid curve point, the counter is \textit{incremented} and hashed again. This is repeated until a valid curve point is found eventually.
-
-This method has the advantegous that is relatively easy to implement in code and that it preserves the cryptographic properties of the original hash function. However it is not guranteed to find a valid curve point, as there is a chance that all possible values in the choosen size of the counter bytes fail to generate a quadratic residue. Fortunately it is possible to make the probability for this arbitrarily small by choosing large enough counters and relying on the (approximate) uniformity of the hash-to-field function. 
-
-One might think that another disadvantage of this method in the context of snarks is that it can not be implemented as a circuit effectively. This however is not fully true, as a circuit/r1cs only needs to enforce the correctness of the computation. Hence for the circuit it is enough to check the hash of the string and the correct counter. It does not need to find that counter.
-
-So to be more formal, we can define a try and increment hash-to-curve like this
-
-DEF
-
-
-Conidering certain subgroups of the elliptic curve, the usefulness of this methods depends highly on the actual situation. For example if a hash to the $n$-torsion subgroup $\mathbb{G}_1$ is desired, there are two possibilities: 
-
-First generic try and increment can be used, followed by a cofactor clearing step. This way every hash on the curve is considered valid, but then projected to $\mathbb{G}_1$ afterwards 
-
-Second, the try step not only checks if the curve point actually exists, but also if it is a point in $\mathbb{G}_1$. If its not then the increment step is executed until a valid point is found. This is possible in most applications, since $\mathbb{G}_1$ is usually the by fare largest subgroup in $E$ and the probability to find a point in it is large.
-
-The situation for $\mathbb{G}_2$ as defined in XXX is different and the try and increment method usually fails to find hash values in $\mathbb{G}_2$. For once $\mathbb{G}_2$ is defined in $E$ over an extension field, not the prime field itself, so hashing to $\F$ must be extended into a hash to the extension field. This is possible, but not desireable ventually, because even if we find valid curve points in the curve, $\mathbb{G}_2$. We therefore need different approaches for hashing into $\mathbb{G}_2$
-
-
-\section{Classes of elliptic curves}
-In this section we describes ways to describe elliptic curves different from the general Weierstrass form. Alternative descriptions are sometimes useful because of DIFFERENT ways to express the group laws
-
-
-\section{Pend and Paper example curves}
-\subsection{BLS6-6 -- our pen\& paper curve}
+\paragraph{The $BLS6\_6$ pen\& paper curve}
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
+In this paragraph we to summarize our understanding of elliptic curves to derive our main pen \& paper example for the rest of the book. To do so, we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
 
-\begin{definition}[Cofactor Clearing]
-Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
-\end{definition}
+A well understood family of pairing friendly curves are the BLS curves (STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION), which are derived in [XXX]. BLS curves are particular useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. Of course the smallest embedding degree $k$ that satisfies this congruency, is $k=6$ and we therefore aim for a BLS6 curve as our main pen\&{}paper example. 
 
-In this example we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
+To apply the complex multiplication method from XXX, recall that this method starts with a definition of the base field $\F_{p^m}$ as well as the trace of Frobenious $t$ and the order of the curve. If the order $p^m-t$ is not a prime number, then  what is necessary to control is the order $r$ of the largest prime factor group. 
 
-A well understood family of pairing friendly curves are the BLS curves (STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION)
-
-BLS curves are particular useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. In this case the system of polynomials from section XXX parameterizes these curves.
-
-Of course the smallest embedding degree $k$ that satisfies the congruency, is $k=6$. We therefore aim for a BLS6 curve as our main pen\&{}paper example. 
-
-As explained in XXX, the defining polynomials for any BLS6 curve are given by
+In the case of BLS\_6 curves, the parameter $m$ is choosen to be $1$, which means that the curves are defined over prime fields. All relevent parameters $p$, $t$ and $r$ are then themselfs parameterized by the following three polynomials
 \begin{align*}
 r(x) &= \Phi_6(x)\\
 t(x) &= x+1\\
 q(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
 \end{align*}
-where $\Phi_6$ is the $6$-th cyclotomic polynomial. For any $x\in\N$, where $r(x),t(x),q(x)$ are natural numbers, with $q(x)>3$ and $r(x)>3$ those values describe elliptic curves with discriminant $D=3$, characteristic $p(x)$, prime order subgroup $r(x)$ and Frobenious trace $t(x)$.  
+where $\Phi_6$ is the $6$-th cyclotomic polynomial and  $x\in\N$ is a parameter that the designer has to choose in such a way that the evaluation of $p$, $t$ and $r$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve that they want to design. It is then guaranteed that the complex multiplication method can be used in combination with those parameters to define an elliptic curve with CM-discriminant $D=-3$ and embedding degree $k=6$ and curve equation $y^2 = x^3 +b$ for some $b\in\F_p$. 
 
-We start by looking-up the $6$-th cyclotomic polynimial which is $\Phi_{6}=x^2-x+1$ and then insert small values for $x$ into the defining polynomials $r,t,q$. This gives the following results:
+For example if the curve should target the $128$-bit security level, due to the Pholaard-rho attack (TODO) the parameter $r$ shouls be prime number of at least $256$ bits.
+
+In order to design the smallest, most unsecure BLS\_6 curve, we therefore have to find a parameter $x$, such that $r(x)$, $t(x)$ and $q(x)$ are the smallest natural numbers, that satisfy $q(x)>3$ and $r(x)>3$.  
+
+We therefore initiate the design process of our $BLS6$ curve by looking-up the $6$-th cyclotomic polynimial which is $\Phi_{6}=x^2-x+1$ and then insert small values for $x$ into the defining polynomials $r,t,q$. We get the following results:
 $$
 \begin{array}{lcr}
 x=1 & (r(x),t(x),q(x)) & (1,2,1)\\
@@ -1678,61 +1636,115 @@ x=3 & (r(x),t(x),q(x)) & (7,4,\frac{37}{3})\\
 x=4 & (r(x),t(x),q(x)) & (13,5,43)\\
 \end{array}
 $$
-Since $q(1)=1$ is not a prime number, the first $x$ that gives a proper curve is $x=2$. However such a curve would be defined over a base field of characteristic $3$ and we would rather like to avoid that. We therefore use $x=4$, which defines a curve of fields of characteristic $43$. Since the prime field $\F_{43}$ has $43$ elements and $43$ has binary representation $101011$, which are $6$ digits, the name of our pen\&{}paper curve should be $BLS6-6$.
+Since $q(1)=1$ is not a prime number, the first $x$ that gives a proper curve is $x=2$. However such a curve would be defined over a base field of characteristic $3$ and we would rather like to avoid that. We therefore find $x=4$, which defines a curve over the prime field of characteristic $43$, that has a trace of Frobenious $t=5$ and a larger order prime group of size $r=13$. 
 
-We can check that the embedding degree is indeed $6$, since $k= 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
+Since the prime field $\F_{43}$ has $43$ elements and $43$'s binary representation is $43_2= 101011$, which are $6$ digits, the name of our pen\&{}paper curve should be $BLS6\_6$, since its is common behaviour to name a BLS curve by its embedding degree and the bit-length of the modulus in the base field. We call $BLS6\_6$ the \textbf{moon-math-curve}.
 
-Strictly speaking BLS6-6 is not pairing friendly according to the definition in XXX, since indeed $r=13 > \sqrt{43}$, but the second requirement is not satisfied. This however is irrelevant as the hole point of constructing this curve is to have a "large" prime oder subgroup that is as small as possible. 
+Racalling from XXX, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a "large" prime factor group of size $13$ as expected and a small cofactor group of size $3$. Fortunately a subgroup of order $13$ is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen and paper style. 
 
-From the the defining equations of BLS curves, we can immediately deduce that BLS6-6 has a "large" subgroup of prime order $13$, which is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables. 
+We can check that the embedding degree is indeed $6$ as expected, since $k = 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
 
-To see how the rest of the curve will look, we use XX to compute the number of rational points on the curve which is either $q+1-t$ or $q+1+t$. We get $43+1-5= 39$ or $43+1+5=49$. Since our subgroup order $r=13$ must divide the number of points, it follows that our curve has $39$ point and hence a cofactor of $3$, which implies that there is a single non trivial "small" order subgroup that contains three elements.
-
-To compute the defining equation $y^2=x^3 + ax +b$ of BLS6-6, we use the complex multiplication algorithm as described above in XXX. The goal is to find $a,b\in\F_{43}$ representations, that are particulary nice to work with. As shown for example in XXX the discriminant $D$ of all BLS curves is $-3$, which gives them the general form $y^2 = x^3 +b$.
-
-This is because the Hilbert class polynomial $H_3(x)=x$, since $CL(3) = \{[1,1,1]\}$ and in this case $j(\frac{-1 + i \sqrt{3}}{1})=0$. It follows that the general curve equation is given by $y^2 = x^3 +b$ and it only remains to find $b$, such that the curve has the correct number of points which is $39$. Since $b\in \F_{43}$, we can just put values for $b$ into the equation and count points. The smallest value then is $b$ and we get
+In order to compute the defining equation $y^2=x^3 + ax + b$ of BLS6-6, we use the complex multiplication method as described in XXX. The goal is to find $a,b\in\F_{43}$ representations, that are particulary nice to work with. The authors of XXX showed that the CM-discriminant of every BLS curve is $D=-3$ and indeed the equation
+\begin{align*}
+4p & = t^2 + |D|v^2 & \Rightarrow \\ 
+4\cdot 43 & = 5^2 + |-3|v^2 & \Rightarrow \\ 
+172 & = 25 + 3 v^2 & \Leftrightarrow \\ 
+49 & = v^2
+\end{align*}
+has the two solutions $(D,v)\in\{(-3,-7),(-3,7)\}$ as expected. So $D=-3$ is indeed a proper CM-discriminant and we can deduce that the parameter $a$ has to be $0$ and that the Hilbert class polynomial is given by
 $$
-\begin{array}{lcrr}
-BLS6-6: & y^2 = x^3 + 6& \text{for all } x,y \in \F_{43}
-\end{array}
+H_{-3,43}(x) = x
 $$
-There are other choice for $b$ like $b=10$ or $b=23$, but all these curves are isomorphic and hence represent the same thing really but in different way only.
-
-Since BLS6-6 only contains $39$ points it is possible to give a visual impression of the curve:
-\includegraphics[scale=0.6]{figures/bls6-6.png}
+This implies that the $j$-invariant of $BLS6\_6$ is given by $j(BLS6\_6)=0$. We therefore have to look at case XXX in table XXX to derive a parameter $b$. To decide the proper case for $j_0=0$ and $D=-3$, we therefore have to find a quadratic non residue $c_2$ and a cubic non residue $c_3$ in $\F_{43}$. We choose 
+$c_2 =5$ and $c_3=36$. We check
+\begin{sagecommandline}
+sage: F43 = GF(43)
+sage: c2 = F43(5)
+....: try: # quadratic residue
+....:     c2.nth_root(2)
+....: except ValueError: # quadratic non residue
+....:     c2
+sage: c3 =F43(36)
+....: try:
+....:     c3.nth_root(3)
+....: except ValueError:
+....:     c3
+\end{sagecommandline} Using those numbers we check the six cases against the the expected order $39$ of the curve we want to syntesize:
+\begin{sagecommandline}
+sage: BLS61 = EllipticCurve(F43,[0,1])
+sage: BLS61.order() == 39
+sage: BLS62 = EllipticCurve(F43,[0,c2^3])
+sage: BLS62.order() == 39
+sage: BLS63 = EllipticCurve(F43,[0,c3^2])
+sage: BLS63.order() == 39
+sage: BLS64 = EllipticCurve(F43,[0,c3^2*c2^3])
+sage: BLS64.order() == 39
+sage: BLS65 = EllipticCurve(F43,[0,c3^(-2)])
+sage: BLS65.order() == 39
+sage: BLS66 = EllipticCurve(F43,[0,c3^(-2)*c2^3])
+sage: BLS66.order() == 39
+sage: BLS6 = BLS63 # our BLS6 curve in the book
+\end{sagecommandline}
+So as expeced we found an elliptic curve of the correct order $39$ over a prime field of size $43$, defined by the equation
+\begin{equation}
+BLS6\_6 := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43}\}
+\end{equation}
+There are other choice for $b$ like $b=10$ or $b=23$, but all these curves are isomorphic and hence represent the same curve really but in a different way only. Since BLS6-6 only contains $39$ points it is possible to give a visual impression of the curve:
+\begin{sagesilent}
+BLS63p = BLS63.plot()
+\end{sagesilent}
+\begin{center} 
+\sageplot[scale=.5]{BLS63p} 
+\end{center}
 As we can see our curve is somewhat nice, as it does not contain self inverse points that is points with $y=0$. It follows that the addition law can be optimized, since the branch for those cases can be eliminated. 
 
-Note: Is there a way to printe the entire addition table from https://graui.de/code/elliptic2/ here? Would be nice to have but is a bit large.
+Now since the order of $BLS6\_6$ is $39$ its group of rational points is not a finite cyclic group of prime order. However since $39=13\cdot 3$, we know that it must contain a "large" prime order group of size $13$ and a small cofactor group of order $3$. 
 
-Since the order of BLS6-6 is $39= 3\cdot 13$, we know that it has a "large" subgroup of order $13$ and small subgroup of order $3$. We can use XXX to find those groups. We have $BLS6-6(3)=\{\mathcal{O},(0,7),(0,36)\}$.
+One way to construct those subgroups is to find a generator of each group. We can achieve this by choosing an abitrary element of the group that is not the point at infinity and then multiply that point with the cofactor of the groups order. If the result is not the point at infinity, the result will be a generator and if it is the point at infinity we have to choose a different element. 
 
-In addition we have the generator $g_{BLS6}:=(13,15)$ that generates
+So in order to find a generator for the large order subgroup of size $13$, we first notice that the cofactor of $13$ is $3$, since $39=3\cdot 13$. We then need to construct an arbitray element from $BLS6\_6$. To do so in a pen and paper style, we can choose some $x\in\F_{43}$ and see if there is some $y\in\F_{43}$ that satisfies the defining weierstrass equation. We choose $x=9$ and indeed $y=2$ is then a solution, since
+\begin{align*}
+y^2 & = x^3 + 6 & \Rightarrow \\
+2^2 & = 9^3 + 6 & \Leftrightarrow \\
+4 & = 4
+\end{align*}   
+So $P=(9,2)$ is therefore a point from $BLS6\_6$. To see if we can project this point onto a generator of the large order prim group $BLS6\_6[13]$, we have to multiply $P$ with the cofactor, that is we have to compute $[3](9,2)$. After some computation (EXERCISE) we get $[3](9,2) = (13,15)$ and since this is not the point at infinity we know that it must be a generator of $BLS6\_6[13]$. We write
+\begin{equation}
+g_{BLS6\_6[13]} = (13,15)
+\end{equation}
+We can use this generator to compute the subgoup $BLS6\_6[13]$. Since computing large scalar multiplications is tedious we use sage. we get
+\begin{sagecommandline}
+sage: P = BLS6(9,2)
+sage: Q = 3*P
+sage: Q.xy()
+sage: BLS6_13 = []
+sage: for x in range(0,13):
+....:     P = x*Q
+....:     BLS6_13.append(P)
+\end{sagecommandline}
+We can therefore write the group $BLS6\_6[13]$ in logarithmic order with respect to the generator $(13,15)$ as explained in XXX. We get
 \begin{multline}
-BLS6-6(13)=\\
+BLS6\_6[13]=\\
 \{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
 (27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
 \end{multline}
-
-Computations "in the exponent": In cryptography and in particular in snarks a lot HAPPENS IN THE EXPONENT...
-
-To use our example to explain what this means observe that from this representation, we can deduce a map from the scalar field $\F_{13}$ to $BLS6-6(13)$ with respect to our generator. WE have
+Recalling from XXX, observe that the is an exponential map from the scalar field $\F_{13}$ to $BLS6\_6[13]$ with respect to our generator
 $$
-[\cdot]_{(13,15)}: \F_{13} \to BLS6-6(13)\;;\; x \mapsto [x](13,15)
+[\cdot]_{(13,15)}: \F_{13} \to BLS6\_6[13]\;;\; x \mapsto [x](13,15)
 $$
-
-So for example we have $[1]_{(13,15)}= (13,15)$, $[7]_{(13,15)}= (27,9)$ and $[0]_{(13,15)}= \mathcal{O}$. In particular this map is a homomorphism of groups from the additive group $\F_{13}$ to $BLS6-6(13)$. This means in particular, the the additive neutral element from $\F_{13}$ is mapped to $\mathcal{O}$ and negatives are mapped to inverses. For example $[-2]_{(13,15)}= - [2]_{(13,15)}$, since
-$[-2]_{(13,15)}= [11]_{(13,15)}= (33,9) = (33,-34) = -(33,34)=
-- [2]_{(13,15)}$
-
-The map also give a visualization of the ECDL problem in $BLS6-6(13)$, which is concerned with finding solutions $x\in \F_{13}$ for the equation 
-$[x]_{(13,15)}= (x,y)$ for any $(x,y) \in BLS6-6(13)$. Of course ECDL is not hard in $BLS6-6(13)$, since we can deduce the solutions easily from XXX. For example the solution to $[x]_{(13,15)}= (35,15)$ is $x=9$, since $[9](13,15)=(35,15)$.
-
-Since $[0]_{(13,15)}$ maps the group of cyclic integers modulo $13$ onto our group $BLS6-6(13)$, we can use this to write down the group law in the following way:
+So for example we have $[1]_{(13,15)}= (13,15)$, $[7]_{(13,15)}= (27,9)$ and $[0]_{(13,15)}= \mathcal{O}$. We can use this representation to do computations in $BLS6\_6[13]$ efficiently in our head using XXX. For example 
+\begin{align*}
+(27,34)\oplus (33,9)  & = [6](13,15)\oplus [11](13,15)\\
+                      & = [6+11](13,15)\\
+                      & = [4](13,15)\\
+                      & = (35,28)\\
+\end{align*}
+So XXX is all we need to do computations in $BLS6\_6[13]$ in this book. However out of convinience, the following picture lists the entire addition table of that group:
 \begingroup
     \fontsize{5pt}{5pt}\selectfont
 $$
 \begin{array}{c|ccccccccccccc}
-\cdot & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
+\oplus & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
 \hline
 \\
 \mathcal{O} & \mathcal{O}  & (13,15) & (33,34) & (38,15) & (35,28) & (26,34) & (27,34) & (27,9) & (26,9) & (35,15) & (38,28) & (33,9) & (13,28)\\
@@ -1763,34 +1775,52 @@ $$
 \end{array}
 $$
 \endgroup
+To see how the small prime order group of $BLS6\_6$ looks like we can apply the same approach but for the cofactor $13$ instead (EXERCISE). We get 
+$$
+BLS6\_6[3]=\{\mathcal{O},(0,7),(0,36)\}
+$$
+We know that $BLS6\_6$ is a pairing friendly curve by design that has an embedding degree of $k=6$. In order to compute the Weil pairing as defined in XXX, we have to decides the groups $\G_1$ and $\G_2$ as explained in XXX. 
 
-
-Cofactor clearing: 
-
-Given an arbitrary point on the curve that is not in any of our two subgroups like $(2,33)$, we can project it on both subgroups $BLS6-6(3)$ and $BLS6-6(13)$ respectively, by \textit{multiplication with the cofactor}. Since $39 = 3 \cdot 13$, we have to multiply $(2,33)$ with $13$ to map it onto $BLS6-6(3)$ and we have to multiply $(2,33)$ with $3$ to map it onto $BLS6-6(13)$. Indeed we get $[13](2,33)= (0,36)$ which is an element of $BLS6-6(3)$ and $[3](2,33)= (35,15)$ which is an element of $BLS6-6(13)$
-
-In what follows we want to compute type 2 pairings on our BLS6 curve. We therefore need to extract the subgroup $\mathbb{G}_1$ as well as $\mathbb{G}_2$ from the full $13$-torsion group. We already know from XXX that $\mathbb{G}_1$ is given by  
+Since $BLS6\_6$ has two non trivial subgroups it would be possible to use any of them as the $n$-torsion group. However in cryptography the only secure choice is the large prime order subgroup, which in our case is $BLS6\_6[13]$. so we decide to consider the $13$-torsion and define 
 \begin{multline*}
 \mathbb{G}_1=\{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
 (27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
 \end{multline*}
-
-In type 2 pairings, the group $\mathbb{G}_2$ is defined by those elements $P$ of the full $13$-torsion group, that are mapped to $43\cdot P$ under the Frobenius endomorphism XXX. Since $BLS6/\F_{13^6}$ contains $6321251664$ elements, we can not simply loop through all elements, to find the full $13$-torsion group and extract all elements from $\mathbb{G}_2$. However we can derive the full $13$-torsion as the set of all $13$-division points and then extract $G_2$ from this
+In the next step we need to construct $\G_2$,  defined by those elements $P$ of the full $13$-torsion group, that are mapped to $43\cdot P$ under the Frobenius endomorphism XXX. We know that since the embedding degree of $BLS6\_6$ is $6$, the full $13$-torsion can be found in the curve extension 
+\begin{equation}
+BLS6\_6 := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43^6}\}
+\end{equation}
+over the extension field $\F_{43^6}$. So we have to construct $\F_{43^6}$, a field that contains $6321363049$ many elements. In order to do so we use the procedure of XXX and start by choosing a non-reducible polynomial of degree $6$ from $\F_{43}[]$. We choose $p(t) = t^6+6$. Using sage we get
 \begin{sagecommandline}
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
-sage: F43_6.<v> = GF(43^6, name='v', modulus=t^6+6) # t^6+6 irreducible
+sage: p = F43t(t^6+6)
+sage: p.is_irreducible()
+sage: F43_6.<v> = GF(43^6, name='v', modulus=p) # t^6+6 irreducible
+\end{sagecommandline}
+So in particular we write elements $x\in\F_{43^6}$ as $a_0+a_1v + a_2v^2+\ldots + a_5 v^5$. Now in order to compute $\G_2$ we first extend $BLS6\_6$ to $\F_{43^6}$. After that we have to find one element $P$ from that curve, which is in the full $13$-torsion and satisfies the identity $\pi(P) = [43]P$ that is not the point at infinity. 
+
+Since $BLS6/\F_{13^6}$ contains $6321251664$ elements, its not a good strategy to simply loop through all elements. Fortunately sage has a way to loop through elements from the torsion group directly
+\begin{sagecommandline}
 sage: BLS6 = EllipticCurve (F43_6,[0 ,6])
 sage: INF = BLS6(0) # point at infinity
-sage: for P in INF.division_points(13): # PI(P) == [q]P
+sage: for P in INF.division_points(13): # full 13-torsion
+....: # PI(P) == [q]P
 ....:     if P.order() == 13: # exclude point at infinity
 ....:         PiP = BLS6([a.frobenius() for a in P])
 ....:         qP = 43*P
 ....:         if PiP == qP:
-....:             print(P.xy())
+....:             break
+sage: P.xy()
 \end{sagecommandline}
-
-Choose $g_2=(7v^2, 16v^3)$ as generator of $\mathbb{G}_2$, we get
+So we found a generator $g_2=(7v^2, 16v^3)$ of $\mathbb{G}_2$ and we can use this generator to compute $\G_2$. Using sage we get
+\begin{sagecommandline}
+sage: Q = BLS6(7*v^2,16*v^3)
+sage: BLS6_13_2 = []
+sage: for x in range(0,13):
+....:     P = x*Q
+....:     BLS6_13_2.append(P)
+\end{sagecommandline}
 \begin{multline*}
 \mathbb{G}_2=\{
 (7v^2, 16v^3) \to
@@ -2277,3 +2307,36 @@ Note however that our MNT6 curve discriminant $D=-16(4a^3 + 27 b^2)= -16(4\cdot 
 \end{remark}
 
 \subsection{Edwards curve cycles}
+
+
+\section{Hashing to Curves} 
+
+\paragraph{Try and increment hash functions}
+One of the most straight forward ways to hash a bitstring onto an eliptic curve point, in a  secure way, is to use a cryptographic hash function together with one of the methods we described in XXX to hash to the base field of the curve. Ideally the hash function generates an image that is at least one bit longer then the bit representation of the base field modulus.
+
+The image in the base field can then be interpreted as the $x$-coordinate of the curve point and the two possible $y$-coordinates are then derived from the curve equation, while one of the bits that exceeded the modulus determines which of the two $y$-coordinates to choose.
+
+Such an approach would be easy to implement and deterministic and it will conserve the cryptographic properties of the original hash function. However not all $x$-ccordinates genrated in such a way, will result in quadratic residues, when inserted into the defining equation. It follows that not all field elements give rise to actual curve points. In fact
+% https://www.cs.umd.edu/users/gasarch/TOPICS/res/burgess.pdf
+on a prime field, only half of the field elements are quadratic residues and hence assuming an even distribution of the hash values in the field, this method would fail to generate a curve point in about half of the attempts. 
+
+One way to account for this problem is the so called \textit{try and increment} method. Its basic assumption is, that hashing different values, the result will eventually lead to a valid curve point. 
+
+Therefore instead of simply hashing a string $s$ to the field the concatenation of $s$ with additional bytes is hashed to the field instead. The bytes are initially zero and interpreted as an unsigned integer. If the first \textit{try} of hashing to the field does not result in a valid curve point, the counter is \textit{incremented} and hashed again. This is repeated until a valid curve point is found eventually.
+
+This method has the advantegous that is relatively easy to implement in code and that it preserves the cryptographic properties of the original hash function. However it is not guranteed to find a valid curve point, as there is a chance that all possible values in the choosen size of the counter bytes fail to generate a quadratic residue. Fortunately it is possible to make the probability for this arbitrarily small by choosing large enough counters and relying on the (approximate) uniformity of the hash-to-field function. 
+
+One might think that another disadvantage of this method in the context of snarks is that it can not be implemented as a circuit effectively. This however is not fully true, as a circuit/r1cs only needs to enforce the correctness of the computation. Hence for the circuit it is enough to check the hash of the string and the correct counter. It does not need to find that counter.
+
+So to be more formal, we can define a try and increment hash-to-curve like this
+
+DEF
+
+
+Conidering certain subgroups of the elliptic curve, the usefulness of this methods depends highly on the actual situation. For example if a hash to the $n$-torsion subgroup $\mathbb{G}_1$ is desired, there are two possibilities: 
+
+First generic try and increment can be used, followed by a cofactor clearing step. This way every hash on the curve is considered valid, but then projected to $\mathbb{G}_1$ afterwards 
+
+Second, the try step not only checks if the curve point actually exists, but also if it is a point in $\mathbb{G}_1$. If its not then the increment step is executed until a valid point is found. This is possible in most applications, since $\mathbb{G}_1$ is usually the by fare largest subgroup in $E$ and the probability to find a point in it is large.
+
+The situation for $\mathbb{G}_2$ as defined in XXX is different and the try and increment method usually fails to find hash values in $\mathbb{G}_2$. For once $\mathbb{G}_2$ is defined in $E$ over an extension field, not the prime field itself, so hashing to $\F$ must be extended into a hash to the extension field. This is possible, but not desireable ventually, because even if we find valid curve points in the curve, $\mathbb{G}_2$. We therefore need different approaches for hashing into $\mathbb{G}_2$

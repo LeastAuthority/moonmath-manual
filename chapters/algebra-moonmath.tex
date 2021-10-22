@@ -141,6 +141,14 @@ Since the exponential map is a one-to-one correspondence, that respects the grou
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
 which is called the \textbf{discrete logarithm} map with respect to the base $g$. Discrete logarithms are highly importsnt in cryptography as there are groups, such that the exponential map and its inverse the discrete logarithm, are believed to be one way functions, that is while it is possible to compute the exponential map in polynomial time, computing the discrete log takes (sub)-exponential time. We will look at this and similar problems in more detail in the next section.
+
+
+% TODO fundamental theorem of finite cyclic groups
+% Cofactor clearing starts with aritrary group element and generates generators
+% \begin{definition}[Cofactor Clearing]
+%Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
+%\end{definition} 
+
 \subsection{Cryptographic Groups} In this section, we will look at families of groups, which are believed to satisfy certain so called \textit{computational hardness assumptions}, the latter of which is a term to express the hypothesis that a particular problem cannot be solved efficiently (where efficiently typically means "in polynomial time of a given security parameter") in the groups of consideration. 
 \begin{example} 
 To highlight the concept of a computational hardness assumption, consider the group of integers $\Z$ from example XXX. One of the best known and most researched examples of computational hardness is the assumption that the factorization of integers into prime numbers as explained in XXX can not be solved by any algorithm in polynomial time with respect to the bit-length of the integer.
@@ -855,6 +863,14 @@ One key point is that the construction of $\F_{p^m}$ depends on the choice of an
 
 It can however be shown, that the fields for different choices of $P$ are isomorphic, which means that there is a one to one identification between all of them and hence from an abstract point of view they are the same thing. From an implementations point of view however some choices are better, because they allow for faster computations.
 
+To summerize we have seen that when a prime field $\F_p$ is given then any field 
+$\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$, if and only if $m_1$ divides $m_2$ and from this we can deduces, that for any given fixed prime number, there are nested sequences of fields
+\begin{equation}
+\F_p \subset \F_{p^{m_1}} \subset \cdots \subset \F_{p^{m_k}}
+\end{equation}
+whenever the power $m_j$ divides the power $m_{j+1}$, such that $\F_{p^{m_j}}$ is a subfield of $\F_{p^{m_{j+1}}}$.
+
+To get a more intuitive picture of that the following example will construct an extension field of the prime field $\F_3$ and we can see how $\F_3$ sits inside that extension field. 
 \begin{example}[The Extension field $\F_{3^2}$]In (XXX) we have constructed the prime field $\F_3$. In this example we apply the definition (XXX) of a field extension to construct $\F_{3^2}$. We start by choosing an irreducibe polynomial of degree $2$ with coefficients in $\F_3$. We try
 $P(t)=t^2+1$. Maybe the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is never zero. WE compute
 \begin{align*}
