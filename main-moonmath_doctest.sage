@@ -480,7 +480,36 @@ sage: for P in TJJF13_4_5:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
 
-Sage commandline, line 1268::
+Sage commandline, line 1278::
+
+sage: import Crypto
+sage: from Crypto.Hash import SHA256
+sage: def try_hash(s,c):
+....:     s_1 = s+c
+....:     h = SHA256.new(s_1)
+....:     d = h.hexdigest()
+....:     d = Integer(d,base=16)
+....:     sign = d.str(2)[-5:-4]
+....:     d = d.str(2)[-4:]
+....:     z = Integer(d,base=2)
+....:     return (z,sign)
+sage: try_hash('10011001111010110100000111','0000')
+
+Sage commandline, line 1293::
+
+sage: try_hash('10011001111010110100000111','0001')
+
+Sage commandline, line 1297::
+
+sage: try_hash('10011001111010110100000111','0010')
+sage: try_hash('10011001111010110100000111','0011')
+
+Sage commandline, line 1310::
+
+sage: try_hash('10011001111010110100000111','0100')
+sage: try_hash('10011001111010110100000111','0101')
+
+Sage commandline, line 1367::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: r = 115792089237316195423570985008687907852837564279074904382605163141518161494337
@@ -488,14 +517,14 @@ sage: t = p + 1 -r
 sage: t.nbits()
 sage: abs(RR(t)) <= 2*sqrt(RR(p))
 
-Sage commandline, line 1305::
+Sage commandline, line 1404::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: F = GF(p)
 sage: j = F(1728)*((F(4)*F(0)^3)/(F(4)*F(0)^3+F(27)*F(7)^2))
 sage: j == F(0)
 
-Sage commandline, line 1354::
+Sage commandline, line 1453::
 
 sage: z = ComplexField(100)(0,1)
 sage: z # (0+1i)
@@ -512,7 +541,7 @@ sage: elliptic_j(z)
 sage: elliptic_j(z).imag().round()
 sage: elliptic_j(z).real().round()
 
-Sage commandline, line 1530::
+Sage commandline, line 1629::
 
 sage: D = -3
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
@@ -525,7 +554,7 @@ sage: v.is_integer()
 sage: 4*p == t^2 + abs(D)*v^2
 sage: v
 
-Sage commandline, line 1546::
+Sage commandline, line 1645::
 
 sage: F = GF(p)
 sage: for c2 in F:
@@ -541,7 +570,7 @@ sage: for c3 in F:
 ....:         break
 sage: c3
 
-Sage commandline, line 1562::
+Sage commandline, line 1661::
 
 sage: C1 = EllipticCurve(F,[0,1])
 sage: C1.order() == r
@@ -556,7 +585,7 @@ sage: C5.order() == r
 sage: C6 = EllipticCurve(F,[0,c3^(-2)*c2^3])
 sage: C6.order() == r
 
-Sage commandline, line 1585::
+Sage commandline, line 1684::
 
 sage: b1=86844066927987146567678238756515930889952488499230423029593188005931626003754
 sage: for b2 in F:
@@ -572,7 +601,14 @@ sage: for b2 in F:
 ....:         pass
 sage: b2
 
-Sage commandline, line 1660::
+Sage commandline, line 1745::
+
+sage: for k in range(1,42): # Fermat's little theorem
+....:     if (43^k-1)%13 == 0:
+....:         break
+sage: k
+
+Sage commandline, line 1763::
 
 sage: F43 = GF(43)
 sage: c2 = F43(5)
@@ -586,7 +622,7 @@ sage: c3 =F43(36)
 ....: except ValueError:
 ....:     c3
 
-Sage commandline, line 1673::
+Sage commandline, line 1779::
 
 sage: BLS61 = EllipticCurve(F43,[0,1])
 sage: BLS61.order() == 39
@@ -602,27 +638,27 @@ sage: BLS66 = EllipticCurve(F43,[0,c3^(-2)*c2^3])
 sage: BLS66.order() == 39
 sage: BLS6 = BLS63 # our BLS6 curve in the book
 
-Sage commandline, line 1716::
+Sage commandline, line 1822::
 
 sage: P = BLS6(9,2)
 sage: Q = 3*P
 sage: Q.xy()
 sage: BLS6_13 = []
-sage: for x in range(0,13):
+sage: for x in range(0,13): # cyclic of order 13
 ....:     P = x*Q
 ....:     BLS6_13.append(P)
 
-Sage commandline, line 1794::
+Sage commandline, line 1904::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
 sage: p = F43t(t^6+6)
 sage: p.is_irreducible()
-sage: F43_6.<v> = GF(43^6, name='v', modulus=p) # t^6+6 irreducible
+sage: F43_6.<v> = GF(43^6, name='v', modulus=p)
 
-Sage commandline, line 1804::
+Sage commandline, line 1916::
 
-sage: BLS6 = EllipticCurve (F43_6,[0 ,6])
+sage: BLS6 = EllipticCurve (F43_6,[0 ,6]) # curve extension
 sage: INF = BLS6(0) # point at infinity
 sage: for P in INF.division_points(13): # full 13-torsion
 ....: # PI(P) == [q]P
@@ -633,7 +669,7 @@ sage: for P in INF.division_points(13): # full 13-torsion
 ....:             break
 sage: P.xy()
 
-Sage commandline, line 1817::
+Sage commandline, line 1933::
 
 sage: Q = BLS6(7*v^2,16*v^3)
 sage: BLS6_13_2 = []
@@ -641,126 +677,10 @@ sage: for x in range(0,13):
 ....:     P = x*Q
 ....:     BLS6_13_2.append(P)
 
-Sage commandline, line 1847::
+Sage commandline, line 1974::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
-
-Sage commandline, line 1873::
-
-sage: F13 = GF(13)
-sage: for A in xrange(3, 13):
-....:     if (A-2) % 4 != 0:
-....:         continue
-....:     try:
-....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
-....:         E
-....:         E.order()
-....:     except:
-....:         continue
-
-Sage commandline, line 1888::
-
-sage: for d in F13:
-....:     j= ZZ(0)
-....:     for x in F13:
-....:         for y in F13:
-....:             if x^2+y^2 == 1+d*x^2*y^2:
-....:                 j=j+1
-....:     print('d=',d)
-....:     print('order=',j)
-
-Sage commandline, line 1909::
-
-sage: for x in F13:
-....:     for y in F13:
-....:         if x^2+y^2 == F13(1)+F13(7)*x^2*y^2:
-....:             print(x,y)
-
-Sage commandline, line 1943::
-
-sage: def Edwards_add((x1,y1),(x2,y2),d):
-....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13
-....: (x2)*F13(y1)*F13(y2))))
-....:     y3 = F13((F13(y1)*F13(y2)-F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13
-....: (x2)*F13(y1)*F13(y2))))
-....:     return (x3,y3)
-
-Sage commandline, line 2043::
-
-sage: F13 = GF(13)
-sage: for A in xrange(3, 13):
-....:     if (A-2) % 4 != 0:
-....:         continue
-....:     try:
-....:         E = EllipticCurve(F13, [0, A, 0, 1, 0]) # Montgomery form
-....:         E
-....:         E.order()
-....:     except:
-....:         continue
-
-Sage commandline, line 2058::
-
-sage: j = ZZ(0)
-sage: for a in F13:
-....:     for d in F13:
-....:         j = 0
-....:         for x in F13:
-....:             for y in F13:
-....:                 if a*x^2 + y^2 == 1+d*x^2*y^2:
-....:                     j=j+1
-....:         print('curve: a=',a,'d=',d,'order:',j)
-
-Sage commandline, line 2084::
-
-sage: for x in F13:
-....:     for y in F13:
-....:         if F13(2)*x^2+y^2 == F13(1)+F13(11)*x^2*y^2:
-....:             print(x,y)
-
-Sage commandline, line 2112::
-
-sage: def Edwards_add((x1,y1),(x2,y2),a,d):
-....:     x3 = F13((F13(x1)*F13(y2)+F13(y1)*F13(x2))/((F13(1)+F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
-....:     y3 = F13((F13(y1)*F13(y2)-F13(a)*F13(x1)*F13(x2))/((F13(1)-F13(d)*F13(x1)*F13(x2)*F13(y1)*F13(y2))))
-....:     return (x3,y3)
-
-Sage commandline, line 2142::
-
-sage: F7 = GF(7)
-sage: MNT4 = EllipticCurve (F7,[4 ,1])
-sage: [P.xy() for P in MNT4.points() if P.order() > 1]
-
-Sage commandline, line 2173::
-
-sage: F7t.<t> = F7[]
-sage: F7_4.<u> = GF(7^4, name='u', modulus=t^4+t+1) # embedding degree is 4
-sage: MNT4 = EllipticCurve (F7_4,[4 ,1])
-sage: INF = MNT4(0) # point at infinity
-sage: for P in INF.division_points(5): # PI(P) == [q]P
-....:     if P.order() == 5: # exclude point at infinity
-....:         PiP = MNT4([a.frobenius() for a in P])
-....:         qP = 7*P
-....:         if PiP == qP:
-....:             print(P.xy())
-
-Sage commandline, line 2201::
-
-sage: g1 = MNT4([0,1])
-sage: g2 = MNT4(2*u^3 + 5*u^2 + 4*u + 2, 2*u^3 + 3*u + 5)
-sage: g1.weil_pairing(g2,5)
-
-Sage commandline, line 2277::
-
-sage: G.<x> = GF(5^6) # embedding degree is 6
-sage: MNT6 = EllipticCurve (G,[2 ,1])
-sage: INF = MNT6(0) # point at infinity
-sage: for P in INF.division_points(7): # PI(P) == [q]P
-....:     if P.order() == 7: # exclude point at infinity
-....:         PiP = MNT6([a.frobenius() for a in P])
-....:         qP = 5*P
-....:         if PiP == qP:
-....:             print(P.xy())
 
 """
