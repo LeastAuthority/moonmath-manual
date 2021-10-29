@@ -1,40 +1,7 @@
-\chapter{Zk-Proof Systems}
-
-TODO:
-
-Barrett reduction
-
-Montgomery modular multiplication (Montgomery domain)
-
-
-Some philosophical stuff about compuational models for snarks. Bounded computability...
-
+\chapter{Statements}
+% https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
 % https://docs.zkproof.org/reference.pdf
-
-\section{Computational Models}
-Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
-% from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
-
-\begin{example}[Generalized factorization snark]
-\label{main_example_2_1}
-As one of our major running examples we want to derive a zk-SNARK for the following generalized factorization problem: 
-
-Given two numbers $a,b\in \mathbb{F}_{13}$, find two additional numbers $x,y\in \mathbb{F}_{13}$, such that
-$$
-(x\cdot y) \cdot a = b 
-$$
-and proof knowledge of those numbers, without actually revealing them.
-
-Of course this example reduces to the classic factorization problem (over $\F_{13}$ by setting $y=1$)
-
-This zero knowledge system deals with the following situation: "Given two publicly known numbers $a,b \in \mathbb{F}_{13}$ a proofer can show that they know two additional numbers $x,y\in \mathbb{F}_{13}$, such that $(x\cdot y) \cdot a = b$, without actually revealing $x$ or $y$." 
-
-Of course our choice of what information to hide and what to reveal was completely arbitrary. Every other split would also be possible, but eventually gives a different problem. 
-
-For example the task could be to not hide any of the variables.  Such 
-a system has no zero knowledge and deals with verifiable computations: "A worker can proof that they multiplied three publicly known numbers $a,b,x \in \mathbb{F}_{13}$ and that the result is $z \in \mathbb{F}_{13}$, in such a way that no verifier has to repeat the computation."
-\end{example}
-
+Ideally dvelopment of snarks should not start by implementing code directly but more abstractly by proper statement design. In this chapter we will therefore look at what statements are
 \subsection{Formal Languages}
 Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
 
@@ -212,9 +179,34 @@ example of one layer recursion over MNT4 and MNT6
 
 Any program  can be reduced to  an arithmetic circuit  (a circuit that contains only addition and multiplication gates). A particular reduction can be found for example in [BSCG+13]
 
+\section{Computational Models}
+Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
+% from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
+
+\begin{example}[Generalized factorization snark]
+\label{main_example_2_1}
+As one of our major running examples we want to derive a zk-SNARK for the following generalized factorization problem: 
+
+Given two numbers $a,b\in \mathbb{F}_{13}$, find two additional numbers $x,y\in \mathbb{F}_{13}$, such that
+$$
+(x\cdot y) \cdot a = b 
+$$
+and proof knowledge of those numbers, without actually revealing them.
+
+Of course this example reduces to the classic factorization problem (over $\F_{13}$ by setting $y=1$)
+
+This zero knowledge system deals with the following situation: "Given two publicly known numbers $a,b \in \mathbb{F}_{13}$ a proofer can show that they know two additional numbers $x,y\in \mathbb{F}_{13}$, such that $(x\cdot y) \cdot a = b$, without actually revealing $x$ or $y$." 
+
+Of course our choice of what information to hide and what to reveal was completely arbitrary. Every other split would also be possible, but eventually gives a different problem. 
+
+For example the task could be to not hide any of the variables.  Such 
+a system has no zero knowledge and deals with verifiable computations: "A worker can proof that they multiplied three publicly known numbers $a,b,x \in \mathbb{F}_{13}$ and that the result is $z \in \mathbb{F}_{13}$, in such a way that no verifier has to repeat the computation."
+\end{example}
 
 
 \subsection{Rank-1 Constraint Systems}
+The idea of R1CS is that it keeps track of the values that each variable assumes during the computation, and binds the relationships among all those variables that are implied by the computation itself. This way doing a computation properly is enforced by enforcing relations (constraints) between everyconsecutive steps in the computation.
+
 
 \begin{definition}[Rank-1 Constraint system]
 Let $\F$ be a Galois field, $i,j,k$ three numbers and $A$, $B$ and $C$ three $(i+j+1) \times k$ matrices with coefficients in $\F$. Then any vector $x= (1,\phi,w)\in \F^{1+i+j}$ that satisfies the \textbf{rank-1 constraint system} (R1CS)
