@@ -5,14 +5,22 @@ Ideally dvelopment of snarks should not start by implementing code directly but 
 \subsection{Formal Languages}
 Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
 
-In computer science, formal languages are used for defining the grammar of programming languages in which the words of the language represent concepts that are associated with particular meanings or semantics. In computational complexity theory, decision problems are typically defined as formal languages, and complexity classes are defined as the sets of the formal languages that can be parsed by machines with limited computational power. 
+To give a well known example, in computer science, formal languages are used for defining the grammar of programming languages in which the words of the language represent concepts that are associated with particular meanings or semantics. In computational complexity theory, decision problems are typically defined as formal languages, and complexity classes are defined as the sets of the formal languages that can be parsed by machines with limited computational power. 
 
-\begin{definition}[Formal Language]
-\label{def_formal_language}
- Let $\Sigma$ be a set and $\Sigma^*$ the set of all finite strings of elements from $\Sigma$. Then a \textbf{formal language} $L$ is a subset of $\Sigma^*$. The set $\Sigma$ is called the \textbf{alphabet} of $L$ and elements from $L$ are called \textbf{words}. The rules that specify which strings from $\Sigma^*$ belong to $L$ are called the \textbf{grammar} of $L$. 
+To understand the role of formale languages in snark development, recall that snarks are proofs for the correctness of certain statements and those statements can be formalized as words in a given language.
+
+To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite strings of elements from $\Sigma$ including the empty string $''\in \Sigma^*$. Then a \textbf{formal language} $L$ is in its most general definition nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \textbf{alphabet} of the language $L$ and elements from $\Sigma$ are called letters. In addition elements from the language $L$ are are called \textbf{words}. The rules that specify which strings from $\Sigma^*$ belong to $L$ and which don't belong to $L$ are called the \textbf{grammar} of the language $L$. 
+
+This is the definition of a formal language and it should not be confused with the more intuitive concept of a natural langual. The following examples will provide some intuition about formal languages.
+\begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters. 
+
+Then the associated language $L_{alt}$ is the set $\{0,1\}^*$ of all finite binary strings as every string is a proper word in this language. So for example $'101010101'\in L_{alt}$ is a proper word as well as $'0'\in L_{alt}$ or the empty word $''\in L_{alt}$. However the binary string $'101010111'\in \{0,1\}^*$ is not a proper word as it violates the grammer of $L_{alt}$. In addition the string $'0A0A0A0'$ is not a proper word as its letter are not from the proper alphabet. 
+\end{example}
+
+
 
 In the context of proofing systems we often call words \textbf{statements}.
-\end{definition}
+
 
 \begin{example}[Generalized factorization snark]
 \label{main_example_2_2}
@@ -20,15 +28,9 @@ Consider example \ref{main_example_2_1} again. Definition \ref{def_formal_langua
 
 However if we assume for the moment that the task in example \ref{main_example_2_1} is to simply find $a,b,x,y\in \F_{13}$ such that that $x\cdot y\cdot a\cdot =b$, then we can define the entire solution set as a language $L_{factor}$ over the alphabet $\Sigma = \F_{13}$. We then say that a string $w\in \Sigma^*$ is a statement in our language $L_{factor}$ if and only if $w$ consists of 4 letters $w_1,w_2,w_3,w_4$ that satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.
 \end{example}
-
-\begin{example}[Binary strings] If we take the set $\{0,1\}$ as our alphabet $\Sigma$ and imply no rules at all to form words in this set. Then our language $L$ is the set $\{0,1\}^*$ of all finite binary strings. So for example $(0,0,1,0,1,0,1,1,0)$ is a word in this language.
+\begin{example}[Programing Language]Programming languages are a very important class of formal languages. In this case the alphabet is usually (a subset) of the ASCII Table and the grammar is defined by the rules of that programming language. Words are then nothing but properly written computer programms in that language.
 \end{example}
 
-\begin{example}[Programing Language]
-\end{example}
-
-\begin{example}[Compiler]
-\end{example}
 
 
 
