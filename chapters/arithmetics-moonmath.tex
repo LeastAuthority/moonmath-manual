@@ -35,7 +35,7 @@ After this practical warm up, we introduce some basic algebraic terms like group
 \label{integer_arithmetics}
 In a sense, integer arithmetics is at the heart of large parts of modern cryptography, because it provides the most basic tools for doing computations in those systems. Fortunately, most readers will probably remember integer arithmetics from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
 
-In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}:\sme{I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper.}
+In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}:\sme{I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper. Yeah maybe we use the more suggestive leftarrows aks $\gets$ ? If a table of symbols is unavoidable then ok, I find I super ugly, though}
 \begin{equation}
 \label{integer_symbol}
 \Z := \{\ldots, -3,-2,-1,0,1,2,3,\ldots\}
@@ -57,9 +57,9 @@ In addition, we use the symbol $\N$ for the set of all \term{counting numbers} (
 \end{equation}
 
 
-To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.\sme{Instead of writing "See the definition in 4.1", we can just hyperlink the term later on. This way, we won't disrupt the flow of the text but still have the helpful option for the reader to jump back to the definition}
+To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.\sme{Instead of writing "See the definition in 4.1", we can just hyperlink the term later on. This way, we won't disrupt the flow of the text but still have the helpful option for the reader to jump back to the definition. MIRCO: Hmm yeah. Then the book doesn't work when printed. I read books printed whenever possible. Maybe I'm to old, lol. IDK, maybe both?}
 
-Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity. \sme{Is "complexity" the right word here?} We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \term{We haven't really talked about what a ring is at this point}
+Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity. \sme{Is "complexity" the right word here? MIRCO: I think so. What else?} We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \term{We haven't really talked about what a ring is at this point}
 \begin{sagecommandline}
 sage: ZZ # A sage notation for the integer type
 sage: NN # A sage notation for the counting number type
@@ -77,7 +77,7 @@ $\Prim$ is infinite and can be ordered according to size, so that we can write t
 \label{eq: primenumber_sequence}
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
 \end{equation}
-This is sequence $ A000040 $ in \ref{https://oeis.org/}{OEIS}, the Onl-Line Encyclopedia of Integer Sequences. In particular, we can talk about small and large prime numbers.\sme{What's the significance of this distinction?}
+This is sequence $ A000040 $ in \ref{https://oeis.org/}{OEIS}, the Onl-Line Encyclopedia of Integer Sequences. In particular, we can talk about small and large prime numbers.\sme{What's the significance of this distinction? TODO}
 
 As the \term{fundamental theorem of arithmetics} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed. To see that, let $ n \in \N_{\geq 2} $ be any natural number. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that
 \begin{equation}
@@ -94,13 +94,13 @@ sage: n = NN(19214758032624000)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \sme{reverse}, that is, computing the product of given a set of prime numbers, is fast. 
+This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \sme{reverse. MIRCO: inverse process? Its not reversing something actually, but my english doesn't resolve to this level very well}, that is, computing the product of given a set of prime numbers, is fast. 
 
 From this, an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \hilight{factorization problem} and, as far as we know, there is no method on a classical \uterm{Turing machine} that is able to compute this representation in \uterm{polynomial time}. The fastest algorithm known today run \uterm{sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $}.
 
 It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. \hilight{The existence of one-way functions is a basic cryptographic assumptions that the security of many crypto systems is based on}.
 
-It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \sme{Should we add some text here along the lines of "this is the best we got for now"? Possibly something on when we can reasonable quantum computers to become accessible/usable enough?}
+It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \sme{Should we add some text here along the lines of "this is the best we got for now"? Possibly something on when we can reasonable quantum computers to become accessible/usable enough? MIRCO: Sure go ahead.}
 
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
@@ -257,7 +257,7 @@ Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
 \section{Modular arithmetic}
 In mathematics, \term{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$. For example, if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The number $31$ has no meaning on a normal clock that shows hours. 
 
-The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute.\sme{Connect this to the explanation after Example \ref{ex-prime-factorization}?} In addition, we will see that it provides the foundation of what is called finite fields (See XXX).
+The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute.\sme{Connect this to the explanation after Example \ref{ex-prime-factorization}? MIRCO: No this is a different kind of hard-to-reverse-ness} In addition, we will see that it provides the foundation of what is called finite fields (See XXX).
 
 Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage the interested reader to work through the example and to discover that, \tbds{once they accept that this is a new kind of calculations, its actually not that hard}.
 \paragraph{Congurency}
@@ -312,7 +312,7 @@ If $k$ is coprime to $p$, then we can divide both sides of this congruency by $k
 \label{eq_fermat_lt_2}
 \kongru{k ^{p-1}}{1}{p}
 \end{equation} 
-We can use Sage to compute examples for both $k$ being coprime and not coprime to $p$:\sme{This Sage snippet should be described in more detail}
+We can use Sage to compute examples for both $k$ being coprime and not coprime to $p$:\sme{This Sage snippet should be described in more detail. MIRCO: TODO}
 \begin{sagecommandline}
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -327,7 +327,7 @@ Now, since for the sake of readers who have never encountered modular arithmetic
 \label{example_first_congruency}
 Assume that we choose the modulus $6$ and that our task is to solve the following congruency for $x\in \Z$
 $$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
-As many rules for congruencies are more or less same as for integers \sme{why integers?}, we can proceed in a  similar way as we would if we had an equation to solve. 
+As many rules for congruencies are more or less same as for integers \sme{why integers? MIRCO: I think this is emergent. Congruencies work on integers}, we can proceed in a  similar way as we would if we had an equation to solve. 
 Since both sides of a congruency contain ordinary integers, we can rewrite the left side as follows: $7\cdot(2x+21) + 11 = 14x + 147 = 14x +158$. We can therefore rewrite the congruency into the equivalent form
 $$\kongru{14x +158}{x-102}{6}$$
 In the next step we want to shift all instances of $x$ to left and every other term to the right. So we apply the``compatibility with translation" rules two times. In a first step we choose $k=-x$ and in a second step we choose $k=-158$. Since "compatibility with translation" transforms a congruency into an equivalent form, the solution set will not change and we get 
@@ -372,7 +372,7 @@ Readers who had not been familiar with modular arithmetics until now and who mig
 \end{array}
 \end{equation}
 has a solution, and all possible solutions of this congruence system are congruent modulo
-the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult \sme{Can we give some references here?}} In fact, the following algorithm computes the solution set: \tbds{Algorithm floated to the next page, check this for final version}
+the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult \sme{Can we give some references here? MIRCO: Yes, we need to fill in the entire "interested reader can read more about STUFF here, thing everywhere. This happens throughout the book and for no doesn't need to be commented}} In fact, the following algorithm computes the solution set: \tbds{Algorithm floated to the next page, check this for final version}
 \begin{algorithm}\caption{Chinese Reminder Theorem}
 \label{alg_ext_euclid_alg}
 \begin{algorithmic}[0]
@@ -991,7 +991,7 @@ P(x)   & =  4\cdot (-\frac{1}{4}(x^2-4)) + 1\cdot \frac{1}{8}(x^2-2x) + 3\cdot \
 And, indeed, evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
 \end{example}
 \begin{example} To give another example, more relevant to the topics of this book, let us consider the same set $S=\{(0,4),(-2,1),(2,3)\}$ as in the previous example. This time, the task is to compute a polynomial $P\in\F_5[x]$ from this data. Since we know
-that multiplicative inverses exist in $\Z_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\Z_5$ and get \sme{Is the switching between $\Z_5$ and $\F_5$ intentional here?}
+that multiplicative inverses exist in $\Z_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\Z_5$ and get \sme{Is the switching between $\Z_5$ and $\F_5$ intentional here? Yes, F_5 is not defined yet. Before the chapter about fields every F_5 should be Z_5 only afterwards should it be F_5}
 \begin{align*}
 l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
