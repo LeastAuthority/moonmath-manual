@@ -1,4 +1,4 @@
-\chapter{Arithmetics}
+\chapter{Arithmetics}\label{chap:arithmetics}
 % Reason why we need a math-chapter in a book like this:
 
 \section{Introduction}
@@ -7,7 +7,7 @@
 
 The goal of this chapter is to enable a reader who is starting out with nothing more than basic high school algebra to be able to solve basic tasks in elliptic curve cryptography without the need of a computer.
 
-How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16}, some knowledge of mathematics is needed to understand the basic concepts. 
+How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16}, some knowledge of mathematics is needed to be able to follow the discussion. 
 
 Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who
 has never seen or \tbds{played with}, say, a \uterm{finite field}, or an \uterm{elliptic curve}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that hard. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature code. 
@@ -29,7 +29,7 @@ However, in order to be able to derive these toy examples, some mathematical gro
 
 We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclid's algorithm. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
 
-After this practical warm up, we introduce some basic algebraic terms like groups and fields, because those terms are all over the place when reading academic papers relating to zero-knowledge proofs.\sme{Do you mean they are used very often or that they are used inconsistently/with differing definitions?} The beginner is  advised to memorize those terms and \tbds{think about them}. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
+After this practical warm up, we introduce some basic algebraic terms like groups and fields, because those terms are used very frequently in academic papers relating to zero-knowledge proofs. The beginner is  advised to memorize those terms and \tbds{think about them}. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
 
 \section{Integer Arithmetics}
 \label{integer_arithmetics}
@@ -41,7 +41,7 @@ In what follows, we apply standard mathematical notations, and use the symbol $\
 \Z := \{\ldots, -3,-2,-1,0,1,2,3,\ldots\}
 \end{equation}
 
-$|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
+If $a\un \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
 
 \begin{equation}
 |4|= 4 
@@ -71,7 +71,7 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-One set of number of particular interest to us are \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are \term{odd} (since even numbers are divisible by $2$. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+One set of number of particular interest to us are \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} (since even numbers greater than $2$ are all divisible by $2$, they are not prime numbers). We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
 $\Prim$ is infinite and can be ordered according to size, so that we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
@@ -94,7 +94,7 @@ sage: n = NN(19214758032624000)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-This computation reveals an important observation: Computing the factorization of a prime number is computationally expensive, while the \sme{reverse}, that is, computing the product of given a string of prime numbers, is fast. 
+This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \sme{reverse}, that is, computing the product of given a set of prime numbers, is fast. 
 
 From this, an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \hilight{factorization problem} and, as far as we know, there is no method on a classical \uterm{Turing machine} that is able to compute this representation in \uterm{polynomial time}. The fastest algorithm known today run \uterm{sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $}.
 
@@ -150,7 +150,7 @@ to describe the quotient and the remainder of the Euclidean division. We also sa
 \end{notation}
 So, in a nutshell Euclidean division is a process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor. It can be shown, that both the quotient and the remainder always exist and are unique, as long as the dividend is different from $0$.
 
-A special situation occurs if the remainder is zero, because in this case the dividend \hilight{is} divisible by the divisor. Our notation $b | a$ reflects that. 
+A special situation occurs whenever the remainder is zero, because in this case the dividend \hilight{is} divisible by the divisor. Our notation $b | a$ reflects that. 
 
 
 \begin{example} Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the divisor $-17$ and the dividend $4$, we get 
@@ -159,7 +159,7 @@ A special situation occurs if the remainder is zero, because in this case the di
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
 \end{array}
 \end{equation*}
-because $ -17 = -5 \cdot 4 + 3 $  is the Euclidean division of $-17$ and $4$ (the remainder is, by definition, a non-negative number). In this case $4$ does not divide $-17$, as the reminder is not zero. Writing $4 | -17 $ therefore is false. On the other hand we can write $4 | 12$, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke sagemath to do the computation for us. We get
+because $ -17 = -5 \cdot 4 + 3 $  is the Euclidean division of $-17$ and $4$ (the remainder is, by definition, a non-negative number). In this case $4$ does not divide $-17$, as the reminder is not zero. The truth value of the expression $4 | -17 $ therefore is FALSE. On the other hand, the truth value of $4 | 12$ is TRUE, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke SageMath to do the computation for us. We get
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(4) # Integer quotient 
 sage: ZZ(-17) % ZZ(4) # remainder 
@@ -295,7 +295,7 @@ Suppose that the congurencies $\kongru{a_1}{b_1}{n}$ as well as $\kongru{a_2}{b_
 \item $\kongru{a_1+a_2}{b_1+b_2}{n}$ (compatibility with addition)
 \item $\kongru{a_1\cdot a_2}{b_1\cdot b_2}{n}$ (compatibility with multiplication)
 \end{itemize}
-Compatibility with other rules such as subtraction and exponentiation follow from the rules above. For example, compatibility with subtraction follows from compatibility with scaling by $k=-1$ and compatibility with addition.
+Other rules, such as compatibility with subtraction and exponentiation, follow from the rules above. For example, compatibility with subtraction follows from compatibility with scaling by $k=-1$ and compatibility with addition.
 
 Note that the previous rules are implications, not equivalences, which means that you can not necessarily reverse those rules. The following rules makes this precise:
 \begin{itemize}
@@ -785,7 +785,7 @@ $ \sum _{n = 0} ^{m_2}{b} _{n}{x} $ be two polynomials from $ R[x]$. Then the \t
 \end{equation}
 A rule for polynomial subtraction can be deduced from these two rules by first multiplying the \href{https://www.splashlearn.com/math-vocabulary/subtraction/subtrahend}{subtrahend} with (the polynomial) $-1$ and then add the result to the \href{https://www.splashlearn.com/math-vocabulary/subtraction/minuend}{minuend}.
 
-Regarding ousr definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is Sage, which would violate this rule.
+Regarding the definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is Sage, which would violate this rule.
 \begin{example} To given an example of how polynomial arithmetics works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
 \begin{align*}
 (P+Q)(x) & = (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
