@@ -12,7 +12,7 @@ How much mathematics do you need to understand \uterm{zero-knowledge proofs}? Th
 Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who
 has never seen or \tbds{played with}, say, a \uterm{finite field}, or an \uterm{elliptic curve}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that hard. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature code. 
 
-This is why we dedicated this chapter to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this chapter, until they are able to solve at least most of the simple exercises. \sme{How does the reader know which exercises are simple?}
+This is why we dedicated this chapter to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this and the following chapters, until they are able to solve at least a few exercises in each chapter.
 
 If, on the other hand, you are already skilled in elliptic curve cryptography, feel free to skip this chapter and only come back to it for reference and comparison. Maybe the most interesting parts are \sme{XXX... MIRCO: Yeah all the XXX will be update by me once I finishes the first writing completely}.
 
@@ -35,13 +35,33 @@ After this practical warm up, we introduce some basic algebraic terms like group
 \label{integer_arithmetics}
 In a sense, integer arithmetics is at the heart of large parts of modern cryptography, because it provides the most basic tools for doing computations in those systems. Fortunately, most readers will probably remember integer arithmetics from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
 
-In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}:\sme{I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper. Yeah maybe we use the more suggestive leftarrows aks $\gets$ ? If a table of symbols is unavoidable then ok, I find I super ugly, though}
+In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}: \sme{S: I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper. \\
+M:Yeah maybe we use the more suggestive leftarrows aks $\gets$ ? If a table of symbols is unavoidable then ok, I find I super ugly, though\\
+S: The table below is similar to what we have in the ZKAPs whitepaper. I think it's easier to read than a wall of text explaining the same things. We can make it more visually different (e.g. typesetting it in "dark mode", and probably move it earlier in the chapter.}
+
+\vbox{\renewcommand{\arraystretch}{1.2}
+	\begin{center}
+	\hilight{Notation used in this chapter}
+	\end{center}
+	\begin{tabularx}{\textwidth}{|c|l|l|X|}
+	\hline
+	Symbol 	& Meaning of Symbol 	& Example & Explanation\\\hline\hline
+	$=$ 		& equals				& $a = r$ 							& $a$ and $r$ have the same value\\\hline
+	$:=$ 		& defining a variable 		& $\Z := \{\ldots,-2,-1,0,1,2,\ldots\}$ 	& $\Z$ is the set of integers \\\hline
+	$\in$	& from the set 			& $a \in \Z$  						&  $a$ is an integer\\\hline
+
+	\end{tabularx}
+	\renewcommand{\arraystretch}{1}
+	}%end of vbox
+
 \begin{equation}
 \label{integer_symbol}
 \Z := \{\ldots, -3,-2,-1,0,1,2,3,\ldots\}
 \end{equation}
 
-If $a\un \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
+Integers are also known as \term{whole numbers}, that is, numbers that can be written without fractional parts. Examples of numbers that are \hilight{not} integers are $\frac{2}{3}$, $1.2$ and $-1280.006$.
+
+If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
 
 \begin{equation}
 |4|= 4 
@@ -50,16 +70,20 @@ If $a\un \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $
 |-4|= 4 
 \end{equation}
 
+\tbds{add some more informal explanation of absolute value}
+
 In addition, we use the symbol $\N$ for the set of all \term{counting numbers} (also called natural numbers). So whenever you see the symbol $\mathbb{N}$, think of the set of all non negative integers including the number $0$:
 \begin{equation}
 \label{natural_symbol}
 \N := \{0,1,2,3,\ldots\}
 \end{equation}
 
+Any number that is smaller than 0, that is, any number that has a minus sign, is not part of $\N$". All counting numbers are integers, but not the other way round. In other words, counting numbers are a subset of integers.
 
-To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.\sme{Instead of writing "See the definition in 4.1", we can just hyperlink the term later on. This way, we won't disrupt the flow of the text but still have the helpful option for the reader to jump back to the definition. MIRCO: Hmm yeah. Then the book doesn't work when printed. I read books printed whenever possible. Maybe I'm to old, lol. IDK, maybe both?}
 
-Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity. \sme{Is "complexity" the right word here? MIRCO: I think so. What else?} We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \term{We haven't really talked about what a ring is at this point}
+To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
+
+Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \uterm{We haven't really talked about what a ring is at this point}
 \begin{sagecommandline}
 sage: ZZ # A sage notation for the integer type
 sage: NN # A sage notation for the counting number type
@@ -71,7 +95,7 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-One set of number of particular interest to us are \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} (since even numbers greater than $2$ are all divisible by $2$, they are not prime numbers). We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+One set of numbers that is of particular interest to us is \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} (since even numbers greater than $2$ are all divisible by $2$, they are not prime numbers). We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
 $\Prim$ is infinite and can be ordered according to size, so that we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
@@ -100,7 +124,7 @@ From this, an important question arises: How fast we can compute the prime facto
 
 It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. \hilight{The existence of one-way functions is a basic cryptographic assumptions that the security of many crypto systems is based on}.
 
-It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \sme{Should we add some text here along the lines of "this is the best we got for now"? Possibly something on when we can reasonable quantum computers to become accessible/usable enough? MIRCO: Sure go ahead.}
+It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \tbds{Should we add some text here along the lines of "this is the best we got for now"? Possibly something on when we can reasonably expect quantum computers to become accessible/usable enough? MIRCO: Sure go ahead.}
 
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
@@ -257,7 +281,7 @@ Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
 \section{Modular arithmetic}
 In mathematics, \term{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$. For example, if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The number $31$ has no meaning on a normal clock that shows hours. 
 
-The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute.\sme{Connect this to the explanation after Example \ref{ex-prime-factorization}? MIRCO: No this is a different kind of hard-to-reverse-ness} In addition, we will see that it provides the foundation of what is called finite fields (See XXX).
+The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute. In addition, we will see that it provides the foundation of what is called finite fields (\sme{See XXX}).
 
 Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage the interested reader to work through the example and to discover that, \tbds{once they accept that this is a new kind of calculations, its actually not that hard}.
 \paragraph{Congurency}
@@ -354,7 +378,7 @@ sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % 
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 \end{sagecommandline}
 \end{example}
-Readers who had not been familiar with modular arithmetics until now and who might be discouraged by how complicated modular arithmetics seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetics is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of \uterm{prime fields}(and more general \uterm{residue class rings}) takes a different view on modular arithmetics with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
+Readers who had not been familiar with modular arithmetics until now and who might be discouraged by how complicated modular arithmetics seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetics is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of \uterm{prime fields} (and more general \uterm{residue class rings}) takes a different view on modular arithmetics with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
 \begin{exercise}Choose the modulus $13$ and find all solutions $x\in \Z$ to the following congruency $\kongru{5x+4}{28+2x}{13}$
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{5}{23}$
@@ -372,7 +396,7 @@ Readers who had not been familiar with modular arithmetics until now and who mig
 \end{array}
 \end{equation}
 has a solution, and all possible solutions of this congruence system are congruent modulo
-the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult \sme{Can we give some references here? MIRCO: Yes, we need to fill in the entire "interested reader can read more about STUFF here, thing everywhere. This happens throughout the book and for no doesn't need to be commented}} In fact, the following algorithm computes the solution set: \tbds{Algorithm floated to the next page, check this for final version}
+the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult \sme{Can we give some references here? MIRCO: Yes, we need to fill in the entire "interested reader can read more about STUFF here, thing everywhere. This happens throughout the book and for no doesn't need to be commented}} In fact, the following algorithm computes the solution set: \tbds{Algorithm sometimes floated to the next page, check this for final version}
 \begin{algorithm}\caption{Chinese Reminder Theorem}
 \label{alg_ext_euclid_alg}
 \begin{algorithmic}[0]
@@ -783,7 +807,7 @@ $ \sum _{n = 0} ^{m_2}{b} _{n}{x} $ be two polynomials from $ R[x]$. Then the \t
 \begin{equation}
 \bigg (\sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{m_2 }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{m_1+m_2} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}
 \end{equation}
-A rule for polynomial subtraction can be deduced from these two rules by first multiplying the \href{https://www.splashlearn.com/math-vocabulary/subtraction/subtrahend}{subtrahend} with (the polynomial) $-1$ and then add the result to the \href{https://www.splashlearn.com/math-vocabulary/subtraction/minuend}{minuend}.
+A rule for polynomial subtraction can be deduced from these two rules by first multiplying the \href{https://www.splashlearn.com/math-vocabulary/subtraction/subtrahend}{\uterm{subtrahend}} with (the polynomial) $-1$ and then add the result to the \href{https://www.splashlearn.com/math-vocabulary/subtraction/minuend}{\uterm{minuend}}.
 
 Regarding the definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is Sage, which would violate this rule.
 \begin{example} To given an example of how polynomial arithmetics works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
@@ -991,7 +1015,9 @@ P(x)   & =  4\cdot (-\frac{1}{4}(x^2-4)) + 1\cdot \frac{1}{8}(x^2-2x) + 3\cdot \
 And, indeed, evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
 \end{example}
 \begin{example} To give another example, more relevant to the topics of this book, let us consider the same set $S=\{(0,4),(-2,1),(2,3)\}$ as in the previous example. This time, the task is to compute a polynomial $P\in\F_5[x]$ from this data. Since we know
-that multiplicative inverses exist in $\Z_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\Z_5$ and get \sme{Is the switching between $\Z_5$ and $\F_5$ intentional here? Yes, F_5 is not defined yet. Before the chapter about fields every F_5 should be Z_5 only afterwards should it be F_5}
+that multiplicative inverses exist in $\Z_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\Z_5$ and get \sme{S: Is the switching between $\Z_5$ and $\F_5$ intentional here? \\
+M: Yes, $F_5$ is not defined yet. Before the chapter about fields every $F_5$ should be $Z_5$ only afterwards should it be $F_5$\\
+S: We've already sorta introduced $F_5$: "Calling the set of remainder classes in modular $5$ arithmetics with this addition and multiplication $\F_5$ (for reasons we explain in more detail in XXX)". Should I then go ahead and delete that, and change every $F_5$ to $Z_5$ until the Prime Fields chapter?}
 \begin{align*}
 l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
