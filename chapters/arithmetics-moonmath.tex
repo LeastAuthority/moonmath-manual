@@ -1,50 +1,89 @@
-\chapter{Arithmetics}
+\chapter{Arithmetics}\label{chap:arithmetics}
 % Reason why we need a math-chapter in a book like this:
-How much mathematics is needed to understand zero knowledge proofs? The answer, of course, depends the level of detail the reader wants to understand them. It is possible to describe zero knowledge proofs not using mathematics at all, however, to read a foundational paper like [GROTH16], some understanding of mathematics is needed to at least understand the basic concepts. 
 
-Otherwise any student who is interested in learning the concepts, but who
-has never seen or played with, say, a finite field, or an elliptic curve, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needs but perhaps more because of the vast amount of technical jargon, of unknown terms, obscure symbols that quickly makes a text unreadable, despite the concepts being actually not that hard. As a result, the reader might either lose interest, or gain some dangerous smattering that in a worst case scenario materializes in immature code. 
+\section{Introduction}
 
-In this chapter we therefore derive the mathematical concepts needed to understand the basic concepts underlying snark development and we encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this chapter until they are able to at least solve most of the simple exercises. 
+\subsection{Aims and target audience}
 
-If on the other hand the reader is already skilled in elliptic curve cryptography they might skip this section and only come back for reference and comparison. Maybe the most interesting parts are XXX.
+The goal of this chapter is to enable a reader who is starting out with nothing more than basic high school algebra to be able to solve basic tasks in elliptic curve cryptography without the need of a computer.
 
-We start at a very basic level and only really requies fundamental concepts like integer arithmetics. At the same time we'll have a focus on teaching the reader how to think mathematically and to understand that there are numbers and methatical structures out there that appear to be very different from the stuff we learned in school and yet on a deeper level they are in deed very similar.
+How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16}, some knowledge of mathematics is needed to be able to follow the discussion. 
 
-We want to stress however, that our introduction is informal, incomplete and optimized to enable the reader to understand zero knowledge concepts as efficient as possible. Our focus and design choices are so that we give as little theory as necessary but accompanied by a wealth of numerical examples. We found this on the believe, that such an informal, example-
-driven approach to learning mathematics may ease the beginner’s digestion in the initial stages. 
+Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who
+has never seen or \tbds{played with}, say, a \uterm{finite field}, or an \uterm{elliptic curve}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that hard. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature code. 
 
-For instance, a beginner would be likely to find it more beneficial to first compute a simple toy snark in a pen and paper style all the way through all steps before they dig deeper and actually develop real world production ready systems. Also having already a few simple examples in you head, it is likely easier to only then read the actual academic papers. 
+This is why we dedicated this chapter to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this and the following chapters, until they are able to solve at least a few exercises in each chapter.
 
-However in order to be able to derive those toy example, some mathematical groundwork is needed. This chapter therefore will help the reader to focus on what is important, while at the same time serve as first exercises the reader is encouraged to recompute themself. Every section usually then ends with a list of additional exercises in increasing difficulty order, to help the reader memorising and applying the concepts given. 
+If, on the other hand, you are already skilled in elliptic curve cryptography, feel free to skip this chapter and only come back to it for reference and comparison. Maybe the most interesting parts are \sme{XXX... MIRCO: Yeah all the XXX will be update by me once I finishes the first writing completely}.
 
-Overall the goal of this chapter is to provide a reader who is starting with nothing more than basic high school algebra, to be able to solve basic tasks in elliptic curve cryptography without the need of a computer.
+We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like integer arithmetics. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and \uterm{methatical} structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar.
+
+We want to stress, however, that this introduction is informal, incomplete and optimized to enable the reader to understand zero-knowledge concepts as efficiently as possible. Our focus and design choices are to include as little theory as necessary, focusing on  the wealth of \tbds{numerical} examples. We believe that such an informal, example-driven approach to learning mathematics may make it easier for beginners to digest the material in the initial stages. 
+
+For instance, as a beginner, you would probably find it more beneficial to first compute a simple toy \term{snark} with pen and paper all the way through, before actually developing real-world production-ready systems. In addition, it's useful to have a few simple examples in your head before getting started with reading actual academic papers.
+
+However, in order to be able to derive these toy examples, some mathematical groundwork is needed. This chapter therefore will help you focus on what is important, accompanied by exercises that you are encouraged to recompute yourself. Every section usually ends with \tbds{a list of additional exercises} in increasing order of difficulty, to help the reader memorize and apply the concepts. 
 
 
-%Summary of this chapter
-We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisior and Euclid's algorithm. After that we introduce modular arithmetics as \textbf{the most important} skill to compute our pen and paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
+\subsection{The structure of this chapter}
 
-After this practical warm up, we have to introduce some basic algebraic terms like groups and fields, because those terms are all over the place when reading academic papers in the context of zero knowledge proof. The beginner is good advised to memorize those terms and think about them. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
+We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclid's algorithm. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
+
+After this practical warm up, we introduce some basic algebraic terms like groups and fields, because those terms are used very frequently in academic papers relating to zero-knowledge proofs. The beginner is  advised to memorize those terms and \tbds{think about them}. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
 
 \section{Integer Arithmetics}
 \label{integer_arithmetics}
-In a sense, integer arithmetics is at the hart of the foundation of large parts of modern cryptography as it provides the most basic tools to do computations in those systems. Fortunately, most readers will probably remember integer arithmetics from school. It is however important for the rest of the book to be able to apply those concepts to understand and execute computations in the various pen and paper examples that are the main contribution of the moon math manual. We will therefore recapitulate those concepts filling up some knowledge gaps.
+In a sense, integer arithmetics is at the heart of large parts of modern cryptography, because it provides the most basic tools for doing computations in those systems. Fortunately, most readers will probably remember integer arithmetics from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
 
-In what follows we apply standard mathematical notations and use the symbol $\mathbb{Z}$ for the set of all integers, that is we write
+In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}: \sme{S: I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper. \\
+M:Yeah maybe we use the more suggestive leftarrows aks $\gets$ ? If a table of symbols is unavoidable then ok, I find I super ugly, though\\
+S: The table below is similar to what we have in the ZKAPs whitepaper. I think it's easier to read than a wall of text explaining the same things. We can make it more visually different (e.g. typesetting it in "dark mode", and probably move it earlier in the chapter.}
+
+\vbox{\renewcommand{\arraystretch}{1.2}
+	\begin{center}
+	\hilight{Notation used in this chapter}
+	\end{center}
+	\begin{tabularx}{\textwidth}{|c|l|l|X|}
+	\hline
+	Symbol 	& Meaning of Symbol 	& Example & Explanation\\\hline\hline
+	$=$ 		& equals				& $a = r$ 							& $a$ and $r$ have the same value\\\hline
+	$:=$ 		& defining a variable 		& $\Z := \{\ldots,-2,-1,0,1,2,\ldots\}$ 	& $\Z$ is the set of integers \\\hline
+	$\in$	& from the set 			& $a \in \Z$  						&  $a$ is an integer\\\hline
+
+	\end{tabularx}
+	\renewcommand{\arraystretch}{1}
+	}%end of vbox
+
 \begin{equation}
 \label{integer_symbol}
 \Z := \{\ldots, -3,-2,-1,0,1,2,3,\ldots\}
 \end{equation}
-So whenever you see the symbol $\mathbb{Z}$, think of the set of all integers. If $a \in \Z$ is an integer, we write $|a|$ for the \textit{absolute value} of $a$, that is the the non-negative value of $a$ without regard to its sign. In addition we will use the symbol $\N$ for the set of all counting numbers, that is we write 
+
+Integers are also known as \term{whole numbers}, that is, numbers that can be written without fractional parts. Examples of numbers that are \hilight{not} integers are $\frac{2}{3}$, $1.2$ and $-1280.006$.
+
+If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
+
 \begin{equation}
-\label{integer_symbol}
+|4|= 4 
+\end{equation}
+\begin{equation}
+|-4|= 4 
+\end{equation}
+
+\tbds{add some more informal explanation of absolute value}
+
+In addition, we use the symbol $\N$ for the set of all \term{counting numbers} (also called natural numbers). So whenever you see the symbol $\mathbb{N}$, think of the set of all non negative integers including the number $0$:
+\begin{equation}
+\label{natural_symbol}
 \N := \{0,1,2,3,\ldots\}
 \end{equation}
-including the number $0$. So whenever you see the symbol $\mathbb{N}$, think of the set of all non negative integers. 
 
-To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore. 
+Any number that is smaller than 0, that is, any number that has a minus sign, is not part of $\N$". All counting numbers are integers, but not the other way round. In other words, counting numbers are a subset of integers.
 
-Both sets $\N$ and $\Z$ have a notion of addition as well as multiplication defined on them and also most of us are probably able to do many integer computations in their head, we will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer-type in sage is:
+
+To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
+
+Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \uterm{We haven't really talked about what a ring is at this point}
 \begin{sagecommandline}
 sage: ZZ # A sage notation for the integer type
 sage: NN # A sage notation for the counting number type
@@ -56,62 +95,72 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-Of particular interest for us are the so called \textit{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are divisible by themself and by $ 1 $ only. Prime numbers are called \textit{odd} if they are not the number $ 2 $. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
-$\Prim$ is infinite and can be ordered according to size, so that we can write them as
+One set of numbers that is of particular interest to us is \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} (since even numbers greater than $2$ are all divisible by $2$, they are not prime numbers). We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+$\Prim$ is infinite and can be ordered according to size, so that we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
 \end{equation}
-which is sequence $ A000040 $ in OEIS. In particular, we can talk about small and large prime numbers.
+This is sequence $ A000040 $ in \ref{https://oeis.org/}{OEIS}, the Onl-Line Encyclopedia of Integer Sequences. In particular, we can talk about small and large prime numbers.\sme{What's the significance of this distinction? TODO}
 
-As the \textit{fundamental theorem of arithmetics} tells us, prime numbers are in a certain sense the basic building blocks from which all other natural numbers are composed. To see that, let $ n \in \N_{\geq 2} $ be any natural number. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that
+As the \term{fundamental theorem of arithmetics} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed. To see that, let $ n \in \N_{\geq 2} $ be any natural number. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that
 \begin{equation}
 n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
 \end{equation}
-This representation is unique, except for permutations in the factors and is called the \textbf{prime factorization} of $n$.
-\begin{example}[Prime Factorization] To see what we mean by prime factorization of a number, lets look at the number $19214758032624000\in\N$. To get its prime factors, we can successively divide it by all prime numbers in ascending order starting with $2$. We get
+This representation is unique for each natural number (except for the order of the factors) and is called the \term{prime factorization} of $n$.
+\begin{example}[Prime Factorization]\label{ex-prime-factorization} To see what we mean by prime factorization of a number, let's look at the number $19214758032624000\in\N$. To get its prime factors, we can successively divide it by all prime numbers in ascending order starting with $2$:
 \begin{equation*}
 19214758032624000 = 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2 \cdot 3\cdot 3\cdot 3\cdot 5\cdot 5\cdot 5\cdot 7 \cdot 11 \cdot 17\cdot 17 \cdot 23 \cdot 43\cdot 43 \cdot 47
 \end{equation*}
-We can double check our findings invoking sage, which provides an algorithm to factor counting numbers:
+We can double check our findings invoking Sage, which provides an algorithm to factor counting numbers:
 \begin{sagecommandline}
 sage: n = NN(19214758032624000)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-Having done the computation from the previous example, reveals an important observation: Computing the factorization was computationally expensive, while on the other hand, giving a string of prime numbers, computing their product is fast. 
+This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \sme{reverse. MIRCO: inverse process? Its not reversing something actually, but my english doesn't resolve to this level very well}, that is, computing the product of given a set of prime numbers, is fast. 
 
-From this an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \textit{factorization problem} and as far as we know, there is no method on a classical Turing machine that is able to compute this representation in polynomial time. The fastest algorithms known today run sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $.
+From this, an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \hilight{factorization problem} and, as far as we know, there is no method on a classical \uterm{Turing machine} that is able to compute this representation in \uterm{polynomial time}. The fastest algorithm known today run \uterm{sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $}.
 
-It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of, what is called a one-way function. Something that is easy to compute in one direction, but hard to compute in the other direction. Existence of one way functions like this are basic cryptographic assumptions, that the security of many crypto systems is based on.
+It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. \hilight{The existence of one-way functions is a basic cryptographic assumptions that the security of many crypto systems is based on}.
 
-It should be pointed out however hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is, of course, that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers are available.
+It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \tbds{Should we add some text here along the lines of "this is the best we got for now"? Possibly something on when we can reasonably expect quantum computers to become accessible/usable enough? MIRCO: Sure go ahead.}
+
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
 \end{exercise}
 \begin{exercise}
-Compute the factorization of $6469693230$ and double check your results using sage.
+Compute the factorization of $6469693230$ and double check your results using Sage.
 \end{exercise}
 \begin{exercise}
-Consider the following equation $4\cdot x + 21 = 5$. Compute the set of all solutions $x$ under the following assumptions: 1. The equation is defined over the type of natural numbers. 2. The equation is defined over the type of integers.
+Consider the following equation $4\cdot x + 21 = 5$. Compute the set of all solutions for $x$ under the following alternative assumptions: 
+\begin{enumerate}
+\item The equation is defined over the type of natural numbers. 
+\item The equation is defined over the type of integers.
+\end{enumerate}
 \end{exercise}
 \begin{exercise}
-Consider the following equation $2 x^3 - x^2 - 2 x = - 1$. Compute the set of all solutions $x$ under the following assumptions: 1. The equation is defined over the type of natural numbers. 2. The equation is defined over the type of integers. 2. The equation is defined over the type $\mathbb{Q}$ of fractions.
+Consider the following equation $2 x^3 - x^2 - 2 x = - 1$. Compute the set of all solutions $x$ under the following assumptions: 
+\begin{enumerate}
+\item The equation is defined over the type of natural numbers. 
+\item The equation is defined over the type of integers.
+\item The equation is defined over the type \uterm{$\mathbb{Q}$ of fractions}.
+\end{enumerate}
 \end{exercise}
 
 \paragraph{Euclidean Division}
 \label{Euclidean_division}
-In general there is no division defined in the usual sense for integers, as for example $7$ divided by $3$ will not be an integer again. However it is possible to divide any two integers with a remainder. So for example $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
+\tbds{Division in the usual sense is not defined for integers}, as, for example, $7$ divided by $3$ will not be an integer again. However it is possible to divide any two integers with a remainder. So for example $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
 
 Doing integer division like this is probably something many of us remember from school. It is 
-usually called \textit{Euclidean division}, or division with remainder and it is an important technique, that every reader must become familiar with to understand many concepts in this book. The precise definition is as follows:
+usually called \term{Euclidean division}, or \term{division with a remainder}, and it is an essential technique to understand many concepts in this book. The precise definition is as follows:
 
 Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a counting number $ r \in \N $, with $ 0 \leq r <|b| $ such that
 \begin{equation}
 \label{eq_euklidean_division}
 a = m \cdot b + r
 \end{equation}
-This decomposition of $a$ given $b$ is called \textit{Euklidean division}, where $ a $ is called the \textit{divident}, $ b $ is called the \textit{divisor}, $m$ is called the \textit{quotient} and $r$ is called the \textit{remainder}. 
+This decomposition of $a$ given $b$ is called \term{Euclidean division}, where $ a $ is called the \term{dividend}, $ b $ is called the \term{divisor}, $m$ is called the \term{quotient} and $r$ is called the \term{remainder}. 
 \begin{notation}
 \label{eq_euklidean_division_notation}
 Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euklidean_division}). Then we often write 
@@ -123,18 +172,18 @@ Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euklide
 \end{equation}
 to describe the quotient and the remainder of the Euclidean division. We also say, that an integer $ a $ is divisible by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ b | a $.
 \end{notation}
-So in a Nutshell Euclidean division is a process of dividing one integer by another, in a way that produces a quotient and a non negative remainder the latter of which is smaller than the absolute value of the divisor. It can be shown, that both the quotient and the remainder always exist and are unique, as long as the divident is different from $0$.
+So, in a nutshell Euclidean division is a process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor. It can be shown, that both the quotient and the remainder always exist and are unique, as long as the dividend is different from $0$.
 
-A special situation occurs, is the remainder is zero, because in this special case the divident \textit{is} divisible by the divisor. Our notation $b | a$ reflects that. 
+A special situation occurs whenever the remainder is zero, because in this case the dividend \hilight{is} divisible by the divisor. Our notation $b | a$ reflects that. 
 
 
-\begin{example} Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the divisor $-17$ and the divident $4$, we get 
+\begin{example} Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the divisor $-17$ and the dividend $4$, we get 
 \begin{equation*}
 \begin{array}{lcr}
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
 \end{array}
 \end{equation*}
-because $ -17 = -5 \cdot 4 + 3 $  is the Euclidean division of $-17$ and $4$ (Since the remainder is by definition a non-negative number). In this case $4$ does not divide $-17$ as the reminder is not zero. Writing $4 | -17 $ therefore has no meaning. On the other hand we can write $4 | 12$, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke sagemath to do the computation for us. We get
+because $ -17 = -5 \cdot 4 + 3 $  is the Euclidean division of $-17$ and $4$ (the remainder is, by definition, a non-negative number). In this case $4$ does not divide $-17$, as the reminder is not zero. The truth value of the expression $4 | -17 $ therefore is FALSE. On the other hand, the truth value of $4 | 12$ is TRUE, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke SageMath to do the computation for us. We get
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(4) # Integer quotient 
 sage: ZZ(-17) % ZZ(4) # remainder 
@@ -142,40 +191,43 @@ sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 \end{sagecommandline}
 \end{example}
-Methods to compute Euclidean division for integers are called \textit{integer division algorithms}. Probably the best known algorithm is the so called \textit{long division}, that most of us might have learned in school. It should be noted however that there are faster methods like \textit{Newton–Raphson division}.
+Methods to compute Euclidean division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school. (It should be noted, however, that there are faster methods like \term{Newton–Raphson division}.)
 
-As long division is the standard method used for pen-\&-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it all over this book when we do simple pen-and-paper computations. However instead of defining the algorithm formally, we rather give some examples, that hopelly will make the process clear
+As long division is the standard method used for pen-\&-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it throughout this book when we do simple pen-and-paper computations. However, instead of defining the algorithm formally, we rather give some examples that will hopfuelly  make the process clear.
 
-\begin{example}[Integer Long Division] To give an example of integer long division algorithm, lets divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euklidean_division}, that is we need to find the quotient $m\in\Z$ and the reminder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute
+In a nutshell, the algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the dividend. \tbds{Add more explanation of how this works}
+
+\begin{example}[Integer Long Division] To give an example of integer long division algorithm, lets divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euklidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute as follows
 \begin{equation}
 \intlongdivision{143785}{17}
 \end{equation}
-We therefore get $m=8457$ as well as $r=16$ and indeed we have $143785 = 8457\cdot 17 + 16$, which we can double check invoking sage:
+We therefore get $m=8457$ as well as $r=16$ and indeed we have $143785 = 8457\cdot 17 + 16$, which we can double check invoking Sage:
 \begin{sagecommandline}
 sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 \end{sagecommandline}
-In a nutshell, the algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the dividend.
+
 \end{example}
 \begin{exercise}[Integer Long Division]
 Find an $m\in\Z$ as well as an $r\in\N$ such that $a= m\cdot b +r$ holds for the following pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$ and . In which cases are your solutions unique?
 \end{exercise}$(a,b)= (0, 7)$
 \begin{exercise}[Long Division Algorithm]
-Write an algorithm in pseudocode that computes integer long division, handling all edge cases properly.
+Write an algorithm in \uterm{pseudocode} that computes integer long division, handling all edge cases properly.
 % https://en.wikipedia.org/wiki/Division_algorithm
 \end{exercise}
 
 \paragraph{The Extended Euclidean Algorithm}
-One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so called finite fields, as we explain in XXX. In modular arithmetics it is sometimes possible to define actual division and multiplicative inverses of numbers, that is very different from inverses as we know them from other systems like factional numbers. 
+One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so-called \term{finite fields}, as we explain in XXX. In \uterm{modular arithmetics}, it is sometimes possible to define \uterm{actual division} and \uterm{multiplicative inverses} of numbers, that is very different from inverses as we know them from other systems like \uterm{factional numbers}. 
 
-However, to actually compute those inverses we have to get familiar with the so-called \textit{extended Euclidean algorithm}. To recapitulate jargon first, the \textit{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition two counting numbers are called \textbf{relative prime} or \textbf{coprime}, if their greatest common divisor is $1$.
+However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$.
 
-The extended Euclidean algorithm is then a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the equation
+The extended Euclidean algorithm is a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the following equation holds:
 \begin{equation}
 \label{eq: erw_Eukl_algo}
 gcd (a, b) = s \cdot a + t \cdot b
 \end{equation}
-holds. The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm:
+
+The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm:
 
 \begin{algorithm}\caption{Extended Euclidean Algorithm}
 \label{alg_ext_euclid_alg}
@@ -227,25 +279,26 @@ Find all numbers $k\in\N$ with $0\leq k \leq 100$ such that $gcd(100,k) = 5$.
 Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
 \end{exercise}
 \section{Modular arithmetic}
-In mathematics, so called \textit{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$, $24$ or $60$, depending on your clock. For example if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The letter of which has no meaning on a normal clock that shows hours. 
+In mathematics, \term{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$. For example, if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The number $31$ has no meaning on a normal clock that shows hours. 
 
-The number at which the wrap occurs is called the \textit{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arizes in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the exponentiation function has an inverse with respect to certain moduli, that is hard to compute. In addition we will see that it provides the foundation of what is called finite fields (See XXX)
+The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute. In addition, we will see that it provides the foundation of what is called finite fields (\sme{See XXX}).
 
-Also it will turn out that modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encouurage the interested reader to work through the example and to discover that, once they accept that this is a new kind of calculations, its actually not that hard.
+Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage the interested reader to work through the example and to discover that, \tbds{once they accept that this is a new kind of calculations, its actually not that hard}.
 \paragraph{Congurency}
-In what follows, let $n\in\N$ with $n\geq 2$ be a fixed counting number, that we will call the \textit{modulus} of our modular arithmetics system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euklidean division \ref{Euklidean_division} by $n$ will give the same remainder. We then say that two numbers are \textit{congruent} whenever they are in the same class.
+In what follows, let $n\in\N$ with $n\geq 2$ be a fixed counting number, that we will call the \term{modulus} of our modular arithmetics system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euclidean division \ref{Euclidean_division} by $n$ will give the same remainder. We then say that two numbers are \term{congruent} whenever they are in the same class.
 
 \begin{example}
-If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we Euklidean divide them by $12$. In the picture of an analog $12$-hour clock, starting at $5$ o'clock, when we add $12$ hours we are again at $5$ o'clock, representing the number $17$. On the other hand when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$. 
+If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we \tbds{perform Euclidean division on them} by $12$. In the picture of an analog $12$-hour clock, starting at $5$ o'clock, when we add $12$ hours we are again at $5$ o'clock, representing the number $17$. On the other hand, when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$. 
 \end{example}
-We can formulize this intuition of what congruency should be into a proper definition utilizing Euklidean division as explained previously \ref{integer_arithmetics}: Let $ a $, $ b \in \Z $ be two integers and $ n \in \N $ a natural number.
-Then $ a $ and $ b $ are said to be \textbf{congruent with respect to the modulus} $ n $, if and only if the equation
+We can formalize this intuition of what congruency should be into a proper definition utilizing Euclidean division (as explained previously in \ref{integer_arithmetics}): Let $ a $, $ b \in \Z $ be two integers and $ n \in \N $ a natural number.
+Then $ a $ and $ b $ are said to be \term{congruent with respect to the modulus} $ n $, if and only if the following equation holds
 \begin{equation}
 \Zmod{a}{n} = \Zmod{b}{n}
 \end{equation}
-holds. If on the other hand two numbers are not congruent with respect to a given modulus $n$, we call them \textit{incongruent} w.r.t. $n$. 
 
-A \textit{congruency} is then nothing but an equation "up to congruency", which means that the equation only needs to hold if we take the modulus on both sides. In which case we write 
+If, on the other hand, two numbers are not congruent with respect to a given modulus $n$, we call them \term{incongruent} w.r.t. $n$. 
+
+A \term{congruency} is then nothing but an equation "up to congruency", which means that the equation only needs to hold if we take the modulus on both sides. In which case we write 
 \begin{equation}
 \kongru{a}{b}{n} 
 \end{equation}
@@ -257,24 +310,24 @@ $(5,19)$, $(13,0)$, $(-4,9)$, $(0,0)$.
 Find all integers $x$, such that the congruency $\kongru{x}{4}{6}$ is satisfied.
 \end{exercise}
 \paragraph{Modular Arithmetics}
-On particulary nice thing about congruencies is, that we can do calculations (arithmetics), much like we can with integer equations. That is we can add or multiply numbers on both sides. The main difference is probably that the congruency $\kongru{a}{b}{n}$ is only equivalent to the congruency $\kongru{k\cdot a}{k\cdot b}{n}$ for some non zero integer $k\in \Z$, whenever $k$ and the modulus $n$ are coprime. The following list gives a set of useful rules:
+One particulary useful thing about congruencies is, that we can do calculations (arithmetics), much like we can with integer equations. That is, we can add or multiply numbers on both sides. The main difference is probably that the congruency $\kongru{a}{b}{n}$ is only equivalent to the congruency $\kongru{k\cdot a}{k\cdot b}{n}$ for some non zero integer $k\in \Z$, whenever $k$ and the modulus $n$ are coprime. The following list gives a set of useful rules:
 
 Suppose that the congurencies $\kongru{a_1}{b_1}{n}$ as well as $\kongru{a_2}{b_2}{n}$ are satisfied for integers $a_1,a_2,b_1,b_2\in\Z$ and that $k\in\Z$ is another integer. Then:
 \begin{itemize}
-\item $\kongru{a_1+k}{b_1+k}{n}$ (compatibility with translation)
+\item $\kongru{a_1+k}{b_1+k}{n}$ (compatibility with \href{https://en.wikipedia.org/wiki/Translation_(geometry)}{translation})
 \item $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ (compatibility with scaling)
 \item $\kongru{a_1+a_2}{b_1+b_2}{n}$ (compatibility with addition)
 \item $\kongru{a_1\cdot a_2}{b_1\cdot b_2}{n}$ (compatibility with multiplication)
 \end{itemize}
-Other rules like compatibility with subtraction and exponentiation follow from this rules, as for example compatibility with subtraction is compatibility with scaling by $k=-1$ and compatibility with addition.
+Other rules, such as compatibility with subtraction and exponentiation, follow from the rules above. For example, compatibility with subtraction follows from compatibility with scaling by $k=-1$ and compatibility with addition.
 
-Note that the previous rules are implications not equivalences, which means that you can not necessarily reverse those rules. The following rules makes this precise:
+Note that the previous rules are implications, not equivalences, which means that you can not necessarily reverse those rules. The following rules makes this precise:
 \begin{itemize}
 \item If $\kongru{a_1+k}{b_1+k}{n}$, then $\kongru{a_1}{b_1}{n}$
 \item If $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ and $k$ is coprime with $n$, then $\kongru{a_1}{b_1}{n}$
 \item If $\kongru{k\cdot a_1}{k\cdot b_1}{k\cdot n}$ , then $\kongru{a_1}{b_1}{n}$
 \end{itemize}
-Another property of congruencies, not known in the traditional arithmetics of integers is the so called \textit{Fermat's Little Theorem}. In simple words, it says that in modular arithmetics every number raised to the power of a prime number modulus is congruent to the number itself. Or, to be more precise, if $ p \in \Prim $ is a prime number and $ k \in \mathbb{Z} $ is an integer, then:
+Another property of congruencies, not known in the traditional arithmetics of integers is the  \term{Fermat's Little Theorem}. In simple words, it states that, in modular arithmetics, every number raised to the power of a prime number modulus is congruent to the number itself. Or, to be more precise, if $ p \in \Prim $ is a prime number and $ k \in \mathbb{Z} $ is an integer, then:
 \begin{equation}
 \kongru{k ^ p}{k}{p} \;,
 \end{equation}
@@ -283,7 +336,7 @@ If $k$ is coprime to $p$, then we can divide both sides of this congruency by $k
 \label{eq_fermat_lt_2}
 \kongru{k ^{p-1}}{1}{p}
 \end{equation} 
-We can invoke sage, to compute examples for both $k$ being coprime and not coprime to $p$:
+We can use Sage to compute examples for both $k$ being coprime and not coprime to $p$:\sme{This Sage snippet should be described in more detail. MIRCO: TODO}
 \begin{sagecommandline}
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -292,22 +345,22 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 \end{sagecommandline}
-Now, since this was a lot to digest for a reader who has never encountered modular arithmetics before, lets compute an example that contains most of the stuff we just described:   
+Now, since for the sake of readers who have never encountered modular arithmetics before, let's compute an example that contains most of the concepts described in this section:   
    
 \begin{example}
 \label{example_first_congruency}
 Assume that we choose the modulus $6$ and that our task is to solve the following congruency for $x\in \Z$
 $$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
-As many rules for congruencies are more or less same as for integers, we can proceed in a way similar, as we would if we had an equation to solve. 
-The first thing we notice, is that $7\cdot(2x+21) + 11= 14x +158$, since both sides of a congruency contain ordinary integers. We can therefore rewrite the congruency into the equivalent form
+As many rules for congruencies are more or less same as for integers \sme{why integers? MIRCO: I think this is emergent. Congruencies work on integers}, we can proceed in a  similar way as we would if we had an equation to solve. 
+Since both sides of a congruency contain ordinary integers, we can rewrite the left side as follows: $7\cdot(2x+21) + 11 = 14x + 147 = 14x +158$. We can therefore rewrite the congruency into the equivalent form
 $$\kongru{14x +158}{x-102}{6}$$
-In a next step we want to shift all encounters of $x$ to left and every other term to the right. So we applay the "compatibility with translation" rules two times. In a first step we choose $k=-x$ and in a second step we choose $k=-158$. Since "compatibility with translation" transforms a congruency into an equivalent form, the solution set will not change and we get 
+In the next step we want to shift all instances of $x$ to left and every other term to the right. So we apply the``compatibility with translation" rules two times. In a first step we choose $k=-x$ and in a second step we choose $k=-158$. Since "compatibility with translation" transforms a congruency into an equivalent form, the solution set will not change and we get 
 \begin{multline*}
 \kongru{14x +158}{x-102}{6} \Leftrightarrow\\
 \kongru{14x-x +158-158}{x-x-102-158}{6} \Leftrightarrow \\
 \kongru{13x}{-260}{6}
 \end{multline*}
-If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However in case of a congruency we need to make sure that the modulus and the number we want to divide by are coprime first. Only then will we get an equivalent expression. So we need to the greatest common divisor $gcd(13,6)$ and since $13$ is prime and $6$ is not a multiple of $13$, we know $gcd(13,6)=1$, so both numbers are indeed coprime. We therefore compute 
+If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruency, we need to make sure that the modulus and the number we want to divide by are coprime first – only then will we get an equivalent expression. So we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute 
 $$
 \kongru{13x}{-260}{6} \Leftrightarrow \kongru{x}{-20}{6}
 $$
@@ -315,24 +368,24 @@ Our task is now to find all integers $x$, such that $x$ is congruent to $-20$ wi
 $$
 \Zmod{x}{6} = \Zmod{-20}{6}
 $$
-Since $-4\cdot 6 +4 = -20$ we know $ \Zmod{-20}{6} = 4$ and hence we know that $x=4$ is a solution. However $22$ is another solution since $ \Zmod{22}{6} = 4$ as well and so is $-20$. In fact there are infinite many solutions given by the set
+Since $-4\cdot 6 +4 = -20$ we know $ \Zmod{-20}{6} = 4$ and hence we know that $x=4$ is a solution to this congruency. However, $22$ is another solution since $ \Zmod{22}{6} = 4$ as well, and so is $-20$. In fact, there are infinitely many solutions given by the set
 $$
 \{\ldots, -8,-2, 4,10, 16,\ldots\} = \{4+k\cdot 6 \;|\; k\in \Z\}
 $$
-Putting all this together we have shown that the every $x$ from the set $\{x=4+k\cdot 6 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{6}$. We double ckeck for, say, $x=4$ as well as $x=14 + 12\cdot 6 = 86$ using sage:
+Putting all this together, we have shown that the every $x$ from the set $\{x=4+k\cdot 6 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{6}$. We double ckeck for, say, $x=4$ as well as $x=14 + 12\cdot 6 = 86$ using sage:
 \begin{sagecommandline}
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 \end{sagecommandline}
 \end{example}
-The discouraged reader, who at this point thinks that modular aithmetics is to complicated, might consider two thinks: First, computing congruencies in modular arithmetics is not really more complicated then computations in more familiar number systems like fractional numbers. Its just a matter of getting used to it. Second, the theory of prime fields (and more general residue class rings) takes a different view on modular rithmetics with the attempt to simplify thinks. In other words, once we understand prime field arithmetics, thinks become conceptually cleaner and more easy to compute.
+Readers who had not been familiar with modular arithmetics until now and who might be discouraged by how complicated modular arithmetics seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetics is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of \uterm{prime fields} (and more general \uterm{residue class rings}) takes a different view on modular arithmetics with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
 \begin{exercise}Choose the modulus $13$ and find all solutions $x\in \Z$ to the following congruency $\kongru{5x+4}{28+2x}{13}$
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{5}{23}$
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{46}{23}$
 \end{exercise}
-\paragraph{The Chinese Remainder Theorem} We have seen in the previous paragraph how to solve congruencies in modular arithmetic. However one question that remains is, how to solve systems of congruencies, whith different moduli? The answer is given by the so called \textit{Chinese raimainder theorem}, which tells us, that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $, the so-called \textit{simultaneous congruency}
+\paragraph{The Chinese Remainder Theorem} We have seen how to solve congruencies in modular arithmetic. However, one question that remains is how to solve systems of congruencies with different moduli? The answer is given by the \term{Chinese reimainder theorem}, which states that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $, the so-called \term{simultaneous congruency}
 \begin{equation}
 \label{eq_simultaneous_congruency}
 \begin{array}{c}
@@ -342,8 +395,8 @@ The discouraged reader, who at this point thinks that modular aithmetics is to c
 \kongru{x}{a_k}{n_k} \\
 \end{array}
 \end{equation}
-has a solution and all possible solutions of this congruence system are congruent modulo
-the product $N= n_1 \cdot \ldots \cdot n_k $. In fact, the following algorithm computes the solution set:
+has a solution, and all possible solutions of this congruence system are congruent modulo
+the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult \sme{Can we give some references here? MIRCO: Yes, we need to fill in the entire "interested reader can read more about STUFF here, thing everywhere. This happens throughout the book and for no doesn't need to be commented}} In fact, the following algorithm computes the solution set: \tbds{Algorithm sometimes floated to the next page, check this for final version}
 \begin{algorithm}\caption{Chinese Reminder Theorem}
 \label{alg_ext_euclid_alg}
 \begin{algorithmic}[0]
@@ -363,7 +416,7 @@ the product $N= n_1 \cdot \ldots \cdot n_k $. In fact, the following algorithm c
 \end{algorithmic}
 \end{algorithm}
 
-This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but we don't need that extension in the book.
+
 \begin{example} To illustrate how to solve simultaneous congruences using the Chinese remainder theorem, let's look at the following system of congruencies:
 $$
 \begin{array}{c}
@@ -386,37 +439,37 @@ $$
 so we have
 $x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
 as one solution. Because $ \Zmod{2398}{1155} = 88 $ the set of all solutions is
-$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are infinitely many different solutions. We can invoke sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
+$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are infinitely many different solutions. We can invoke Sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
 \begin{sagecommandline}
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 \end{sagecommandline}
 \end{example}
-As we have seen in various examples before, computing congruencies can be cumersome and solution sets are huge in general. It is therefore advantagous to find some kind of simplification for modular arithmetic. 
+As we have seen in various examples before, computing congruencies can be cumbersome and solution sets are large in general. It is therefore advantaegous to find some kind of simplification for modular arithmetic. 
 
-Fortunately this is possible and relatively straight forward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. Then we can go a step further and identify each set of numbers with equal remainder with that remainder and call it a \textit{remainder class} or \textit{residue class} in modulo $n$ arithmetics. 
+Fortunately, this is possible and relatively straightforward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. Then we can go a step further, and identify each set of numbers with equal remainder with that remainder and call it a \term{remainder class} or \term{residue class} in modulo $n$ arithmetics. 
 
-It then follows from the properties of Euclidean division, that there are exactly $ n $ different remainder classes for every modulus $n$ and that integer addition and multiplication can be projected to a new kind of addition and multiplication on thoses classes. 
+It then follows from the properties of Euclidean division that there are exactly $ n $ different remainder classes for every modulus $n$ and that integer addition and multiplication can be projected to a new kind of addition and multiplication on those classes. 
 
-Roughly speaking the new rules for addition and multiplication are then computed by taking any element of the firsr equivalence class and some element of the second, then add or multiply them in the usual way and see in which equivalence class the result is contained.
-The following example makes the abstract idea more concrete
+Roughly speaking, the new rules for addition and multiplication are then computed by taking any element of the first equivalence class and some element of the second, then add or multiply them in the usual way and see which equivalence class the result is contained in.
+The following example makes this abstract description more concrete:
 \begin{example} [Arithmetics modulo $6$]
 \label{def_residue_ring_z_6}
-Choosing the modulus $ n = 6 $ we have six equivalence classes of integers which are congruent modulo $ 6 $ (which have the same remainder when divided by $6$) and when we identify those remainder classes, with the remainder, we get the following identification:
+Choosing the modulus $ n = 6 $, we have six equivalence classes of integers which are congruent modulo $ 6 $ (they have the same remainder when divided by $6$) and when we identify each of those remainder classes with the remainder, we get the following identification:
 $$
-\begin{array}{lll}
-0: = \{\ldots, -6,0,6,12, \ldots \}, &
-1: = \{\ldots, -5,1,7,13, \ldots \}, &
+\begin{array}{l}
+0: = \{\ldots, -6,0,6,12, \ldots \}\\
+1: = \{\ldots, -5,1,7,13, \ldots \}\\
 2: = \{\ldots, -4,2,8,14, \ldots \} \\
-3: = \{\ldots, -3,3,9,15, \ldots \}, &
-4: = \{\ldots, -2,4,10,16, \ldots \}, &
+3: = \{\ldots, -3,3,9,15, \ldots \}\\
+4: = \{\ldots, -2,4,10,16, \ldots \}\\
 5: = \{\ldots, -1,5,11,17, \ldots \}
 \end{array}
 $$
-Now to compute the addition of those equivalence classes, say $2+5$, one chooses arbitrary elements from both sets say $14$ and $-1$, adds those numbers in the usual way and then looks in which equivalence class the result will be. 
+Now to compute the addition of those equivalence classes, say $2+5$, one chooses arbitrary elements from both sets, say $14$ and $-1$, adds those numbers in the usual way and then looks at the equivalence class of the result. 
 
-So we have $14+(-1)=13$ and $13$ is in the equivalence class (of) $1$. Hence we find that $2+5=1$ in modular $6$ aithmetics, which is a more readable way to write the congruency $\kongru{2+5}{1}{6}$.
+So we get $14+(-1)=13$, and $13$ is in the equivalence class (of) $1$. Hence we find that $2+5=1$ in modular $6$ arithmetics, which is a more readable way to write the congruency $\kongru{2+5}{1}{6}$.
 
-Applying the same reasoning to all equivalence classes, addition and multiplication can  be transferred to the equivalence classes and the results are summarized in the following addition and multiplication tables for modulus $6$ aithmetics:
+Applying the same reasoning to all equivalence classes, addition and multiplication can  be transferred to  equivalence classes. The results for modulus $6$ arithmetics are summarized in the following addition and multiplication tables:
 \begin{center}
   \begin{tabular}{c | c c c c c c}
     + & 0 & 1 & 2 & 3 & 4 & 5\\\hline
@@ -437,21 +490,22 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
         5 & 0 & 5 & 2 & 3 & 2 & 1
   \end{tabular}
 \end{center}
-This way we have define a new arithmetic system, that contains just $6$ numbers and that comes with its own definition of addition and multiplication. Lets symbolize it by $\Z_6$ and call it \textit{modular 6 arithmetics}.
+This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. It is called\term{modular 6 arithmetics} and written as $\Z_6$.
 
-To see why such an identification of a congruency class with its remainder is useful and actually simplifies congruency computations a lot, lets go back to the congruency 
+To see why such an identification of a congruency class with its remainder is useful and actually simplifies congruency computations a lot, lets go back to the congruency from example \ref{example_first_congruency} again:
 \begin{equation}
 \label{example_congruency_two_1}
 \kongru{7\cdot(2x+21) + 11}{x-102}{6}
 \end{equation}
-from example \ref{example_first_congruency} again. As shown in that example, arithmetics of congruencies can deviate from ordinary arithmetics as for example division needs to check for coprimeness of the modulus and the divident and solutions are in general not unique.
 
-The point here is, that we can rewrite this congruency into an \textit{equation} over our new arithmetic type $\Z_6$ by "projecting onto the remainder classes". In particular, since $\Zmod{7}{6}= 1$, $\Zmod{21}{6}= 3$, $\Zmod{11}{6}= 5$ and $\Zmod{102}{6}= 0$ we have
+As shown in example \ref{example_first_congruency}, the arithmetics of congruencies can deviate from ordinary arithmetics: For example, division needs to check whether the modulus and the dividend are coprimes, and solutions are not unique in general.
+
+We can rewrite this congruency as an \hilight{equation} over our new arithmetic type $\Z_6$ by \term{projecting onto the remainder classes}. In particular, since $\Zmod{7}{6}= 1$, $\Zmod{21}{6}= 3$, $\Zmod{11}{6}= 5$ and $\Zmod{102}{6}= 0$ we have
 \begin{align*}
 \kongru{7\cdot(2x+21) + 11}{x-102}{6} \text{ over } \Z\\ 
 \Leftrightarrow & \; \; 1\cdot (2x+3) + 5 = x \text{ over } \Z_6
 \end{align*}
-and we can use the multiplication and addition tables to solves the equation on the right, like we would solve normal integer equations:
+We can use the multiplication and addition table above to solves the equation on the right like we would solve normal integer equations: \tbds{Add a number and title to the tables} 
 \begin{align*}
 1\cdot (2x+3) + 5 &= x & \text{ }\\
 2x+3 + 5 &= x & \text{\# addition-table: } 3+5 = 2 \\
@@ -459,9 +513,9 @@ and we can use the multiplication and addition tables to solves the equation on 
 2x+2 +4 -x &= x + 4 -x & \text{\# addition-table: } 2+4 = 0 \\
 x &= 4 &
 \end{align*}
-So we see that, despite the somewhat unfimilar rules of addition and multiplication, solving congruencies this way is very similar to solving normal equations. And indeed the solution set is identical to the solution set of the original congruency, since $4$ is identified with the set $\{4+6\cdot k\;|\; k\in\Z\}$.
+So we see that, despite the somewhat unfamilar rules of addition and multiplication, solving congruencies this way is very similar to solving normal equations. And, indeed, the solution set is identical to the solution set of the original congruency, since $4$ is identified with the set $\{4+6\cdot k\;|\; k\in\Z\}$.
 
-We can invoke sage to do computations in our modular $6$ arithmetics type. This is particulary useful to double-check our computations:
+We can invoke Sage to do computations in our modular $6$ arithmetics type. This is particularly useful to double-check our computations:
 \begin{sagecommandline}
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
@@ -469,7 +523,8 @@ sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 \end{sagecommandline}
 \end{example}
 
-\begin{jargon}[$k$-bit modulus] In cryptographic papers, we can sometimes read phrases like "$[\ldots]$ using a 4096-bit modulus". This means that the underlying modulus $n$ of the modular arithmetic used in the system has a binary representation with a length of $4096$ bits. For example, the number $6$ has the binary representation $110$ and henxe example describes a $3$-bit modulus arithmetics system.   
+\begin{jargon}[$k$-bit modulus] In cryptographic papers, we can sometimes read phrases like``$[\ldots]$ using a 4096-bit modulus". This means that the underlying modulus $n$ of the modular arithmetic used in the system has a binary representation with a length of $4096$ bits. In contrast, the number $6$ has the binary representation $110$ and hence our example \ref{def_residue_ring_z_6}
+ describes a $3$-bit modulus arithmetics system.   
 \end{jargon}
 \begin{exercise}
 Let $a,b,k$ be integers, such that $\kongru{a}{b}{n}$ holds. Show $\kongru{a^k}{b^k}{n}$.
@@ -479,49 +534,49 @@ Let $a,n$ be integers, such that $a$ and $n$ are not coprime. For which $b\in\Z$
 congruency $\kongru{a\cdot x}{b}{n}$ have a solution $x$ and how does the solution set look in that case?
 \end{exercise}
 \paragraph{Modular Inverses} 
-As we know integers can be added, subtracted and multiplied, but not divided in general, as for example $3/2$ is not an integer anymore. To see why this is, from a more theoretical perspective, lets consider the definition of a multiplicative inverse first. When we have a set that has some kind of multiplication defined on it and we have a distinguished element of that set, that behaves neutral with respect to that multiplication (doesn't change anything when multiplied with any other element), then we can define \textit{multiplicative inverses} in the following way:
+As we know, integers can be added, subtracted and multiplied so that the result is also an integer, but this is not true for the division of integers in general: for example, $3/2$ is not an integer anymore. To see why this is, from a more theoretical perspective, let us consider the definition of a multiplicative inverse first. When we have a set that has some kind of multiplication defined on it and we have a distinguished element of that set, that behaves neutrally with respect to that multiplication (doesn't change anything when multiplied with any other element), then we can define \term{multiplicative inverses} in the following way:
 
-Let $S$ be our set that has some notion $a\cdot b$ of multiplication and a \textit{neutral element} $1\in S$, such that $1\cdot a = a$ for all elements $a\in S$. Then a \textit{multiplicative inverse} $a^{-1}$ of an element $a\in S$ is defined by
+Let $S$ be our set that has some notion $a\cdot b$ of multiplication and a \term{neutral element} $1\in S$, such that $1\cdot a = a$ for all elements $a\in S$. Then a \term{multiplicative inverse} $a^{-1}$ of an element $a\in S$ is defined as follows:
 \begin{equation}
 a\cdot a^{-1} = 1
 \end{equation}
-So roughly speaking a multiplicative inverse is defined in such a way, that it cancels the original element to give $1$, whenever they are multiplied. 
+Informally speaking, the definition of a multiplicative inverse is means that it ``cancels" the original element to give $1$ when they are multiplied. 
 
-Numbers that have multiplicative inverses are of particular interest, because they immediately lead to the definition of division by those numbers. In fact if $a$ is number, such that the multiplicative inverse $a^{-1}$ exist, then we define \textit{division} by $a$ simply as multiplication by the inverse, i.e
+Numbers that have multiplicative inverses are of particular interest, because they immediately lead to the definition of division by those numbers. In fact, if $a$ is number such that the multiplicative inverse $a^{-1}$ exists, then we define \term{division} by $a$ simply as multiplication by the inverse:
 \begin{equation}
 \frac{b}{a}:= b\cdot a^{-1}
 \end{equation}
-\begin{example} Consider the set of rational numbers $\mathbb{Q}$, that is the set of all fractions. Then the neural element of multiplication is $1$, since $1\cdot a = a$ for all rational numbers. For example $1\cdot 4=4$, $1\cdot \frac{1}{4}=\frac{1}{4}$, or $1\cdot 0 =0$ and so on.
+\begin{example} Consider the set of rational numbers, also known as fractions, $\mathbb{Q}$. For this set, the neural element of multiplication is $1$, since $1\cdot a = a$ for all rational numbers. For example, $1\cdot 4=4$, $1\cdot \frac{1}{4}=\frac{1}{4}$, or $1\cdot 0 =0$ and so on.
 
-Then every rational number $a\neq 0$ has a multiplicative inverse, given by $\frac{1}{a}$. 
-For example the multiplicative inverse of $3$ is $\frac{1}{3}$, since $3\cdot \frac{1}{3}=1$, the multiplicative inverse of $\frac{5}{7}$ is $\frac{7}{5}$, since $\frac{5}{7}\cdot \frac{7}{5}=1$ and so on. 
+Every rational number $a\neq 0$ has a multiplicative inverse, given by $\frac{1}{a}$. 
+For example, the multiplicative inverse of $3$ is $\frac{1}{3}$, since $3\cdot \frac{1}{3}=1$, the multiplicative inverse of $\frac{5}{7}$ is $\frac{7}{5}$, since $\frac{5}{7}\cdot \frac{7}{5}=1$, and so on. 
 \end{example}
 \begin{example}Looking at  the set $\Z$ of integers, we see that with respect to multiplication the neutral element is the number $1$ and we notice, that no integer $a\neq 1$ has a multiplicative inverse, since the equation $a\cdot x =1$ has no integer solutions for $a\neq 1$. 
 
-The definition of multiplicative inverse works verbtim for addition, too. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse then always exist and is given by the negative number $-a$, since $a+(-1)=0$.  
+The definition of multiplicative inverse works verabtim for addition as well. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exist and is given by the negative number $-a$, since $a+(-1)=0$.  \sme{(-1) should be (-a)?}
 \end{example}
-\begin{example} Looking at the set $\Z_6$ of residual classes modulo $6$ from example XXX, we can use the multiplication table to find multiplicative inverses. To see that we look at the row of the element and then find the entry equal to $1$. If such an entry exist, the element of that column is the multiplicative inverse. If on the other hand the row has no entry equal to $1$, we know that the element has no multiplicative inverse.
+\begin{example} Looking at the set $\Z_6$ of residual classes modulo $6$ from example \ref{def_residue_ring_z_6}, we can use the multiplication table to find multiplicative inverses. To do so, we look at the row of the element and then find the entry equal to $1$. If such an entry exists, the element of that column is the multiplicative inverse. If, on the other hand, the row has no entry equal to $1$, we know that the element has no multiplicative inverse.
 
-For example in $\Z_6$ the multiplicative inverse of $5$ is $5$ itself, since $5\cdot 5=1$. We can moreover see that $5$ and $1$ are the only elements that have multiplicative inverses in $\Z_6$. 
+For example in $\Z_6$ the multiplicative inverse of $5$ is $5$ itself, since $5\cdot 5=1$. We can also see that $5$ and $1$ are the only elements that have multiplicative inverses in $\Z_6$. 
 
-Now since $5$ has a multiplicative inverse modulo $6$, it makes sense to "divide by $5$ in $\Z_6$. For example
+Now, since $5$ has a multiplicative inverse modulo $6$, it makes sense to ``divide'' by $5$ in $\Z_6$. For example
 $$
 \frac{4}{5}= 4\cdot 5^{-1} = 4\cdot 5 = 2
 $$ 
 \end{example}
-From the last example we can make the interesting observation, that while $5$ has no multiplicative inverse as an integer, it has a multiplicative inverse in modular $6$ arithmetics. 
+From the last example, we can make the interesting observation that while $5$ has no multiplicative inverse as an integer, it has a multiplicative inverse in modular $6$ arithmetics. 
 
-So the question remains, to understand, what elements have multiplicative inverses in modular arithmetics. The answer is, that in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the extended Euclidean algorithm, that there are numbers $s$ and $t$, such that 
+The remaining question is to understand which elements have multiplicative inverses in modular arithmetics. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the extended Euclidean algorithm that there are numbers $s$ and $t$, such that 
 \begin{equation}
 \label{eq_compute_multiplicative_inverse}
 1 = s\cdot n + t\cdot r
 \end{equation}
-and if we take the modulus $n$ on both sides the term $s\cdot n$ vanishes, which tells us that $\Zmod{t}{n}$ is the multiplicative inverse of $r$ in modular $n$ arithmetics.
-\begin{example}[Multiplicative inverses in $\Z_6$] In the previous example we have looked up multiplicative inverses in $\Z_6$ from lookup-table XXX. In real world examples, it is of course usually impossible to write down those lookup tables as the modulus is way too large and the sets occasionally contain more elements, then there are atoms in the observable universe.
+If we take the modulus $n$ on both sides, the term $s\cdot n$ vanishes, which tells us that $\Zmod{t}{n}$ is the multiplicative inverse of $r$ in modular $n$ arithmetics.
+\begin{example}[Multiplicative inverses in $\Z_6$] In the previous example, we looked up multiplicative inverses in $\Z_6$ from the lookup-table in Example \ref{def_residue_ring_z_6}. In real world examples, it is  usually impossible to write down those lookup tables, as the modulus is way too large, and the sets occasionally contain more elements than there are atoms in the observable universe.
 
-No to see that $2\in \Z_6$ has no multiplicative inverse in $\Z_6$ without using the lookup table, we immediately observe that $2$ and $6$ are not coprime since their greatest common divisor is $2$. If follows that equation \ref{eq_compute_multiplicative_inverse} has no solutions $s$ and $t$ and hence $2$ has no multiplicative inverse.
+Now, trying to determine that $2\in \Z_6$ has no multiplicative inverse in $\Z_6$ without using the lookup table, we immediately observe that $2$ and $6$ are not coprime, since their greatest common divisor is $2$. It follows that equation \ref{eq_compute_multiplicative_inverse} has no solutions $s$ and $t$, which means that $2$ has no multiplicative inverse in $Z_6$.
 
-The same reasoning works for $3$ and $4$, too as both are not coprime with $6$ and the only case that is different is $5$, since $ggt(6,5)=1$. To compute the multiplicative inverse of $5$ we use the extended Euclidean algorithm and compute   
+The same reasoning works for $3$ and $4$, as neither of these are coprime with $6$. The case of  $5$ is different, since $ggt(6,5)=1$. To compute the multiplicative inverse of $5$, we use the extended Euclidean algorithm and compute  the following:
 \begin{center}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ s_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
@@ -531,32 +586,33 @@ The same reasoning works for $3$ and $4$, too as both are not coprime with $6$ a
     3 & 0 & . & . \\
   \end{tabular}
 \end{center}
-So we get $s=1$ as well as $t=-1$ and have $1 = 1\cdot 6 -1\cdot 5$. From this follows that $\Zmod{-1}{6}=5$ is the multiplicative inverse of $5$ in modular $6$ arithmetics. We can double check using sage:
+
+We get $s=1$ as well as $t=-1$ and have $1 = 1\cdot 6 -1\cdot 5$. From this, it follows that $\Zmod{-1}{6}=5$ is the multiplicative inverse of $5$ in modular $6$ arithmetics. We can double check using Sage:
 \begin{sagecommandline}
 sage: ZZ(6).xgcd(ZZ(5))
 \end{sagecommandline}
 \end{example}
-At this point the attentive reader might notice, that the situation, where the modulus is a prime number is of particular interest, since we know from exercise XXX, that in this cases all remainder classes must have modular inverses, since $ggt(r,n)=1$ for prime $n$ and $r<n$. In fact Fermat's little theorem then gives a way to compute multiplicative inverses in this situation, since in case of a prime modulus $p$ and $r<p$, we have
+At this point, the attentive reader might notice that the situation where the modulus is a prime number is of particular interest, because we know from exercise XXX that in these cases all remainder classes must have modular inverses, since $ggt(r,n)=1$ for prime $n$ and $r<n$. In fact, Fermat's little theorem provides a way to compute multiplicative inverses in this situation, since in case of a prime modulus $p$ and $r<p$, \tbds{we have}
 \begin{align*}
 \kongru{r^p}{r}{p} & \Leftrightarrow \\
 \kongru{r^{p-1}}{1}{p} & \Leftrightarrow \\
 \kongru{r\cdot r^{p-2}}{1}{p}
 \end{align*}
-which tells us, that the multiplicative inverse of a residue class $r$ in modular $p$ arithmetic is precisely $r^{p-2}$.
+This tells us that the multiplicative inverse of a residue class $r$ in modular $p$ arithmetic is precisely $r^{p-2}$.
 \begin{example} [Modular $5$ arithmetics] 
 \label{primfield_z_5}
-To see the unique properties of mudular arithmetics whenever the modulus is prime numbers, we will parallel our findings from example XXX, but this time for the prime modulus $5$.
+To see the unique properties of modular arithmetics whenever the modulus is a prime number, we will replicate our findings from example \ref{def_residue_ring_z_6}, but this time for the prime modulus $5$.
 For $ n = 5 $ we have five equivalence classes of integers which are congruent modulo $ 5 $. We write
 $$
 \begin{array}{ccc}
-0: = \{\ldots, -5,0,5,10, \ldots \}, &
-1: = \{\ldots, -4,1,6,11, \ldots \}, &
+0: = \{\ldots, -5,0,5,10, \ldots \}\\
+1: = \{\ldots, -4,1,6,11, \ldots \}\\
 2: = \{\ldots, -3,2,7,12, \ldots \} \\
-3: = \{\ldots, -2,3,8,13, \ldots \}, &
+3: = \{\ldots, -2,3,8,13, \ldots \}\\
 4: = \{\ldots, -1,4,9,14, \ldots \}
 \end{array}
 $$
-Addition and multiplication can be transferred to the equivalence classes, in a way exactly similar to example XXX. This results in the following addition and multiplication tables:
+Addition and multiplication can be transferred to the equivalence classes, in a way exactly parallel to Example \ref{def_residue_ring_z_6}. This results in the following addition and multiplication tables:
 \begin{center}
   \begin{tabular}{c | c c c c c}
     + & 0 & 1 & 2 & 3 & 4 \\\hline
@@ -575,11 +631,11 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 \\\hline
       4 & 0 & 4 & 3 & 2 & 1 \\
   \end{tabular}
 \end{center}
-Calling the set of reminder classes in modular $5$ arithmetics with this addition and multiplication $\F_5$ (for reasons we explain in more detail in XXX), we see some subtle but important differences to the situation in $\Z_6$. In particular we see that in the multiplication table every remainer $r\neq 0$ has the entry $1$ in its row and therefore has a multiplicative inverse. In addition there are no non zero elements, such that their product is zero.
+Calling the set of remainder classes in modular $5$ arithmetics with this addition and multiplication $\F_5$ (for reasons we explain in more detail in XXX), we see some subtle but important differences to the situation in $\Z_6$. In particular, we see that in the multiplication table, every remainder $r\neq 0$ has the entry $1$ in its row and therefore has a multiplicative inverse. In addition, there are no non-zero elements such that their product is zero.
 
-To use Fermat's little theorem in $\F_5$ for computing multiplicative inverses (instead of using the multiplcation table), lets consider $3\in\F_3$. We know that the multiplicative inverse is then given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\F_5$.
+To use Fermat's little theorem in $\F_5$ for computing multiplicative inverses (instead of using the multiplcation table), lets consider $3\in\F_3$. We know that the multiplicative inverse is given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\F_5$.
 
-We can invoke sage to do computations in our modular $5$ arithmetics type. This is particularly useful to double-check our computations:
+We can invoke Sage to do computations in our modular $5$ arithmetics type to double-check our computations:
 \begin{sagecommandline}
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
@@ -588,7 +644,7 @@ sage: Z5(3)**(5-2) == Z5(3)**(-1)
 \end{sagecommandline}
 \end{example}
 \begin{example}
-To understand one of the principle difference in prime number modular arithmetics vs. other number modular arithmetics, consider the linear equation $a\cdot x +b=0$ defined over both types $\F_5$ and $\Z_6$. Since in $\F_5$ every non zero element has a multiplicative inverse, we can always solves equations like this, which is not true in $\Z_6$. To see that consider the equation $3x+3=0$. In $\F_5$ we have
+To understand one of the principal differences between prime number modular arithmetics and non-prime number modular arithmetics, consider the linear equation $a\cdot x +b=0$ defined over both types $\F_5$ and $\Z_6$. Since in $\F_5$ every non zero element has a multiplicative inverse, we can always solve these types of equations in $\F_5$, which is not true in $\Z_6$. To see that, consider the equation $3x+3=0$. In $\F_5$ we have the following:
 \begin{align*}
 3x+3    &= 0 & \text{\# add 2 and on both sides} \\
 3x+3+2  &= 2 & \text{\# addition-table: } 2+3 = 0 \\
@@ -596,13 +652,13 @@ To understand one of the principle difference in prime number modular arithmetic
 2\cdot(3x)      &= 2\cdot 2 & \text{\# multiplication-table: } 2+2=4 \\
  x      &= 4 & 
 \end{align*}
-So in the case of our prime number modular arithmetics, we get the unique solution $x=4$. Now consider $\Z_6$. In this case 
+So in the case of our prime number modular arithmetics, we get the unique solution $x=4$. Now consider $\Z_6$:
 \begin{align*}
 3x+3    &= 0 & \text{\# add 3 and on both sides} \\
 3x+3+3  &= 3 & \text{\# addition-table: } 3+3 = 0 \\
 3x      &= 3 & \text{\# no multiplicative inverse of 3  exists}
 \end{align*}
-So in this case, we can not solve the equation for $x$, by dividing by $3$. And indeed we use the multiplication table of $\Z_6$, we find that there are three solutions $x\in\{1,3,5\}$, such that $3x+3=0$ holds true for all of them.
+So, in this case, we cannot solve the equation for $x$ by dividing by $3$. And, indeed, when we look at the multiplication table of $\Z_6$ (Example \ref{def_residue_ring_z_6}), we find that there are three solutions $x\in\{1,3,5\}$, such that $3x+3=0$ holds true for all of them.
 \end{example}
 \begin{exercise}
 Consider the modulus $n=24$. Which of the integers $7$, $1$, $0$, $805$, $-4255$ have multiplicative inverses in modular $24$ arithmetics? Compute the inverses, in case they exist.
@@ -618,20 +674,20 @@ A polynomial is an expression consisting of variables (also called indeterminate
 \begin{equation}
 P(x) := \sum _{j = 0} ^{m}{a} _{j}{t} ^{j} ={a} _{m}x^m +{a} _{m-1} x^{m-1} + \dots + a_1 x + a_0 \;,
 \end{equation}
-where $x$ is called the \textit{indeterminate}, each $ a_j$ is called a \textit{coefficient}. If $R$ is the type of the coefficients then the set of all \textbf{univariate polynomials with coefficients in $R$} is written as $R[x]$. We often simply \textit{polynomial} instead of univariate polynomial, write $ P (x) \in R[x]$ for a polynomial and denote the constant term as $ P(0)$. 
+where $x$ is called the \term{indeterminate}, each $ a_j$ is called a \term{coefficient}. If $R$ is the type of the coefficients, then the set of all \hilight{univariate polynomials with coefficients in $R$} is written as $R[x]$. We often simply use \term{polynomial} instead of univariate polynomial, write $ P (x) \in R[x]$ for a polynomial and denote the constant term as $ P(0)$. 
 
-A polynomial is called the \textit{zero polynomial} if all coefficients are zero and a polynomial is called the \textit{one polynomial} if the constant term is $1$ and all other coefficients are zero.
+A polynomial is called the \term{zero polynomial} if all coefficients are zero and a polynomial is called the \term{one polynomial} if the constant term is $1$ and all other coefficients are zero.
 
 If an univariate polynomial $P(x)=\sum_{j=0}^m a_jx^j$ is given, that is not the zero polynomial, we call 
 \begin{equation}
 deg(P):=m
 \end{equation}
-the \textit{degree} of $P$ and define the degree of the zero polynomial to be $-\infty$, where $-\infty$ (negative infinity) is a symbol with the property that $-\infty + m = -\infty$ for all counting numbers $m\in\N$. In addition we write 
+the \textit{degree} of $P$ and define the degree of the zero polynomial to be $-\infty$, where $-\infty$ (negative infinity) is a symbol with the property that $-\infty + m = -\infty$ for all counting numbers $m\in\N$. In addition, we write 
 \begin{equation}
 \label{def_leading_coefficient}
 Lc(P):=a_m
 \end{equation}
-and call it the \textit{leading coefficient} of the polynomial $P$. We can restrict the set $R[x]$ of \textit{all} polynomials with coefficients in $R$, to the set of all such polynomials that have a degree that does not exceed a certain value. If $m$ is the maximum degree allowed, we write $R_{\leq m}[x]$ for the set of all ploynomials with a degree less or equal to $m$.
+and call it the \term{leading coefficient} of the polynomial $P$. We can restrict the set $R[x]$ of \hilight{all} polynomials with coefficients in $R$, to the set of all such polynomials that have a degree that does not exceed a certain value. If $m$ is the maximum degree allowed, we write $R_{\leq m}[x]$ for the set of all polynomials with a degree less than or equal to $m$.
 \begin{example}[Integer Polynomials] The coefficients of a polynomial must all have the same type. The set of polynomials with integer coefficients is written as $\Z[x]$. Examples of such polynomials are:
 \begin{align*}
 P_1(x) &= 2x^2 -4x +17 & \text{ \# with } deg(P_1)=2 \text{ and } Lc(P_1)=2\\
@@ -642,13 +698,13 @@ P_5(x) &= 1 & \text{ \# with }  deg(P_5)=0 \text{ and } Lc(P_5)=1\\
 P_6(x) &= 0 & \text{ \# with }  deg(P_5)=-\infty \text{ and } Lc(P_6)=0\\
 P_7(x) &= (x-2)(x+3)(x-5)
 \end{align*}
-In particular every integer can be seen as an integer polynomial of degree zero. $P_7$ is a polynomial, because we can expand its definition into $P_7(x)=x^3 - 4 x^2 - 11 x + 30$, which is polynomial of degree $3$ and leading coefficient $1$. The following expressions are not integer polynomial
+In particular, every integer can be seen as an integer polynomial of degree zero. $P_7$ is \tbds{a} polynomial, because we can expand its definition into $P_7(x)=x^3 - 4 x^2 - 11 x + 30$, which is polynomial of degree $3$ and leading coefficient $1$. The following expressions are not integer polynomial
 \begin{align*}
 Q_1(x) &= 2x^2 + 4 + 3x^{-2}\\
 Q_2(x) &= 0.5x^4 -2x\\
 Q_3(x) &=1/x
 \end{align*}
-We can invoke sage to do computations with polynomials. To do so we have to specify the symbol for the indertiminate and the type for the coefficients. Note however that sage defines the degree of the zero polynomial to be $-1$.
+We can invoke Sage to do computations with polynomials. To do so, we have to specify the symbol for the inderteminate and the type for the coefficients. Note, however, that Sage defines the degree of the zero polynomial to be $-1$.
 \begin{sagecommandline}
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -664,7 +720,7 @@ sage: p6 = Zx([0])
 sage: p6.degree()
 \end{sagecommandline}
 \end{example}
-\begin{example}[Polynomials over $\mathbb{Z}_6$] Recall our definition of the residue classes $\Z_6$ and their arithmetics as defined in \ref{def: residual class ring}. The set of all polynomials with indeterminate $x$ and coefficients in $\Z_6$ is symbolized as $\Z_6[x]$. Example of polynomials from $\Z_6$ are:
+\begin{example}[Polynomials over $\mathbb{Z}_6$] Recall our definition of the residue classes $\Z_6$ and their arithmetics as defined in Example \ref{def_residue_ring_z_6}. The set of all polynomials with indeterminate $x$ and coefficients in $\Z_6$ is symbolized as $\Z_6[x]$. Example of polynomials from $\Z_6$ are:
 \begin{align*}
 P_1(x) &= 2x^2 -4x +5 & \text{ \# with } deg(P_1)=2 \text{ and } Lc(P_1)=2\\
 P_2(x) &= x^{23} & \text{ \# with } deg(P_2)=23 \text{ and } Lc(P_2)=1\\
@@ -674,7 +730,7 @@ P_5(x) &= 1 & \text{ \# with }  deg(P_5)=0 \text{ and } Lc(P_5)=1\\
 P_6(x) &= 0 & \text{ \# with }  deg(P_5)=-\infty \text{ and } Lc(P_6)=0\\
 P_7(x) &= (x-2)(x+3)(x-5)
 \end{align*}
-As in the previous example $P_7$ is a polynomial. However since we are working with coefficients from $\Z_6$ now the expension of $P_7$ is computed differently, as we have to invoke addition and multiplication in $\Z_6$ as defined in XXX. We get:
+Just like in the previous example, $P_7$ is a polynomial. However, since we are working with coefficients from $\Z_6$ now the expansion of $P_7$ is computed differently, as we have to invoke addition and multiplication in $\Z_6$ as defined in XXX. We get:
 \begin{align*}
 (x-2)(x+3)(x-5) &= (x+4)(x+3)(x+1) & \text{\# additive inverses in } \Z_6 \\
                 &= (x^2+4x+3x+3\cdot 4)(x+1) & \text{\# bracket expansion} \\
@@ -682,7 +738,7 @@ As in the previous example $P_7$ is a polynomial. However since we are working w
                 &= (x^3+x^2+x^2+x) & \text{\# bracket expansion}\\
                 &= (x^3+2x^2+x)
 \end{align*}
-We can invoke sage to do computations with polynomials, that have their coefficients in $\Z_6$. To do so we have to specify the symbol for the indertiminate and the type for the coefficients:
+Again, we can use Sage to do computations with polynomials that have their coefficients in $\Z_6$. To do so, we have to specify the symbol for the inderteminate and the type for the coefficients:
 \begin{sagecommandline}
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -697,7 +753,7 @@ sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
 Given some element from the same type as the coefficients of a polynomial, the polynomial can be evaluated at that element, which means that we insert the given element for every ocurrence of the indeterminate $x$ in the polynomial expression. 
 
-To be more precise let $P\in R[x]$, with $P(x)=\sum_{j=0}^m a_j x^j$ be a polynomial with coefficient of type $R$ and let $b\in R$ be an element of that type. Then the \textit{evaluation} of $P$ at $b$ is given by
+To be more precise, let $P\in R[x]$, with $P(x)=\sum_{j=0}^m a_j x^j$ be a polynomial with a coefficient of type $R$ and let $b\in R$ be an element of that type. Then the \term{evaluation} of $P$ at $b$ is given by
 \begin{equation}
 P(a) = \sum_{j=0}^m a_j b^j
 \end{equation}
@@ -711,7 +767,7 @@ P(a) = \sum_{j=0}^m a_j b^j
  &P_6(1274) =0 \\
  &P_7(-6)   = (-6-2)(-6+3)(-6+5) = -264 \\
 \end{align*}
-Note however that is not possible to evaluate any of those polynomial on values of different type. It is for example strictly speaking wrong to write $P_1(0.5)$, since $0.5$ is not an integer. We can verify our computations using sage:
+Note, however, that is not possible to evaluate any of those polynomial on values of different type. For example, \tbds{it is strictly speaking wrong} to write $P_1(0.5)$, since $0.5$ is not an integer. We can verify our computations using Sage:
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -738,28 +794,28 @@ sage: p1(Z6(2)) == Z6(5)
 
 \end{example}
 \begin{exercise}
-Compare both expansions of $P_7$ from $\Z[x]$ and from $\Z_6[x]$ in example XXX and example XXX and consider the definition of $\Z_6$ as given in example XXX. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?
+Compare both expansions of $P_7$ from $\Z[x]$ and from $\Z_6[x]$ in example XXX and example XXX ,and consider the definition of $\Z_6$ as given in example XXX. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?
 \end{exercise}
 \paragraph{Polynomial Arithmetics}
-Polynomials behave like integers in many ways. In particular they can be added, subtracted and multiplied. In addition they have their own notion of Euclidean division. Roughly speaking two polynomials are added by simply adding the coefficients of the same index and they are multiplied by applying the distributive property, that is by multiplying every term of the left factor with every term of the right factor and add the results together.
+Polynomials behave like integers in many ways. In particular, they can be added, subtracted and multiplied. In addition, they have their own notion of Euclidean division. Informally speaking, we can add two polynomials  by simply adding the coefficients of the same index, and we can multiply them by applying the distributive property, that is, by multiplying every term of the left factor with every term of the right factor and adding the results together.
 
 To be more precise let $ \sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} $ and
-$ \sum _{n = 0} ^{m_2}{b} _{n}{x} $ be two polynomials from $ R[x]$. Then the \textit{sum} and the \textit{product} of these polynomials is defined as:
+$ \sum _{n = 0} ^{m_2}{b} _{n}{x} $ be two polynomials from $ R[x]$. Then the \term{sum} and the \term{product} of these polynomials is defined as follows:
 \begin{equation}
 \sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} + \sum _{n = 0} ^{m_2}{b} _{n}{x } ^{n} = \sum _{n = 0} ^{max(\{m_1,m_2\})}{({a} _{n} +{b} _{n})}{x} ^{n}
 \end{equation}
 \begin{equation}
 \bigg (\sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{m_2 }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{m_1+m_2} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}
 \end{equation}
-A rule for polynomial subtraction can be deduced from these two rules by first multiplying the subtrahend with (the polynomial) $-1$ and then add the result to the minuend.
+A rule for polynomial subtraction can be deduced from these two rules by first multiplying the \href{https://www.splashlearn.com/math-vocabulary/subtraction/subtrahend}{\uterm{subtrahend}} with (the polynomial) $-1$ and then add the result to the \href{https://www.splashlearn.com/math-vocabulary/subtraction/minuend}{\uterm{minuend}}.
 
-Regarding ower definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is sage, which would violate this rule.
-\begin{example} To given an example of how polynomial arithmetics work, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
+Regarding the definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is Sage, which would violate this rule.
+\begin{example} To given an example of how polynomial arithmetics works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
 \begin{align*}
 (P+Q)(x) & = (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
          & = x^3 +3x^2 -4x +7
 \end{align*}
-The product of thess two polynomials is computed by multiplication of each term in the first factor with each term in the second factor. We get
+The product of these two polynomials is computed by multiplication of each term in the first factor with each term in the second factor. We get
 \begin{align*}
 (P\cdot Q)(x) & = (5x^2 -4x +2)\cdot (x^3-2x^2 +5) \\
               & = (5 x^5 -10 x^4 +25 x^2)+ (-4x^4 +8 x^3 -20x) + (2x^3 -4x^2+10) \\
@@ -773,7 +829,7 @@ sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 \end{sagecommandline}
 \end{example}
-\begin{example} Lets consider the polynomials of the previous example but interpreted in modular $6$ aithmetics. So we consider $P,Q\in \Z_6[x]$ again with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. This time we get
+\begin{example} Let us consider the polynomials of the previous example but interpreted in modular $6$ arithmetics. So we consider $P,Q\in \Z_6[x]$ again with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. This time we get
 \begin{align*}
 (P+Q)(x) & = (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
          & = (0+1)x^3 + (5+4)x^2 + (2 +0) x +(2+5) \\
@@ -793,16 +849,16 @@ sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 \end{sagecommandline}
 \end{example}
 \begin{exercise}
-Compare the sum $P+Q$ and the product $P\cdot Q$ from the previous two example XXX and XXX and consider the definition of $\Z_6$ as given in example XXX. How can we derive the computations in $\Z_6[x]$ from the computations in $Z[x]$? 
+Compare the sum $P+Q$ and the product $P\cdot Q$ from the previous two examples XXX and XXX and consider the definition of $\Z_6$ as given in example XXX. How can we derive the computations in $\Z_6[x]$ from the computations in $Z[x]$? 
 \end{exercise}
 \paragraph{Euklidean Division}
-The ring of polynomials shares a lot of properties with the integers. In particular there is also the concept of Euclidean division and the algorithm of long division defined for polynomials. Recalling from Euclidean division of integers XXX, we know, that given two integers $a$ and $b\neq 0$ there is always another integer $m$ and a counting number $r$ with $r<|b|$, such that $a = m\cdot b +r$ holds.
+The ring of polynomials shares a lot of properties with  integers. In particular, the concept of Euclidean division and the algorithm of long division is also defined for polynomials. Recalling the Euclidean division of integers XXX, we know that, given two integers $a$ and $b\neq 0$, there is always another integer $m$ and a counting number $r$ with $r<|b|$ such that $a = m\cdot b +r$ holds.
 
-We can generalize this to polynomials, whenever the leading coefficient of the dividend polynomial has a notion of multiplicative inverse. In fact given two polynomials $A$ and $B\neq 0$ from $R[x]$, such that $Lc(B)^{-1}$ exists in $R$, there exist two polynomials $M$ (the quotient) and $R$ (the remainder), such that
+We can generalize this to polynomials whenever the leading coefficient of the dividend polynomial has a notion of multiplicative inverse. In fact, given two polynomials $A$ and $B\neq 0$ from $R[x]$ such that $Lc(B)^{-1}$ exists in $R$, there exist two polynomials $M$ (the quotient) and $R$ (the remainder), such that
 \begin{equation}
 A = M\cdot B + R
 \end{equation}
-and $deg(R) < deg(B)$. Similar to integer Euclidean division both $M$ and $R$ are uniquely defined by these relations. 
+and $deg(R) < deg(B)$. Similarly to integer Euclidean division, both $M$ and $R$ are uniquely defined by these relations. 
 \begin{notation}
 \label{eq_polynomial_euklidean_division_notation}
 Suppose that the polynomials $ A, B, M $ and $ R $ satisfy equation XX. Then we often write 
@@ -812,9 +868,9 @@ Suppose that the polynomials $ A, B, M $ and $ R $ satisfy equation XX. Then we 
 \Zdiv{A}{B}: = M, & & \Zmod{A}{B}: = R 
 \end{array}
 \end{equation}
-to describe the quotient and the remainder polynomials of the Euclidean division. We also say, that a polynomial $ A $ is divisible by another polynomial $ B $ if $ \Zmod{A}{B} = 0 $ holds. In this case we also write $ B | A $ and call $B$ a \textit{factor} of $A$.
+to describe the quotient and the remainder polynomials of the Euclidean division. We also say that a polynomial $ A $ is divisible by another polynomial $ B $ if $ \Zmod{A}{B} = 0 $ holds. In this case, we also write $ B | A $ and call $B$ a \textit{factor} of $A$.
 \end{notation}
-Analog to integers, methods to compute Euclidean division for polynomials are called \textit{polynomial division algorithms}. Probably the best known algorithm is the so called \textit{polynomial long division}. 
+Analogously to integers, methods to compute Euclidean division for polynomials are called \term{polynomial division algorithms}. Probably the best known algorithm is the so called \term{polynomial long division}. 
 \begin{algorithm}\caption{Polynomial Euclidean Algorithm}
 \label{alg_ext_euclid_alg}
 \begin{algorithmic}[0]
@@ -837,11 +893,11 @@ Analog to integers, methods to compute Euclidean division for polynomials are ca
 
 % https://math.stackexchange.com/questions/2140378/division-algorithm-for-polynomials-in-rx-where-r-is-a-commutative-ring-with-u
 This algorithm works only when there is a notion of division by the leading coefficient of $B$. It can be generalized, but we will only need this somewhat simpler method in what follows.
-\begin{example}[Polynomial Long Division] To give an example of how the previous algorithm works, lets divide the integer polynomial $A(x)=x^5+2x^3-9\in \Z[x]$ by the integer polynomial $B(x)=x^2+4x-1\in\Z[x]$. Since $B$ is not the zero polynomial and the leading coefficient of $B$ is $1$, which is invertible as an integer, we can applay algorithm XXX. Our goal is to find solutions to equation XXX, that is we need to find the quotient polynomial $M\in\Z[x]$ and the reminder polynomial $R \in \Z[x]$ such that $x^5+2x^3-9 = M(x)\cdot (x^2+4x-1) + R$. Using a notation that is mostly used in Commonwealth countries, we compute
+\begin{example}[Polynomial Long Division] To give an example of how the previous algorithm works, let us divide the integer polynomial $A(x)=x^5+2x^3-9\in \Z[x]$ by the integer polynomial $B(x)=x^2+4x-1\in\Z[x]$. Since $B$ is not the zero polynomial and the leading coefficient of $B$ is $1$, which is invertible as an integer, we can apply algorithm \ref{alg_ext_euclid_alg}. Our goal is to find solutions to equation XXX, that is, we need to find the quotient polynomial $M\in\Z[x]$ and the reminder polynomial $R \in \Z[x]$ such that $x^5+2x^3-9 = M(x)\cdot (x^2+4x-1) + R$. Using a notation that is mostly used in Commonwealth countries, we compute as follows:
 \begin{equation}
 \polylongdiv{X^5+2X^3-9}{X^2+4X-1}
 \end{equation}
-We therefore get $M(x)=x^3-4x^2+19x-80$ as well as $R(x)=339x-89$ and indeed we have $x^5+2x^3-9 = (x^3-4x^2+19x-80)\cdot (x^2+4x-1) + (339x-89)$, which we can double check invoking sage:
+We therefore get $M(x)=x^3-4x^2+19x-80$ as well as $R(x)=339x-89$ and indeed we have $x^5+2x^3-9 = (x^3-4x^2+19x-80)\cdot (x^2+4x-1) + (339x-89)$, which we can double check invoking Sage:
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -851,28 +907,28 @@ sage: R = Zx([-89,339])
 sage: A == M*B + R
 \end{sagecommandline}
 \end{example}
-\begin{example} In the previous example polynomial division gave a non trivial (non vanishing, i.e non-zero) remainder. Of special interest are divisions that don't give a remainder. Such divisors are called factors of the dividend. 
+\begin{example} In the previous example, polynomial division gave a non-trivial (non-vanishing, i.e non-zero) remainder. Of special interest are divisions that don't give a remainder. Such divisors are called factors of the dividend. 
 
-For example consider the integer polynomial $P_7$ from example XXX again. As we have shown, it can be written both as $x^3 - 4 x^2 - 11 x + 30$ as well as $(x-2)(x + 3)(x-5)$. From this we can see that the polynomials $F_1(x)=(x-2)$, $F_2(x)=(x+3)$ and $F_3(x)=(x-5)$ are all factors of $x^3 - 4 x^2 - 11 x + 30$, since division of $P_7$ by any of these factors will result in a zero remainder.
+For example, consider the integer polynomial $P_7$ from example XXX again. As we have shown, it can be written both as $x^3 - 4 x^2 - 11 x + 30$ and as $(x-2)(x + 3)(x-5)$. From this, we can see that the polynomials $F_1(x)=(x-2)$, $F_2(x)=(x+3)$ and $F_3(x)=(x-5)$ are all factors of $x^3 - 4 x^2 - 11 x + 30$, since division of $P_7$ by any of these factors will result in a zero remainder.
 \end{example}
-\begin{exercise} Consider the polynomial expressions $P(x):= -3x^4 + 4x^3 + 2x^2 +4$ and $Q(x)= x^2-4x+2$. Compute the Euklidean division of $P$ by $Q$ in the following types
+\begin{exercise} Consider the polynomial expressions $P(x):= -3x^4 + 4x^3 + 2x^2 +4$ and $Q(x)= x^2-4x+2$. Compute the Euclidean division of $P$ by $Q$ in the following types:
 \begin{enumerate}
 \item $P,Q\in \Z[x]$
 \item $P,Q\in \Z_6[x]$
-\item $P,Q\in \Z_5[x]$
+\item $P,Q\in \F_5[x]$
 \end{enumerate}
-Then consider the result in $\Z[x]$ and in $\Z_6[x]$. How can compute the result in $\Z_6[x]$ from the result in $\Z[x]$?
+Now consider the result in $\Z[x]$ and in $\Z_6[x]$. How can we compute the result in $\Z_6[x]$ from the result in $\Z[x]$?
 \end{exercise}
 \begin{exercise}
-Show that the polynomial $P(x)= 2x^4-3x+4\in \Z_5[x]$ is a factor of the polynomial $Q(x)=x^7 + 4x^6 + 4x^5 + x^3 + 2x^2 + 2x + 3\in\Z_5[x]$, thatvis show $P|Q$. What is $\Zdiv{Q}{P}$?
+Show that the polynomial $P(x)= 2x^4-3x+4\in \F_5[x]$ is a factor of the polynomial $Q(x)=x^7 + 4x^6 + 4x^5 + x^3 + 2x^2 + 2x + 3\in\F_5[x]$, thatvis show $P|Q$. What is $\Zdiv{Q}{P}$?
 \end{exercise}
-\paragraph{Prime Factors} Recall that the fundamental theorem of arithmetics XXX tells us, that every number is the product of prime numbers. Something similar holds for polynomials, too. 
+\paragraph{Prime Factors} Recall that the fundamental theorem of arithmetics XXX tells us that every number is the product of prime numbers. Something similar holds for polynomials, too. 
 
-The polynomial analog to a prime number is a so called \textit{irreducible polynomial}, which is defined as a polynomial that cannot be factored into the product of two non-constant polynomials using Euclidean division. Irreducible polynomials are for polynomials what prime numbers are for integers. They are the basic building blocks from which all other polynomials can be constructed. To be more precise, let $P \in R[x]$ be any polynomial. Then there are always irreducible polynomials $F_1, F_2, \ldots, F_k \in R[x]$, such that
+The polynomial analog to a prime number is a so called an \term{irreducible polynomial}, which is defined as a polynomial that cannot be factored into the product of two non-constant polynomials using Euclidean division. Irreducible polynomials are for polynomials what prime numbers are for integer: They are the basic building blocks from which all other polynomials can be constructed. To be more precise, let $P \in R[x]$ be any polynomial. Then there are always irreducible polynomials $F_1, F_2, \ldots, F_k \in R[x]$, such that
 \begin{equation}
 P = F_1 \cdot F_2 \cdot \ldots \cdot F_k \;.
 \end{equation}
-This representation is unique, except for permutations in the factors and is called the \textbf{prime factorization} of $P$.
+This representation is unique, except for permutations in the factors and is called the \term{prime factorization} of $P$.
 \begin{example} Consider the polynomial expression $P=x^2-3$. When we interpret $P$ as an integer polynomial $P\in\Z[x]$, we find that this polynomial is irreducible, since any factorization other then $1\cdot(x^2-3)$, must look like $(x-a)(x+a)$ for some integer $a$, but there is no integers $a$ with $a^2=3$. 
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
@@ -883,43 +939,43 @@ sage: p.factor()
 On the other hand interpreting $P$ as a polynomial $P\in \Z_6[x]$ in modulo $6$ arithmetics, we see that $P$ has two factors $F_1=(x-3)$ and $F_2=(x+3)$, since 
 $(x-3)(x+3)= x^2 -3x +3 -3\cdot 3= x^2-3$. 
 \end{example}
-Finding prime factors of a polynomial is hard. As we have seen in example XXX, points where a polynomial evaluates to zero, i.e points $x_0\in R$ with $P(x_0)=0$ are of special interest, since it can be shown the polynomial $F(x)=(x-x_0)$ is always a factor of $P$. The converse however is not necessarily true, because a polynomial can have irreducible prime factors. 
+Finding prime factors of a polynomial is hard. As we have seen in example XXX, points where a polynomial evaluates to zero, i.e points $x_0\in R$ with $P(x_0)=0$ are of special interest, since it can be shown the polynomial $F(x)=(x-x_0)$ is always a factor of $P$. The converse, however, is not necessarily true, because a polynomial can have irreducible prime factors. 
 
-Points where a polynomial evaluates to zero are called the \textbf{roots} of the polynomial. To be more precise, let $P\in R[x]$ be a polynomial. Then the set of all roots of $P$ is defined as
+Points where a polynomial evaluates to zero are called the \term{roots} of the polynomial. To be more precise, let $P\in R[x]$ be a polynomial. Then the set of all roots of $P$ is defined as
 \begin{equation}
 R_0(P):=\{x_0\in R\;|\; P(x_0)=0\}
 \end{equation}
-Finding the roots of a polynomial is sometimes called solving the polynomial. It is a hard problem and has been the subject of much research throughout history. In fact it is well known that for polynomials of degree $5$ or higher there is, in general, no closed expression, from which the roots can be deduced. 
+Finding the roots of a polynomial is sometimes called \term{solving the polynomial}. It is a hard problem and has been the subject of much research throughout history. In fact, it is well known that, for polynomials of degree $5$ or higher, there is, in general, no closed expression, from which the roots can be deduced. 
 
-It can be shown, that if $m$ is the degree of a polynomial $P$, then $P$ can not have more than $m$ roots. However in general polynomials can have less then $m$ roots. 
+It can be shown that if $m$ is the degree of a polynomial $P$, then $P$ can not have more than $m$ roots. However, in general, polynomials can have less than $m$ roots. 
 \begin{example}
-Consider our integer polynomial $P_7(x)=x^3 - 4 x^2 - 11 x + 30$ from example XXX again. We know that it's set of roots is given by $R_0(P_7)=\{-3,2,5\}$.
+Consider our integer polynomial $P_7(x)=x^3 - 4 x^2 - 11 x + 30$ from example XXX again. We know that its set of roots is given by $R_0(P_7)=\{-3,2,5\}$.
 
-On the other hand we know from example XXX, that the integer polynomial $x^2-3$ is irreducible. It follows that it has no roots, since every root defines a prime factor.
+On the other hand, we know from example XXX that the integer polynomial $x^2-3$ is irreducible. It follows that it has no roots, since every root defines a prime factor.
 \end{example}
-\begin{example}To give another example consider the integer polynomial 
-$P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1$. We can invoke sage to compute the roots and prime factors of $P$:
+\begin{example}To give another example, consider the integer polynomial 
+$P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1$. We can invoke Sage to compute the roots and prime factors of $P$:
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 \end{sagecommandline}
-We see that $P$ has the root $1$ and that the associated prime factor $(x-1)$ occurs once in $P$ and that it moreover has the root $-1$, where the associated prime factor $(x+1)$ occurs $4$ times in $P$. This gives the prime factorization
+We see that $P$ has the root $1$ and that the associated prime factor $(x-1)$ occurs once in $P$ and that it  has the root $-1$, where the associated prime factor $(x+1)$ occurs $4$ times in $P$. This gives the prime factorization
 $$
 P= (x - 1)(x + 1)^4(x^2 + 1)
 $$
 \end{example}
 \paragraph{Lange interpolation}
-One particularly nice property of polynomials is that a polynomial of degree $m$ is completely determined on $m+1$ evaluation points. Seeing this from a different angle, we can (sometimes) uniquely derive a polynomial of degree $m$ from a set 
+One particularly usefu property of polynomials is that a polynomial of degree $m$ is completely determined on $m+1$ evaluation points. Seeing this from a different angle, we can (sometimes) uniquely derive a polynomial of degree $m$ from a set 
 \begin{equation}
 \label{def_lagrange_interpolation_set}
 S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m)\;|\; x_i\neq x_j\text{ for all indices i and j}\}
 \end{equation}
-This "few too many" property of polynomials is used in many places, like for example in erasure codes. It is also of importance in snarks and we therefore need to understand a method to actually compute a polynomial from a set of points. 
+This "few too many" \sme{what does this mean?} property of polynomials is used in many places, like for example in erasure codes. It is also of importance in snarks and we therefore need to understand a method to actually compute a polynomial from a set of points. 
 
-If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial and one method is called \textit{Lagrange interpolation}. It works as follows:
-Give a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m+1$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by the following algorithm:
+If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial. One method for this is called \term{Lagrange interpolation}. It works as follows:
+Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m+1$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by the following algorithm:
 
 \begin{algorithm}\caption{Lagrange Interpolation}
 \label{alg_lagrange_interplation}
@@ -938,7 +994,7 @@ Give a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree
 \end{algorithmic}
 \end{algorithm}
 
-\begin{example} Lets consider the set $S=\{(0,4),(-2,1),(2,3)\}$ and our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with fractional number coefficients. Since $\mathbb{Q}$ has multiplicative inverses, we can use the Lagrange interpolation algorithm from XXX, to compute the polynomial. We get
+\begin{example} Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with fractional number coefficients. Since $\mathbb{Q}$ has multiplicative inverses, we can use the Lagrange interpolation algorithm from \ref{alg_lagrange_interplation}, to compute the polynomial. 
 \begin{align*}
 l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
@@ -956,10 +1012,10 @@ P(x)   & =  4\cdot (-\frac{1}{4}(x^2-4)) + 1\cdot \frac{1}{8}(x^2-2x) + 3\cdot \
        & = -x^2+4 + \frac{1}{8}x^2-\frac{1}{4} x + \frac{3}{8}x^2+\frac{3}{4} x \\
        & = -\frac{1}{2} x^2 +\frac{1}{2} x + 4        
 \end{align*}
-And indeed evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
+And, indeed, evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
 \end{example}
-\begin{example} To give another example, more relevant to the topics of this book, lets consider the same set $S=\{(0,4),(-2,1),(2,3)\}$ as in the previous example. But this times the task is to compute a polynomial $P\in\F_5[x]$ from this data. Since we know
-that multiplicative inverses exist in $\Z_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\Z_5$ and get
+\begin{example} To give another example, more relevant to the topics of this book, let us consider the same set $S=\{(0,4),(-2,1),(2,3)\}$ as in the previous example. This time, the task is to compute a polynomial $P\in\F_5[x]$ from this data. Since we know
+that multiplicative inverses exist in $\F_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\F_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\F_5$ and get the following:
 \begin{align*}
 l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
@@ -980,7 +1036,7 @@ P(x)   & = 4\cdot (x^2+1) + 1\cdot (2x^2+x) + 3\cdot (2x^2+4x) \\
        & = 4x^2+4 + 2x^2 +x + x^2+2x\\
        & = 2x^2 +3x +4       
 \end{align*}
-And indeed evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
+And, indeed, evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
 \end{example}
 
 \begin{exercise}
