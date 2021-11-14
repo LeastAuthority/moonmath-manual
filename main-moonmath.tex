@@ -1,11 +1,18 @@
 % with font size 10, I think there is just too much Information per page.
-\documentclass[a4paper, 12pt]{scrreprt}
+\documentclass[a4paper,oneside,12pt]{book}
 
-% border sizes
-\setlength{\topmargin}{0.0in}
-\setlength{\oddsidemargin}{0.33in}
-\setlength{\textheight}{9.0in}
-\setlength{\textwidth}{6.0in}
+%margins
+\usepackage[a4paper, margin=2.5cm]{geometry}
+
+%headers and footers
+\usepackage{fancyhdr}%version 4.0.1 or above should be used
+\pagestyle{fancy}
+
+\fancyhead[L]{\leftmark}%current chapter
+\fancyhead[R]{\rightmark}%current section
+
+\fancyfoot{}%cancel default footer
+\fancyfoot[C]{\thepage}%footer center
 
 %fonts
 % times is the font I (Mirco) thinks looks the most calm, ordered and math-textbook like
@@ -20,7 +27,7 @@
 % polynomial long division
 \usepackage{polynom}
 
-\usepackage{amssymb,amsmath,amsthm,mathrsfs,xspace,multicol}
+\usepackage{amssymb,amsmath,amsthm,mathrsfs,xspace}
 \usepackage{polydiv}
 \usepackage{amscd}
 \usepackage[all]{xy}
@@ -64,16 +71,11 @@ basicstyle={\small \ttfamily},
 backgroundcolor= \color{white},
 }
 
-
 \usepackage{tabularx}
 
 %Load the following packages last
 \usepackage{hyperref} % for all kinds of links
 \usepackage{cleveref}%must be loaded after `hyperref`
-
-
-%margins
-\usepackage[a4paper, margin=2.5cm]{geometry}
 
 
 %bibliography management
@@ -135,12 +137,24 @@ backgroundcolor= \color{white},
 %\algnewcommand\algorithmicinput{\textbf{Statement:}}
 %\algnewcommand\Statement{\item[\algorithmicinput]}
 
+%colors
+\definecolor{la-purple}{HTML}{312265}%primary purple
+\definecolor{la-purple-med}{HTML}{594982}%primary purple at 80%
+\definecolor{la-purple-light}{HTML}{D3CDDE}%primary purple at 20%
+
 %text highlighting
-\newcommand{\term}[1]{\textbf{#1}}%technical terms that are being defined 
-\newcommand{\uterm}[1]{\textcolor{red}{#1}}%new terms introduced in the text that have not been defined or are not being defined. Note: these are only highlighted when they are used in non-meta text, e.g. not in the text outlining the structure of the chapter ahead
-\newcommand{\tbds}[1]{\textcolor{orange}{#1}}%notes to self/TBD for Sylvia
-\newcommand{\sme}[1]{\textcolor{green}{#1}}%comments/questions for subject matter experts
+\usepackage[textwidth=2cm,textsize=small,colorinlistoftodos]{todonotes}
+\newcommand{\tbds}[1]{\textcolor{orange}{#1}\todo{#1}}%notes to self/TBD for Sylvia - the argument of the command is repeated on purpose to appear in both the inline text and the margin note/list of to do items
+\newcommand{\tbdslong}[1]{\textcolor{orange}{#1}}%longer inline notes to self/TBD for Sylvia
+\newcommand{\sme}[1]{\todo[color=green]{#1}}%comments/questions for subject matter experts
+\newcommand{\smelong}[1]{\textcolor{green}{#1}}%longer inline comments/questions for subject matter experts
 \newcommand{\hilight}[1]{\textbf{#1}}%basically, our own version of \emph. we can decide later if it'll be italic, boldface or a highlight color
+\newcommand{\term}[1]{\textbf{#1}}%technical terms that are being defined 
+\newcommand{\uterm}[1]{\textcolor{red}{#1}\todo[color=red]{#1}}%new terms introduced in the text that have not been defined or are not being defined. Note: these are only highlighted when they are used in non-meta text, e.g. not in the text outlining the structure of the chapter ahead.  The argument of the command is repeated on purpose to appear in both the inline text and the margin note/list of to do items
+\newcommand{\utermlong}[1]{\textcolor{red}{#1}}%longer inline notes to self/TBD for Sylvia
+\newcommand{\comms}[1]{\textcolor{la-purple-med}{#1}\todo[color=la-purple-med,textcolor=white]{#1}}%new terms introduced in the text that have not been defined or are not being defined. Note: these are only highlighted when they are used in non-meta text, e.g. not in the text outlining the structure of the chapter ahead.  The argument of the command is repeated on purpose to appear in both the inline text and the margin note/list of to do items
+\newcommand{\commslong}[1]{\textcolor{la-purple}{#1}}%longer inline notes to self/TBD for Sylvia
+
 
 \title{MoonMath manual}
 \author{TechnoBob and the Least Scruples crew}
@@ -148,13 +162,14 @@ backgroundcolor= \color{white},
 
 \begin{document}
 
-
+\frontmatter
 \include{chapters/ops-notes-moonmath}
+
+\mainmatter
 
 \maketitle
 \tableofcontents
 \include{chapters/intro-moonmath}
-\include{chapters/zoo-moonmath}
 \include{chapters/preliminaries-moonmath}
 \include{chapters/arithmetics-moonmath}
 \include{chapters/algebra-moonmath}
