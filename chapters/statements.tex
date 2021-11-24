@@ -176,11 +176,11 @@ However from the perspective of existing zero knowledge proofing systems not all
 \subsection{Rank-1 Quadratic Constraint Systems}
 Although checking relations for formal languages can be expressed in various ways, many zk-proof systems require the ralation to be expressed in terms of a systems of rank-1 quadratic equations over a finite field. This true in particular for pairing based proofing systems like XXX, roughly because it is possible to check solutions to those equations "in the exponent" of pairing friendly cryptographic groups. 
 
-\paragraph{R1CS} To understand what \textit{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a finite field, $n$, $m$ and $k$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i$ constants from $\F$ for every $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a R1CS is given by: 
+\paragraph{R1CS representation} To understand what \textit{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a finite field, $n$, $m$ and $k$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i$ constants from $\F$ for every $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a R1CS is given by: 
 \begin{align*}
 \scriptstyle\left(a^1_0 + \sum_{j=1}^n a^1_j \cdot I_j + \sum_{j=1}^m a^1_{n+j} \cdot W_j  \right) \cdot 
 \left(b^1_0 + \sum_{j=1}^n b^1_j \cdot I_j + \sum_{j=1}^m b^1_{n+j} \cdot W_j  \right) &= 
-\scriptstyle c^1_0 + \sum_{j=1}^n c^1_j \cdot I_j + \sum_{j=1}^m c^1_{n+j} \cdot E_j\\
+\scriptstyle c^1_0 + \sum_{j=1}^n c^1_j \cdot I_j + \sum_{j=1}^m c^1_{n+j} \cdot W_j\\
        & \vdots\\
 \scriptstyle\left(a^k_0 + \sum_{j=1}^n a^k_j \cdot I_j + \sum_{j=1}^m a^k_{n+j} \cdot W_j  \right) \cdot 
 \left(b^k_0 + \sum_{j=1}^n b^k_j \cdot I_j + \sum_{j=1}^m b^k_{n+j} \cdot W_j  \right) &= 
@@ -258,14 +258,144 @@ W_4 \cdot W_3 &= I_1 & \text{since } 6\cdot 4 = 11
 \end{example}
 
 
-\subsection{Circuit Satisfyability} 
-\begin{definition}[Circuits] Let $\Sigma_I$ and $\Sigma_W$ be two alphabets. Then a directed, acyclic graph $C$ is called a \textbf{circuit} over $\Sigma_I \times \Sigma_W$, if the graph has an ordering and every node has a label in the following way:
+\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems define equations that instance witness pairs have to satisfy in order to provide words in the associated language.
+
+However R1CS equations can be large and are non-linear in general. It is therefore not posible to solve those equations efficiently in order to find proper witnesses for given instances. A practical question is therefore how to actually compute witneses for R1CS?
+
+In this paragraph we look at a statement representation called \textit{algebraic circuits}, that is closely related to R1CS but which is suitable to not just define the constraints, but to provide a mechanism to compute witnesses efficiently.
+
+\paragraph{Algebraic circuit representation}
+The general idea of an algebraic circuit is that, given some finite field $\F$ every rational function over $\F$ can be seen as a directed acyclic (multi)graph: Inner nodes have exactly two incoming edges and represent the fundamental field operationd \textit{addition} and \textit{multiplication}. Nodes with only outgoing edges (source nodes) represent the variables and constants of the functions and nodes with only incoming edges (sink nodes) represent the results of the function. Edges in the graph then represent the connections between the operations of the individual nodes.
+
+To be more precise let $\F$ be a finite field. Then a directed, acyclic multi-graph $C(\F)$ is called an \textbf{algebraic circuit} over $\F$, if the graph has an ordering, every edge has either an intance label $I_j$ or a witness label $W_j$, where $j$ is the edge's position in the graph's order and every node has two labels in the following way:
 \begin{itemize}
-\item Every source node (called input) has a letter from $\Sigma_I \times \Sigma_W$ as label.
-\item Every sink node (called output) has a letter from $\Sigma_I \times \Sigma_W$ as label.
-\item Every other node (called gate) with $j$ incoming edges has a label that consist of a function $f: \left(\Sigma_I \times \Sigma_W\right)^j \to \Sigma_I \times \Sigma_W$.
+\item Every source node (called input) has either a symbol that represents a variable from $\F$ or a constant $c\in\F$ as label.
+\item Every sink node (called output) has a symbol that represents a variable from $\F$ as label.
+\item Every other node has exactly two incoming edges and has a label that represents either addition or multiplication in $\F$.
 \end{itemize}
-\end{definition}
+Internal nodes that are neither source nor sink nodes are also often called \textbf{aithmetic gates}. Arithmetic gates that are decorated with the "$+$"-label are called \textbf{addition-gates} and gates that are decorated with the "$\cdot$"-label are called \textbf{multiplication-gates}.
+
+It should be noted that subtraction gates can be simulated in a two step process by first multiplying the subtrahend with $-1$ and then use an addition gate. Also division gates can be simulated for example by using Fermat's little theorem, which states that the multiplicative inverse of a field element $x\in\F$ is given by the power $x^{p-2}$ and powers are nothing but repeated multiplication. However simulating division this way might be inefficient.
+
+It should also be noted that our definition differs slighly from the way algebraic circuits are used in many other parts of mathematics. They are however useful in the context of zero-knowledge proofing systems, because the edge labels define witness and instances, while the restriction on the number of incoming edges simplifies the translation into R1CS. We will look at this more closely in XXX.
+
+It can be shown that every rational function over $\F$ can be transformed into an algebraic circuit, a process often called \textit{flattening}.
+\begin{example}[Generalized factorization snark] To give a simple example of an algebraic circuit, consider our $3$-factorization problem from example XXX again.  To express the problem in the algebraic circuit model, consider the following function 
+\[
+f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
+\]
+The zero-knowledge $3$-factorization problem as described in XXX can then be described in the following way: Given instance $I_1\in \F_{13}$ a valid witness a preimage of $f_{3.fac}$ at the point $I_1$, i.e. a valid witness are three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$, such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
+
+To flatten function $f_{3.fac}$, that is to find some circuit that describes the function, observe that $f_{3.fac}$ needs two multiplications to compute its output. We therefore need a circuit that contains two multiplication gates and nothing more. We get:
+\[
+\xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
+ & \cdot \ar^{W_4}[drr] &   & & x_3\ar_{W_3}[dl]\\
+  &  &  & \cdot\ar_{I_1}[d]\\
+  &  &  & f(x_1,x_2,x_3)
+}
+\]
+So our directed acyclic multi-graph, is is binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
+
+The order we used to label the edges is choosen to make the edge labeling consistent with our decision from example XXX. Its not an order that arises from common ordering algorithms like deapth-first or breath-first ordering. In addition we declear the function output as the instance and the inputs as well as every step in the computation as private inputs.
+\end{example}
+\begin{example} To give a more realistic example of an algebraic circuit look at the defining equation XXX of the tiny-jubjub curve again. A pair of field elements 
+$(x,y)\in \F_{13}^2$ is a curve point, precisely if
+$$
+3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2
+$$  
+We can rewrite this equation by shifting all terms to the right and get
+\begin{align*}
+3\cdot x^2 + y^2 & = 1+ 8\cdot x^2\cdot y^2 & \Leftrightarrow\\
+0 & = 1+ 8\cdot x^2\cdot y^2 - 3\cdot x^2 - y^2 & \Leftrightarrow\\
+0 & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2
+\end{align*}
+And we can use this expression to define a function, such that all points of tiny-jubjub are characterized its the preimages of $0$:
+$$
+f_{tiny-jj}: \F_{13}\times \F_{13}\to \F_{13}\; ; \;
+(x,y)\mapsto 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2
+$$
+then of course every pair $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve.
+
+We can flatten this function into an algebraic circuit over $\F_{13}$. To do so we have to decide which edges to declare instance and which to declare witness. In principle we could choose any combination, but for the sake of zero-knowledge proofs as we will discuss later, we only declare the output and the pair $(x,y)$ to be the instance. Everything else should be part of the witness. A proper circuit then might be:
+\begingroup
+    \fontsize{8pt}{10pt}\selectfont
+\[
+\xymatrix{
+ & &  & &
+x\ar_{I_1}@/^/[d]\ar@/_/[d]  &  & & 
+y\ar_{I_2}@/^/[d]\ar@/_/[d]\\
+ & 10 \ar_{W_1}[dr]& & &
+\cdot \ar_{W_1}[drr] \ar^{W_1}[dll]&  & &
+\cdot \ar^{W_1}[dl] \ar^{W_1}[ddr] &  &
+12 \ar^{W_1}[ddl] \\
+1 \ar_{W_1}[dr] & &  
+ \cdot \ar_{W_1}[dl] & & 
+ 8 \ar_{W_1}[dr] & &
+ \cdot \ar_{W_1}[dl] & & 
+ \\
+ & 
+ + \ar_{W_1}[drr] & & & &
+ \cdot \ar_{W_1}[dll] & & &
+ \cdot \ar_{W_1}[ddlll]\\
+ & & & 
+ + \ar_{W_1}[drr]& & & 
+ \\
+ & & & & & 
+ + \ar_{I_3}[d]\\
+ & & & & & 
+ f_{tiny-jj}(x,y)
+}
+\]
+\endgroup
+\end{example}
+
+\begin{example} To give an intuition about hoto consider algebraic functions over finite fields as directed acyclic graphs, consider the function
+$$
+f:\F_{13}^2 \to \F_{13}^4\;;\;
+(x,y) \mapsto (4x^2 - \frac{x^2}{y^2},- 2xy,  x^2y^2, 4y)
+$$
+We can write this functiona as a directed acyclic graph. Since the function has $2$ inputs and computes $3$ outputs, the result is a graph with $2$ incoming nodes and $3$ outgoing nodes. Every internalk node representa field operation. We get
+\begingroup
+    \fontsize{8pt}{10pt}\selectfont
+\[
+\xymatrix{
+x\ar@/^/[d]\ar@/_/[d]  \ar@/_/[drrrr]   &  & 
+y\ar@/^/[d]\ar@/_/[d]\ar@/_/[drr] \ar@/^/[drrrr] & & 
+4\ar@/^/[ddllll] \ar@/^/[drr]& & 
+2 \ar@/^/[dd] & & 
+-1\ar@/^/[dddll]\\
+\cdot \ar@/^/[d]\ar@/^/[ddrr] \ar@/^/[ddrrrr]&  & 
+\cdot \ar@/^/[dd] \ar@/^/[ddrr]& & 
+\cdot \ar@/^/[drr] & & 
+\cdot \ar@/^/[ddddrr]\\
+\cdot \ar@/^/[dd]& & 
+\cdot & & 
+ & & 
+\cdot \ar@/^/[d]\\
+ & & 
+\cdot \ar@/^/[ddrr]& & 
+\cdot/\cdot \ar@/^/[dllll] & & 
+\cdot \ar@/^/[ddllll]\\
+- \ar@/^/[d] & & 
+ & & 
+ & & 
+\\
+\star & & 
+\star & & 
+\star & & 
+& & 
+\star
+}
+\]  
+\endgroup
+\end{example}
+
+\paragraph{Circuit Execution}
+ While R1CS can only check proper witnesses, circuit execution provides a way to actually compute witnesses to given instances. 
+
+ 
+  
+
 \begin{remark}[Circuit-SAT] Every circuit with $n$ input nodes and $m$ output nodes can be seen a function that transforms strings of size $n$ from $\Sigma_I \times \Sigma_W$ into strings of size $m$ over the same alphabet. The transformation is done by sending the strings from a node along the outgoing edges to other nodes. If those nodes are gates, then the string is transformed according to the label.
 
 By executing the previous transformation, every node of a circuit has an associated letter from $\Sigma_I \times \Sigma_W$ and this defines a checking relation over $\Sigma_I^* \times \Sigma_W^*$. To be more precise, let $C$ be a circuit with $n$ nodes and $(i,w) \in \Sigma_I^j \times \Sigma_W^k$ a string. Then $R_C(i,w)$ iff THE CIRCUIT IS SATISFIED WHEN ALL LABELS ARE ASSOCIATED TO ALL NODES IN THE CIRCUIT.... BUT MORE PRECISE
@@ -360,6 +490,10 @@ example of one layer recursion over MNT4 and MNT6
 \end{example}
 
 Any program  can be reduced to  an arithmetic circuit  (a circuit that contains only addition and multiplication gates). A particular reduction can be found for example in [BSCG+13]
+
+ we produce a circuit whose satisfiability encodes the correctness of execution of
+the program. L
+
 
 \section{Computational Models}
 Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
