@@ -157,7 +157,7 @@ FALSE & else
 \end{multline*}
 Given an instance $i\in \F_p^*$ a statements in $L_{LOG_b(\cdot)}$ then is the claim, that there is a number $w\in \Z_{p-1}$, such that $w$ is base $b$ discrete logarithm of $i$ in the prime field $\F_p$. One way to proof such a statement would therefore be to actually provide some concrete $w$. 
 \end{example}
-\paragraph{Modularity and Gadgets} From a developers perspective it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero knowledge proofs those simple building blocks are often called \textit{gadgets} and mature proofing systems usually contain libraries that contain many useful gadgets, like representations of basic types as booleans, unit32, preimage proofs for Hash functions, elliptic curve cryptography and so on. Implementers can then combine these fundamental building blocks to write complex real world applications. 
+\paragraph{Modularity} From a developers perspective it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero knowledge proofs those simple building blocks are often called \textit{gadgets} and mature proofing systems usually contain libraries that contain many useful gadgets, like representations of basic types as booleans, unit32, preimage proofs for Hash functions, elliptic curve cryptography and so on. Implementers can then combine these fundamental building blocks to write complex real world applications. 
 
 To understand what this means on the level of formal languages defined by checking relations as explained in XXX, we need to look at the \textit{intersection} of two formal languages, which can be constructed whenever both languages are defined over the same alphabet. In this case the intersection language consists of words that are contained in both languages. To be more precise, let $L_1$ and $L_2$ be two formal languages defined over the instance and witness alphabets $\Sigma_I$ and $\Sigma_W$. Then
 \begin{equation}
@@ -256,7 +256,12 @@ W_1 \cdot W_2 &= W_4 & \text{since } 2\cdot 3 = 6\\
 W_4 \cdot W_3 &= I_1 & \text{since } 6\cdot 4 = 11
 \end{align*}
 \end{example}
+\paragraph{Modularity} As we already discussed in XXX, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 constraint systems are particulary useful for this as the combination of two different R1CS over the same alphabet results in a new R1CS over that same alphabet. 
 
+To be more precise let $S_1$ and $S_2$ be two R1CS over $\F$, the the union 
+$S_3 = S_1\cup S_2$ is an R1CS over $\F$ obtained by by first relabelling all variables, such they have different names in both systems and then consider all the constraints from $S_1$ as well as all the constraints from $S_2$. Solutions to $S_3$ therefore have to satisfy both $S_1$ as well as $S_2$. 
+
+This construction then implies, that developers are able to construct complex R1CS from simple building blocks, providing that the are careful with variable naming. 
 
 \subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems define equations that instance witness pairs have to satisfy in order to provide words in the associated language.
 
@@ -322,23 +327,23 @@ We can flatten this function into an algebraic circuit over $\F_{13}$. To do so 
 \[
 \xymatrix{
  & &  & &
-x\ar_{I_1}@/^/[d]\ar@/_/[d]  &  & & 
-y\ar_{I_2}@/^/[d]\ar@/_/[d]\\
- & 10 \ar_{W_1}[dr]& & &
-\cdot \ar_{W_1}[drr] \ar^{W_1}[dll]&  & &
-\cdot \ar^{W_1}[dl] \ar^{W_1}[ddr] &  &
-12 \ar^{W_1}[ddl] \\
-1 \ar_{W_1}[dr] & &  
- \cdot \ar_{W_1}[dl] & & 
- 8 \ar_{W_1}[dr] & &
- \cdot \ar_{W_1}[dl] & & 
+x\ar^{I_1}@/^/[d]\ar_{I_1}@/_/[d]  &  & & 
+y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
+ & 10 \ar[dr]& & &
+\cdot \ar^{W_1}[drr] \ar_{W_1}[dll]&  & &
+\cdot \ar_{W_2}[dl] \ar^{W_2}[ddr] &  &
+12 \ar[ddl] \\
+1 \ar[dr] & &  
+ \cdot \ar[dl] & & 
+ 8 \ar[dr] & &
+ \cdot \ar_{W_3}[dl] & & 
  \\
  & 
- + \ar_{W_1}[drr] & & & &
- \cdot \ar_{W_1}[dll] & & &
- \cdot \ar_{W_1}[ddlll]\\
+ + \ar[drr] & & & &
+ \cdot \ar[dll] & & &
+ \cdot \ar[ddlll]\\
  & & & 
- + \ar_{W_1}[drr]& & & 
+ + \ar[drr]& & & 
  \\
  & & & & & 
  + \ar_{I_3}[d]\\
@@ -347,152 +352,113 @@ y\ar_{I_2}@/^/[d]\ar@/_/[d]\\
 }
 \]
 \endgroup
-\end{example}
+The ordering we applied to index instance and witness variable is the pre-order. 
 
-\begin{example} To give an intuition about hoto consider algebraic functions over finite fields as directed acyclic graphs, consider the function
-$$
-f:\F_{13}^2 \to \F_{13}^4\;;\;
-(x,y) \mapsto (4x^2 - \frac{x^2}{y^2},- 2xy,  x^2y^2, 4y)
-$$
-We can write this functiona as a directed acyclic graph. Since the function has $2$ inputs and computes $3$ outputs, the result is a graph with $2$ incoming nodes and $3$ outgoing nodes. Every internalk node representa field operation. We get
+Of course this is just one proper circuit from an infinite set of possible circuit. To see this oberseve that we can always add some constant and then later subtract the same constant again. It follows that circuit representations are not unique, not even up to ordering of the edges and nodes in the graph.
+\end{example}
+Algebraic circuits are usually derived by compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important. We will see in XXX how such compilers might be costructed by deriving building blocks for major imperative primitives.
+\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes are decorated with variables and constants as well as addition and multiplication symbols. In particular every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tupel $(f_1,\ldots,f_m)$ $m$ from $\F^m$. The transformation is done by sending values associated to a node along the outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the label. This is repeatedly done for all edges until a sink node is reached.
+
+Executing a circuit this way, it is possible to not only to compute the output values of the circuit but field elements for all edge labels of the circuit. The result is a tupel $(I_1,\ldots,I_n; W_1,\ldots,W_m)$ of field elements, that is called a \textbf{valid asignment} of the circuit. 
+
+Valid asignments of circuit execution can be seen as a kind of record, that not just hold the output of a computation but intermediate steps as well. What distinguishes a \textit{valid} assigment to edge labels from any other assignment is the fact that it is the result of a circuit eecution. An Assignment is valid, if the field element arise from executing the circuit, and every other assignment is invalid. Valid assignments are therefore \textit{proofs for proper circuit execution}.
+
+So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acyclic graphs, that express arbitrary, but bounded computation. Vertices with only outgoing edges (leafs, sources) represent inputs to the computation, vertices with only ingoing edges (roots, sinks) represent outputs from the computation and internal vertices represent field operations (Either addition or multiplication). It should be noted however that there are many circuits that can represent the same laguage.
+\begin{example}[3-factorization] Consider the $3$-factorization problem from example XXX and its representation as an algebraic circuit from XXX again. We know that the set of edge labels is given by $S:=\{I_{1},W_{1},W_{2},W_{3}, W_{4}\}$. To see how circuit execution looks in this example, lets consider the inputs $x_1=2$, $x_2=3$ as well as $x_3=4$. So we instantiated the variable labels $x_1$, $x_2$ and $x_3$ with actual values from the prime field $\F_{13}$. Executing the circuit then means to follow the edges and assign values to all edge labels. 
+
+We immediately get $W_1=2$, $W_2=3$ and $W_3=4$. Then the values $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
+
+Summarizing this computation a valid assignment to our circuit $C_{3.fac}(\F_{13})$ is therefore the set $S_{valid}:=\{2,3,4,6,10\}$, with an assigned circuit given by
+\[
+\xymatrix{x_1\ar^{W_1=2}[dr] &  & x_2\ar_{W_2=3}[dl]\\
+ & \cdot \ar^{W_4=6}[drr] &   & & x_3\ar_{W_3=4}[dl]\\
+  &  &  & \cdot\ar_{I_1=11}[d]\\
+  &  &  & f(x_1,x_2,x_3)
+}
+\]
+To see how an invalid assignment looks like, consider the assignment $S_{err}:=\{2,3,4,7,8\}$. In this assignment the input values are the same as in the previous case. The associated circuit is:
+\[
+\xymatrix{x_1\ar^{W_1=2}[dr] &  & x_2\ar_{W_2=3}[dl]\\
+ & \cdot \ar^{W_4=7}[drr] &   & & x_3\ar_{W_3=4}[dl]\\
+  &  &  & \cdot\ar_{I_1=8}[d]\\
+  &  &  & f(x_1,x_2,x_3)
+}
+\]
+So this assignment is invalid as the assignments of $I_1$ and $W_4$ can not be obtained by executing the circuit.
+\end{example}
+\begin{example} To give a more realistic example of algebraic circuit execution and assignment, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example XXX again. We already know from the way this circuit is constructed that any valid assignment with $I_1=x$, $I_2=y$ and $I_3=0$ will ensure that the pair $(x,y)$ is a point on the tiny jubjub curve XXX in its Edwards representation. 
+
+From example XXX we know that the pair $(11,6)$ is a point on the tiny-jubjub Edwards curve so we execute the circuit with $I_1=11$ and $I_2=6$. Executing the circuit we get:
 \begingroup
     \fontsize{8pt}{10pt}\selectfont
 \[
 \xymatrix{
-x\ar@/^/[d]\ar@/_/[d]  \ar@/_/[drrrr]   &  & 
-y\ar@/^/[d]\ar@/_/[d]\ar@/_/[drr] \ar@/^/[drrrr] & & 
-4\ar@/^/[ddllll] \ar@/^/[drr]& & 
-2 \ar@/^/[dd] & & 
--1\ar@/^/[dddll]\\
-\cdot \ar@/^/[d]\ar@/^/[ddrr] \ar@/^/[ddrrrr]&  & 
-\cdot \ar@/^/[dd] \ar@/^/[ddrr]& & 
-\cdot \ar@/^/[drr] & & 
-\cdot \ar@/^/[ddddrr]\\
-\cdot \ar@/^/[dd]& & 
-\cdot & & 
- & & 
-\cdot \ar@/^/[d]\\
- & & 
-\cdot \ar@/^/[ddrr]& & 
-\cdot/\cdot \ar@/^/[dllll] & & 
-\cdot \ar@/^/[ddllll]\\
-- \ar@/^/[d] & & 
- & & 
- & & 
-\\
-\star & & 
-\star & & 
-\star & & 
-& & 
-\star
+ & &  & &
+x\ar^{I_1=11}@/^/[d]\ar_{I_1=11}@/_/[d]  &  & & 
+y\ar^{I_2=6}@/^/[d]\ar_{I_3=6}@/_/[d]\\
+ & 10 \ar[dr]& & &
+\cdot \ar^{W_1=4}[drr] \ar_{W_1=4}[dll]&  & &
+\cdot \ar_{W_2=10}[dl] \ar^{W_2=10}[ddr] &  &
+12 \ar[ddl] \\
+1 \ar[dr] & &  
+ \cdot \ar^{[10\cdot 4 = 1]}[dl] & & 
+ 8 \ar[dr] & &
+ \cdot \ar_{W_3=1}[dl] & & 
+ \\
+ & 
+ + \ar^{[1+1=2]}[drr] & & & &
+ \cdot \ar^{[8\cdot 1 = 1]}[dll] & & &
+ \cdot \ar^{[10\cdot 12=3]}[ddlll]\\
+ & & & 
+ + \ar^{[2+8=10]}[drr]& & & 
+ \\
+ & & & & & 
+ + \ar_{I_3=0}[d]\\
+ & & & & & 
+ f_{tiny-jj}(x,y)
 }
-\]  
+\]
 \endgroup
+Executing the circuit we indeed compute $I_3=0$ as expected, which proofs that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by 
+$$
+S_{tiny-jj} = \{I_1, I_2, I_3; W_1, W_2, W_3\} = \{11, 6, 0; 4, 10, 1\}
+$$
 \end{example}
 
-\paragraph{Circuit Execution}
- While R1CS can only check proper witnesses, circuit execution provides a way to actually compute witnesses to given instances. 
+\paragraph{Circuit Satisfyability} To understand how algebraic circuits give rise to formal languages, oberserve that every given algebraic circuit $C_{\F}$ over a fields $\F$ defines a checking relations over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\begin{equation}
+R_{R1CS} : \F^* \times \F^* \to \{TRUE, FALSE\}\;;\;
+(I;W) \mapsto
+\begin{cases}
+TRUE & (I;W) \text{ is a valid assignment}\\
+FALSE & else
+\end{cases}
+\end{equation}
+We write $L_{Circuit-SAT}$ for the associated language and call it \textbf{algebraic circuit satisfyability}. The grammar of this language is exapressed by the structure of the circuit and words in this language are valid circuit assignments. 
+
+Now since every algebraic circuit gives rise to a formal language, a \textbf{statement} for a given circuit, is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ can be optained by executing the circuit". One way to proof such a claim is therefore to actually execute the circuit. A proof for proper execution of the computation. In the context of zero knowledge proofing systems, executing circuits is also often called \textbf{witness generation}, since in prectise the instance part is usually public, while its the task of a proofer to compute the witness part.
+\begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from example XXX again. We call the associated language $L_{3.fac\_circ}$.
+
+To give an intuition of how a naive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$" a proofer therefore has to provide proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Those values can be computed by circuit execution and we therefore know from example that $(2,3,4,6)$ is a proper proof.
+\end{example}
+\paragraph{Circuit to R1CS compilers} As we have seen in XXX, R1CS provide a compact way to represent statements in terms of a system of quadratic equations over finite fields. As we will see in XXX they are particulary useful in the context of pairing based zero knowledge proofing systems. However R1CS provide no practical way for proofer to actually \textit{compute} a proof. They are just a system of \textit{checking} any given proof against a set of constraints.
+
+On the other hand algebraic circuits have a notation of execution and executing any such circuit provides a way to compute valid assignments and proof for statements in associated languages. 
+
+The question therefore remains, if we can combine the both approaches to have a representation, suteable for pairing based zero knowledge proofing systems that can also be used to compute proofs efficiently.
+
+Fortunately it is straight forward to transform any algebraic circuit into a rank-1 constraint systems. To see how this is done, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with edge labeling $(I_1,\ldots,I_n;W_1,\ldots,W_m)$. The task is to compute a R1CS $S$ over $\F$ from $C(\F)$.  
+
+First every multiplication gate in $C(\F)$ that has a label on its outgoing edges, defines a new quadratic constraint in $S$. If $L_j\in\{I_j,W_j\}$ is the label of the outgoing edge, then the constraint is given by
+\begin{equation}
+()\cdot () = L_j
+\end{equation}  
+
 
  
-  
-
-\begin{remark}[Circuit-SAT] Every circuit with $n$ input nodes and $m$ output nodes can be seen a function that transforms strings of size $n$ from $\Sigma_I \times \Sigma_W$ into strings of size $m$ over the same alphabet. The transformation is done by sending the strings from a node along the outgoing edges to other nodes. If those nodes are gates, then the string is transformed according to the label.
-
-By executing the previous transformation, every node of a circuit has an associated letter from $\Sigma_I \times \Sigma_W$ and this defines a checking relation over $\Sigma_I^* \times \Sigma_W^*$. To be more precise, let $C$ be a circuit with $n$ nodes and $(i,w) \in \Sigma_I^j \times \Sigma_W^k$ a string. Then $R_C(i,w)$ iff THE CIRCUIT IS SATISFIED WHEN ALL LABELS ARE ASSOCIATED TO ALL NODES IN THE CIRCUIT.... BUT MORE PRECISE
-
-MODULO ERRORS. TO BE CONTINUED.....
-
-An Assignment associates field elements to all edges (indices) in an algebraic circuit. An Assignment is valid, if the field element arise from executing the circuit. Every other assignment is invalid.
-
-The checking relation for circuit-SAT then is satidfied if valid asignment (TODO: THE WITNESS/INSTANCE SPLITTING)
-
-Valid assignments are proofs for proper circuit execution.
-\end{remark}
 
 
 
-So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acyclic graphs, that express arbitrary, but bounded computation. Vertices with only outgoing edges (leafs, sources) represent inputs to the computation, vertices with only ingoing edges (roots, sinks) represent outputs from the computation and internal vertices represent field operations (Either addition or multiplication). It should be noted however that there are many circuits that can represent the same laguage...
-
-Circuits have a notion of execution, where input values are send from leafs along edges, through internal vertices to roots.
-
-\begin{remark}
-Algebraic circuits are usually derived by  Compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important.
-\end{remark}
-
-
-\begin{example}[Generalized factorization snark]
-\label{main_example_2_4}
-Consider our generalized factorization example \ref{main_example_2_1} with associated language \ref{main_example_2_3}.
-
-To write this example in circuit-SAT, consider the following function 
-\[
-f:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
-\]
-
-A valid circuit for $f:\mathbb{F}_{11}\times\mathbb{F}_{11}\times\mathbb{F}_{11}\to\mathbb{F}_{11};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}$ is given by:
-
-\[
-\xymatrix{\star\ar^{in_1}[dr] &  & \star\ar_{in_2}[dl]\\
- & \star_{m_1}\ar^{mid_1}[drr] &   & & \star\ar_{in_3}[dl]\\
-  &  &  & \star_{m_2}\ar_{out_1}[d]\\
-  &  &  & \star
-}
-\]
-with edge-index set $I:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\}$.
-
-To given a valid assignment, consider the set $I_{valid}:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\} = \{2,3,4,6,10\}$
-
-\[
-\xymatrix{\star\ar^{2}[dr] &  & \star\ar_{3}[dl]\\
- & \star_{m_1}\ar^{6}[drr] &   & & \star\ar_{4}[dl]\\
-  &  &  & \star_{m_2}\ar_{10}[d]\\
-  &  &  & \star
-}
-\]
-Appears from multiplying the input values at $m_1$, $m_2$ in $\mathbb{F}_{13}$, hence by executing the circuit.
-
-Non valid assignment: $I_{err}:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\} =\{2,3,4,7,8\}$
-\[
-\xymatrix{\star\ar^{2}[dr] &  & \star\ar_{3}[dl]\\
- & \star_{m_1}\ar^{7}[drr] &   & & \star\ar_{4}[dl]\\
-  &  &  & \star_{m_2}\ar_{8}[d]\\
-  &  &  & \star
-}
-\]
-Can not appear from multiplying the input values at $m_1$, $m_2$ in $\mathbb{F}_{13}$
-
-To match the requirements of the inital task \ref{main_example_2_1}, we have to split the statement into instance and witness. So given index set $I:=\{in_{1},in_{2},in_{3},mid_{1},out_{1}\}$, we assume that every step in the computation other then $in_3$ and $out_1$ are part of the witness. So we choose:
-\begin{itemize}
-\item Instance $S=\{in_3, out_1\}$. 
-\item Witness $W=\{in_1, in_2, mid_{1}\}$.
-\end{itemize}
-\end{example}
-
-\begin{example}[Baby JubJub for BLS6-6]
-
-\end{example}
-
-\begin{example}[ECDH as a circuit]
-over BLS6
-\end{example}
-
-\begin{example}[BLS Signature]
-example of one layer recursion over MNT4 and MNT6
-\end{example}
-
-
-\begin{example}[Boolean Circuits]
-
-\end{example}
-
-\begin{example}[Algebraic (Aithmetic) Circuits]
-
-\end{example}
-
-Any program  can be reduced to  an arithmetic circuit  (a circuit that contains only addition and multiplication gates). A particular reduction can be found for example in [BSCG+13]
-
- we produce a circuit whose satisfiability encodes the correctness of execution of
-the program. L
 
 
 \section{Computational Models}
