@@ -170,7 +170,11 @@ R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{TRUE, FALSE\}\;;\;
 \end{equation}
 This is an important fact from an implementations point of view as it allows to construct complex checking relations and their statements from simple building blocks. Given a publically known instance $i\in \Sigma_I^*$ a statement in an intersection language then claims knowledge of a wittness that satisfies all relations simultaniously.
 
-\section{Statement Representations} As we have seen in the previous section, formal languages and their definition by checking relations are a powerful tool to describe statements in a formaly regurous manner. 
+\section{Statement Representations} 
+% IMPORTANT TODO: https://en.wikipedia.org/wiki/Boolean_circuit
+% Language defined by family of circuits
+
+As we have seen in the previous section, formal languages and their definition by checking relations are a powerful tool to describe statements in a formaly regurous manner. 
 
 However from the perspective of existing zero knowledge proofing systems not all ways to actually represent checking relations are equally useful. Depending on the proofing system ad hand some are more suitable then others. In this section will therefore describe the most common ways to represent checking relation and their statements.
 \subsection{Rank-1 Quadratic Constraint Systems}
@@ -263,7 +267,13 @@ $S_3 = S_1\cup S_2$ is an R1CS over $\F$ obtained by by first relabelling all va
 
 This construction then implies, that developers are able to construct complex R1CS from simple building blocks, providing that the are careful with variable naming. 
 
-\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems define equations that instance witness pairs have to satisfy in order to provide words in the associated language.
+\subsection{Algebraic Circuits} 
+* All outgoing edges from a node get the same label.
+* Outgoing edges from input nodes if the input node is a variable.
+* Outgoing edges from a multiplication gate get a label, if both input edges have a label
+* Outgoing edges of addition gates get a label only if they are inputs to output nodes 
+
+As we have seen in the previous paragraphs, rank-1 constraint systems define equations that instance witness pairs have to satisfy in order to provide words in the associated language.
 
 However R1CS equations can be large and are non-linear in general. It is therefore not posible to solve those equations efficiently in order to find proper witnesses for given instances. A practical question is therefore how to actually compute witneses for R1CS?
 
@@ -292,13 +302,34 @@ f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}
 The zero-knowledge $3$-factorization problem as described in XXX can then be described in the following way: Given instance $I_1\in \F_{13}$ a valid witness a preimage of $f_{3.fac}$ at the point $I_1$, i.e. a valid witness are three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$, such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
 
 To flatten function $f_{3.fac}$, that is to find some circuit that describes the function, observe that $f_{3.fac}$ needs two multiplications to compute its output. We therefore need a circuit that contains two multiplication gates and nothing more. We get:
-\[
-\xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
- & \cdot \ar^{W_4}[drr] &   & & x_3\ar_{W_3}[dl]\\
-  &  &  & \cdot\ar_{I_1}[d]\\
-  &  &  & f(x_1,x_2,x_3)
+
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.5]{G1}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_1  "];
+	n2 -> n3 [xlabel="W_2 "];
+	n3 -> n5 [label="W_4"];
+	n4 -> n5 [label=" W_3"];
+	n5 -> n6 [label=" I_1"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
 }
-\]
+\end{center}
+%\[
+%\xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
+% & \cdot \ar^{W_4}[drr] &   & & x_3\ar_{W_3}[dl]\\
+%  &  &  & \cdot\ar_{I_1}[d]\\
+%  &  &  & f(x_1,x_2,x_3)
+%}
+%\]
 So our directed acyclic multi-graph, is is binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
 
 The order we used to label the edges is choosen to make the edge labeling consistent with our decision from example XXX. Its not an order that arises from common ordering algorithms like deapth-first or breath-first ordering. In addition we declear the function output as the instance and the inputs as well as every step in the computation as private inputs.
@@ -322,8 +353,55 @@ $$
 then of course every pair $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve.
 
 We can flatten this function into an algebraic circuit over $\F_{13}$. To do so we have to decide which edges to declare instance and which to declare witness. In principle we could choose any combination, but for the sake of zero-knowledge proofs as we will discuss later, we only declare the output and the pair $(x,y)$ to be the instance. Everything else should be part of the witness. A proper circuit then might be:
-\begingroup
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.4]{G2}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n5 [label="I_2" /*, color=lightgray */];
+	n2 -> n5 /*[ color=lightgray ]*/ ;
+	n3 -> n8 /*[ color=lightgray ]*/ ;
+	n4 -> n8 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n10 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n5 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 /*[ color=lightgray ]*/ ;
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n11 /*[ color=lightgray ]*/ ;
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n12 [taillabel="W_3", labeldistance="4" /*, color=lightgray */];
+	n11 -> n14 /*[ color=lightgray ]*/ ;
+	n12 -> n14 /*[ color=lightgray ]*/ ;	
+	n13 -> n15 /*[ color=lightgray ]*/ ;
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [label="*" /*, color=lightgray */];
+	n6 [shape=box, label="12" /*, color=lightgray */];
+	n7 [shape=box, label="1" /*, color=lightgray */];
+	n8 [label="*" /*, color=lightgray */];
+	n9 [shape=box, label="8" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+\begin{comment}
+% unused but to much work to delete it right now
+begingroup
     \fontsize{8pt}{10pt}\selectfont
+
 \[
 \xymatrix{
  & &  & &
@@ -352,9 +430,52 @@ y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
 }
 \]
 \endgroup
-The ordering we applied to index instance and witness variable is the pre-order. 
-
-Of course this is just one proper circuit from an infinite set of possible circuit. To see this oberseve that we can always add some constant and then later subtract the same constant again. It follows that circuit representations are not unique, not even up to ordering of the edges and nodes in the graph.
+\end{comment} 
+Of course this is just one proper circuit from an infinite set of possible circuit. To see this oberseve that we can always add some constant and then later subtract the same constant again. It follows that circuit representations are not unique, not even up to ordering of the edges and nodes in the graph. An alernative circuit is given by:
+\begin{center}
+\digraph[scale=0.4]{G2A}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /*[ color=lightgray ]*/ ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n12 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n13 /*[ color=lightgray ]*/ ;
+	n8 -> n11 /*[ color=lightgray ]*/ ;
+	n9 -> n11 /*[ color=lightgray ]*/ ;
+	n10 -> n12 /*[ color=lightgray ]*/ ; 
+	n11 -> n14 /*[ color=lightgray ]*/ ;
+	n12 -> n14 [xlabel="W_3  "  /*, color=lightgray */];	
+	n13 -> n15 /*[ color=lightgray ]*/ ;
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*" /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];	
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+technobov
 \end{example}
 Algebraic circuits are usually derived by compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important. We will see in XXX how such compilers might be costructed by deriving building blocks for major imperative primitives.
 \paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes are decorated with variables and constants as well as addition and multiplication symbols. In particular every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tupel $(f_1,\ldots,f_m)$ $m$ from $\F^m$. The transformation is done by sending values associated to a node along the outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the label. This is repeatedly done for all edges until a sink node is reached.
@@ -369,26 +490,98 @@ So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acy
 We immediately get $W_1=2$, $W_2=3$ and $W_3=4$. Then the values $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
 
 Summarizing this computation a valid assignment to our circuit $C_{3.fac}(\F_{13})$ is therefore the set $S_{valid}:=\{2,3,4,6,10\}$, with an assigned circuit given by
-\[
-\xymatrix{x_1\ar^{W_1=2}[dr] &  & x_2\ar_{W_2=3}[dl]\\
- & \cdot \ar^{W_4=6}[drr] &   & & x_3\ar_{W_3=4}[dl]\\
-  &  &  & \cdot\ar_{I_1=11}[d]\\
-  &  &  & f(x_1,x_2,x_3)
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.5]{G3}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_1=2  "];
+	n2 -> n3 [xlabel="W_2=3 "];
+	n3 -> n5 [label="W_4=6"];
+	n4 -> n5 [label=" W_3=4"];
+	n5 -> n6 [label=" I_1=11"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
 }
-\]
+\end{center}
 To see how an invalid assignment looks like, consider the assignment $S_{err}:=\{2,3,4,7,8\}$. In this assignment the input values are the same as in the previous case. The associated circuit is:
-\[
-\xymatrix{x_1\ar^{W_1=2}[dr] &  & x_2\ar_{W_2=3}[dl]\\
- & \cdot \ar^{W_4=7}[drr] &   & & x_3\ar_{W_3=4}[dl]\\
-  &  &  & \cdot\ar_{I_1=8}[d]\\
-  &  &  & f(x_1,x_2,x_3)
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.5]{G4}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_1=2  "];
+	n2 -> n3 [xlabel="W_2=3 "];
+	n3 -> n5 [label="W_4=7"];
+	n4 -> n5 [label=" W_3=4"];
+	n5 -> n6 [label=" I_1=8"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
 }
-\]
+\end{center}
 So this assignment is invalid as the assignments of $I_1$ and $W_4$ can not be obtained by executing the circuit.
 \end{example}
 \begin{example} To give a more realistic example of algebraic circuit execution and assignment, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example XXX again. We already know from the way this circuit is constructed that any valid assignment with $I_1=x$, $I_2=y$ and $I_3=0$ will ensure that the pair $(x,y)$ is a point on the tiny jubjub curve XXX in its Edwards representation. 
 
 From example XXX we know that the pair $(11,6)$ is a point on the tiny-jubjub Edwards curve so we execute the circuit with $I_1=11$ and $I_2=6$. Executing the circuit we get:
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.4]{G2C}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1=11" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n5 [label="I_2=6" /*, color=lightgray */];
+	n2 -> n5 /*[ color=lightgray ]*/ ;
+	n3 -> n8 /*[ color=lightgray ]*/ ;
+	n4 -> n8 [taillabel="W_1=4  " /*, color=lightgray */];
+	n4 -> n10 [taillabel="W_1=4", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [xlabel="W_2=10 " /*, color=lightgray */];
+	n5 -> n13 [headlabel="W_2=10", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 /*[ color=lightgray ]*/ ;
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n11 [headlabel="[10*4=1]    "];
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n12 [taillabel="W_3=1  " /*, color=lightgray */];
+	n11 -> n14 [headlabel="[1+1=2]    "];
+	n12 -> n14 [label="  [8*1=8]"];	
+	n13 -> n15 [headlabel="    [10*12=3]"];
+	n14 -> n15 [taillabel="   [2+8=10]"];
+	n15 -> n16 [label="  I_3=0", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [label="*" /*, color=lightgray */];
+	n6 [shape=box, label="12" /*, color=lightgray */];
+	n7 [shape=box, label="1" /*, color=lightgray */];
+	n8 [label="*" /*, color=lightgray */];
+	n9 [shape=box, label="8" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+
+\begin{comment}
 \begingroup
     \fontsize{8pt}{10pt}\selectfont
 \[
@@ -419,6 +612,7 @@ y\ar^{I_2=6}@/^/[d]\ar_{I_3=6}@/_/[d]\\
 }
 \]
 \endgroup
+\end{comment}
 Executing the circuit we indeed compute $I_3=0$ as expected, which proofs that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by 
 $$
 S_{tiny-jj} = \{I_1, I_2, I_3; W_1, W_2, W_3\} = \{11, 6, 0; 4, 10, 1\}
@@ -464,7 +658,7 @@ where $(\text{left input})$ respctively $(\text{right input})$ is the computatio
 It can be shown, that a tupel $(I_1,\ldots, I_n;W_1,\ldots,W_m)$ is a solution to the synthesized R1CS if and only if the same tupel is a valid assignment to the associated circuit.
 
 As addition gates only add constraints if their result is an output, addition is \textit{essentially for free} in R1CS.
- \begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac}(\F_{13})$ again:
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac}(\F_{13})$ again:
  
 \[
 \xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
@@ -493,6 +687,7 @@ Since there are no more gates with labeled outgoing adges, we are done deriving 
 which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same thing.
 \end{example}
 \begin{example} To consider a more general transformation, lets consider the tiny-jubjub circuit from example XXX  again. A proper circuit is given by
+\begin{comment}
 \begingroup
     \fontsize{8pt}{10pt}\selectfont
 \[
@@ -523,119 +718,239 @@ y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
 }
 \]
 \endgroup
+\end{comment}
+\begin{center}
+\digraph[scale=0.4]{G2D}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /*[ color=lightgray ]*/ ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n12 /*[ color=lightgray ]*/ ;
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n13 /*[ color=lightgray ]*/ ; 
+	n11 -> n15 /*[ color=lightgray ]*/ ;
+	n12 -> n14 /*[ color=lightgray ]*/ ;	
+	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*", style=filled /*, color=lightgray */];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="*" /*, color=lightgray */];	
+	n12 [label="+" /*, color=lightgray */];	
+	n13 [label="*", style=filled /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+", style=filled /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
 To compute the number of constraints, observe that we have $3$ multiplication gates, that have labeles on their outgoing edges and $1$ addition gate that has a label on its outgoing edge. We therefore have to cmpute $4$ quadratic constraints.
 Looking at the multiplication gate
-\begingroup
-    \fontsize{8pt}{10pt}\selectfont
-\[
-\xymatrix{
- & &  & &
-x\ar^{I_1}@/^/[d]\ar_{I_1}@/_/[d]  &  & & 
-\\
- & & & &
-\cdot \ar^{W_1}[ddr] \ar_{W_1}[dll]&  
-& &
- &  &
- \\
-  & &  
- \cdot & & & &
- & & 
- \\
- & 
-  & & & &
- \cdot & & & 
- \\
+\begin{center}
+\digraph[scale=0.4]{G2E}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+    n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [ color=lightgray ] ;
+	n3 -> n9 [ color=lightgray ] ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [ color=lightgray ] ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4", color=lightgray];
+	n6 -> n11 [taillabel="W_2", labeldistance="4", color=lightgray];
+	n7 -> n11 [ color=lightgray ] ;
+	n8 -> n12 [ color=lightgray ] ;
+	n9 -> n12 [ color=lightgray ] ;
+	n10 -> n13 [ color=lightgray ] ; 
+	n11 -> n15 [ color=lightgray ] ;
+	n12 -> n14 [ color=lightgray ] ;	
+	n13 -> n14 [xlabel="W_3  ", color=lightgray];
+	n14 -> n15 [ color=lightgray ] ;
+	n15 -> n16 [label="  I_3", labeldistance="2", color=lightgray];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y", color=lightgray];
+	n3 [shape=box, label="10", color=lightgray ];
+	n4 [label="*", style=filled /*, color=lightgray */];
+	n5 [shape=box, label="8", color=lightgray];
+	n6 [label="*", style=filled, color=lightgray];
+	n7 [shape=box, label="12", color=lightgray];
+	n8 [shape=box, label="1", color=lightgray];
+	n9 [label="*", color=lightgray];
+	n10 [label="*", color=lightgray];
+	n11 [label="*", color=lightgray];	
+	n12 [label="+", color=lightgray];	
+	n13 [label="*", style=filled, color=lightgray];
+	n14 [label="+", color=lightgray];
+	n15 [label="+", style=filled, color=lightgray];
+	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
 }
-\]
-\endgroup
+\end{center}
 we see that both the left input to this gate as well as the right input to this gate are given by the label $I_1$. Since the label of the outgoing adges is $W_1$, the associated constraint is given by
 $$
 I_1 \cdot I_1 = W_1
 $$
 We can look at the subgraph of the second multiplication gate in a similar way. We get 
-\begingroup
-    \fontsize{8pt}{10pt}\selectfont
-\[
-\xymatrix{
- & &  & &
- &  & & 
-y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
- & & & &
-&  
-& &
-\cdot \ar_{W_2}[dl] \ar^{W_2}[ddr] &  &
-\\
-& &  
- & & & &
- \cdot & & 
- \\
- & 
- & & & &
- & & &
- \cdot\\
+\begin{center}
+\digraph[scale=0.4]{G2F}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" labeldistance="4", color=lightgray];
+        n1 -> n4 [ color=lightgray ]
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /* [ color=lightgray ] */ ;
+	n3 -> n9 [ color=lightgray ] ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2", color=lightgray];
+	n4 -> n13 [taillabel="W_1", labeldistance="4", color=lightgray];
+	n5 -> n10 [ color=lightgray ] ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n11 [ color=lightgray ] ;
+	n8 -> n12 [ color=lightgray ] ;
+	n9 -> n12 [ color=lightgray ] ;
+	n10 -> n13 [ color=lightgray ] ; 
+	n11 -> n15 [ color=lightgray ] ;
+	n12 -> n14 [ color=lightgray ] ;	
+	n13 -> n14 [xlabel="W_3  ", color=lightgray];
+	n14 -> n15 [ color=lightgray ] ;
+	n15 -> n16 [label="  I_3", labeldistance="2", color=lightgray];
+	n1 [shape=box, label="x", color=lightgray];
+	n2 [shape=box, label="y", /* color=lightgray */];
+	n3 [shape=box, label="10", color=lightgray];
+	n4 [label="*", style=filled, color=lightgray];
+	n5 [shape=box, label="8", color=lightgray];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12", color=lightgray];
+	n8 [shape=box, label="1", color=lightgray];
+	n9 [label="*", color=lightgray];
+	n10 [label="*", color=lightgray];
+	n11 [label="*", color=lightgray];	
+	n12 [label="+", color=lightgray];	
+	n13 [label="*", style=filled, color=lightgray];
+	n14 [label="+", color=lightgray];
+	n15 [label="+", style=filled, color=lightgray];
+	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
 }
-\]
-\endgroup
+\end{center}
 We see that both the left input to this gate as well as the right input to this gate are given by the label $I_2$. Since the label of the outgoing adges is $W_2$, the associated constraint is given by
 $$
 I_2 \cdot I_2 = W_2
 $$
 The next multiplication gate that has a label on its outgoing edge is more interesting. To compute the associated constraint, we have to construct the associated subgraph first. The subgraph consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get  
-\begingroup
-    \fontsize{8pt}{10pt}\selectfont
-\[
-\xymatrix{
- & & & &
-\cdot \ar^{W_1}[ddr] &  
-8 \ar[dr]& &
-\cdot \ar_{W_2}[dl] &  &
-\\
-& &  
-& & & &
- \cdot \ar[dl] & & 
- \\
- & 
-  & & & &
- \cdot \ar_{W_3}[dll] & & &
- \\
- & & & 
- + & & & 
- \\
+\begin{center}
+\digraph[scale=0.4]{G2G}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" labeldistance="4", color=lightgray];
+        n1 -> n4 [ color=lightgray ]
+	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [ color=lightgray ] ;
+	n3 -> n9 [ color=lightgray ] ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2", color=lightgray];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="W_2", labeldistance="4", color=lightgray ];
+	n7 -> n11 [ color=lightgray ] ;
+	n8 -> n12 [ color=lightgray ] ;
+	n9 -> n12 [ color=lightgray ] ;
+	n10 -> n13 /*[ color=lightgray ]*/ ; 
+	n11 -> n15 [ color=lightgray ] ;
+	n12 -> n14 [ color=lightgray ] ;	
+	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n14 -> n15 [ color=lightgray ] ;
+	n15 -> n16 [label="  I_3", labeldistance="2" , color=lightgray ];
+	n1 [shape=box, label="x", color=lightgray];
+	n2 [shape=box, label="y", color=lightgray];
+	n3 [shape=box, label="10", color=lightgray];
+	n4 [label="*", style=filled /*, color=lightgray*/];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12", color=lightgray];
+	n8 [shape=box, label="1", color=lightgray];
+	n9 [label="*", color=lightgray];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="*", color=lightgray];	
+	n12 [label="+", color=lightgray];	
+	n13 [label="*", style=filled /*, color=lightgray */];
+	n14 [label="+", color=lightgray];
+	n15 [label="+", style=filled, color=lightgray];
+	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
 }
-\]
-\endgroup
+\end{center}
 The left input to is given by the labeled edge $W_1$. However the right input is not a labeled edge. To comput the right factor in the quadratic constraint, we therefore have to compute the output of the subgraph associated to the right edge, which is $8\cdot W_2$. Combining this we get
 $$
 W_1\cdot 8\cdot W_2 = W_3
 $$ 
 To compute the $4$th constraint, observe the associated gate is an addition gate.  To compute the associated constraint, we have to construct the associated subgraph. The subgraph consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get
-\begingroup
-    \fontsize{8pt}{10pt}\selectfont
-\[
-\xymatrix{
- & 10 \ar[dr]& & &
-\cdot \ar_{W_1}[dll]&  
-& &
-\cdot \ar^{W_2}[ddr] &  &
-12 \ar[ddl] \\
-1 \ar[dr] & &  
- \cdot \ar[dl] & & & &
- & & 
- \\
- & 
- + \ar[drr] & & & &
- \cdot \ar_{W_3}[dll] & & &
- \cdot \ar[ddlll]\\
- & & & 
- + \ar[drr]& & & 
- \\
- & & & & & 
- + \ar_{I_3}[d]\\
- & & & & & 
- f_{tiny-jj}(x,y)
+\begin{center}
+\digraph[scale=0.4]{G2H}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4", color=lightgray];
+    n1 -> n4 [ color=lightgray ]
+	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [ color=lightgray ] ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" , color=lightgray ];
+	n5 -> n10 [ color=lightgray ] ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" , color=lightgray ];
+	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n12 /*[ color=lightgray ]*/ ;
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n13 [ color=lightgray ] ; 
+	n11 -> n15 /*[ color=lightgray ]*/ ;
+	n12 -> n14 /*[ color=lightgray ]*/ ;	
+	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x", color=lightgray];
+	n2 [shape=box, label="y", color=lightgray];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*", style=filled /*, color=lightgray */];
+	n5 [shape=box, label="8", color=lightgray];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" , color=lightgray];
+	n11 [label="*" /*, color=lightgray */];	
+	n12 [label="+" /*, color=lightgray */];	
+	n13 [label="*", style=filled /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+", style=filled /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
 }
-\]
-\endgroup
+\end{center}
 Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in subcircuit. We get
 $$
 (1 + 10\cdot W_1 + W_3 + W_2\cdot 12)\cdot 1 = I_3
@@ -661,7 +976,8 @@ In this section we will therefore provide an introduction to atomic types like b
 \subsubsection{The Basefield type} The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
 
 As this type is the basis for everything else, no circuit or constraint is needed to represent this type. The properties of this type are inherited from $\F$, that is we a notion of \textit{addition}, \textit{subtraction}, \textit{multiplication} and \textit{division}. 
-
+\paragraph{The Subtraction Constraints System}
+\paragraph{The Division Constraint System}
 \subsubsection{The Boolean Type} 
 % implementations can be found here: https://github.com/filecoin-project/zexe/tree/master/snark-gadgets/src/bits
 
@@ -670,6 +986,8 @@ It is often necessary to assume that a statement contains expressions of boolean
 The most common way to do this in algebraic circuits and their associated rank-1 constraint systems, is to interpret the additive and multiplicate neutral element $\{0,1\}\subset \F$ as boolean values, such that $0$ represents $false$ and $1$ represents $true$. Boolean functions like $and$, $or$, $xor$ and so on are the expressable in terms of computations inside $\F$. 
 
 Representing booleans this way is convinient because the elements $0$ and $1$ are defined in any field. The representation is therefore independent of the actual field in consideration. 
+
+To fix Boolean algebra notation in what follows, we often write $0$ to represent $false$ and $1$ to represent $true$. We also write $\wedge$ to represent the boolean AND as well as $\vee$ to represent the boolean OR operator. The boolean NOT operator is written as $\lnot$. 
 \paragraph{The Boolean Constraint System}
 If boolean variables appear as part of a statement, a constraint is required to actually enforces the variable to be either $1$ or $0$. In fact many of the following constraints for boolean functions, are only correct under the assumption that their input variables are boolean constraint. Not constraining boolean variables is a common issue in circuit design.
 
@@ -677,73 +995,70 @@ In order to constrain an arbitrary field element $x\in \F$ to be $1$ or $0$, the
 \begin{equation}
 W_1 \cdot (1-W_1) =0
 \end{equation}
-\paragraph{The AND operator constraint system} Given three field elements $x,y,z\in\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the AND operator and an associated R1CS, such that $x$, $y$, $z$ satisfies the constraint system if and only if $x\; AND \; y =z$. 
+\paragraph{The AND operator constraint system} Given two field elements $x$ and $y$ from $\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the logical \textit{and} operator $AND(x,y)$ as well as its associated R1CS, that enforces $x$, $y$, $AND(x,y)$ to satisfy the constraint system if and only if $x\; \&\& \; y =AND(x,y)$ holds true. 
 
-Assuming that $x$, $y$ and $z$ are boolean constraint, that is their values are constraint to be $0$ or $1$, only the equation $x\cdot y = z$ is satisfied in $\F$ if and only if the equation $x\text{ AND }y = z$ is satisfied in boolean algebra. The logical operator AND is therefore implementable in $\F$ as multiplication. This implies that the following circuit computes the AND operator in $\F$, assuming all inputs are restricted to be $0$ or $1$:
+Assuming that three variables $x$, $y$ and $z$ are boolean constraint, the equation $x\cdot y = z$ is satisfied in $\F$ if and only if the equation $x\text{ AND }y = z$ is satisfied in boolean algebra. The logical operator AND is therefore implementable in $\F$ as multiplication of its arguments. 
+
+The following circuit computes the AND operator in $\F$, assuming all inputs are restricted to be $0$ or $1$:
 \[
 \xymatrix{x\ar^{W_1}[dr] &  & y\ar_{W_2}[dl]\\
  & \cdot\ar_{W_3}[d]\\
-  & x \text{ AND } y
+  & AND(x,y)
 }
 \]
 The associated rank-1 constraint system can be deduced from the general process XXX and consists of the following constraint
 \begin{equation}
  W_1 \cdot W_2 = W_3
 \end{equation}
-\paragraph{NOT constraint}
-Given two field elements $x,y\in\F$ that represent boolean variables, we want to find a R1CS, such that $w=(1,x,y)$ satisfies the constraint system if and only if $x=\lnot y$. 
+\paragraph{The OR operator constraint system} Given two field elements $x$ and $y$ from $\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the logical \textit{or} operator $OR(x,y)$ as well as its associated R1CS, that enforces $x$, $y$, $OR(x,y)$ to satisfy the constraint system if and only if $x\; || \; y =OR(x,y)$ holds true. 
 
-So again we have to constrain $x$ and $y$ to be boolean as explained in XXX. The next think is we need to find a R1CS that enforces the $NOT$ logic. We can simply choose $(1-x) =y$, since (for boolean constraint values) this enforces that $y$ is always the boolean opposite of $x$. 
+Assuming that three variables $x$, $y$ and $z$ are boolean constraint, the equation $1-(1-x)\cdot(1-y) = z$ is satisfied in $\F$ if and only if the equation $x\text{ OR }y = z$ is satisfied in boolean algebra. The logical operator OR is therefore implementable in $\F$ by the following circuit, assuming all inputs are restricted to be $0$ or $1$:
+\[
+\xymatrix{
+x\ar_{W_1}[d] & -1 \ar[dl] \ar[dr] & y\ar^{W_2}[d]\\
+\cdot \ar[d] & 1 \ar[dl] \ar[dr] & \cdot \ar[d]\\
++ \ar[dr]& & + \ar[dl] \\
+ & \cdot \ar^{W_3}[d] \\
+ & +
+}
+\]
+The associated rank-1 constraint system can be deduced from the general process XXX and consists of the following constrainst
+\begin{align*}
+ (1- W_1) \cdot (1-W_2) & = W_3\\
+  (1-W_3)\cdot 1 &= W_4
+\end{align*}
+\paragraph{The NOT operator constraint system} Given a field element $x$ from $\F$ that is constrained to represent a boolean variable, we want to find a circuit that computes the logical \textit{NOT} operator $NOT(x)$ as well as its associated R1CS, that enforces $x$, $NOT(x)$ to satisfy the constraint system if and only if $\lnot x = NOT(x)$ holds true. 
 
-Now that we have found a correct equation for a boolean constrain, we have to translate it into the associated R1CS format, which is given by 
-$$
-\begin{pmatrix}1 & -1 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix}\odot
-\begin{pmatrix}1 & 0 & 0 \end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix} =
-\begin{pmatrix}0 & 0 & 1 \end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \end{pmatrix}
-$$
-So actually we wrote the linear equation $1-x=y$ like $(1-x)\cdot 1 = y$ and translated that into the matrix equation.
+Assuming that two variables $x$ and $y$ are boolean constraint, the equation $(1-x) = y$ is satisfied in $\F$ if and only if the equation $\lnot x = y$ is satisfied in boolean algebra. The logical operator NOT is therefore implementable in $\F$ by the following circuit, assuming all inputs are restricted to be $0$ or $1$:
+\[
+\xymatrix{x\ar^{W_1}[dr] &  & -1 \ar[dl]\\
+ & \cdot\ar[dr] & & 1\ar[dl]\\
+ & & + \ar_{W_2}[d]\\
+ & & NOT(x)
+}
+\]
+The associated rank-1 constraint system can be deduced from the general process XXX and consists of the following constrainst
+\begin{align*}
+  (1-W_1)\cdot 1 &= W_2
+\end{align*}
+\begin{exercise}
+Let $\F$ be a finite field. Derive the algebraic circuit and associated rank-1 constraint system for the following operators: OR, XOR, NAND, EQU.
+\end{exercise}
+\paragraph{Modularity} Implementing bounded computation in algebraic circuits it is often necessary to deal with complex boolean expressions. As we have seen in XXX and XXX, both algebraic circuits and R1CS have a modularity property, which enables a compiler to derive algebraic circuit implementations for arbitrary boolean circuits. 
 
-Combining this R1CS with the required fthree boolean constraints for $x$, $y$ and $z$ we get
+This is quite remarkable property, because it shows that the expressiveness of algebraic circuits and therefore rank-1 constraint systems is as general as the expressiveness of boolen circuits.  
+\begin{example} To give an intuitive example of how to construct complex boolean circuit representations in algebraic circuits and how to derive associated rank-1 constraint systems, lets look at the following boolean expression
 $$
-\begin{pmatrix}
-1 & -1 & 0 \\
-\hline
-0 & 1 & 0 \\
-0 & 0 & 1
-\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix}\odot
-\begin{pmatrix}
-1 & 0 & 0 \\
-\hline
-1 & -1 & 0 \\
-1 & 0  & -1 
-\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \end{pmatrix} =
-\begin{pmatrix}
-0 & 0 & 1 \\
-\hline
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-\end{pmatrix}\begin{pmatrix} 1 \\ x \\ y \end{pmatrix}
+\left( b_1 \vee b_2 \right) \wedge \left( b_3 \vee \lnot b_4\right)
 $$
-So from the way this R1CS is constructed, we know that whatever the underlying field $\F$ is, the only solutions to this equations are
+The expression consists of $4$ boolean variables and four boolean operations. Using boolean operator notation, we can write this expression as
 $$
-\{(0,1), (1,0)\}
+AND\left(OR\left(b_1,b_2\right),OR(b_3,NOT\left(b_4\right)\right)
 $$
-which is the set of all $(x,y)\in\{0,1\}^2$ such that $x=\lnot y$.
-
-EXERCISE: DO OR; XOR; NAND
-
-More complicated logical constraints can then be optained by combining all sub-R1CS together. For example if the task is to enforce $(in_1\; AND \lnot in_2 ) AND in_3 = out_1$ we first apply the FLATTENING technique from XXX, which gives is
-$$
-\begin{array}{lcr}
-\lnot in_2 &=& mid_1\\
-in_1\; AND \; mid_1 &=& mid_2\\
-mid_2 \; AND \; in_3 &=& out_1
-\end{array}
-$$
-So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
-
+Using the boolean operator notion, makes it conceptually more clear to derive the circuit. To see how the circuit is computed we start at the outer most operator and  write down its defining circuit as well as it associated R1CS using placeholder names for its arguments. We then inductively substitute every placeholder by its defining circuit and add the associated constraint, to the constrain system. In a final step we add the boolean constrains of the variables to the system. 
+\end{example}
 \subsubsection{Binary representations}
-In circuit computations its is often necessary to use the binary representation of a prime field element. Binary representations of prime field elements work execactly like binary representations of ordinary unsigned integers. Only the algebraic operations are different. To compute the binary representation of some number $x\in \F_p$ we need to know the number of bits in the binary representation of $p$ first. We write this as $m= |p_{bin}|$. 
+Computations like scalar multiplications its is often necessary to use the binary representation of the base field type. Binary representations of prime field elements work execactly like binary representations of ordinary unsigned integers. Only the algebraic operations are different. To compute the binary representation of some number $x\in \F_p$ we need to know the number of bits in the binary representation of $p$ first. We write this as $m= |p_{bin}|$. 
 
 Then a bitstring $(b_0,\ldots,b_m)\in \{0,1\}^m$ is the binary representation of the field element $x$, if and only if
 $$
@@ -1036,3 +1351,12 @@ FROM THE PODCAST WITH ANNA R. AND THE GUY FROM JAN....
 many circuits can be found here:
 % https://github.com/iden3/circomlib
 
+More complicated logical constraints can then be optained by combining all sub-R1CS together. For example if the task is to enforce $(in_1\; AND \lnot in_2 ) AND in_3 = out_1$ we first apply the FLATTENING technique from XXX, which gives is
+$$
+\begin{array}{lcr}
+\lnot in_2 &=& mid_1\\
+in_1\; AND \; mid_1 &=& mid_2\\
+mid_2 \; AND \; in_3 &=& out_1
+\end{array}
+$$
+So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
