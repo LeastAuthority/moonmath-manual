@@ -377,3 +377,300 @@ n14 [label="+" /*, color=lightgray */];
 n15 [label="+", style=filled /*, color=lightgray */];
 n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */]; 
 }
+digraph BTSUB {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 -> n5 [xlabel="E_1 "];
+n2 -> n4 [xlabel="E_2 "];
+n3 -> n4 ;
+n4 -> n5 ;
+n5 -> n6 [xlabel="E_3 "];
+n1 [shape=box, label="x"];
+n2 [shape=box, label="y"];
+n3 [shape=box, label="-1"];
+n4 [label="*"]; 
+n5 [label="+"];
+n6 [shape=box, label="SUB(x,y)"]
+}
+digraph BTINV {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 -> n3 [xlabel="E_1 "];
+n2 -> n3 [xlabel="E_2 "];
+n3 -> n4 [xlabel="E_3 =1 "];
+n1 [shape=box, label="x"];
+n2 [shape=box, label="x_INV"];
+n3 [label="*"]; 
+n4 [shape=box, label="1"]; 
+}
+digraph BTDIV {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 -> n6 [xlabel="E_1 "];
+n2 -> n4 [xlabel="E_2 "];
+n3 -> n6 [xlabel="E_3 "];
+n3 -> n4 [xlabel="E_3 "];
+n4 -> n5 [xlabel="E_4 "];
+n6 -> n7 [xlabel="E_5 "];
+n1 [shape=box, label="x"];
+n2 [shape=box, label="y"];
+n3 [shape=box, label="y_INV"];
+n4 [label="*"]; 
+n5 [shape=box, label="1"];
+n6 [label="*"]; 
+n7 [shape=box, label="DIV(x,y)"]; 
+}
+digraph BOOLCONS {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+nCONS1 -> nCONS4 [xlabel="E_1"] ;
+nCONS1 -> nCONS6 [xlabel="E_1 "] ;
+nCONS2 -> nCONS5 ;
+nCONS3 -> nCONS4 ;
+nCONS4 -> nCONS5 ;
+nCONS5 -> nCONS6 ;
+nCONS6 -> nCONS7 [xlabel="E_2 "] ;
+nCONS1 [shape=box, label="x"] ;
+nCONS2 [shape=box, label="1"] ;
+nCONS3 [shape=box, label="-1"] ;
+nCONS4 [label="*"] ;
+nCONS5 [label="+"] ;
+nCONS6 [label="*"] ;
+nCONS7 [shape=box, label="BOOL(x)"] ;
+}
+digraph BOOLAND {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+nAND1 -> nAND3 [xlabel="E_1 "] ;
+nAND2 -> nAND3 [xlabel="E_2"] ;
+nAND3 -> nAND4 [xlabel="E_3 "] ;
+
+nAND1 [shape=box, label="x"] ;
+nAND2 [shape=box, label="y"] ;
+nAND3 [label="*"] ;
+nAND4 [shape=box, label="AnANDD(x,y)"] ;
+}
+digraph BOOLOR {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+nOR1 -> nOR5 [xlabel="E_1 "] ;
+nOR2 -> nOR7 [xlabel="E_2 "] ;
+nOR3 -> {nOR5, nOR7, nOR10} ;
+nOR4 -> {nOR6, nOR8, nOR11} ;
+nOR5 -> nOR6;
+nOR6 -> nOR9 ;
+nOR7 -> nOR8 ;
+nOR8 -> nOR9 ;
+nOR9 -> nOR10 [xlabel="E_3 "] ;
+nOR10 -> nOR11 ;
+nOR11 -> nOR12 [xlabel="E_4 "] ;
+
+nOR1 [shape=box, label="x"] ;
+nOR2 [shape=box, label="y"] ;
+nOR3 [shape=box, label="-1"] ;
+nOR4 [shape=box, label="1"] ;
+nOR5 [label="*"] ;
+nOR6 [label="+"] ;
+nOR7 [label="*"] ;
+nOR8 [label="+"] ;
+nOR9 [label="*"] ;
+nOR10 [label="*"] ;
+nOR11 [label="+"] ;
+nOR12 [shape=box, label="OR(x,y)"] ;
+}
+digraph BOOLNOT {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+nNOT1 -> nNOT4 [xlabel="E_1 "] ;
+nNOT2 -> nNOT4 ;
+nNOT3 -> nNOT5 ;
+nNOT4 -> nNOT5 ;
+nNOT5 -> nNOT6 [xlabel="E_2 "] ;
+
+nNOT1 [shape=box, label="x"] ;
+nNOT2 [shape=box, label="-1"] ;
+nNOT3 [shape=box, label="1"] ;
+nNOT4 [label="*"] ;
+nNOT5 [label="+"] ;
+nNOT6 [shape=box, label="nNOT(x)"] ;
+}
+digraph BOOLCOMPLEX {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+
+subgraph clusterORb1b2 {
+nOR1 -> nOR5 [xlabel="E_1 "] ;
+nOR2 -> nOR7 [xlabel="E_2 "] ;
+nOR3 -> {nOR5, nOR7, nOR10} ;
+nOR4 -> {nOR6, nOR8, nOR11} ;
+nOR5 -> nOR6;
+nOR6 -> nOR9 ;
+nOR7 -> nOR8 ;
+nOR8 -> nOR9 ;
+nOR9 -> nOR10 [xlabel="E_3 "] ;
+nOR10 -> nOR11 ;
+nOR11 -> nOR12 [xlabel="E_4 "] ;
+nOR1 [shape=box, label="b_1"] ;
+nOR2 [shape=box, label="b_2"] ;
+nOR3 [shape=box, label="-1"] ;
+nOR4 [shape=box, label="1"] ;
+nOR5 [label="*"] ;
+nOR6 [label="+"] ;
+nOR7 [label="*"] ;
+nOR8 [label="+"] ;
+nOR9 [label="*"] ;
+nOR10 [label="*"] ;
+nOR11 [label="+"] ;
+nOR12 [shape=box, label="OR( b1 , b2 )", color=lightgray] ;
+label = "OR( b1 , b2 )";
+color=lightgray;
+label="Circuit_2 -- OR-Circuit"
+}
+
+subgraph clusterANDb3NOTb4 {
+nAND21 -> nAND23 [xlabel="E_1 "] ;
+nAND22 -> nAND23 [xlabel="E_2"] ;
+nAND23 -> nAND24 [xlabel="E_3 "] ;
+
+nAND21 [shape=box, label="b3"] ;
+nAND22 [shape=box, label="NOT( b4 )", color=lightgray ] ;
+nAND23 [label="*"] ;
+nAND24 [shape=box, label="AND( b3 , NOT( b4 ) )", color=lightgray] ;
+color=lightgray;
+label="Circuit_3 -- AND-Circuit"
+}
+
+subgraph clusterNOTb4 {
+nNOT1 -> nNOT4 [xlabel="E_1 "] ;
+nNOT2 -> nNOT4 ;
+nNOT3 -> nNOT5 ;
+nNOT4 -> nNOT5 ;
+nNOT5 -> nNOT6 [xlabel="E_2 "] ;
+
+nNOT1 [shape=box, label="b4"] ;
+nNOT2 [shape=box, label="-1"] ;
+nNOT3 [shape=box, label="1"] ;
+nNOT4 [label="*"] ;
+nNOT5 [label="+"] ;
+nNOT6 [shape=box, label="NOT( b4 )", color=lightgray ] ;
+color=lightgray;
+label="Circuit_4 -- NOT-Circuit"
+}
+
+subgraph clusterAND1 {
+nAND1_1 -> nAND1_3 [headlabel="E_1 ."] ;
+nAND1_2 -> nAND1_3 [xlabel="E_2 "] ;
+nAND1_3 -> nAND1_4 [xlabel="E_3 "] ;
+nAND1_1 [shape=box, label="OR( b1 , b2 )", color=lightgray ] ;
+nAND1_2 [shape=box, label="AND( b3 , NOT( b4 ) )", color=lightgray] ;
+nAND1_3 [label="*"] ;
+nAND1_4 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"] ;
+color=lightgray;
+label="Circuit_1 -- AND-Circuit"
+}
+
+// outer circuit
+nNOT6 -> nAND22 [style=dashed, color=grey] ;
+nOR12 -> nAND1_1 [style=dashed, color=grey] ;
+nAND24 -> nAND1_2 [style=dashed, color=grey] ;
+}
+digraph BOOLCOMPLEXOPTI {
+forcelabels=true;
+center=true;
+splines=ortho;
+
+one -> nCONSb15 ;
+minusone -> nCONSb14 ;
+nCONSb14 -> nCONSb15 ;
+nCONSb15 -> nCONSb16 ;
+nCONSb16 -> zero [taillabel=" W_1"] ;
+nCONSb14 [label="*"] ;
+nCONSb15 [label="+"] ;
+nCONSb16 [label="*"] ;
+
+one -> nCONSb25 ;
+minusone -> nCONSb24 ;
+nCONSb24 -> nCONSb25 ;
+nCONSb25 -> nCONSb26 ;
+nCONSb26 -> zero [taillabel="W_2 "] ;
+nCONSb24 [label="*"] ;
+nCONSb25 [label="+"] ;
+nCONSb26 [label="*"] ;
+
+one -> nCONSb35 ;
+minusone -> nCONSb34 ;
+nCONSb34 -> nCONSb35 ;
+nCONSb35 -> nCONSb36 ;
+nCONSb36 -> zero [xlabel="W_3"] ;
+nCONSb34 [label="*"] ;
+nCONSb35 [label="+"] ;
+nCONSb36 [label="*"] ;
+
+one -> nCONSb45 ;
+minusone -> nCONSb44 ;
+nCONSb44 -> nCONSb45 ;
+nCONSb45 -> nCONSb46 ;
+nCONSb46 -> zero [xlabel="W_4"] ;
+nCONSb44 [label="*"] ;
+nCONSb45 [label="+"] ;
+nCONSb46 [label="*"] ;
+
+minusone -> {nOR5, nOR7, nOR10} ;
+one -> {nOR6, nOR8, nOR11} ;
+nOR5 -> nOR6;
+nOR6 -> nOR9 ;
+nOR7 -> nOR8 ;
+nOR8 -> nOR9 ;
+nOR9 -> nOR10 [headlabel="W_5 "] ;
+nOR10 -> nOR11 ;
+nOR5 [label="*"] ;
+nOR6 [label="+"] ;
+nOR7 [label="*"] ;
+nOR8 [label="+"] ;
+nOR9 [label="*"] ;
+nOR10 [label="*"] ;
+nOR11 [label="+"] ;
+
+nAND23 [label="*"] ;
+minusone -> nNOT4 ;
+one -> nNOT5 ;
+nNOT4 -> nNOT5 ;
+nNOT4 [label="*"] ;
+nNOT5 [label="+"] ;
+
+nOR11 -> nAND1_3;
+nAND23 -> nAND1_3 [xlabel="W_6 "] ;
+nAND1_3 -> nAND1_4 [xlabel="I_5 "] ;
+nAND1_3 [label="*"] ;
+nAND1_4 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"] ;
+
+// outer circuit
+nNOT5 -> nAND23 ;
+b1 -> {nOR5, nCONSb14, nCONSb16} [taillabel="I1 "] ;
+b2 -> {nOR7, nCONSb24, nCONSb26} [taillabel=" I2"] ;
+b3 -> {nAND23, nCONSb34, nCONSb36} [taillabel="I3 "] ;
+b4 -> {nNOT4, nCONSb44, nCONSb46} [taillabel="I4"] ;
+b1 [shape=box, label="b1"] ;
+b2 [shape=box, label="b2"] ;
+b3 [shape=box, label="b3"] ;
+b4 [shape=box, label="b4"] ;
+minusone [shape=box, label="-1"] ;
+one [shape=box, label="1"] ;
+zero [shape=box, label="0"] ;
+}
