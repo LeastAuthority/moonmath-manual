@@ -444,7 +444,16 @@ nCONS3 [shape=box, label="-1"] ;
 nCONS4 [label="*"] ;
 nCONS5 [label="+"] ;
 nCONS6 [label="*"] ;
-nCONS7 [shape=box, label="BOOL(x)"] ;
+nCONS7 [shape=box, label="0"] ;
+}
+digraph BOOLMETA {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 [shape=box, label="BOOL"] ;
+n2 [shape=none, label=" "] ;
+n2 -> n1 ;
 }
 digraph BOOLAND {
 forcelabels=true;
@@ -459,6 +468,19 @@ nAND1 [shape=box, label="x"] ;
 nAND2 [shape=box, label="y"] ;
 nAND3 [label="*"] ;
 nAND4 [shape=box, label="AnANDD(x,y)"] ;
+}
+digraph ANDMETA {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 [shape=box, label="AND"] ;
+n2 [shape=none, label=" "] ;
+n3 [shape=none, label=" "] ;
+n4 [shape=none, label=" "] ;
+n2 -> n1 ;
+n3 -> n1 ;
+n1 -> n4 ;
 }
 digraph BOOLOR {
 forcelabels=true;
@@ -490,6 +512,19 @@ nOR10 [label="*"] ;
 nOR11 [label="+"] ;
 nOR12 [shape=box, label="OR(x,y)"] ;
 }
+digraph ORMETA {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 [shape=box, label="OR"] ;
+n2 [shape=none, label=" "] ;
+n3 [shape=none, label=" "] ;
+n4 [shape=none, label=" "] ;
+n2 -> n1 ;
+n3 -> n1 ;
+n1 -> n4 ;
+}
 digraph BOOLNOT {
 forcelabels=true;
 center=true;
@@ -507,6 +542,17 @@ nNOT3 [shape=box, label="1"] ;
 nNOT4 [label="*"] ;
 nNOT5 [label="+"] ;
 nNOT6 [shape=box, label="nNOT(x)"] ;
+}
+digraph NOTMETA {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 [shape=box, label="NOT"] ;
+n2 [shape=none, label=" "] ;
+n4 [shape=none, label=" "] ;
+n2 -> n1 ;
+n1 -> n4 ;
 }
 digraph BOOLCOMPLEX {
 forcelabels=true;
@@ -673,4 +719,130 @@ b4 [shape=box, label="b4"] ;
 minusone [shape=box, label="-1"] ;
 one [shape=box, label="1"] ;
 zero [shape=box, label="0"] ;
+}
+digraph BINARYREP {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+
+subgraph cluster0 {
+n1 [shape=box, label="b_0"] ;
+n2 [shape=box, label="2^0"] ;
+n3 [label="*"] ;
+
+n1 -> n3 ;
+n2 -> n3 [xlabel="I_0"] ;
+color=white ;
+}
+
+subgraph cluster1 {
+n4 [shape=box, label="b_1"] ;
+n5 [shape=box, label="2^1"] ;
+n6 [label="*"] ;
+
+n4 -> n6 ;
+n5 -> n6 [xlabel="I_1 "] ;
+color=white ;
+}
+
+subgraph cluster2 {
+n7 [shape=box, label="b_2"] ;
+n8 [shape=box, label="2^2"] ;
+n9 [label="*"] ;
+
+n7 -> n9 ;
+n8 -> n9 [xlabel="I_2 "];
+color=white ;
+}
+
+subgraph cluster3 {
+n10 [shape=box, label="...", color=lightgrey] ;
+color=white ;
+}
+
+subgraph cluster4 {
+n11 [shape=box, label="b_(m-1)"] ;
+n12 [shape=box, label="2^(m-1)"] ;
+n13 [label="*"] ;
+
+n11 -> n13 ;
+n12 -> n13 [xlabel="I_(m-1) "] ;
+color=white ;
+}
+
+subgraph cluster5 {
+n18 [shape=box, label="x"] ;
+n19 [shape=box, label="-1"] ;
+n20 [label="*"] ;
+
+n18 -> n20 [xlabel="I_m"] ;
+n19 -> n20 ;
+color=white ;
+}
+
+n14 [label="+"] ;
+n15 [label="+"] ;
+n16 [label="+", color=lightgrey] ;
+n17 [label="+"] ;
+n21 [label="+"] ;
+n22 [shape=0, label="0"] ;
+n3 -> n14 ;
+n6 -> n14 ;
+n14 -> n15 ;
+n9 -> n15 ;
+n10 -> n16 [style=dashed, color=lightgrey] ;
+n15 -> n16 [style=dashed, color=lightgrey] ;
+n13 -> n17 ;
+n16 -> n17 [style=dashed, color=lightgrey] ;
+n20 -> n21 ;
+n17 -> n21 ;
+n21 -> n22 [xlabel="W_1=0 "] ;
+}
+digraph BINREPMETA {
+forcelabels=true;
+center=true;
+splines=ortho;
+//<nodesep= 2.0;
+n1 [shape=box, label="BASE2"] ;
+n2 [shape=none, label=" "] ;
+n3 [shape=none, label=" "] ;
+n4 [shape=none, label=" "] ;
+n5 [shape=none, label=" "] ;
+n6 [shape=none, label="x"] ;
+n2 -> n1 ;
+n3 -> n1 ;
+n4 -> n1 [style=dashed];
+n5 -> n1 ;
+n6 -> n1 ;
+}
+digraph CONDASSIGN {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+
+n1 [shape=box, label="b"]
+n2 [shape=box, label="c"]
+n3 [shape=box, label="d"]
+n4 [shape=box, label="b ? c : d"]
+n5 [shape=box, label="-1"]
+n6 [shape=box, label="1"]
+n7 [shape=box, label="*"]
+n8 [shape=box, label="*"]
+n9 [shape=box, label="*"]
+n10 [shape=box, label="+"]
+n11 [shape=box, label="+"]
+
+n1 -> n7 [taillabel= "E_1 "] ;
+n1 -> n8 [taillabel= "E_1 "] ;
+n2 -> n7 [xlabel= "E_2"] ;
+n3 -> n9 [xlabel= "E_4"] ;
+n5 -> n8 ;
+n6 -> n10 ;
+n7 -> n11 [xlabel= "E_3 "] ;
+n8 -> n10 ;
+n9 -> n11 [xlabel= "E_5"] ;
+n10 -> n9 ;
+n11 -> n4 [xlabel= "E_6 "] ;
 }

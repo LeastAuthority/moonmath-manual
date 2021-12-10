@@ -972,7 +972,9 @@ As we have seen in XXX as well as XXX and XXX, both arithmetic circuits and rank
 
 In this section we will therefore provide an introduction to atomic types like booleans and uInts and define the fundamental control flow primitives like the ternery operator or the bounded loop. We will also look at basic functionality primitives like elliptic curve cryptography and cryptographic hash functions. Primitives like those are often called \textbf{gadgets} in the literature.
  
-\subsection{Atomic Types} Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
+\subsection{Atomic Types} 
+% https://zeroknowledge.fm/172-2/ reference for all the languages
+Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
 \subsubsection{The Basefield type} The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
 
 As this type is the basis for everything else, no circuit or constraint is needed to represent this type. The properties of this type are inherited from $\F$, that is we a notion of \textit{addition}, \textit{subtraction}, \textit{multiplication} and \textit{division}. 
@@ -1151,14 +1153,26 @@ In order to constrain an arbitrary field element $x\in \F$ to be $1$ or $0$, the
   nCONS4 [label="*"] ;
   nCONS5 [label="+"] ;
   nCONS6 [label="*"] ;
-  nCONS7 [shape=box, label="BOOL(x)"] ;
+  nCONS7 [shape=box, label="0"] ;
 }
 \end{center}
-
- To enfore a field element to be boolean constraint the following R1CS is therefore enough
+To enfore a field element to be boolean constraint the following R1CS is therefore enough
 \begin{equation}
 W_1 \cdot (1-W_1) =0
 \end{equation}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{BOOLMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="BOOL"] ;
+  n2 [shape=none, label="  "] ;
+  n2 -> n1 ;
+}
+\end{center}
+indicating that the boolean constraint circuit takes one input, has no outputs and constraints the input to be either $0$ or $1$.
 \paragraph{The AND operator constraint system} Given two field elements $x$ and $y$ from $\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the logical \textit{and} operator $AND(x,y)$ as well as its associated R1CS, that enforces $x$, $y$, $AND(x,y)$ to satisfy the constraint system if and only if $x\; \&\& \; y =AND(x,y)$ holds true. 
 
 Assuming that three variables $x$, $y$ and $z$ are boolean constraint, the equation $x\cdot y = z$ is satisfied in $\F$ if and only if the equation $x\text{ AND }y = z$ is satisfied in boolean algebra. The logical operator AND is therefore implementable in $\F$ as multiplication of its arguments. 
@@ -1184,6 +1198,23 @@ The associated rank-1 constraint system can be deduced from the general process 
 \begin{equation}
  W_1 \cdot W_2 = W_3
 \end{equation}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{ANDMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="AND"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n1 -> n4 ;
+}
+\end{center}
+indicating that the AND circuit takes two input, has one outputs and constraints the output to be the logical AND of the inputs, providing the inputs are boolean constraint.
 \paragraph{The OR operator constraint system} Given two field elements $x$ and $y$ from $\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the logical \textit{or} operator $OR(x,y)$ as well as its associated R1CS, that enforces $x$, $y$, $OR(x,y)$ to satisfy the constraint system if and only if $x\; || \; y =OR(x,y)$ holds true. 
 
 Assuming that three variables $x$, $y$ and $z$ are boolean constraint, the equation $1-(1-x)\cdot(1-y) = z$ is satisfied in $\F$ if and only if the equation $x\text{ OR }y = z$ is satisfied in boolean algebra. The logical operator OR is therefore implementable in $\F$ by the following circuit, assuming all inputs are restricted to be $0$ or $1$:
@@ -1224,6 +1255,30 @@ The associated rank-1 constraint system can be deduced from the general process 
  (1- W_1) \cdot (1-W_2) & = W_3\\
   (1-W_3)\cdot 1 &= W_4
 \end{align*}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{ORMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="OR"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n1 -> n4 ;
+}
+\end{center}
+indicating that the OR circuit takes two input, has one outputs and constraints the output to be the logical OR of the inputs, providing the inputs are boolean constraint.
+\begin{exercise} Let $\F$ be a finite field and let $b_1$ as well as $b_2$ two boolean constraint variables from $\F$. Show that the equation 
+$OR(b_1,b_2) = b_1 + b_2 - b_1\cdot b_2$ holds true.
+
+Use this equation to derive an algebraic circuit with ingoing variables $b_1$ and $b_2$ and outgoing variable $OR(b_1,b_2)$, such that $b_1$ and $b_2$ are boolean constraint and the circuit has a valid assignment, if and only if $OR(b_1,b_2) = b_1 \vee b_2$.  
+
+Use the technique from XXX to transform this circuit into a rank-1 constraint system and find its full solution set. 
+\end{exercise}
 \paragraph{The NOT operator constraint system} Given a field element $x$ from $\F$ that is constrained to represent a boolean variable, we want to find a circuit that computes the logical \textit{NOT} operator $NOT(x)$ as well as its associated R1CS, that enforces $x$, $NOT(x)$ to satisfy the constraint system if and only if $\lnot x = NOT(x)$ holds true. 
 
 Assuming that two variables $x$ and $y$ are boolean constraint, the equation $(1-x) = y$ is satisfied in $\F$ if and only if the equation $\lnot x = y$ is satisfied in boolean algebra. The logical operator NOT is therefore implementable in $\F$ by the following circuit, assuming all inputs are restricted to be $0$ or $1$:
@@ -1251,6 +1306,21 @@ The associated rank-1 constraint system can be deduced from the general process 
 \begin{align*}
   (1-W_1)\cdot 1 &= W_2
 \end{align*}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{NOTMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="NOT"] ;
+  n2 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n1 -> n4 ;
+}
+\end{center}
+indicating that the NOT circuit takes one input, has one outputs and constraints the output to be the logical NOT of the input, providing the input is boolean constraint.
 \begin{exercise}
 Let $\F$ be a finite field. Derive the algebraic circuit and associated rank-1 constraint system for the following operators: OR, XOR, NAND, EQU.
 \end{exercise}
@@ -1452,80 +1522,142 @@ I_5:\;\; & (1-W_5) \cdot W_6 = I_5 & \text{AND-operator constraints}\\
 The reason why this R1CS only contains a single contraint for the OR-operator, while the general definition XXX requires two, is that the second constraint in XXX only appears since the final addition gate is connected to a sink node. In this example however the addition gate is sub-circuit and internal addition gates do not lead to new constraints. The same holds true for the negation circuit. 
 \end{example}
 \subsubsection{Binary representations}
-Computations like scalar multiplications its is often necessary to use the binary representation of the base field type. Binary representations of prime field elements work execactly like binary representations of ordinary unsigned integers. Only the algebraic operations are different. To compute the binary representation of some number $x\in \F_p$ we need to know the number of bits in the binary representation of $p$ first. We write this as $m= |p_{bin}|$. 
+In computations like scalar multiplication of elliptic curve points its is often necessary to use a binary representation of elements from the base field type. It is therefore necesaary to have a way to transform field elements into their binary representation and vice versa in circuits.
 
-Then a bitstring $(b_0,\ldots,b_m)\in \{0,1\}^m$ is the binary representation of the field element $x$, if and only if
+To derive such a circuit over a prime field $\F_p$, let $m=|p_{base_2}|$ be the smallest number of bits necessary to represent the prime modulus $p$ itself. Then a bitstring $(b_0,\ldots,b_{m-1})\in \{0,1\}^m$ is a binary representation of a field element $x\in\F_p$, if and only if
 $$
-x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^m
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^{m-1}
 $$ 
-Note that, since $p$ is a prime number that has a leading bit $1$ at position $m$. Moreover every prime number $p>2$ is odd and hence has least significat bit set to $1$. Hence all numbers $2^j$ for $0\leq j \leq m$ are elements of $\F_p$ and the equation is well defined. We can therefore enforce this equation as a R1CS, by flattening the equation: 
+In this expression, addition and exponentiation is considered to be executed in $\F_p$, which is well defined, since all terms $2^j$ for $0\leq j \leq m$ are elements of $\F_p$. Note however that in contrast to the binary representation of counting numbers $n\in\N$, this representation is not unique in prime fields for odd prime numbers. 
+\begin{example} Considering the prime field $\F_{13}$. To compute binary representations of elements from that field, we start with the binary representation of prime modulus $13$, which is $13_{base_2} = (1,0,1,1)$ since 
+$13= 1\cdot 2^0 + 0\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3$. So $m=4$ and we need up to $4$ bits to represent any element $x\in\F_{13}$.
+
+To see that binary representations are not unique in general, consider the element $2\in \F_{13}$. It has the binary representations $2_{base_2}=(0,1,0,0)$ as well as $2_{base_2}=(1,1,1,1)$, since in $\F_{13}$ we have
 $$
-\begin{array}{lcl}
-b_0 \cdot 1 &=& mid_0\\
-b_1 \cdot 2 &=& mid_1\\
-\cdots & = & \cdots \\
-b_m \cdot 2^m &=& mid_m\\
-(mid_0 + mid_1 + \ldots + mid_m)\cdot 1 &=& x
-\end{array}
-$$
-So we have the statement $w = (1, x, b_0,\ldots,b_m, mid_0,\ldots,mid_m)$ and we need $(m+1)$ constraints to enforce the binary representation in addition to the $m$ constraints that enforce booleanness.
-
-At this point we see, that writing more complex R1CS becomes clumbsy and in actual implementations people therefore use languages to makes the constraint system more readable. In this example we could write for example something like this:
-
-%\begin{algorithmic}
-%\Require $m$ Bitlength of modulus
-%\Statement $w \gets [x,b[m],mid[m]]$
-%\State $tmp \gets 0$
-%\For{$j\gets 1,\ldots, m$}
-%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
-%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
-%	\State $tmp = tmp + mid[j]$
-%\EndFor
-%\State \textbf{Constrain:} $tmp \cdot 1 == x$
-%\end{algorithmic}
-
-keeping in mind that this is a meta level algorith to \textbf{generate} the R1CS, not the R1CS itself, as constructs like for loops have not direct meening on the level of the R1CS itself.
-
-
-\begin{example} Considering the prime field $\F_{13}$, we want to enforce the binary representation of $7\in \F_{13}$. To find the number of bits that we need to consider in our R1Cs, we start with the binary representation of $13$, which is $(1,0,1,1)$ since 
-$13= 1\cdot 2^0 + 0\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3$. So $m=4$ and we have to enforce a $4$-bit representation for $7$, which is $(1,1,1,0)$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$.
-
-A valid statement is then given by $w=(1,7,1,1,1,0,1,2,4,0)$ and indeed we satify the $9$ required constraints 
-$$
-\begin{array}{lclr}
-1\cdot (1-1) &=& 0 & \text{// boolean constraints}\\
-1\cdot (1-1) &=& 0 &\\
-1\cdot (1-1) &=& 0 &\\
-0\cdot (1-0) &=& 0  &\\
-\\
-1 \cdot 1 &=& 1\\
-1 \cdot 2 &=& 2\\
-1 \cdot 4 &=& 4\\
-0 \cdot 8 &=& 0\\
-(1 + 2 + 4 + 0)\cdot 1 &=& 7
-\end{array}
+2 = \begin{cases}
+0\cdot 2^0 + 1\cdot 2^1 + 0\cdot 2^2 + 0\cdot 2^3\\
+1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3
+\end{cases}
 $$
 \end{example}
+Considering that the underlying prime field is fixed and the most significant bit of the prime modulus is $m$, the following circuit flattens equation XXX, assuming all inputs $b_1$, $\ldots$, $b_m$ are restricted to be either $0$ or $1$:
+\begin{center}
+\digraph[scale=0.3]{BINARYREP}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
 
-\subsubsection{Conditional (ternary) operator}
-It is often required to implement the terniary conditional operator $?:$ as a R1CS. In general this operator takes three arguments, a boolean value $b$ and two expressions $if\_true$ and $if\_false$, usually written as $b\;?\; c\; :\; d$ and executes $c$ and $d$ according to the value of $b$.
+  subgraph cluster0 {
+    n1 [shape=box, label="b_0"] ;
+    n2 [shape=box, label="2^0"] ;
+    n3 [label="*"] ;
 
-If we assume all three arguments to be values from a finite field, such that $b$ is boolean constraint (XXX), we can enforce a field element $x$ to be the result of the conditional operator as 
-$$
-x = b\cdot c + (1-b)\cdot d
-$$
-Flattening the code gives
-$$
-\begin{array}{lcl}
-b \cdot c &=& mid_0\\
-(1-b) \cdot d &=& mid_1\\
-(mid_0 + mid_1)\cdot 1 &=& x
-\end{array}
-$$
-So we have the statement $w = (1, x, b,c,d, mid_0,mid_1)$ and we need $3$ constraints to enforce the conditional operator in addition to $1$ constraint that enforces booleanness of $b$.
+    n1 -> n3 ;
+    n2 -> n3  [xlabel="I_0"] ;
+    color=white ;
+  }
 
+  subgraph cluster1 {
+    n4 [shape=box, label="b_1"] ;
+    n5 [shape=box, label="2^1"] ;
+    n6 [label="*"] ;
 
-NOTE: THERE WAS THIS PODCAST WITH ANNA AND THE GUY JAN TALKE TO WHERE HE SAID; CONDITIONALS CAN BE IMPLEMENTED SUCH THAT NOT BOTH BRANCHES ARE EXCUTED: LOOK THAT UP
+    n4 -> n6 ;
+    n5 -> n6  [xlabel="I_1  "] ;
+    color=white ;
+  }
+
+  subgraph cluster2 {
+    n7 [shape=box, label="b_2"] ;
+    n8 [shape=box, label="2^2"] ;
+    n9 [label="*"] ;
+
+    n7 -> n9 ;
+    n8 -> n9 [xlabel="I_2  "];
+    color=white ;
+  }
+
+  subgraph cluster3 {
+    n10 [shape=box, label="...", color=lightgrey] ;
+    color=white ;
+  }
+
+  subgraph cluster4 {
+    n11 [shape=box, label="b_(m-1)"] ;
+    n12 [shape=box, label="2^(m-1)"] ;
+    n13 [label="*"] ;
+
+    n11 -> n13 ;
+    n12 -> n13  [xlabel="I_(m-1)  "] ;
+    color=white ;
+  }
+
+  subgraph cluster5 {
+    n18 [shape=box, label="x"] ;
+    n19 [shape=box, label="-1"] ;
+    n20 [label="*"] ;
+
+    n18 -> n20  [xlabel="I_m"] ;
+    n19 -> n20 ;
+    color=white ;
+  }
+
+  n14 [label="+"] ;
+  n15 [label="+"] ;
+  n16 [label="+", color=lightgrey] ;
+  n17 [label="+"] ;
+  n21 [label="+"] ;
+  n22 [shape=0, label="0"] ;
+  n3 -> n14 ;
+  n6 -> n14 ; 
+  n14 -> n15 ;
+  n9 -> n15 ;
+  n10 -> n16 [style=dashed, color=lightgrey] ;
+  n15 -> n16 [style=dashed, color=lightgrey] ;
+  n13 -> n17 ;
+  n16 -> n17 [style=dashed, color=lightgrey] ;
+  n20 -> n21 ;
+  n17 -> n21 ;
+  n21 -> n22  [xlabel="W_1=0  "] ;
+}
+\end{center}
+Applying the general transformation rule into rank-1 constraint systems, we see that we actually only need a single constraint to enforce a binary representation of any field element. We get 
+$$
+(b_0\cdot 2^0 + b_1\cdot 2^1 + b_2\cdot 2^2 + \ldots + b_{m-1}\cdot 2^{m-1} -x)\cdot 1 = 0
+$$
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{BINREPMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //<nodesep= 2.0;
+  n1 [shape=box, label="BASE2"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n5 [shape=none, label="  "] ;
+  n6 [shape=none, label="x"] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n4 -> n1 [style=dashed];
+  n5 -> n1 ;
+  n6 -> n1 ;
+}
+\end{center}
+indicating that the BASE2 circuit takes $m$ input, has no output and constraints the $x$ input to be the BLABLABLA
+\begin{example} Considering the prime field $\F_{13}$, we want to enforce the binary representation of $7\in \F_{13}$. We know $m=4$ from example XX and we have to enforce a $4$-bit representation for $7$, which is $(1,1,1,0)$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$.
+
+A valid circuit assignment is therefore given by $(I_0,I_1,I_2,I_3,I_4)=(1,1,1,0,7)$ and indeed we satify the required 5 constraints including the $4$ boolean constraints for $I_0$, $\ldots$, $I_3$ as 
+\begin{align*}
+1\cdot (1-1) &= 0 & \text{// boolean constraints}\\
+1\cdot (1-1) &= 0 \\
+1\cdot (1-1) &= 0 \\
+0\cdot (1-0) &= 0  \\
+(1 + 2 + 4 + 0 -7)\cdot 1 &= 0  & \text{// binary rep. constraint}
+\end{align*}
+\end{example}
 
 \subsubsection{Range Proofs}
 $x>5$...
@@ -1553,9 +1685,75 @@ It is therefore common to represent UintN types in circuits as binary constraint
 \begin{example}
 Consider the Uint4 type over the prime field $\F_{17}$. Since $2^4=16$, Uint4 can represent the numbers $0,\ldots, 15$ and it would be possible to interpret them as elements in $\F_{17}$. However addition 
 \end{example} 
+\subsection{Control Flow}
+\subsubsection{The Conditional Assignment} Implementing complex control flow in circuits, it is often necessary to have a way for conditional assignment of values or computational output to variables.
+
+One way to realize this in more common programming languages is by the conditional ternary operator $?:$, that branches the control flow of a program according to some condition and then assigns the output of the computational branch to some variable. A common way to write this is as
+\begin{center}
+\textsc{variable = condition ? value\_if\_true : value\_if\_false}
+\end{center}
+where \textsc{condition} is a boolean expression and \textsc{value\_if\_true} as well as \textsc{value\_if\_false} are expressions that evaluate to the same type as \textsc{variable}.
+
+In programming languages like Rust another way to write the conditional assignment operator that is more familiar to many programmers is given by 
+\begin{center}
+\textsc{variable =} \textbf{if} \textsc{condition \{ value\_if\_true  \}} \textbf{else} \textsc{\{ value\_if\_false \}}
+\end{center}
+One particular property of this operator is that the expression \textsc{value\_if\_true} is only evaluated if \textsc{condition} evaluates to true and the expression \textsc{value\_if\_false} is only evaluated if \textsc{condition} evaluates to false. In fact computer programs would soon become very inefficient if the operator would evaluate both expressions regardless of the value of \textsc{condition}.
+
+If drop the requirement that only one branch of the conditional operator is executed, we can implement it in a simple way as a circuit. To see that observe that if $b$, $c$ and $d$ are values from a finite field, such that $b$ is boolean constraint (XXX), we can use the following equation to enforce a field element $x$ to be the result of the conditional assignment operator: 
+\begin{equation}
+x = b\cdot c + (1-b)\cdot d
+\end{equation}
+Flattening this equation into an algebraic circuit gives
+\begin{center}
+\digraph[scale=0.4]{CONDASSIGN}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+
+  n1 [shape=box, label="b"]
+  n2 [shape=box, label="c"]
+  n3 [shape=box, label="d"]
+  n4 [shape=box, label="b ? c : d"]
+  n5 [shape=box, label="-1"]
+  n6 [shape=box, label="1"]
+  n7 [shape=box, label="*"]
+  n8 [shape=box, label="*"]
+  n9 [shape=box, label="*"]
+  n10 [shape=box, label="+"]
+  n11 [shape=box, label="+"]
+ 
+  n1 -> n7 [taillabel= "E_1  "] ;
+  n1 -> n8 [taillabel= "E_1 "] ;
+  n2 -> n7 [xlabel= "E_2"] ;
+  n3 -> n9 [xlabel= "E_4"] ;
+  n5 -> n8 ;
+  n6 -> n10 ;
+  n7 -> n11 [xlabel= "E_3  "] ;
+  n8 -> n10 ;
+  n9 -> n11 [xlabel= "E_5"] ;
+  n10 -> n9 ;
+  n11 -> n4 [xlabel= "E_6  "] ;
+}
+\end{center}
+Note that in order to compute a valid assignment to this circuit, both values for $W_?$ and $W_?$ are necessary. If the inputs to thoses edges are circuits themself, both circuits needs valid assignments. As a consequence this implementation of the conditional assigment opperator has to execute alll branches of all circuits, which is very different from the execution of common computer programs. 
+
+Starting at this circuit we can use the general tenchnique from XXX to derive its associated rank-1 constraint system. We get
+\begin{align*}
+E_1 \cdot E_2 & = E_3 \\
+(1 - E_1) \cdot E_4 & = E_5 \\
+(E_3 + E_5)\cdot 1 &= E_6
+\end{align*}
 
 
+% NOTE: ZK-Podcast with Alex Özdemir for the proper branching thing in version 2 of the book.
 
+\subsubsection{Loops} Circuits and R1CS are not general enough to express arbitrary computations, but bounded computations only. As a consequence it is not possible to represent unbounded loops like $while TRUE do {}$ in algebraic circuits or rank-1 constraints systems. This can be easily seen since circuits are acyclic graphs and hence unbounded loops would require circuits of unbounded sizes. 
+
+However bounded loops are expressible, simply by enrolling the loop. 
+
+\subsection{Cryptographic Primitives}
 \subsubsection{Twisted Edwards curves}
 Sometimes it required to do elliptic curve cryptography "inside of a circuit". This means that we have to implement the algebraic operations (addition, scalar multiplication) of an elliptic curve as a R1CS. To do this efficiently the curve that we want to implement must be defined over the same base field as the field that is used in the R1CS. 
 
@@ -1735,22 +1933,11 @@ As we can see a R1CS for scalar multiplication utilizes many R1CS that we have i
 %\li         $A[i+1] \gets \id{key}$\End
 %\end{codebox}
 
-\paragraph{Curve Cycles} A particulary interesting case with far reaching implication is the situation when we have two curve $E_1$ and $E_2$, such that the scalar field of curve $E_1$ is the base field of curve $E_2$ and vice versa. In that case it is possible to implement the group laws of one curve in circuits defined over the scalar field of the other curve. 
+\subsubsection{A Simple Pen and Paper Compiler Example}
 
-\subsubsection{The RAM Model}
-FROM THE PODCAST WITH ANNA R. AND THE GUY FROM JAN....
-
-
-\subsubsection{Generalizations}
+\subsection{Outlook on Real World Implementations}
 many circuits can be found here:
 % https://github.com/iden3/circomlib
 
-More complicated logical constraints can then be optained by combining all sub-R1CS together. For example if the task is to enforce $(in_1\; AND \lnot in_2 ) AND in_3 = out_1$ we first apply the FLATTENING technique from XXX, which gives is
-$$
-\begin{array}{lcr}
-\lnot in_2 &=& mid_1\\
-in_1\; AND \; mid_1 &=& mid_2\\
-mid_2 \; AND \; in_3 &=& out_1
-\end{array}
-$$
-So we have the statement $w=(1,in_1,in_2,in_3, mid_1, mid_2,out_1)$, $6$ boolean constraints for the variables, $2$ constraints for the $2$ $AND$ operations and $1$ constraint for the $NOT$ operation.
+Use the description of Özdemir in Ana's podcast. 
+
