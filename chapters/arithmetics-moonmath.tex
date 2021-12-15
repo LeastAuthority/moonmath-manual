@@ -3,33 +3,9 @@
 
 \section{Introduction}
 
-\subsection{Aims and target audience}
+The goal of this chapter is to bring a reader who is starting out with nothing more than basic school-level algebra up to speed in in arithmetics. We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclidean division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
 
-The goal of this chapter is to enable a reader who is starting out with nothing more than basic high school algebra to be able to solve basic tasks in elliptic curve cryptography without the need of a computer.
-
-How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16}, some knowledge of mathematics is needed to be able to follow the discussion. 
-
-Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who
-has never seen or \tbds{played with}, say, a \uterm{finite field}, or an \uterm{elliptic curve}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that hard. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature code. 
-
-This is why we dedicated this chapter to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this and the following chapters, until they are able to solve at least a few exercises in each chapter.
-
-If, on the other hand, you are already skilled in elliptic curve cryptography, feel free to skip this chapter and only come back to it for reference and comparison. Maybe the most interesting parts are XXX \sme{Update reference when content is finalized}.
-
-We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like integer arithmetics. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and \uterm{methatical} structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar.
-
-We want to stress, however, that this introduction is informal, incomplete and optimized to enable the reader to understand zero-knowledge concepts as efficiently as possible. Our focus and design choices are to include as little theory as necessary, focusing on  the wealth of \tbds{numerical} examples. We believe that such an informal, example-driven approach to learning mathematics may make it easier for beginners to digest the material in the initial stages. 
-
-For instance, as a beginner, you would probably find it more beneficial to first compute a simple toy \term{snark} with pen and paper all the way through, before actually developing real-world production-ready systems. In addition, it's useful to have a few simple examples in your head before getting started with reading actual academic papers.
-
-However, in order to be able to derive these toy examples, some mathematical groundwork is needed. This chapter therefore will help you focus on what is important, accompanied by exercises that you are encouraged to recompute yourself. Every section usually ends with \tbds{a list of additional exercises} in increasing order of difficulty, to help the reader memorize and apply the concepts. 
-
-
-\subsection{The structure of this chapter}
-
-We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclid's algorithm. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
-
-After this practical warm up, we introduce some basic algebraic terms like groups and fields, because those terms are used very frequently in academic papers relating to zero-knowledge proofs. The beginner is  advised to memorize those terms and \tbds{think about them}. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
+Even though the terms and concepts in this chapter might not appear in literature on zero-knowledge proofs directly, understanding them is necessary to follow subsequent chapters introducing terms like \term{groups} or \term{fields}, which crop up very frequently in academic papers on the topic.
 
 \section{Integer Arithmetics}
 \label{integer_arithmetics}
@@ -61,7 +37,7 @@ S: The table below is similar to what we have in the ZKAPs whitepaper. I think i
 
 Integers are also known as \term{whole numbers}, that is, numbers that can be written without fractional parts. Examples of numbers that are \hilight{not} integers are $\frac{2}{3}$, $1.2$ and $-1280.006$.
 
-If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
+If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the non-negative value of $a$ without regard to its sign:
 
 \begin{equation}
 |4|= 4 
@@ -78,12 +54,12 @@ In addition, we use the symbol $\N$ for the set of all \term{counting numbers} (
 \N := \{0,1,2,3,\ldots\}
 \end{equation}
 
-Any number that is smaller than 0, that is, any number that has a minus sign, is not part of $\N$". All counting numbers are integers, but not the other way round. In other words, counting numbers are a subset of integers.
+Any number that is smaller than 0, that is, any number that has a minus sign, is not part of $\N$. All counting numbers are integers, but not the other way round. In other words, counting numbers are a subset of integers.
 
 
 To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
 
-Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \uterm{We haven't really talked about what a ring is at this point}
+Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (see section \ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \uterm{We haven't really talked about what a ring is at this point}
 \begin{sagecommandline}
 sage: ZZ # A sage notation for the integer type
 sage: NN # A sage notation for the counting number type
@@ -197,7 +173,7 @@ As long division is the standard method used for pen-\&-paper division of multi-
 
 In a nutshell, the algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the dividend. \tbds{Add more explanation of how this works}
 
-\begin{example}[Integer Long Division] To give an example of integer long division algorithm, lets divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euklidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute as follows
+\begin{example}[Integer Long Division] To give an example of integer long division algorithm, lets divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euklidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute as follows:
 \begin{equation}
 \intlongdivision{143785}{17}
 \end{equation}
@@ -973,7 +949,7 @@ One particularly usefu property of polynomials is that a polynomial of degree $m
 \label{def_lagrange_interpolation_set}
 S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m)\;|\; x_i\neq x_j\text{ for all indices i and j}\}
 \end{equation}
-This "few too many" \sme{what does this mean?} property of polynomials is used in many places, like for example in erasure codes. It is also of importance in snarks and we therefore need to understand a method to actually compute a polynomial from a set of points. 
+This "few too many" \sme{what does this mean?} property of polynomials is used in many places, like for example in erasure codes. It is also of importance in SNARKs and we therefore need to understand a method to actually compute a polynomial from a set of points. 
 
 If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial. One method for this is called \term{Lagrange interpolation}. It works as follows:
 Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m+1$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by the following algorithm:
