@@ -1,54 +1,57 @@
 \chapter{Statements}
+% Update the circuit / r1cs examples to describe their languages and how naive proofs look
+
 % https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
 % https://docs.zkproof.org/reference.pdf
-As we have seen in the informal introduction XXX, a snarks is a short non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like "I know the prime factorization of a given number" or "I know the preimage to a given SHA3 digest value" and similar things. However human readable statements like those are imprecise and not very useful from a formal perspective. 
+As we have seen in the informal introduction XXX, a snarks is a short non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like "The proofer knows the prime factorization of a given number" or "The proofer knows the preimage to a given SHA2 digest value" and similar things. However human readable statements like those are imprecise and not very useful from a formal perspective. 
 
-In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for snark development. We start by introducing formal languages as a way to define statements properly. We will then look at algebraic circuits and rank-1 constraint systems as two particulary useful ways to define statements in certain formal languages.
+In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for snark development. We start by introducing formal languages as a way to define statements properly. We will then look at algebraic circuits and rank-1 constraint systems as two particulary useful ways to define statements in certain formal languages. After that we have a look at fundamental building blocks of compilers that compile high level languages to circuits and associated rank-1 constraint systems.
 
-As in many other parts of the book the emphesis is on an introduction from the developers point of view. Proper statement design should be of high priority in the development of snarks, since unintended true statements can lead to potentially severe and almost undetectable attacks on the applications of snarks.
+Proper statement design should be of high priority in the development of snarks, since unintended true statements can lead to potentially severe and almost undetectable security vulnarabilities in the applications of snarks.
 
-\section{Formal Languages} Formal languages provide the theoretical backround in which logical statements can be formulated in a logically regious way. One might argue that understanding of formal languages is not very important in snark development and associated statement design, but terms from that field of research are standard jargon in many papers on zero knowledge proofs. We therefore believe that at least some introduction to formal languages and how they fit into the picture of snark development is beneficial, mostly to give developers a better intuition where all this is located in the bigger picture of the logic landscape.
+\section{Formal Languages} Formal languages provide the theoretical backround in which statements can be formulated in a logically regious way and where proofing the correctness of any given statement can be realized by computing words in that language.
 
-Roughly speaking a formal language is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
+One might argue that understanding of formal languages is not very important in snark development and associated statement design, but terms from that field of research are standard jargon in many papers on zero knowledge proofs. We therefore believe that at least some introduction to formal languages and how they fit into the picture of snark development is beneficial, mostly to give developers a better intuition where all this is located in the bigger picture of the logic landscape. Formal language also give a better understanding what a formal proof for a statement actually is.
 
-To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite tupels $(x_1,\ldots,x_n)$ of elements $x_j$ from $\Sigma$ including the empty tupel $(\;)\in \Sigma^*$. Then a \textbf{formal language} $L$ is in its most general definition nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \textbf{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \textbf{words}. The rules that specify which tupels from $\Sigma^*$ belong to the language and which don't, are called the \textbf{grammar} of the language. 
+Roughly speaking a formal language (or just language for short) is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
 
-\paragraph{Checking Relations}
-In the context of snark development it is common to formalize the grammar of a laguage by a so called \textbf{checking relation} $R\subset \Sigma^*$. If a checking relation is given, a tupel $x\in \Sigma^*$ is a word $x\in L_R$ in the language $L_R$ associated to the relation $R$, if $x\in R$, which is usually written as $R(x)$.
+To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite tupels $(x_1,\ldots,x_n)$ of elements $x_j$ from $\Sigma$ including the empty tupel $(\;)\in \Sigma^*$. Then a \textbf{language} $L$ is in its most general definition nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \textbf{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \textbf{words}. The rules that specify which tupels from $\Sigma^*$ belong to the language and which don't, are called the \textbf{grammar} of the language. 
 
-Unfortunately, writing $R(x)$ for the relation $R$ is a bit misleading since it makes $R$ look like as if it is a function. It is nevertheless the common way of describing checking relations. For the sake of this book we therefore adopt a different point of view and work with what we might call \textbf{checking functions} inatead:
+\paragraph{Decision Functions} Our previous definition of formal languages is very general and many subclasses of languages like \textit{regular languages} or \textit{context-free languages} are known in the literature. However in the context of snark development languages are commonly defined as \textit{decision problems} where a so called \textbf{deciding relation} $R\subset \Sigma^*$ decides whether a given tupel $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
+
+Unfortunately in some literature on proof systems $x\in R$ is often written as $R(x)$, which is  misleading since in general $R$ is not a function but a relation in $\Sigma^*$. For the sake of this book we therefore adopt a different point of view and work with what we might call a \textbf{decision function} instead:
 \begin{equation}
-R: \Sigma^* \to \{TRUE, FALSE\}
+R: \Sigma^* \to \{true, false\}
 \end{equation}
-A checking function therefore decides if a tupel $x\in \Sigma^*$ is an element of the language or not. In this case the language itself can be written as the set of all tupels that satisfies the grammar, i.e as:
+Decision functions therefore decide if a tupel $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all tupels that satisfies the grammar, i.e as the set:
 \begin{equation}
-L := \{x\in \Sigma^*\;|\; R(x)=TRUE\}
+L_R := \{x\in \Sigma^*\;|\; R(x)=true\}
 \end{equation}
-In our context a \textbf{statement} is then a claim, that language $L$ contains a word $x$, i.e a statement claims $x\in L$ and one way to constructively \textit{proof} a staitment is to provided an actual \textbf{instance}, that is an actual word of the language.
+In the context of formal languages and decision problems a \textbf{statement} $S$ is a claim, that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \textbf{proof} for statement $S$ is given by some word $x\in L$. In this case $x$ is called an \textbf{instance} of the statement $S$.
 
-Of course formal languages should not be confused with the more intuitive concept of a natural langual. The following examples will provide some intuition about formal languages.
+Also the term \textit{language} might suggest a deeper relation to the well known \textit{natural languages} like English, both concepts a different in many ways. The following examples will provide some intuition about formal languages, highlighting the concepts of statements, proofs and instances:
 \begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters of arbitrary length. 
 
 Then the associated language $L_{alt}$ is the set of all finite binary tupels, where a $1$ must follow a $0$ and vice versa. So for example $(1,0,1,0,1,0,1,0,1)\in L_{alt}$ is a proper word as well as $(0)\in L_{alt}$ or the empty word $(\;)\in L_{alt}$. However the binary tupel $(1,0,1,0,1,0,1,1,1)\in \{0,1\}^*$ is not a proper word as it violates the grammer of $L_{alt}$. In addition the tupel $(0,A,0,A,0,A,0)$ is not a proper word as its letter are not from the proper alphabet. 
 
-Inside language $L_{alt}$ it makes sense to claim the following statement: "There exists an alternating string." One way to proof this statement would be by proving an actual instance, that is finding actual alternating string like 
-$x = (1,0,1)$. Constructing a string like $(1,0,1)$ therefore proofs that statement "There exists an alternating string."
+Inside language $L_{alt}$ it makes sense to claim the following statement: "There exists an alternating string." One way to proof this statement would be by providing an actual instance, that is finding actual alternating string like 
+$x = (1,0,1)$. Constructing a string like $(1,0,1)$ therefore proofs the statement "There exists an alternating string."
 
-Atempting to write the grammar of this language in a more formal way, we can define the following checking relation:
+Atempting to write the grammar of this language in a more formal way, we can define the following decision function:
 $$
-R: \{0,1\}^* \to \{TRUE,FALSE\}\;;\; (x1,x_2,\ldots,x_n) \mapsto 
+R: \{0,1\}^* \to \{true,false\}\;;\; (x1,x_2,\ldots,x_n) \mapsto 
 \begin{cases}
-TRUE & x_j \neq x_{j+1} \text{ for all } 1\leq j < n \\
-FALSE & \text{ else}
+true & x_j \neq x_{j+1} \text{ for all } 1\leq j < n \\
+false & \text{ else}
 \end{cases}
 $$
-We can use this relation to check if arbitrary binary tupels are words in $L_{alt}$ or not. For example $R(1,0,1)=TRUE$, $R(0)=TRUE$ and $R()=TRUE$, but $R(1,1)=FALSE $ and so on. 
+We can use this function to decide if arbitrary binary tupels are words in $L_{alt}$ or not. For example $R(1,0,1)=true$, $R(0)=true$ and $R()=true$, but $R(1,1)=false $.. 
 \end{example}
-\begin{example}[Programing Language]Programming languages are a very important class of formal languages. In this case the alphabet is usually (a subset) of the ASCII Table and the grammar is defined by the rules of the programming language's compiler. Words are then nothing but properly written computer programms that the compiler accepts. The compiler can therefore be interpreted as the checking relation.
+\begin{example}[Programing Language]Programming languages are a very important class of formal languages. In this case the alphabet is usually (a subset) of the ASCII Table and the grammar is defined by the rules of the programming language's compiler. Words are then nothing but properly written computer programms that the compiler accepts. The compiler can therefore be interpreted as the decision function.
 
-To give an unusual example strange enough to highlight the point, consider the programing language Malbolge as defined in XXX. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An intersting claim is therefore the statement: "There exists a computer program in Malbolge". As it turned out proofing this statement by providing an actual instance was not an easy task as it took two years after the introduction of Malbolge, to write a program that its compiler accepts. So for two years no one was able to proof the statement.
+To give an unusual example strange enough to highlight the point, consider the programing language Malbolge as defined in XXX. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An intersting claim is therefore the statement: "There exists a computer program in Malbolge". As it turned out proofing this statement constructively by providing an actual instance was not an easy task as it took two years after the introduction of Malbolge, to write a program that its compiler accepts. So for two years no one was able to proof the statement constructively.
 
-To look at this high level description more formally, we write $L_{Malbolge}$ for the language, that uses the ASCII table as its alphabet and words are tuples of ASCII letters that the Malbolge compiler accepts. Prooving the statement "There exists a computer program in Malbolge" is the equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
+To look at this high level description more formally, we write $L_{Malbolge}$ for the language, that uses the ASCII table as its alphabet and words are tuples of ASCII letters that the Malbolge compiler accepts. Prooving the statement "There exists a computer program in Malbolge" is then equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
 $$
 \scriptstyle (=<'\#9]~6ZY327Uv4-QsqpMn\&+Ij"'E\%e\{Ab~w=\_:]Kw\%o44Uqp0/Q?xNvL:'H\%c\#DD2\wedge WV>gY;dts76qKJImZkj
 $$
@@ -57,52 +60,69 @@ is an example of such a proof as it is excepted by the Malbolge compiler and is 
 \begin{example}[3-Factorization]
 As one of our main runing examples in this book, we want to develop a snark that proofs knowledge of three factors of some element from the finite field $\F_{13}$. There is nothing particulary useful about this example from an application point of view, however in a sense it is the most simple example that gives rise to a non trivial snark in some of the most common zero knowledge proofing systems. 
 
-Formalizing the a high level description, we can define $\Sigma := \F_{13}$ as the alphabet of our language and then define a language $L_{3.fac}$ to consists of those tupels of field elements from $\F_{13}$, that contain exactly $4$ letters $w_1,w_2,w_3,w_4$ which satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.   
+Formalizing the high level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those tupels of field elements from $\F_{13}$, that contain exactly $4$ letters $w_1,w_2,w_3,w_4$ which satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.   
 
 So for example the tuple $(2, 12, 4, 5)$ is a word in $L_{3.fac}$, while neither $(2, 12, 11)$, nor $(2, 12, 4, 7)$ nor $(2, 12, 7, 168)$ are words in $L_{3.fac}$ as they dont satisfy the grammar or are not define over the proper alphabet. 
 
-We can describe the language $L_{3.fac}$ more formally by introducing a checking function as described in XXX:
+We can describe the language $L_{3.fac}$ more formally by introducing a decision function as described in XXX:
 $$
-R_{3.fac} : \F_{13}^* \to \{TRUE, FALSE\}\;;\;
+R_{3.fac} : \F_{13}^* \to \{true, false\}\;;\;
 (x_1,\ldots,x_n) \mapsto
 \begin{cases}
-TRUE & n=4 \text{ and } x_1\cdot x_2 \cdot x_3 = x_4\\
-FALSE & else
+true & n=4 \text{ and } x_1\cdot x_2 \cdot x_3 = x_4\\
+false & else
 \end{cases}
 $$
-Having defined the language $L_{3.fac}$ it then makes sense to claim the statement like "There is a word in $L_{3.fac}$" which is logically equivalent to say "There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$" such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds. Proofing the correctness of this statement could then be achieved by finding actual field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ giving the $L_{3.fac}$ instance $(2,12,4,5)$, which is a proof for our statement.
+Having defined the language $L_{3.fac}$ it then makes sense to claim the statement "There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement "There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$" such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds. 
+
+Proofing the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement.
+\begin{example}[The Empty Language] To see that not every language contains word, let $\Sigma = \Z_6$ consider the following decision function 
+$$
+R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
+(x_1,\ldots,x_n) \mapsto
+\begin{cases}
+true & n=4 x_1\cdot x_1 = 2\\
+true & else
+\end{cases}
+$$
+and its associated language $L_\emptyset$. As we can see from the multiplication table XXX of $\Z_6$, the ring $\Z_6$ does not contain elements $x$, such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proofing the statement "There exist a word in $L_\emptyset$" constructively by providing an instance is therefore impossible.
 \end{example}
+\end{example}
+\begin{exercise} Consider exercise XXX again. Define a decision function, such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions of the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: "There exist a word in $L_{Exercise_XXX}$. 
+\end{exercise}
 \paragraph{Instance and Witness}
 % https://www.claymath.org/sites/default/files/pvsnp.pdf
-As we have seen statements can formulated as membership claims in formal languages and instances can serve as constructive proofs for those claims. However, in the context of \textit{zero-knowledge} proofs  its possible to hide parts of the proofing instance and still be able to proof the statement. In such a context the instance is therefore split into a \textit{public part} which again is called the \textbf{instance} and a not publically known part (a private part) called the \textbf{wittness}.
+As we have seen in the previous paragraph, statements provide membership claims in formal languages and instances serve as constructive proofs for those claims. However, in the context of \textit{zero-knowledge} proofs  its possible to hide parts of the proofing instance and still be able to proof the statement. In such a context the instance is therefore split into a \textit{public part} which again is called the \textbf{instance} and a not publically known part (a private part) called the \textbf{wittness}.
 
-To acknowledge for this seperation of a proof instance into a public and a private part, our previous definition of a formal language needs a refinement in the context of zero-knowledge proofs. Instead of a single alphabet we consider two alphabets $\Sigma_I$ and $\Sigma_W$, such that the words of the languages are tupels $(i|w)\in \Sigma_I^* \times \Sigma_W^*$ subject to a checking relation
+To acknowledge for this seperation of a proof instance into a public and a private part, our previous definition of a formal language needs a refinement in the context of zero-knowledge proofs. Instead of a single alphabet the refined picture considers two alphabets $\Sigma_I$ and $\Sigma_W$, such that the words of the language are tupels $(i;w)\in \Sigma_I^* \times \Sigma_W^*$ subject to a decision function
 \begin{equation}
-R: \Sigma_I^* \times \Sigma_W^* \to \{TRUE, FALSE\}
+R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}
 \end{equation}
-that decides if a tupel $(i|w)\in \Sigma_I^* \times \Sigma_W^*$ is an element of the language or not. Again the language itself can be written as the set of all tupels that satisfies the grammar, i.e as:
+that decides if a tupel $(i;w)\in \Sigma_I^* \times \Sigma_W^*$ is an element of the language or not. Again the language itself can be written as the set of all tupels that satisfy the grammar, i.e as the set:
 \begin{equation}
-L := \{(i,w)\in \Sigma_I^* \times \Sigma_W^*\in \Sigma^*\;|\; R(i|w)=TRUE\}
+L := \{(i;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i;w)=true\}
 \end{equation}
-In this case we call a public input $i$ an \textbf{instance} and a private input $w$ a \textbf{wittness} of the relation $R$.
+In this case we call a public input $i$ an \textbf{instance} and a private input $w$ a \textbf{wittness} of the relation $R$. 
 
-In this context a \textbf{statement} is the claim, that given an instance $i\in\Sigma_I^*$ there is a wittness $w\in \Sigma_W^*$, such that language $L$ contains a word $(i|w)$. As in the situation of more general languages one way to constructively \textit{proof} such a statement is to provided an actual pair $(i|w)$ with $R(i|w)$, however the point of zero-knowledge proofing systems, as we will see in XXX, is to proof such a statement, without revealing any knowledge about $w$. 
+In the context of these refined formal languages a \textbf{statement} $S$ is a claim that given an instance $i\in\Sigma_I^*$ there is a witness $w\in \Sigma_W^*$, such that language $L$ contains a word $(i;w)$. i.e a statement claims that there exist some $(i;w)\in L$. A constructive \textbf{proof} for statement $S$ is therefore given by some word $(i;w)\in L$. 
 
-So while statements in the sense of the previous chapter can be seen as membership proofs, statements in this refined definition in combination with publically known instances are knowledge-proofs rather.
+The reason to distinguish the instance and witness part of the proof, is that there a proving systems that are able to proof the claim without revealing any knowledge about the witness part of the proof. It is the main purpose of this book to given understanding of how somthing like this can be achieved in applications.
+
+It is worth to note the difference between the two types of statements we have seen so far. While statements in the sense of the previous paragraph can be seen as membership proofs, statements in the refined definition of this paragraph can be seen knowledge-proofs rather, where a prover claims knowledge of a witness for a given instance.
 \begin{example}[3-factorization]
-Consider the language $L_{3.fac}$ from example XXX again. Providing instances for the membership statement in this languages is equivalent to providing knowledge of 4 elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the modular $13$ product of the first three elements is equal to the $4$'th element. 
+Consider the language $L_{3.fac}$ from example XXX again. As we have seen providing instances for the membership statement in this languages is equivalent to knowledge of $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the product in modular $13$ aithmetics of the first three elements is equal to the $4$'th element. 
 
-Splitting instances into private and public parts, we can reformulate the problem introducing different levels of zero-knowledge into the problem. For example we could reformulate the non-hiding membership statement "there are $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that $x_1\cdot x_2\cdot x_3 = x_4$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. 
+Splitting the instances from that example into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example we could reformulate the non-hiding membership statement "there are $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that $x_1\cdot x_2\cdot x_3 = x_4$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. 
 
-A statement would then be something like "Given a publically known field element $x_4$, there are three factors of $x_4$" and as we will see in XXX a zero-knowledge proofing system is able to proof this statement without revealing anything about the factors $x_1$, $x_2$, or $x_3$.
+A statement for this refined problem is "Given a publically known field element $x_4$, there are three factors of $x_4$" and as we will see in XXX a zero-knowledge proofing system is able to proof this statement without revealing anything about the factors $x_1$, $x_2$, or $x_3$.
 
-Formalizing this new language, which we might call $L_{3.fac\_zk}$ we define a checking relation by 
+We can formalize this new language, which we might call $L_{3.fac\_zk}$ by defining the following decision function: 
 \begin{multline*}
-R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{TRUE, FALSE\}\;;\;\\
-((i_1,\ldots,i_n)|(w_1,\ldots, w_m)) \mapsto
+R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{true, false\}\;;\;\\
+((i_1,\ldots,i_n);(w_1,\ldots, w_m)) \mapsto
 \begin{cases}
-TRUE & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
-FALSE & else
+true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
+false & else
 \end{cases}
 \end{multline*}
 and as usual $L_{3.fac\_zk}$ is then defined by all tupels from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $TRUE$ under $R_{3.fac\_zk}$. 
@@ -123,7 +143,7 @@ SHA256: \{0,1\}^* \to {0,1}^{256}
 $$
 that maps binary string of arbitrary length onto binary strings of length $256$ and we want to proof knowledge of preimages, we have to consider binary strings of size $256$ as instances and binary strings of arbitrary length as witnesses. 
 
-An appropriate alphabet for both the set of all witnesses and the set of all instances is therefore the set $\{0,1\}$ of the two binary letters. We then define a checking relation by
+An appropriate alphabet for both the set of all witnesses and the set of all instances is therefore the set $\{0,1\}$ of the two binary letters. We then define a decision function by
 \begin{multline*}
 R_{SHA256} : \{0,1\}^* \times \{0,1\}^* \to \{TRUE, FALSE\}\;;\;\\
 (i|w) \mapsto
@@ -146,7 +166,7 @@ providing that both the base $b$ and the value $y$ are given and that it is unde
 
 We moreover assume $b$ and $p$ to be fixed system parameters and that $y$ is the public input to the problem, while $x$ is the private input. 
 
-We can then define the alphabet $\Sigma_I \times \Sigma_W := \F_p^* \times \Z_{p-1}$ and a checking function
+We can then define the alphabet $\Sigma_I \times \Sigma_W := \F_p^* \times \Z_{p-1}$ and a decision function
 \begin{multline*}
 R_{LOG_b(\cdot)} : (\F_p^*)^* \times (\Z_{p-1})^* \to \{TRUE, FALSE\}\;;\;\\
 (i|w) \mapsto
@@ -159,26 +179,26 @@ Given an instance $i\in \F_p^*$ a statements in $L_{LOG_b(\cdot)}$ then is the c
 \end{example}
 \paragraph{Modularity} From a developers perspective it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero knowledge proofs those simple building blocks are often called \textit{gadgets} and mature proofing systems usually contain libraries that contain many useful gadgets, like representations of basic types as booleans, unit32, preimage proofs for Hash functions, elliptic curve cryptography and so on. Implementers can then combine these fundamental building blocks to write complex real world applications. 
 
-To understand what this means on the level of formal languages defined by checking relations as explained in XXX, we need to look at the \textit{intersection} of two formal languages, which can be constructed whenever both languages are defined over the same alphabet. In this case the intersection language consists of words that are contained in both languages. To be more precise, let $L_1$ and $L_2$ be two formal languages defined over the instance and witness alphabets $\Sigma_I$ and $\Sigma_W$. Then
+To understand what this means on the level of formal languages defined by decision functions as explained in XXX, we need to look at the \textit{intersection} of two formal languages, which can be constructed whenever both languages are defined over the same alphabet. In this case the intersection language consists of words that are contained in both languages. To be more precise, let $L_1$ and $L_2$ be two formal languages defined over the instance and witness alphabets $\Sigma_I$ and $\Sigma_W$. Then
 \begin{equation}
 L_1 \cap L_2 := \{x\;|\; x\in L_1 \text{ and } x\in L_2\}
 \end{equation} 
-If both languages are defined by checking functions $R_1$ and $R_2$ as explained in XXX, the following function is a checking function for the intersection language $L_1 \cap L_2$:
+If both languages are defined by decision functions $R_1$ and $R_2$ as explained in XXX, the following function is a decision function for the intersection language $L_1 \cap L_2$:
 \begin{equation}
 R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{TRUE, FALSE\}\;;\;
 (i,w) \mapsto R_1(i,w) \text{ and } R_2(i,w)
 \end{equation}
-This is an important fact from an implementations point of view as it allows to construct complex checking relations and their statements from simple building blocks. Given a publically known instance $i\in \Sigma_I^*$ a statement in an intersection language then claims knowledge of a wittness that satisfies all relations simultaniously.
+This is an important fact from an implementations point of view as it allows to construct complex decision function and their statements from simple building blocks. Given a publically known instance $i\in \Sigma_I^*$ a statement in an intersection language then claims knowledge of a wittness that satisfies all relations simultaniously.
 
 \section{Statement Representations} 
 % IMPORTANT TODO: https://en.wikipedia.org/wiki/Boolean_circuit
 % Language defined by family of circuits
 
-As we have seen in the previous section, formal languages and their definition by checking relations are a powerful tool to describe statements in a formaly regurous manner. 
+As we have seen in the previous section, formal languages and their definition by decision functions are a powerful tool to describe statements in a formaly regurous manner. 
 
-However from the perspective of existing zero knowledge proofing systems not all ways to actually represent checking relations are equally useful. Depending on the proofing system ad hand some are more suitable then others. In this section will therefore describe the most common ways to represent checking relation and their statements.
+However from the perspective of existing zero knowledge proofing systems not all ways to actually represent decision functions are equally useful. Depending on the proofing system ad hand some are more suitable then others. In this section will therefore describe the most common ways to represent decision functions and their statements.
 \subsection{Rank-1 Quadratic Constraint Systems}
-Although checking relations for formal languages can be expressed in various ways, many zk-proof systems require the ralation to be expressed in terms of a systems of rank-1 quadratic equations over a finite field. This true in particular for pairing based proofing systems like XXX, roughly because it is possible to check solutions to those equations "in the exponent" of pairing friendly cryptographic groups. 
+Although decision functions for formal languages can be expressed in various ways, many zk-proof systems require the ralation to be expressed in terms of a systems of rank-1 quadratic equations over a finite field. This true in particular for pairing based proofing systems like XXX, roughly because it is possible to check solutions to those equations "in the exponent" of pairing friendly cryptographic groups. 
 
 \paragraph{R1CS representation} To understand what \textit{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a finite field, $n$, $m$ and $k$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i$ constants from $\F$ for every $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a R1CS is given by: 
 \begin{align*}
@@ -239,7 +259,7 @@ Then the R1CS of our $3$-factorization problem contains $4$ witness variables $W
 \end{align*}
 \end{example}
 
-\paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems give rise to formal languages, oberserve that every given R1CS over a fields $\F$ defines a checking relations over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems give rise to formal languages, oberserve that every given R1CS over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
 R_{R1CS} : \F^* \times \F^* \to \{TRUE, FALSE\}\;;\;
 (I;W) \mapsto
@@ -251,7 +271,7 @@ FALSE & else
 We write $L_{R1CS-SAT}$ for the associated language and call it \textbf{$R1CS$-satisfyability}. The grammar of this language is exapressed by the constraints in the R1Cs and words in this language are solutions to the R1CS. 
 
 Now since every R1CS gives rise to a formal language, a \textbf{statement} for the given R1CS, is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ satisfies the constraints system". One way to proof such a claim is therefore to to produce an assignment to the variables which satisfies the constraints. If the R1CS represents a computations, such a solution is then a proof proper execution of the computation.
-\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example XXX and the R1CS defined in example XXX. As we have seen in XXX solutions to the R1CS are in 1:1 correspondense with solutions to the checking relations of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages. Due to this identification, from now on we weite $L_{3.fac\_zk}$ for the language defined by the R1CS XXX.
+\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example XXX and the R1CS defined in example XXX. As we have seen in XXX solutions to the R1CS are in 1:1 correspondense with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages. Due to this identification, from now on we weite $L_{3.fac\_zk}$ for the language defined by the R1CS XXX.
 
 To give an intuition of how a naive proof of a statement in $L_{3.fac\_zk}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$" a proofer therefore has to privide proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, such a proof might be given by
 $W=(2,3,4,6)$ since $(I_1;W)$ satisfies the R1CS
@@ -619,7 +639,7 @@ S_{tiny-jj} = \{I_1, I_2, I_3; W_1, W_2, W_3\} = \{11, 6, 0; 4, 10, 1\}
 $$
 \end{example}
 
-\paragraph{Circuit Satisfyability} To understand how algebraic circuits give rise to formal languages, oberserve that every given algebraic circuit $C_{\F}$ over a fields $\F$ defines a checking relations over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{Circuit Satisfyability} To understand how algebraic circuits give rise to formal languages, oberserve that every given algebraic circuit $C_{\F}$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
 R_{R1CS} : \F^* \times \F^* \to \{TRUE, FALSE\}\;;\;
 (I;W) \mapsto
@@ -964,20 +984,60 @@ Since there are no more gates with labeled outgoing adges, we are done deriving 
 \end{align*}
 which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same thing.
 \end{example}
-\section{Gadgets} It is possible to verify the the correct execution of arbitrary bounded computation in terms of rank-$1$ contraints systems and it is possible to encode such computations in terms of algebraic circuits. However writing actual computer programs as circuits and the associated verification in terms of rank-1 constraint systems is as least as troublesome as writing any other low level language like assembler code. 
+\section{Statement Compilers} It is possible to verify the the correct execution of arbitrary bounded computation in terms of rank-$1$ contraints systems and it is possible to encode such computations in terms of algebraic circuits. However writing actual computer programs as circuits and the associated verification in terms of rank-1 constraint systems is as least as troublesome as writing any other low level language like assembler code. 
 
-From a practical point of view it is therefore necessary to have some kind of compiler framework at hand, capable to transform some high level language like C or Rust into arithmetic circuits or rank-1 constraint systems.
+From a practical point of view it is therefore necessary to have some kind of compiler framework at hand, capable to transform some high level language into arithmetic circuits or rank-1 constraint systems. 
+
+TEXT about hardware description languages, attapts for RAM model compilers etct.
 
 As we have seen in XXX as well as XXX and XXX, both arithmetic circuits and rank-1 constraint systems have a modularity property by which it is possible to synthezise  complex circuits and constraint systems from simpler ones. A basic approach taken by circuit/R1CS compilers like (LIST) is therefore to provide a library of atomic and simple circuits and then define a way to combine them into arbitrary complex systems. 
 
-In this section we will therefore provide an introduction to atomic types like booleans and uInts and define the fundamental control flow primitives like the ternery operator or the bounded loop. We will also look at basic functionality primitives like elliptic curve cryptography and cryptographic hash functions. Primitives like those are often called \textbf{gadgets} in the literature.
- 
+In this section we will therefore provide an introduction to atomic types like booleans and uInts and define the fundamental control flow primitives like the ternery operator or the bounded loop. We will also look at basic functionality primitives like elliptic curve cryptography and cryptographic hash functions. Primitives like those are often called \textbf{gadgets} in the literature. We also give a very shallow introduction to how compilers for complex circuit design might be constructed, also we only scratch the surface. In particular we focus on a kind of typed hardware description language style of compilers and will only look into more elaborate approaches like RAM-model compilers in future versions of the book.
 \subsection{Atomic Types} 
 % https://zeroknowledge.fm/172-2/ reference for all the languages
 Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
 \subsubsection{The Basefield type} The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
 
 As this type is the basis for everything else, no circuit or constraint is needed to represent this type. The properties of this type are inherited from $\F$, that is we a notion of \textit{addition}, \textit{subtraction}, \textit{multiplication} and \textit{division}. 
+
+A commonn strategy from the perspective of circuit/r1cs compiler design, is that allocating variables of the base field type in expressions like
+\begin{lstlisting}
+input (public) x : F ; 
+input (private) y : F ; 
+const c : F = value ; 
+\end{lstlisting} 
+are compiled into input nodes of the circuit the compiler generates. Public and private inputes are compiled into source nodes decorated with input variables and constants are compiled into source nodes decorated with the allocated constant. In out notation, outgoing edges of public inputs are labeled with instance variables $I_j$ and outgoing edges of private inputs are labeled with witness variables $W_j$.
+\begin{example} To give an intuition of how a simple hardware description language like circuit compiler might work, lets consider the following VERILOG like pseudo-code:
+\begin{lstlisting}
+input (public) x : F ; 
+input (private) y : F ; 
+const c : F = 1 ; 
+
+begin
+	x * y == c ;
+end ;
+\end{lstlisting}
+A very simple compiler would then allocate two input nodes for the variables $x$ and $y$, a multiplication gate for the single multiplication gate and another node for the field constant $c=1$. The outgoing edges of $x$ are public edges and the outgoing edges of $y$ are private edges. If the compiler assumes the rule that all edges not explicitly declared as public are private, it could generate the following circuit: 
+\begin{center}
+\digraph[scale=0.4]{SIMPLEMUL}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [xlabel="I_1"] ;
+	n2 -> n4 [xlabel="W_2"] ;
+	n4 -> n3 [xlabel="W_3=1"];
+	n1 [shape=box, label="x"];
+	n2 [shape=box, label="y"];
+	n3 [shape=box, label="1"];
+	n4 [label="*"];
+}
+\end{center} 
+And using the general process of deriving an associated rank-1 constraint system to this circuit, the compiler might produce:
+$$
+I_1 \cdot W_2 =1
+$$
+\end{example} 
 \paragraph{The Subtraction Constraints System}Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field subtraction, despite field division being a native single op in every field. Algebraic circuits therefore need another way to deal with subtraction. To see how this can be achieved, recall that subtraction is defined as addition with the multipilcative inverse in the field and the additive inverse can be computed efficiently by multiplication with the additive inverse of $-1$, which is a field conatant that only needs to be computed once during setup time. An associated circuit could the look like:
 \begin{center}
 \digraph[scale=0.4]{BTSUB}{
@@ -1327,13 +1387,27 @@ Let $\F$ be a finite field. Derive the algebraic circuit and associated rank-1 c
 \paragraph{Modularity} Implementing bounded computation in algebraic circuits it is often necessary to deal with complex boolean expressions. As we have seen in XXX and XXX, both algebraic circuits and R1CS have a modularity property, which enables a compiler to derive algebraic circuit implementations for arbitrary boolean circuits. 
 
 This is quite remarkable property, because it shows that the expressiveness of algebraic circuits and therefore rank-1 constraint systems is as general as the expressiveness of boolen circuits.  
-\begin{example} To give an intuitive example of how to construct complex boolean circuit representations in algebraic circuits and how to derive associated rank-1 constraint systems, lets look at the following boolean expression
+\begin{example} To give an intuitive example of how a very simple compiler might construct complex boolean circuit representations in algebraic circuits and how to derive associated rank-1 constraint systems, lets look at the following VERILOG like pseudo code:
+\begin{lstlisting}
+module boolean_circuit (
+	input (public) b_1 : BOOL ; 
+	input (public) b_2 : BOOL ;
+	input (public) b_3 : BOOL ; 
+	input (public) b_4 : BOOL ; 
+	output (public) b_5 : BOOL ; 
+
+	begin
+		b_5 <= (b_1 or b_2) and (b_3 and not b_4 ) ;
+	end ;
+)
+\end{lstlisting}
+The code describes a circuit, that takes four public inputs $b_1$, $b_2$, $b_3$ and $b_4$ of boolean type and computes a public output $b_5$, such that the following boolean expression holds true:
 $$
-\left( b_1 \vee b_2 \right) \wedge (b_3 \wedge \lnot b_4)
+\left( b_1 \vee b_2 \right) \wedge (b_3 \wedge \lnot b_4) = b_5
 $$
-The expression consists of $4$ boolean variables and four boolean operations. Using boolean operator notation, we can write this expression as
+In order to understand a possible way to transform this hardware description language style expression into a circuit, we first rewrite the actual computation of the boolean expression into operator notation. We get
 $$
-AND(OR(b_1,b_2),AND(b_3,NOT(b_4))
+b_5 \leftarrow AND(OR(b_1,b_2),AND(b_3,NOT(b_4))
 $$
 Using the boolean operator notion, makes it conceptually more clear to derive the circuit. To see how the circuit is computed we start at the outer most operator and  write down its defining circuit as well as it associated R1CS using placeholder names for its arguments. We then inductively substitute every placeholder by its defining circuit and add the associated constraint, to the constrain system. We get
 \begin{center}
@@ -1521,7 +1595,340 @@ I_5:\;\; & (1-W_5) \cdot W_6 = I_5 & \text{AND-operator constraints}\\
 \end{align*}
 The reason why this R1CS only contains a single contraint for the OR-operator, while the general definition XXX requires two, is that the second constraint in XXX only appears since the final addition gate is connected to a sink node. In this example however the addition gate is sub-circuit and internal addition gates do not lead to new constraints. The same holds true for the negation circuit. 
 \end{example}
+\subsubsection{The Unsigned Integer Type} In computer science, an unsigned integer of size $N$, where $N$ is usually a power of two, is an atomic type that represents counting numbers in the range $0\ldots 2^N-1$ together with addition, subtraction and multiplication laws that are somewhat similar to the (semi) ring laws of natural numbers except for overflow and underflow effects. The associated type is usually written as $uN$ or $uIntN$.
+
+On compuer hardware elements of the unsigned integer type $uIntN$ are commonly represented as $N$-tuples of bits, that is if $x : uIntN$ is of $uIntN$ type it is represented as
+$$
+x = (b_0,b_1,\ldots, b_{N-1})
+$$
+For suteable $N$ like $N=32$ or $N=64$, addition, subtraction and multiplication is realized in hardware by appropriate digital circuits like the binary adder oder the binary multiplier. 
+
+To understand how unsigned integer types can be represented as algebraic circuits, basically two different approaches can be taken.
+
+To understand the first approach, recall that addition and multiplication in a prime field $\F_p$ is equal to addition and multiplication of integers, as long as the sum or the product does not exceed the modulus $p$. It is therefore possible to represent the $uIntN$ type inside the basefield type, whenever $N$ is small enough. However care has to be taken to never overflow the modulus. It is also important to make sure that in subtraction the subtrahend is never larger then the minuent.
+
+An advantage of this approach is that it is very efficient to represent elements of the uIntN type in this way, as they can be storred in a single element of the base field type. The diadvantage is that care must be taken to constrain the elements and to enforce that no overflow or underflow situations occure.
+
+The second approach in conceptually cleaner but requires more space and constraints for addition and multiplication. Much like machines represents uInt's as binary tuples, this approach represents elements of uIntN types as $N$-typles $(b_0,b_1,\ldots, b_{N-1})$ of elements from the base field $\F$, such that each $b_j$ itself is of boolean type. All operations, like addition, multiplication, bit-shifts and so on, are then realized by addoptations of the digital circuits that implement these operations in hardware.
+
+An advantage of this representation is that the number $N$ is independend of the modulus of the underlying prime field and the representation moreover works over arbitrary fields. It can therefore abstract over the field.
+
+
+In what follows we will describe the second approach in more detail.
+
+
+\paragraph{The uIntN Constraint System} In the approach we are taking in this section, elements of uIntN type are represented by $N$-tuples of field elements that are themself binary constraint. Declaring an element of uIntN type therefore means to declare $N$ elements of boolean type. We write this as 
+\begin{center}
+\digraph[scale=0.6]{UINTN}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  n1 [shape=box, label="UINT_N"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n5 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n4 -> n1 [style=dashed, color=lightgrey] ;
+  n5 -> n1 ;
+}
+\end{center}
+To enfore an $N$-tuple of field elements $(b_0,\ldots,b_{N_1})$ to represent an element of UintN type we therefore need $N$ constraints 
+\begin{align*}
+E_0 \cdot (1-E_0) & = 0\\
+E_1 \cdot (1-E_1) & = 0\\
+\cdots &\\
+E_{N-1} \cdot (1-E_{N-1}) & = 0\\
+\end{align*}
+\begin{example}
+Consider the Uint4 type over the prime field $\F_{17}$. Since $2^4=16$, Uint4 can represent the numbers $0,\ldots, 15$ and it would be possible to interpret them as elements in $\F_{17}$. However addition 
+\end{example} 
+\paragraph{UintN Addition} Since we representat the unsigned integer type as an $N$-tuple of field elements that are boolean constraint, we can define addition in the same way as hardeare does. The way this is usually done is by first defining the \textit{full adder} circuit and then combining $N$ of this these circuits into a circuit that add to elements from the UintN type.
+
+To understand the algebraic circuit for the $1$-bit full, recall that we already defined circuits for boolean algebra in the previous section. Abstracting over those circuits, a full adder circuit can then be defined as:
+\begin{center}
+\digraph[scale=0.4]{ONEBFULLADD}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  
+  subgraph clusterin {
+    nADD01 [shape=box, label="bx_j"] ;
+    nADD02 [shape=box, label="by_j"] ;
+    nADD03 [shape=box, label="c_(j-1)"] ;
+    color = white ;
+  }
+  
+  subgraph clustermid {
+    nADD04 [shape=box, label="XOR"] ;
+    nADD05 [shape=box, label="XOR"] ;
+    nADD06 [shape=box, label="AND"] ;
+    nADD07 [shape=box, label="AND"] ;
+    nADD08 [shape=box, label="OR"] ;
+    
+    nADD04 -> {nADD05, nADD06} ;
+    nADD06 -> nADD08 ;
+    nADD07 -> nADD08 ;
+    
+    color = white ;
+  }
+  
+  subgraph clusterout {
+    nADD09 [shape=box, label="bz_j"] ;
+    nADD010 [shape=box, label="c_j"] ;
+    color = white ;
+  }
+  
+  nADD01 -> {nADD04, nADD07} ;
+  nADD02 -> {nADD04, nADD07} ;
+  nADD03 -> {nADD05, nADD06} ;
+  nADD05 -> nADD09 ;
+  nADD08 -> nADD010 ; 
+}
+\end{center}
+In this circuit the output $bz_j$ is the result of the binary input $bx_j$ and $by_j$, where $bx_j$ is the $j$-th bit of the binary representation of the first summand and $by_j$ is the $j$-th bit of the binary representation of the second summand. The output $c_j$ is the carry bit of the addition and the input $c_{j-1}$ is is the carry bit which is supposed to be either $0$ for $j=0$ or the carry bit output of the previous full adder circiut. Abstacting the $1$-bit adder, we write:
+\begin{center}
+\digraph[scale=0.6]{BADDMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  n1 [shape=box, label="FULLADD"] ;
+  n2 [shape=none, label="bx_j"] ;
+  n3 [shape=none, label="by_j"] ;
+  n4 [shape=none, label="c_(j-1)"] ;
+  n5 [shape=none, label="bz_j"] ;
+  n6 [shape=none, label="c_j"] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n4 -> n1 ;
+  n1 -> {n5, n6} ;
+}
+\end{center}
+With a circuit definition of the $1$-bit full adder at hand, addition of two uIntN type elements can then be defined as
+\begin{center}
+\digraph[scale=0.4]{UINTADD}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  
+  subgraph clusterin0 {
+    nADD01 [shape=box, label="FULLADD"] ;
+    nADD02 [shape=none, label="bx_0"] ;
+    nADD03 [shape=none, label="by_0"] ;
+    nADD05 [shape=none, label="bz_0"] ;
+    nADD02 -> nADD01 ;
+    nADD03 -> nADD01 ;
+    nADD01 -> nADD05 ;
+    color = white ;
+  }
+  
+  subgraph clusterin1 {
+    nADD11 [shape=box, label="FULLADD"] ;
+    nADD12 [shape=none, label="bx_1"] ;
+    nADD13 [shape=none, label="by_1"] ;
+    //nADD14 [shape=none, label="c_0"] ;
+    nADD15 [shape=none, label="bz_1"] ;
+    nADD12 -> nADD11 ;
+    nADD13 -> nADD11 ;
+    //nADD14 -> nADD11 ;
+    nADD11 -> nADD15 ;
+    color = white ;
+  }
+
+  subgraph clusterin2 {
+    nADD21 [shape=box, label="FULLADD", color=lightgray] ;
+    nADD22 [shape=none, label="bx_j", color=lightgray] ;
+    nADD23 [shape=none, label="by_j", color=lightgray] ;
+    //nADD24 [shape=none, label="c_(j-1)", color=lightgray] ;
+    nADD25 [shape=none, label="bz_j", color=lightgray] ;
+    nADD22 -> nADD21 [color=lightgray];
+    nADD23 -> nADD21 [color=lightgray];
+    //nADD24 -> nADD21 ;
+    nADD21 -> nADD25 [color=lightgray] ;
+    color = white ;
+  }
+  
+  subgraph clusterinN {
+    nADDN1 [shape=box, label="FULLADD"] ;
+    nADDN2 [shape=none, label="bx_(N-1)"] ;
+    nADDN3 [shape=none, label="by_(N-1)"] ;
+    //nADDN4 [shape=none, label="c_(N-2)"] ;
+    nADDN5 [shape=none, label="bz_(N-1)"] ;
+    nADDN2 -> nADDN1 ;
+    nADDN3 -> nADDN1 ;
+    //nADDN4 -> nADDN1 ;
+    nADDN1 -> nADDN5
+    color = white ;
+  }
+  
+  nADD04 [shape=none, label="0"] ;
+  nADD04 -> nADD01 ;
+  nADD01 -> nADD11 ;
+  nADD11 -> nADD21 [style=dashed, color=lightgrey] ;
+  nADD21 -> nADDN1  [style=dashed, color=lightgrey] ;
+  nADDN6 [shape=none, label="c_out"] ;
+  nADDN1 -> nADDN6 ;
+  
+}
+\end{center}
+Depending on how the output carry bit is handled we get different definition of addition in this type. One way would be to enforce it to be zero. This way addition in the circuit is only possible if the sum does not exceed $2^N-1$. On the other hand if the carry bit is unconstraint, then the resulting addition is equivalent to modulo $2^N$ arithmetics. Good  compilers should therefore always describe explicitly how exactly their implementation of the uintN type behaves, such that users don't build their system on false assumptions. 
+
+The associated constraint system consists of XXX constraints, including the boolean constraints of the representing bits
+\paragraph{The Boolean Operators} In implementations it is often necesarry to execute boolean operations like $ans$, $or$, or $xor$ on elements of the uInt type. Fortunately this easily done by simply applying those operatons to every bit seperately as shown in XXX.  
+\begin{exercise}
+Let $k$ be a counting number with $k<N$. Define circuits and associated R1CS for the left and righr bishift operators $x<<k$ as well as $x>>k$ for the uint type. 
+\end{exercise}
+\begin{exercise}
+Define the multiplication circuits for the uintN type.
+\end{exercise}
+\begin{exercise} Let $N=4$ be fixed and consider the finite field $\F_{13}$ from example XXX. The following pseudo code describes a high level circuit description in a VERILOG like style. Transform the pseudo code into a circuit and then derive the associated R1CS. 
+\begin{lstlisting}
+module mask_merge(N) (
+	input (public) a : Uint_N ;
+	input (public) b : Uint_N ;
+	input (public) mask : Uint_N ;
+	output (public) r : Uint_N ;
+
+	begin
+		r == a xor ((a xor b) & mask) ;
+	end ;
+)
+\end{lstlisting}
+Let $L_{mask\_merge}$ be the language defined by the R1CS of the circuit. Provide a knowledge proof in $L_{mask\_merge}$ for the instance $I=(I_a, I_b, I_{mask}, I_r) = (14, 5, 10, 4)$. Also show that there is no knowledge proof in $L_{mask\_merge}$ for the instance $(11, 6, 10, 7)$.
+\end{exercise}
+\subsection{Control Flow}
+\subsubsection{The Conditional Assignment} Implementing complex control flow in circuits, it is often necessary to have a way for conditional assignment of values or computational output to variables.
+
+One way to realize this in more common programming languages is by the conditional ternary operator $?:$, that branches the control flow of a program according to some condition and then assigns the output of the computational branch to some variable. A common way to write this is as
+\begin{lstlisting}
+	variable = condition ? value_if_true : value_if_false  
+\end{lstlisting}
+where \textsc{condition} is a boolean expression and \textsc{value\_if\_true} as well as \textsc{value\_if\_false} are expressions that evaluate to the same type as \textsc{variable}.
+
+In programming languages like Rust another way to write the conditional assignment operator that is more familiar to many programmers is given by 
+\begin{lstlisting}
+	variable = if condition { value_if_true } else { value_if_false } 
+\end{lstlisting}
+One particular property of this operator is that the expression \textsc{value\_if\_true} is only evaluated if \textsc{condition} evaluates to true and the expression \textsc{value\_if\_false} is only evaluated if \textsc{condition} evaluates to false. In fact computer programs would soon become very inefficient if the operator would evaluate both expressions regardless of the value of \textsc{condition}.
+
+If drop the requirement that only one branch of the conditional operator is executed, we can implement it in a simple way as a circuit. To see that observe that if $b$, $c$ and $d$ are values from a finite field, such that $b$ is boolean constraint (XXX), we can use the following equation to enforce a field element $x$ to be the result of the conditional assignment operator: 
+\begin{equation}
+x = b\cdot c + (1-b)\cdot d
+\end{equation}
+Flattening this equation into an algebraic circuit gives
+\begin{center}
+\digraph[scale=0.4]{CONDASSIGN}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+
+  n1 [shape=box, label="b"]
+  n2 [shape=box, label="c"]
+  n3 [shape=box, label="d"]
+  n4 [shape=box, label="b ? c : d"]
+  n5 [shape=box, label="-1"]
+  n6 [shape=box, label="1"]
+  n7 [shape=box, label="*"]
+  n8 [shape=box, label="*"]
+  n9 [shape=box, label="*"]
+  n10 [shape=box, label="+"]
+  n11 [shape=box, label="+"]
+ 
+  n1 -> n7 [taillabel= "E_1  "] ;
+  n1 -> n8 [taillabel= "E_1 "] ;
+  n2 -> n7 [xlabel= "E_2"] ;
+  n3 -> n9 [xlabel= "E_4"] ;
+  n5 -> n8 ;
+  n6 -> n10 ;
+  n7 -> n11 [xlabel= "E_3  "] ;
+  n8 -> n10 ;
+  n9 -> n11 [xlabel= "E_5"] ;
+  n10 -> n9 ;
+  n11 -> n4 [xlabel= "E_6  "] ;
+}
+\end{center}
+Note that in order to compute a valid assignment to this circuit, both values for $W_?$ and $W_?$ are necessary. If the inputs to thoses edges are circuits themself, both circuits needs valid assignments. As a consequence this implementation of the conditional assigment opperator has to execute alll branches of all circuits, which is very different from the execution of common computer programs. 
+
+Starting at this circuit we can use the general tenchnique from XXX to derive its associated rank-1 constraint system. We get
+\begin{align*}
+E_1 \cdot E_2 & = E_3 \\
+(1 - E_1) \cdot E_4 & = E_5 \\
+(E_3 + E_5)\cdot 1 &= E_6
+\end{align*}
+\begin{example} Let $N=4$ be fixed.
+\begin{lstlisting}
+module conditional_bit_set(N) (
+	input (public) c : BOOL ;
+	input (public) mask : Uint_N ;
+	input (public) w : Uint_N ;
+	output (public) r : Uint_N ;
+
+	begin
+		r == if c { w or mask } else { w and not mask } ;
+	end ;
+)
+\end{lstlisting}
+\end{example}
+
+% NOTE: ZK-Podcast with Alex Özdemir for the proper branching thing in version 2 of the book.
+
+\subsubsection{Loops} Circuits and R1CS are not general enough to express arbitrary computations, but bounded computations only. As a consequence it is not possible to represent unbounded loops like $while TRUE do {}$ in algebraic circuits or rank-1 constraints systems. This can be easily seen since circuits are acyclic graphs and hence unbounded loops would require circuits of unbounded sizes. However bounded loops are expressible, simply by enrolling the loop. 
+
+\begin{example}
+\begin{lstlisting}
+module counting_bits(N) (
+for (c = 0; v; v >>= 1)
+{
+  c += v & 1;
+}
+
+	begin
+		r == a xor ((a xor b) & mask) ;
+	end ;
+)
+\end{lstlisting}
+\end{example}
+
+\subsection{Gadgets}
 \subsubsection{Binary representations}
+If the underlying field has a modulus $p$, such that $2^N-1 < p$, then there is a standard way to transform field elements $x\in \F_p$ of size $x<2^N$ into a UIntN bit representation and vice versa.
+
+To make the UintN type more human readable, compilers might introduce some synthactic suggar and outside of the circuit converging back and forth between the base $2$ and base $10$ representation of the UintN type. A standard way to do it is as follows: 
+
+Consider a base $10$ representation $x$ of a UintN type. Then its binary representation 
+$(b_0,\ldots,b_{N-1})$ can be computed by 
+\begin{lstlisting}
+input x : UINT_N ; 
+output b[N] : BOOL ; 
+var lc1=0;
+var e2=1;
+for (var i = 0; i < N; i++) {
+    b[i] <-- (in >> i) & 1;
+    lc1 += b[i] * e2;
+    e2 = e2+e2;
+}
+\end{lstlisting}
+This computation is of course done outside of the circuit as a high level inteface for human friendly input. On the other hand if the internal representation $(b_1,\ldots, b_{N-1})$ is given, then the human readable base $10$ representation is given by:
+\begin{lstlisting}
+input b[N] : BOOL ; 
+output x : UINT_N ; 
+var lc1=0;
+var e2=1;
+for (var i = 0; i < N; i++) {
+    b[i] <-- (in >> i) & 1;
+    lc1 += b[i] * e2;
+    e2 = e2+e2;
+}
+\end{lstlisting}
+
+
+
 In computations like scalar multiplication of elliptic curve points its is often necessary to use a binary representation of elements from the base field type. It is therefore necesaary to have a way to transform field elements into their binary representation and vice versa in circuits.
 
 To derive such a circuit over a prime field $\F_p$, let $m=|p_{base_2}|$ be the smallest number of bits necessary to represent the prime modulus $p$ itself. Then a bitstring $(b_0,\ldots,b_{m-1})\in \{0,1\}^m$ is a binary representation of a field element $x\in\F_p$, if and only if
@@ -1662,96 +2069,6 @@ A valid circuit assignment is therefore given by $(I_0,I_1,I_2,I_3,I_4)=(1,1,1,0
 \subsubsection{Range Proofs}
 $x>5$...
 
-\subsubsection{UintN}
-STUFF ABOUT HOW UINTN COMPUTATIONS ARE NOT STANDARDIZED AND THAT THERE ARE IMPLEMENTATIONS OTHER THEN MOD-N.... WE FIX ON MOD-N. WHAT DO ZEXE CIRCOM ECT FIX ON?
-
-As we know circuits are not defined over integers but over finite fields instead. We therefore have no notation of integers in circuits. However on computers we also not use integers natively but Uint's instead.
-
-As we know a UintN type is a representation of integers in the range of $0 \ldots 2^N$ with the exception that algebraic operations like addition and multiplication deviate from actual integers, whenever the result exceeds the largest representable number $2^N-1$. 
-
-In circuit design it is therefore important to distinguish between various things tht might look like integers, but are actually not. For example Haskells type NAT is an actual implementation of natural numbers. In particular this means ....
-
-\begin{example}[Uint8]
-What is $0xFFF0 + 0xFFF0$ and so on...
-\end{example}
-
-\paragraph{Bit constraints}
-In prime fields, addition and multiplication behaves exactly like addition and multiplication with integers as long as the result does not exceed the modulus. 
-
-This makes the representation of UintNs in a prime field $\F_{p}$ potentially ambigious, as there are two possible representations, whenever $2^N-1 < p$. In that case any element of $UintN$ could be interpreted as an element of $\F_{p}$. This however is dangerous as the algebraic laws like addition and multiplication behave very different in general.  
-
-It is therefore common to represent UintN types in circuits as binary constraints strings of field elements of length $N$.
-
-\begin{example}
-Consider the Uint4 type over the prime field $\F_{17}$. Since $2^4=16$, Uint4 can represent the numbers $0,\ldots, 15$ and it would be possible to interpret them as elements in $\F_{17}$. However addition 
-\end{example} 
-\subsection{Control Flow}
-\subsubsection{The Conditional Assignment} Implementing complex control flow in circuits, it is often necessary to have a way for conditional assignment of values or computational output to variables.
-
-One way to realize this in more common programming languages is by the conditional ternary operator $?:$, that branches the control flow of a program according to some condition and then assigns the output of the computational branch to some variable. A common way to write this is as
-\begin{center}
-\textsc{variable = condition ? value\_if\_true : value\_if\_false}
-\end{center}
-where \textsc{condition} is a boolean expression and \textsc{value\_if\_true} as well as \textsc{value\_if\_false} are expressions that evaluate to the same type as \textsc{variable}.
-
-In programming languages like Rust another way to write the conditional assignment operator that is more familiar to many programmers is given by 
-\begin{center}
-\textsc{variable =} \textbf{if} \textsc{condition \{ value\_if\_true  \}} \textbf{else} \textsc{\{ value\_if\_false \}}
-\end{center}
-One particular property of this operator is that the expression \textsc{value\_if\_true} is only evaluated if \textsc{condition} evaluates to true and the expression \textsc{value\_if\_false} is only evaluated if \textsc{condition} evaluates to false. In fact computer programs would soon become very inefficient if the operator would evaluate both expressions regardless of the value of \textsc{condition}.
-
-If drop the requirement that only one branch of the conditional operator is executed, we can implement it in a simple way as a circuit. To see that observe that if $b$, $c$ and $d$ are values from a finite field, such that $b$ is boolean constraint (XXX), we can use the following equation to enforce a field element $x$ to be the result of the conditional assignment operator: 
-\begin{equation}
-x = b\cdot c + (1-b)\cdot d
-\end{equation}
-Flattening this equation into an algebraic circuit gives
-\begin{center}
-\digraph[scale=0.4]{CONDASSIGN}{
-	forcelabels=true;
-	center=true;
-	splines=ortho;
-	nodesep= 2.0;
-
-  n1 [shape=box, label="b"]
-  n2 [shape=box, label="c"]
-  n3 [shape=box, label="d"]
-  n4 [shape=box, label="b ? c : d"]
-  n5 [shape=box, label="-1"]
-  n6 [shape=box, label="1"]
-  n7 [shape=box, label="*"]
-  n8 [shape=box, label="*"]
-  n9 [shape=box, label="*"]
-  n10 [shape=box, label="+"]
-  n11 [shape=box, label="+"]
- 
-  n1 -> n7 [taillabel= "E_1  "] ;
-  n1 -> n8 [taillabel= "E_1 "] ;
-  n2 -> n7 [xlabel= "E_2"] ;
-  n3 -> n9 [xlabel= "E_4"] ;
-  n5 -> n8 ;
-  n6 -> n10 ;
-  n7 -> n11 [xlabel= "E_3  "] ;
-  n8 -> n10 ;
-  n9 -> n11 [xlabel= "E_5"] ;
-  n10 -> n9 ;
-  n11 -> n4 [xlabel= "E_6  "] ;
-}
-\end{center}
-Note that in order to compute a valid assignment to this circuit, both values for $W_?$ and $W_?$ are necessary. If the inputs to thoses edges are circuits themself, both circuits needs valid assignments. As a consequence this implementation of the conditional assigment opperator has to execute alll branches of all circuits, which is very different from the execution of common computer programs. 
-
-Starting at this circuit we can use the general tenchnique from XXX to derive its associated rank-1 constraint system. We get
-\begin{align*}
-E_1 \cdot E_2 & = E_3 \\
-(1 - E_1) \cdot E_4 & = E_5 \\
-(E_3 + E_5)\cdot 1 &= E_6
-\end{align*}
-
-
-% NOTE: ZK-Podcast with Alex Özdemir for the proper branching thing in version 2 of the book.
-
-\subsubsection{Loops} Circuits and R1CS are not general enough to express arbitrary computations, but bounded computations only. As a consequence it is not possible to represent unbounded loops like $while TRUE do {}$ in algebraic circuits or rank-1 constraints systems. This can be easily seen since circuits are acyclic graphs and hence unbounded loops would require circuits of unbounded sizes. 
-
-However bounded loops are expressible, simply by enrolling the loop. 
 
 \subsection{Cryptographic Primitives}
 \subsubsection{Twisted Edwards curves}
@@ -1822,18 +2139,107 @@ $$
 (x_3,y_3) = \left(\frac{x_1y_2+y_1x_2}{1+d\cdot x_1x_2y_1y_2}, \frac{y_1y_2-a\cdot x_1x_2}{1-d\cdot x_1x_2y_1y_2}\right)
 $$
 % https://z.cash/technology/jubjub/
-We can realize this equation as a R1CS as follows: First not that we can rewrite the addition law as
-$$
-\begin{array}{lcl}
-x_1\cdot x_2 &=& x_{12}\\
-y_1\cdot y_2 &=& y_{12}\\
-x_1\cdot y_2 &=& xy_{12}\\
-y_1\cdot x_2 &=& yx_{12}\\
-x_{12}\cdot y_{12} &=& xy_{1212}\\
-x_3\cdot (1+d\cdot xy_{1212}) &=& xy_{12}+yx_{12}\\
-y_3\cdot (1-d\cdot xy_{1212}) &=& y_{12}-a\cdot x_{12}
-\end{array}
-$$
+We can use the division circuit from XXX to flatten this equation into an algeraic circuit. Inputs to the circuit are then the two curve points $(x_1,y_1)$ abd $(x_2,y_2)$ as well as the the two denominators $denum_1 = 1+d\cdot x_1x_2y_1y_2$ as well as $denum_2= 1-d\cdot x_1x_2y_1y_2$. We get
+\begin{center}
+\digraph[scale=0.6]{EDWARDSADD}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  
+  subgraph clusterin {
+    n1 [shape=box, label="x_1"] ;
+    n2 [shape=box, label="x_2"] ;
+    n3 [shape=box, label="y_1"] ;
+    n4 [shape=box, label="y_2"] ;
+      
+    n22 [shape=box, label="denom_1"] ;
+    n23 [shape=box, label="denom_2"] ;
+  
+    color=white ;
+  }
+  
+  subgraph clusterout {
+    n29 [shape=box, label="x_3"] ;
+    n30 [shape=box, label="y_3"] ;
+  
+    color=white ;
+  }
+
+    n5 [shape=box, label="a"] ;
+    n6 [shape=box, label="d"] ;
+    n7 [shape=box, label="1"] ;
+    n8 [shape=box, label="-1"] ;
+    
+    n9 [label="*"] ; // x_1*y_2
+    n10 [label="*"] ; // x_1*x_2
+    n11 [label="*"] ; // y_1*x_2
+    n12 [label="*"] ; // y_1*y_2
+    n13 [label="*"] ; // a*(x_1*x_2)
+    n14 [label="*"] ; // -a*(x_1*x_2)
+    n15 [label="+"] ; // x_1*y_2 + y_1*x_2
+    n16 [label="+"] ; // y_1*y_2 - a*x_1*x_2
+    n17 [label="*"] ; // (x_1*x_2)*(y_1*y_2)
+    n18 [label="*"] ; // d*(x_1*x_2)*(y_1*y_2)
+    n19 [label="*"] ; // -d*(x_1*x_2)*(y_1*y_2)
+    n20 [label="+"] ; // 1 + d*(x_1*x_2)*(y_1*y_2)
+    n21 [label="+"] ; // 1 - d*(x_1*x_2)*(y_1*y_2)
+    
+    n24 [label="*"] ; // (1 + d*(x_1*x_2)*(y_1*y_2))*denom_1 =1 
+    n25 [label="*"] ; // (1 - d*(x_1*x_2)*(y_1*y_2))*denom_2 =1 
+    n26 [shape=box, label="1"] ;
+    n27 [label="*"] ; // denom_1*(x_1*y_2 + y_1*x_2) 
+    n28 [label="*"] ; // denom_2*(y_1*y_2 - a*x_1*x_2) 
+    
+    n1 -> n9 [headlabel=" E_1"];
+    n1 -> n10 [taillabel="E_1"];
+    n2 -> {n10, n11} [taillabel="E_2"];
+    n3 -> n11 [headlabel=" E_3"];
+    n3 -> n12 [taillabel="E_3"];
+    n4 -> n9 [taillabel="E_4"];
+    n4 -> n12 [headlabel="  E_4"];
+    n5 -> n13 ;
+    n6 -> n18 ;
+    n7 -> {n20, n21}
+    n8 -> {n14, n19} ;
+    n9 -> n15 [headlabel=" E_7"] ;
+    n10 -> n13 [xlabel="E_8"] ;
+    n10 -> n17 [xlabel="E_8"] ;
+    n11 -> n15 [xlabel="E_9"] ;
+    n12 -> n16 [taillabel="E_10 "] ;  
+    n12 -> n17 [xlabel="  E_10"] ;   
+    n13 -> n14 ;
+    n14 -> n16 ;
+    n15 -> n27 ;
+    n16 -> n28 ; 
+    n17 -> n18 [xlabel="E_11"] ;
+    n18 -> {n19, n20} ;
+    n19 -> n21 ;
+    n20 -> n24 ;
+    n21 -> n25 ;
+    n22 -> {n24, n27} [xlabel="E_5"] ;
+    n23 -> {n25, n28}  [xlabel="E_6"] ;
+    n24 -> n26 [xlabel="E_12=1"] ;
+    n25 -> n26 [xlabel="E_13=1"] ;
+    
+    n27 -> n29 [xlabel="E_14"] ;
+    n28 -> n30 [xlabel="E_15"] ;
+    
+}
+\end{center}
+Using the general technique from XXX to derive the associated rank-1 constraint system, we get the following result:
+\begin{align*}
+E_1 \cdot E_4 & = E_7 \\
+E_1 \cdot E_2 & = E_8 \\
+E_2 \cdot E_3 & = E_9 \\
+E_3 \cdot E_4 & = E_{10} \\
+E_8 \cdot E_{10} & = E_{11} \\
+E_5 \cdot (1+ d\cdot E_{11}) & = 1 \\
+E_6 \cdot (1 - d\cdot E_{11}) & = 1 \\
+E_5 \cdot (E_9 + E_7) & = E_{14} \\
+E_6 \cdot (E_{10} - a\cdot E_8) & = E_{15}
+\end{align*}
+
 So we have the statement $w=(1,x_1,y_1,x_2,y_2,x_3,y_3,x_{12},y_{12},xy_{12},yx_{12},xy_{1212})$ and we need 7 constraints to enforce that $(x_1,y_1)+(x_2,y_2)=(x_3,y_3)$ 
 \begin{example}[Baby-JubJub]
 Considering our pen and paper Baby JubJub curve over from XXX. We recall from XXX that $(11,9)$ is a generator for the large prime order subgroup. We therefor already know from XXX that
