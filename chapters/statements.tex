@@ -27,25 +27,24 @@ Decision functions therefore decide if a tupel $x\in \Sigma^*$ is an element of 
 \begin{equation}
 L_R := \{x\in \Sigma^*\;|\; R(x)=true\}
 \end{equation}
-In the context of formal languages and decision problems a \textbf{statement} $S$ is a claim, that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \textbf{proof} for statement $S$ is given by some word $x\in L$. In this case $x$ is called an \textbf{instance} of the statement $S$.
+In the context of formal languages and decision problems a \textbf{statement} $S$ is a claim, that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \textbf{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and such a proof is \textbf{verified} by checking $R(P)=true$. In this case $P$ is called an \textbf{instance} of the statement $S$.
 
 Also the term \textit{language} might suggest a deeper relation to the well known \textit{natural languages} like English, both concepts a different in many ways. The following examples will provide some intuition about formal languages, highlighting the concepts of statements, proofs and instances:
 \begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters of arbitrary length. 
 
 Then the associated language $L_{alt}$ is the set of all finite binary tupels, where a $1$ must follow a $0$ and vice versa. So for example $(1,0,1,0,1,0,1,0,1)\in L_{alt}$ is a proper word as well as $(0)\in L_{alt}$ or the empty word $(\;)\in L_{alt}$. However the binary tupel $(1,0,1,0,1,0,1,1,1)\in \{0,1\}^*$ is not a proper word as it violates the grammer of $L_{alt}$. In addition the tupel $(0,A,0,A,0,A,0)$ is not a proper word as its letter are not from the proper alphabet. 
 
-Inside language $L_{alt}$ it makes sense to claim the following statement: "There exists an alternating string." One way to proof this statement would be by providing an actual instance, that is finding actual alternating string like 
-$x = (1,0,1)$. Constructing a string like $(1,0,1)$ therefore proofs the statement "There exists an alternating string."
-
 Atempting to write the grammar of this language in a more formal way, we can define the following decision function:
 $$
-R: \{0,1\}^* \to \{true,false\}\;;\; (x1,x_2,\ldots,x_n) \mapsto 
+R: \{0,1\}^* \to \{true,false\}\;;\; (x_0,x_1,\ldots,x_n) \mapsto 
 \begin{cases}
-true & x_j \neq x_{j+1} \text{ for all } 1\leq j < n \\
+true & x_{j-1} \neq x_{j} \text{ for all } 1\leq j \leq n \\
 false & \text{ else}
 \end{cases}
 $$
-We can use this function to decide if arbitrary binary tupels are words in $L_{alt}$ or not. For example $R(1,0,1)=true$, $R(0)=true$ and $R()=true$, but $R(1,1)=false $.. 
+We can use this function to decide if arbitrary binary tupels are words in $L_{alt}$ or not. For example $R(1,0,1)=true$, $R(0)=true$ and $R()=true$, but $R(1,1)=false $.
+
+Inside language $L_{alt}$ it makes sense to claim the following statement: "There exists an alternating string." One way to proof this statement constructively is by providing an actual instance, that is finding actual alternating string like $x = (1,0,1)$. Constructing string $(1,0,1)$ therefore proofs the statement "There exists an alternating string.", because it is easy to verify that $R(1,0,1)=true$.
 \end{example}
 \begin{example}[Programing Language]Programming languages are a very important class of formal languages. In this case the alphabet is usually (a subset) of the ASCII Table and the grammar is defined by the rules of the programming language's compiler. Words are then nothing but properly written computer programms that the compiler accepts. The compiler can therefore be interpreted as the decision function.
 
@@ -55,7 +54,7 @@ To look at this high level description more formally, we write $L_{Malbolge}$ fo
 $$
 \scriptstyle (=<'\#9]~6ZY327Uv4-QsqpMn\&+Ij"'E\%e\{Ab~w=\_:]Kw\%o44Uqp0/Q?xNvL:'H\%c\#DD2\wedge WV>gY;dts76qKJImZkj
 $$
-is an example of such a proof as it is excepted by the Malbolge compiler and is compiled to an executable binary that displays "Hello, World." (See XXX)
+is an example of such a proof as it is excepted by the Malbolge compiler and is compiled to an executable binary that displays "Hello, World." (See XXX). In this example the Malbolge compiler therefore serves as the verification process.
 \end{example}
 \begin{example}[3-Factorization]
 As one of our main runing examples in this book, we want to develop a snark that proofs knowledge of three factors of some element from the finite field $\F_{13}$. There is nothing particulary useful about this example from an application point of view, however in a sense it is the most simple example that gives rise to a non trivial snark in some of the most common zero knowledge proofing systems. 
@@ -75,46 +74,56 @@ false & else
 $$
 Having defined the language $L_{3.fac}$ it then makes sense to claim the statement "There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement "There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$" such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds. 
 
-Proofing the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement.
-\begin{example}[The Empty Language] To see that not every language contains word, let $\Sigma = \Z_6$ consider the following decision function 
+Proofing the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement and the computation $R_{3.fac}(2,12,4,5)=true$ is a verification  of that proof. In contrast the tuple $(2, 12, 4, 7)$ is not a proof of the statement, since the check $R_{3.fac}(2,12,4,7)=false$ does not verify the proof.
+\begin{example}[The Empty Language] To see that not every language has a word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetics as derived in XXX together with the following decision function 
 $$
 R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
 (x_1,\ldots,x_n) \mapsto
 \begin{cases}
-true & n=4 x_1\cdot x_1 = 2\\
+true & n=4 \text{ and } x_1\cdot x_1 = 2\\
 true & else
 \end{cases}
 $$
-and its associated language $L_\emptyset$. As we can see from the multiplication table XXX of $\Z_6$, the ring $\Z_6$ does not contain elements $x$, such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proofing the statement "There exist a word in $L_\emptyset$" constructively by providing an instance is therefore impossible.
+We write $L_\emptyset$ for the associated language. As we can see from the multiplication table XXX of $\Z_6$, the ring $\Z_6$ does not contain any element $x$, such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proofing the statement "There exist a word in $L_\emptyset$" constructively by providing an instance is therefore impossible. The verification will never check any tuple.
 \end{example}
 \end{example}
-\begin{exercise} Consider exercise XXX again. Define a decision function, such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions of the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: "There exist a word in $L_{Exercise_XXX}$. 
+\begin{exercise} Consider exercise XXX again. Define a decision function, such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: "There exist a word in $L_{Exercise_XXX}$ and verify the proof.  
+\end{exercise}
+\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example XXX, the alphabet $\Sigma = \Z_6$ and the decision function
+\begin{equation*}
+R_{example\_XXX} : \Sigma^*\to \{true, false\}\;;\;
+x \mapsto
+\begin{cases}
+true & x.len()=1 \text{ and } 3\cdot x + 3 = 0\\
+false & else
+\end{cases}
+\end{equation*}
+Compute all words in the associated language $L_{example\_XXX}$, provide a constructive proof for the statement "There exist a word in $L_{example\_XXX}$" and verify the proof.
+\end{exercise}
+\begin{exercise}[Tiny JubJub] Consider the tiny-jubjub curve in its Edwards form from example XXX. Define an alphabet $\Sigma$ and a decision function $R_{tiny.jubjub}$ with associated language $L_{tiny.jubjub}$, such that a string $x\in \Sigma^*$ is a word in $L_{tiny.jubjub}$ if and only if $x$ is point on the tiny-jubjub curve. Then provide a constructive proof for the statement "The language $L_{tiny.jubjub}$ contains a word" and verify that proof. In addition provide a constructive proof that is unverifyable.
 \end{exercise}
 \paragraph{Instance and Witness}
 % https://www.claymath.org/sites/default/files/pvsnp.pdf
-As we have seen in the previous paragraph, statements provide membership claims in formal languages and instances serve as constructive proofs for those claims. However, in the context of \textit{zero-knowledge} proofs  its possible to hide parts of the proofing instance and still be able to proof the statement. In such a context the instance is therefore split into a \textit{public part} which again is called the \textbf{instance} and a not publically known part (a private part) called the \textbf{wittness}.
+As we have seen in the previous paragraph, statements provide membership claims in formal languages and instances serve as constructive proofs for those claims. However, in the context of \textit{zero-knowledge} proofing systems our naive notion of constructive proofs is refined in such a way that  its possible to hide parts of the proofing instance and still be able to proof the statement. In this context it is therefore necessary to split a proof into a \textit{public part} which is then called the \textit{instance} and a private part called a \textit{witness}.
 
-To acknowledge for this seperation of a proof instance into a public and a private part, our previous definition of a formal language needs a refinement in the context of zero-knowledge proofs. Instead of a single alphabet the refined picture considers two alphabets $\Sigma_I$ and $\Sigma_W$, such that the words of the language are tupels $(i;w)\in \Sigma_I^* \times \Sigma_W^*$ subject to a decision function
+To acknowledge for this seperation of a proof instance into a public and a private part, our previous definition of formal languages needs a refinement in the context of zero-knowledge proofing system. Instead of a single alphabet the refined picture considers two alphabets $\Sigma_I$ and $\Sigma_W$ and a decision function 
 \begin{equation}
-R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}
+R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\; (i\,;w) \mapsto R(i\,;w)
 \end{equation}
-that decides if a tupel $(i;w)\in \Sigma_I^* \times \Sigma_W^*$ is an element of the language or not. Again the language itself can be written as the set of all tupels that satisfy the grammar, i.e as the set:
+Words are therefore tupels $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ with $R(i\,;w)=true$ and the refinement picture differentiates between public inputes $i\in \Sigma_I$ and private inputs $w\in \Sigma_W$. The public input $i$ is called an \textbf{instance} and the private input $w$ is called a \textbf{wittness} of $R$. 
+
+If a decision function is given the associated language is defined as the set of all tupels from the underlying alphabet that are verified by the decision function:
 \begin{equation}
-L := \{(i;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i;w)=true\}
+L_R := \{(i\,;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i\,;w)=true\}
 \end{equation}
-In this case we call a public input $i$ an \textbf{instance} and a private input $w$ a \textbf{wittness} of the relation $R$. 
+In this refined context a \textbf{statement} $S$ is a claim that given an instance $i\in\Sigma_I^*$ there is a witness $w\in \Sigma_W^*$, such that language $L$ contains a word $(i\,;w)$. A constructive \textbf{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \textbf{verified} by checking $R(P)=true$. 
 
-In the context of these refined formal languages a \textbf{statement} $S$ is a claim that given an instance $i\in\Sigma_I^*$ there is a witness $w\in \Sigma_W^*$, such that language $L$ contains a word $(i;w)$. i.e a statement claims that there exist some $(i;w)\in L$. A constructive \textbf{proof} for statement $S$ is therefore given by some word $(i;w)\in L$. 
+It is worth to understand the difference between statements as defined in XXX and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen knowledge-proofs, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX sec 1.4]
+\begin{example}[3-factorization] To give an intuition about the implication of refined languages, consider $L_{3.fac}$ from example XXX again. As we have seen, a constrctive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the product in modular $13$ aithmetics of the first three elements is equal to the $4$'th element. 
 
-The reason to distinguish the instance and witness part of the proof, is that there a proving systems that are able to proof the claim without revealing any knowledge about the witness part of the proof. It is the main purpose of this book to given understanding of how somthing like this can be achieved in applications.
+Splitting words from $L_{3.fac}$ into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example we could reformulate the membership statement of $L_{3.fac}$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. A statement for this reformulation is then expressed by the claim: "Given a publically known field element $x_4$, there are three private factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any tuple $(x_1,x_2,x_3)$, such that $x_1\cdot x_2\cdot x_3= x_4$. 
 
-It is worth to note the difference between the two types of statements we have seen so far. While statements in the sense of the previous paragraph can be seen as membership proofs, statements in the refined definition of this paragraph can be seen knowledge-proofs rather, where a prover claims knowledge of a witness for a given instance.
-\begin{example}[3-factorization]
-Consider the language $L_{3.fac}$ from example XXX again. As we have seen providing instances for the membership statement in this languages is equivalent to knowledge of $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the product in modular $13$ aithmetics of the first three elements is equal to the $4$'th element. 
-
-Splitting the instances from that example into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example we could reformulate the non-hiding membership statement "there are $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that $x_1\cdot x_2\cdot x_3 = x_4$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. 
-
-A statement for this refined problem is "Given a publically known field element $x_4$, there are three factors of $x_4$" and as we will see in XXX a zero-knowledge proofing system is able to proof this statement without revealing anything about the factors $x_1$, $x_2$, or $x_3$.
+At this point it is important to note that, while constructive proofs in the refinement don't look much different from constructive proofs in the original language, we will see in XXX that there are proofing systems, able to proof the statement (at least with high probability) without revealing anything about the factors $x_1$, $x_2$, or $x_3$. The importance of the refinement therefore only shows up, once more elaborate proofing methods then naive constructive proofs are provided.
 
 We can formalize this new language, which we might call $L_{3.fac\_zk}$ by defining the following decision function: 
 \begin{multline*}
@@ -125,113 +134,105 @@ true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
 false & else
 \end{cases}
 \end{multline*}
-and as usual $L_{3.fac\_zk}$ is then defined by all tupels from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $TRUE$ under $R_{3.fac\_zk}$. 
+The associated language $L_{3.fac\_zk}$ is defined by all tupels from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
 
-Since words in $L_{3.fac\_zk}$ are tuples $(i|w)$ consisting of an instance and a wittness, there are different possibilities to formulate statements. The most general one would be equivalent to the one in XXX claiming "there are words in $L_{3.fac\_zk}$" and a proof, could be given by a concrete pair $(i|w)\in L_{3.fac\_zk}$, such as$(5|2,12,4)$. 
-
-However as explained in XXX, in the context of zero knowlege proofs, statements are rather knowledge-claims like "Given public input $i$, there is a private input $w$. So for example in $L_{3.fac\_zk}$ with public input $i=5$ a proof for the associated statement could be given by $w=(2,12,4)$.
-
-As we will see in XXX, zero-knowledge proofing systems provide techniques to statements like this without revealing anything about the wittness.
-
-One question that arises in this context might be why we decided the factors $x_1$, $x_2$ and $x_3$ to be the wittness and the product $x_4$ to be the instance. This of course was just an arbitrary choice and we could have decided on any other constellation. For example nothing stops us from declaring all variables as private or just $x_1$ or whatever. The actual choice is determined by the application only.
+Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask, why we decided the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose an other combination? This was an arbitrary choice in the example. Every other combination of private and public factors would be equally valid. For example it would be possible to declaring all variables as private or to declare all variables as public. Actual choices are determined by the application only.
 \end{example}
-\begin{example}[SHA256 -- Knowlege of Preimage] A standard example to show the power of zero knowlege proofs is proving the knowledge of some preimage of a cryptographic hash function like the SHA256 function, without actually revealing it. 
+\begin{example}[SHA256 -- Knowlege of Preimage] One of the most common examples in the context of zero-knowledge proofing systems is the knowledge-of-a-preimage proof for some cryptographic hash function like $SHA256$, where a publically known $SHA256$ digest value is given and the task is to proof knowledge of a preimage for that digest under the $SHA256$ function, without revealing that preimage. 
 
-To understand this example in detail, lets start with introducing a language well suited to build a snark for this problem. Since SHA256 is a function
+To understand this problem in detail, we have to introduce a language able to describe the knowledge-of-preimage problem in such a way that the claim "Given digest $i$, there is a preimage $w$, such that $SHA256(w)=i$" becomes a statement in that language. Since $SHA256$ is a function
 $$
-SHA256: \{0,1\}^* \to {0,1}^{256}
+SHA256: \{0,1\}^* \to \{0,1\}^{256}
 $$
 that maps binary string of arbitrary length onto binary strings of length $256$ and we want to proof knowledge of preimages, we have to consider binary strings of size $256$ as instances and binary strings of arbitrary length as witnesses. 
 
-An appropriate alphabet for both the set of all witnesses and the set of all instances is therefore the set $\{0,1\}$ of the two binary letters. We then define a decision function by
+An appropriate alphabet $\Sigma_I$ for the set of all instances and an appropriate alphabet $\Sigma_W$ for the set of all witnesses is therefore given by the set $\{0,1\}$ of the two binary letters and a proper decision function is given by:
 \begin{multline*}
-R_{SHA256} : \{0,1\}^* \times \{0,1\}^* \to \{TRUE, FALSE\}\;;\;\\
-(i|w) \mapsto
+R_{SHA256} : \{0,1\}^* \times \{0,1\}^* \to \{true, false\}\;;\;\\
+(i;w) \mapsto
 \begin{cases}
-TRUE & i.len()=256,\; i = SHA256(w)\\
-FALSE & else
+true & i.len()=256,\; i = SHA256(w)\\
+false & else
 \end{cases}
 \end{multline*}
-and we write $L_{SHA256}$ for the associated language that consists of instance, witness pairs $(i|w)\in L_{SHA256}$ where the instance $i$ is the SHA256 image of the witness $w$. 
+We write $L_{SHA256}$ for the associated language and note that it consists of words, which are tuples $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
 
-Given an instance $i\in \{0,1\}^{256}$ a statements in $L_{SHA256}$ then is the claim, that there is a wittness $w\in \{0,1\}^{*}$, such that $i$ is the image of SHA256 of $w$. One way to proof such a statement would therefore be to actually provide some data that hashes onto $i$. 
+Given some instance $i\in \{0,1\}^{256}$ a statements in $L_{SHA256}$ is the claim "Given digest $i$, there is a preimage $w$, such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by checking $SHA256(w)=i$. 
 \end{example}
-\begin{example}[Knowledge of a Discrete Logarithm] As we have explained in XXX computing discrete logarithms can be hard in certain prime fields. An interesting problem is therefore a system that can proof knowledge of discrete logarithms without revealing them.
-
-To formalize a proper statement, lets look at the problem a bit closer. In a more precise sense proofing knowledge of discrete logarithms, is the same thing as finding a solution $x$ to an equation
-$$
-b^x = y
-$$ 
-providing that both the base $b$ and the value $y$ are given and that it is understood that $b$ and $y$ are elements from the multiplicative group $\F_{p}^*$ of a prime field for some prime number $p$ and that $x\in \Z_{p-1}$ is a number from modular $(p-1)$-arithmetics, where $(p-1)$ is the order of the multiplicative group of $\F_p$.
-
-We moreover assume $b$ and $p$ to be fixed system parameters and that $y$ is the public input to the problem, while $x$ is the private input. 
-
-We can then define the alphabet $\Sigma_I \times \Sigma_W := \F_p^* \times \Z_{p-1}$ and a decision function
+\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example XXX as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
 \begin{multline*}
-R_{LOG_b(\cdot)} : (\F_p^*)^* \times (\Z_{p-1})^* \to \{TRUE, FALSE\}\;;\;\\
-(i|w) \mapsto
+R_{linear} : \Sigma^* \times \Sigma^* \to \{true, false\}\;;\;\\
+(i;w) \mapsto
 \begin{cases}
-TRUE & i.len()=1,\; w.len()=1,\; b^w = i\\
-FALSE & else
+true & i.len()=3 \text{ and } w.len()=1 \text{ and } i_1\cdot w_1 + i_2 = i_3\\
+false & else
 \end{cases}
 \end{multline*}
-Given an instance $i\in \F_p^*$ a statements in $L_{LOG_b(\cdot)}$ then is the claim, that there is a number $w\in \Z_{p-1}$, such that $w$ is base $b$ discrete logarithm of $i$ in the prime field $\F_p$. One way to proof such a statement would therefore be to actually provide some concrete $w$. 
-\end{example}
-\paragraph{Modularity} From a developers perspective it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero knowledge proofs those simple building blocks are often called \textit{gadgets} and mature proofing systems usually contain libraries that contain many useful gadgets, like representations of basic types as booleans, unit32, preimage proofs for Hash functions, elliptic curve cryptography and so on. Implementers can then combine these fundamental building blocks to write complex real world applications. 
+Which of the following instances $(i_1,i_2,i_3)$ has a proof of knowledge in $L_{linear}$: $(3,3,0)$, $(2,1,0)$, $(4,4,2)$.
+\end{exercise}
+\begin{exercise}[Edwards Addition on Tiny JubJub] Consider the tiny-jubjub curve together with its Edwards addition law from example XXX. Define an instance alphabet $\Sigma_I$, a witness alphabet $\Sigma_W$ and a decision function $R_{add}$ with associated language $L_{add}$, such that a string $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ is a word in $L_{add}$ if and only if $i$ is a pair of curve points on the tiny-jubjub curve in Edwards form and $w$ is the Edwards sum of those curve points.
 
-To understand what this means on the level of formal languages defined by decision functions as explained in XXX, we need to look at the \textit{intersection} of two formal languages, which can be constructed whenever both languages are defined over the same alphabet. In this case the intersection language consists of words that are contained in both languages. To be more precise, let $L_1$ and $L_2$ be two formal languages defined over the instance and witness alphabets $\Sigma_I$ and $\Sigma_W$. Then
+Choose some instance $i\in \Sigma_I^*$, provide a constructive proof for the statement "There is a witnes $w\in \Sigma_W^*$ such that $(i\,;w)$ is a word in $L_{add}$" and verify that proof. Then find some instance $i\in \Sigma_I^*$, such that $i$ has no knowledge proof in $L_{add}$.
+\end{exercise}
+\paragraph{Modularity} From a developers perspective it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero knowledge proofing systems those simple building blocks are often called \textit{gadgets} and gadget libraries usually contain representations of atomic types like booleans, integers, various hash functions, elliptic curve cryptography and many more. In order to synthesize statements, developers then combine predefined gadgets into complex logic. We call the ability to combine statements into more complex statements \textbf{modularity}. 
+
+To understand the concept of modularity on the level of formal languages defined by decision functions, we need to look at the \textit{intersection} of two languages, which exists whenever both languages are defined over the same alphabet. In this case the intersection is a language that consists of strings which are words in both languages. 
+
+To be more precise, let $L_1$ and $L_2$ be two languages defined over the same instance and witness alphabets $\Sigma_I$ and $\Sigma_W$. Then the intersection $L_1 \cap L_2$ of $L_1$ and $L_2$ is defined as
 \begin{equation}
 L_1 \cap L_2 := \{x\;|\; x\in L_1 \text{ and } x\in L_2\}
 \end{equation} 
-If both languages are defined by decision functions $R_1$ and $R_2$ as explained in XXX, the following function is a decision function for the intersection language $L_1 \cap L_2$:
+If both languages are defined by decision functions $R_1$ and $R_2$, the following function is a decision function for the intersection language $L_1 \cap L_2$:
 \begin{equation}
-R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{TRUE, FALSE\}\;;\;
+R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\;
 (i,w) \mapsto R_1(i,w) \text{ and } R_2(i,w)
 \end{equation}
-This is an important fact from an implementations point of view as it allows to construct complex decision function and their statements from simple building blocks. Given a publically known instance $i\in \Sigma_I^*$ a statement in an intersection language then claims knowledge of a wittness that satisfies all relations simultaniously.
+The fact that the intersection of two decision function based languages is a decision function based language again is important from an implementations point of view as it allows to construct complex decision functions, their languages and associated statements from simple building blocks. Given a publically known instance $i\in \Sigma_I^*$ a statement in an intersection language then claims knowledge of a wittness that satisfies all relations simultaniously. 
 
 \section{Statement Representations} 
-% IMPORTANT TODO: https://en.wikipedia.org/wiki/Boolean_circuit
-% Language defined by family of circuits
-
 As we have seen in the previous section, formal languages and their definition by decision functions are a powerful tool to describe statements in a formaly regurous manner. 
 
-However from the perspective of existing zero knowledge proofing systems not all ways to actually represent decision functions are equally useful. Depending on the proofing system ad hand some are more suitable then others. In this section will therefore describe the most common ways to represent decision functions and their statements.
+However from the perspective of existing zero knowledge proofing systems not all ways to actually represent decision functions are equally useful. Depending on the proofing system some are more suitable then others. In this section will describe two of the most common ways to represent decision functions and their statements.
 \subsection{Rank-1 Quadratic Constraint Systems}
-Although decision functions for formal languages can be expressed in various ways, many zk-proof systems require the ralation to be expressed in terms of a systems of rank-1 quadratic equations over a finite field. This true in particular for pairing based proofing systems like XXX, roughly because it is possible to check solutions to those equations "in the exponent" of pairing friendly cryptographic groups. 
+Although decision functions are expressible in various ways, many contemporary proofing systems require the deciding ralation to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing based proofing systems like XXX, roughly because it is possible to check solutions to those equations "in the exponent" of pairing friendly cryptographic groups.
 
-\paragraph{R1CS representation} To understand what \textit{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a finite field, $n$, $m$ and $k$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i$ constants from $\F$ for every $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a R1CS is given by: 
+In this section we will therefore have a closer look at a particular type of quadratic equations, called \textit{rank-1 quadratic constraints systems}, which are a common standard in zero knowledge proofing systems. We will start with a general introduction to those systems and then look at their relation to formal languages. We will look into a common way to compute solutions to those systems and after that is done we show how a simple compiler might derive rank-1 constraint systems from more high level programing code. 
+
+\paragraph{R1CS representation} To understand what \textit{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a field, $n$, $m$ and $k\in\N$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i\in\F$ constants from $\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a rank-1 constraint system (R1CS) is defined as follows: 
 \begin{align*}
 \scriptstyle\left(a^1_0 + \sum_{j=1}^n a^1_j \cdot I_j + \sum_{j=1}^m a^1_{n+j} \cdot W_j  \right) \cdot 
-\left(b^1_0 + \sum_{j=1}^n b^1_j \cdot I_j + \sum_{j=1}^m b^1_{n+j} \cdot W_j  \right) &= 
+\left(b^1_0 + \sum_{j=1}^n b^1_j \cdot I_j + \sum_{j=1}^m b^1_{n+j} \cdot W_j  \right) &=\, 
 \scriptstyle c^1_0 + \sum_{j=1}^n c^1_j \cdot I_j + \sum_{j=1}^m c^1_{n+j} \cdot W_j\\
        & \vdots\\
 \scriptstyle\left(a^k_0 + \sum_{j=1}^n a^k_j \cdot I_j + \sum_{j=1}^m a^k_{n+j} \cdot W_j  \right) \cdot 
-\left(b^k_0 + \sum_{j=1}^n b^k_j \cdot I_j + \sum_{j=1}^m b^k_{n+j} \cdot W_j  \right) &= 
+\left(b^k_0 + \sum_{j=1}^n b^k_j \cdot I_j + \sum_{j=1}^m b^k_{n+j} \cdot W_j  \right) &=\, 
 \scriptstyle c^k_0 + \sum_{j=1}^n c^k_j \cdot I_j + \sum_{j=1}^m c^k_{n+j} \cdot W_j       
 \end{align*}
-If such a R1CS is given, the parameter $k$ is called the \textbf{number of constraints} and if a tuple $(I_1,\ldots, I_n,W_1,\ldots,W_m)$ of field elements satisfies theses equations, $(I_1,\ldots, I_n)$ is called an \textbf{instance} and $(W_1,\ldots,W_m)$ is called a \textbf{wittness} of the system.
+If a rank-1 constraint system is given, the parameter $k$ is called the \textbf{number of constraints} and if a tuple $(I_1,\ldots, I_n; W_1,\ldots,W_m)$ of field elements satisfies theses equations, $(I_1,\ldots, I_n)$ is called an \textbf{instance} and $(W_1,\ldots,W_m)$ is called an associated \textbf{wittness} of the system.
 
-\begin{remark}[Matrix notation] The presentation of rank-1 constraint systems can be greatly siplified using the notation of vectors and matrices. In fact if
+\begin{remark}[Matrix notation] The presentation of rank-1 constraint systems can be simplified using the notation of vectors and matrices, which abstracts over the indices. In fact if
 $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, $C$ are $(n+m+1)\times k$-dimensional matrices and $\odot$ is the Schur/Hadamard product, then a R1CS can be written as
 $$
 Ax \odot Bx = Cx
 $$
-However since we did not introduced matrix calculus in the book, we stick to XXX as the defining equations for rank-1 constraints systems. The latter notation just contains more syntactic suggar and the one frequently used in the research literature.
+However since we did not introduced matrix calculus in the book, we use XXX as the defining equations for rank-1 constraints systems. We only highlighted the matrix notation, because it is sometimes used in the literature.
 \end{remark}
-A major property of rank-1 constraint systems is, that is can be shown, that every bounded computation can be expressed as a R1CS. R1CS are therefore a universal model for bounded computation. We will see in XXX how "normal" computations can be translated into R1CS and how to construct R1CS compilers that transform high level (bounded) computer programs into R1CS.
+%It can be shown, that every bounded computation is expressable as a rank-1 constraint system. R1CS are therefore universal models for bounded computations. We will derive a common approach of how to compile bounded computation into rank-1 constraint systems in XXX. Similar approaches are used in real world systems like XXX to build R1CS-compilers for subsets of high level languages like C, JAVA or Rust.
+Generally speaking, the idea of a rank-1 constraint system is to keep track of all the values that any variable can assume during a computation and to bind the relationships among all those variables that are implied by the computation itself. Enforcing relations between all the steps of a computer program, the execution is then constrainted to be computed in exactly the expected way without any oportunity for deviations. In this sense, solutions to rank-1 constraint systems are proofs of proper progam execution.
+\begin{example}[3-Factorization] To provide a better intuition of rank-1 constraint systems, consider the language $L_{3.fac\_zk}$ from example XXX again. As we have seen $L_{3.fac\_zk}$ consist of words $(I_1;W_1,W_2,W_3)$ over the alphabet $\F_{13}$, such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the decision function as a rank-1 constraint system.
 
-On a very general level, it can be said that during computations, the idea of R1CS is to keep track of all the values that each variable assumes and to bind the relationships among all those variables that are implied by the computation itself. This way doing a computation in the expected way is ensured by enforcing relations between every consecutive steps in the computation.
-\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example XXX again. As we have seen $L_{3.fac\_zk}$ consist of words $(I_1;W_1,W_2,W_3)$ over the alphabet $\F_{13}$, such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to reformulate the defining grammar as a rank-1 constraint system.
-
-Since R1CS are quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$ that contain products which contain more then two factors, i.e. which are not quadratic, needs to be rewritten in a process often called "flattening". Do do so, we can introcuce a new variable $W_4$ and then define the following two constraints
+Since R1CS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$ which contain products of more then two factors (which are therefore not quadratic) have to be rewritten in a process often called \textit{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac\_zk}$ we introcuce a new variable $W_4$, which capture two of the three multiplications in $W_1\cdot W_2\cdot W_3$. We get the following two constraints
 \begin{align*}
 W_1 \cdot W_2 & = W_4 & \text{constraint } 1\\
 W_4 \cdot W_3 & = I_1 & \text{constraint } 2
 \end{align*}
-It can be shown, that given $I_1$, any solution $(W_1,W_2,W_3,W_4)$ to this system provides a solution to the original equation $I_1 = W_1\cdot W_2\cdot W_3$ and vice versa. Both equations are therefore equivalent in the sense that solutions are in a 1:1 correspondence.
+Given some instance $I_1$, any solution $(W_1,W_2,W_3,W_4)$ to this system of equations provides a solution to the original equation $I_1 = W_1\cdot W_2\cdot W_3$ and vice versa. Both equations are therefore equivalent in the sense that solutions are in a 1:1 correspondence.
 
-To see that XXX is a rank-1 constraint system, choose the parameter $n=1$, $m=4$ and $k=2$ as well as
+Looking at both equations, we see how each constraint enforces a step in the computation. In fact the first constraint forces any computation to multiply the witness $W_1$ and $W_2$ first. Otherwise it would not be possible to compute the witness $W_4$, which is needed to solve the second constraint. Witness $W_4$ therefore expresses the constraining of an intermediate computational state.
+
+At this point one might ask why equation $1$ constraints the system to compute $W_1\cdot W_2$ first, since computing $W_2\cdot W_3$, or $W_1\cdot W_3$ in the begining and then multiply with the remaining factor gives the exact same result. However the way we designed the R1CS prohibits any of these alternative computations. This is true and it shows that R1CS are in general \textit{not unique} descriptions of a language. Many different R1CS are able to describe the same problem.
+
+To see that the two quadratic equations qualify as a rank-1 constraint system, choose the parameter $n=1$, $m=4$ and $k=2$ as well as
 $$
 \begin{array}{llllll}
 a_0^1 = 0 & a_1^1= 1 & a_2^1= 0 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
@@ -244,7 +245,7 @@ c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 1  & c_5^1= 0 \\
 c_0^2 = 0 & c_1^2= 0 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 1 
 \end{array} 
 $$
-Then the R1CS of our $3$-factorization problem contains $4$ witness variables $W_1$, $W_2$, $W_3$ and $W_4$ and one instance variable $I_4$. The witness $W_4$ expresses and intermediate computational state and is constrained to be the product of $W_1$ and $W_2$. Summarizing the definition the R1CS  can be written as follows:
+With this choice, the rank-1 constraint system of our $3$-factorization problem can be written in its most general form as follows:
 \begin{align*}
 \scriptstyle
 \left(a^1_0 + a_1^1 I_1 + a_2^1 W_1 + a_3^1 W_2 + a_4^1 W_3 + a_5^1 W_4\right)\cdot
@@ -258,63 +259,71 @@ Then the R1CS of our $3$-factorization problem contains $4$ witness variables $W
 \left(c^2_0 + c_1^2 I_2 + c_2^2 W_2 + c_3^2 W_2 + c_4^2 W_3 + c_5^2 W_4\right)
 \end{align*}
 \end{example}
-
-\paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems give rise to formal languages, oberserve that every given R1CS over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems define formal languages, oberserve that every R1CS over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
-R_{R1CS} : \F^* \times \F^* \to \{TRUE, FALSE\}\;;\;
+R_{R1CS} : \F^* \times \F^* \to \{true, false\}\;;\;
 (I;W) \mapsto
 \begin{cases}
-TRUE & (I;W) \text{ satisfies R1CS}\\
-FALSE & else
+true & (I;W) \text{ satisfies R1CS}\\
+false & else
 \end{cases}
 \end{equation}
-We write $L_{R1CS-SAT}$ for the associated language and call it \textbf{$R1CS$-satisfyability}. The grammar of this language is exapressed by the constraints in the R1Cs and words in this language are solutions to the R1CS. 
+Every R1CS therefore defines a formal language. The grammar of this language is encoded in the constraints, words are solutions to the equations and  a \textbf{statement} is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ is a solution to the rank-1 constraints system". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verfied whenever the set of all instance and witness variables solves the R1CS. 
 
-Now since every R1CS gives rise to a formal language, a \textbf{statement} for the given R1CS, is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ satisfies the constraints system". One way to proof such a claim is therefore to to produce an assignment to the variables which satisfies the constraints. If the R1CS represents a computations, such a solution is then a proof proper execution of the computation.
-\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example XXX and the R1CS defined in example XXX. As we have seen in XXX solutions to the R1CS are in 1:1 correspondense with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages. Due to this identification, from now on we weite $L_{3.fac\_zk}$ for the language defined by the R1CS XXX.
+\begin{remark}[R1CS satisfyability] It should be noted that in our definition, every R1CS defines its own language. However in more theoretical approaches another language usually called \textit{R1CS satisfyability} is often considered, which is useful when it comes to more abstract problems like expressiviness, or computational complexity of the class of \textit{all} R1CS. From our perspective the R1CS saisfyability language is optained by union of all R1CS languages that arie in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
+$$
+L_{R1CS\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a R1CS $R$ such that } R(i;w)=true  \}
+$$
+\end{remark}
+\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example XXX and the R1CS defined in example XXX. As we have seen in XXX solutions to the R1CS are in 1:1 correspondense with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages.
 
-To give an intuition of how a naive proof of a statement in $L_{3.fac\_zk}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$" a proofer therefore has to privide proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, such a proof might be given by
+To give an intuition of how constructive proofs in $L_{3.fac\_zk}$ look like, consider the instance $I_1= 11$. To proof the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$" constructively a proof has to privide assignments to all witness variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, an example assignment is given by
 $W=(2,3,4,6)$ since $(I_1;W)$ satisfies the R1CS
 \begin{align*}
-W_1 \cdot W_2 &= W_4 & \text{since } 2\cdot 3 = 6\\
-W_4 \cdot W_3 &= I_1 & \text{since } 6\cdot 4 = 11
+W_1 \cdot W_2 &= W_4 & \text{\# } 2\cdot 3 = 6\\
+W_4 \cdot W_3 &= I_1 & \text{\# } 6\cdot 4 = 11
 \end{align*}
+A proper constructive proof is therefore given by $P=(2,3,4,6)$. Of course $P$ is not the only possible proof for this statement. Since factorization is in general not unique in a field, another constructive proof is given by $P'=(3,5,12,2)$. 
 \end{example}
-\paragraph{Modularity} As we already discussed in XXX, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 constraint systems are particulary useful for this as the combination of two different R1CS over the same alphabet results in a new R1CS over that same alphabet. 
+\paragraph{Modularity} As we discuss in XXX, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 constraint systems are particulary useful for this as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
 
-To be more precise let $S_1$ and $S_2$ be two R1CS over $\F$, the the union 
-$S_3 = S_1\cup S_2$ is an R1CS over $\F$ obtained by by first relabelling all variables, such they have different names in both systems and then consider all the constraints from $S_1$ as well as all the constraints from $S_2$. Solutions to $S_3$ therefore have to satisfy both $S_1$ as well as $S_2$. 
+To be more precise let $S_1$ and $S_2$ be two R1CS over $\F$, then a new R1CS $S_3$ is optained by the intersection $S_3 = S_1\cap S_2$  of $S_1$ and $S_2$, where in this context intersecion means, that both, the equations of $S_1$ \textit{and} the equations of $S_2$ have to be satisfied, in order to provide a solution for the system $S_3$.
 
-This construction then implies, that developers are able to construct complex R1CS from simple building blocks, providing that the are careful with variable naming. 
+As a consequence, developers are able to construct complex R1CS from simple ones and this modularity provides the theoretical foundation for many R1CS compilers as we will see in XXX.
 
-\subsection{Algebraic Circuits} 
-* All outgoing edges from a node get the same label.
-* Outgoing edges from input nodes if the input node is a variable.
-* Outgoing edges from a multiplication gate get a label, if both input edges have a label
-* Outgoing edges of addition gates get a label only if they are inputs to output nodes 
+\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems define equations, such that solutions to these equations are knowledge proofs for the existence of words in associated languages. From the perspective of a proofer it is therefore import to solve those equations efficiently. However R1CS
+are non-linear equations over finite fields, which often consists of millions of constraints and there are no general methods to solve those equations efficiently. It is therefore of practical importance to have some way to compute solutions.
 
-As we have seen in the previous paragraphs, rank-1 constraint systems define equations that instance witness pairs have to satisfy in order to provide words in the associated language.
+To achieve this we introduce another class of decision functions called \textit{algebraic circuits}, that are closely related to R1CS but which are able to not just define constraining equations, but also to provide a mechanism that actually computes their solutions.
 
-However R1CS equations can be large and are non-linear in general. It is therefore not posible to solve those equations efficiently in order to find proper witnesses for given instances. A practical question is therefore how to actually compute witneses for R1CS?
+Transforming high level computer programs into algebraic circuits is a process often called \textit{flattening} and as we will see in XXX, those circuits can be transformed futher into associated rank-1 constraints systems. Programs that achieve those transformations are often called \textit{circuit-compilers} and once a circuit is derived it can be \textit{executed} to compute solutions to the associated R1CS. The following paragraphs makes those ideas concrete.
 
-In this paragraph we look at a statement representation called \textit{algebraic circuits}, that is closely related to R1CS but which is suitable to not just define the constraints, but to provide a mechanism to compute witnesses efficiently.
+\paragraph{Algebraic circuit representation} Let $\F$ be some field.
+The general idea of an algebraic circuit is that every polynomial function over $\F$ can be represented as a directed acyclic (multi)graph. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the defining field operations \textit{addition} as well as \textit{multiplication} and graph edges represent the connections between the operations of the individual nodes.
 
-\paragraph{Algebraic circuit representation}
-The general idea of an algebraic circuit is that, given some finite field $\F$ every rational function over $\F$ can be seen as a directed acyclic (multi)graph: Inner nodes have exactly two incoming edges and represent the fundamental field operationd \textit{addition} and \textit{multiplication}. Nodes with only outgoing edges (source nodes) represent the variables and constants of the functions and nodes with only incoming edges (sink nodes) represent the results of the function. Edges in the graph then represent the connections between the operations of the individual nodes.
-
-To be more precise let $\F$ be a finite field. Then a directed, acyclic multi-graph $C(\F)$ is called an \textbf{algebraic circuit} over $\F$, if the graph has an ordering, every edge has either an intance label $I_j$ or a witness label $W_j$, where $j$ is the edge's position in the graph's order and every node has two labels in the following way:
+To undertand this in more detail let $\F$ be a field. Then a directed, acyclic multi-graph $C(\F)$ is called an \textbf{algebraic circuit} over $\F$, such that
 \begin{itemize}
-\item Every source node (called input) has either a symbol that represents a variable from $\F$ or a constant $c\in\F$ as label.
-\item Every sink node (called output) has a symbol that represents a variable from $\F$ as label.
-\item Every other node has exactly two incoming edges and has a label that represents either addition or multiplication in $\F$.
-\end{itemize}
-Internal nodes that are neither source nor sink nodes are also often called \textbf{aithmetic gates}. Arithmetic gates that are decorated with the "$+$"-label are called \textbf{addition-gates} and gates that are decorated with the "$\cdot$"-label are called \textbf{multiplication-gates}.
+\item The set of edges has a total order.  
+\item Every source node has a label, that represents either a variable or a constant from the field $\F$.
+\item Every sink node has exactly one incoming edge and a label, that represents either a variable or a constant from the field $\F$.
+\item Every other node has exactly two incoming edges and a label from the set $\{+,*\}$ that represents either addition or multiplication in $\F$.
+\item All outgoing edges from a node have the same label.
+\item Outgoing edges from a node with a label that represents a variable have a label.
+\item Outgoing edges from a node with a label that represents multiplication have a label, if there is at least one labeled edge in both input path.
+\item All incoming edges to sink nodes have a label.
+\item No other edge has a label.
+\item Incoming edges to sink nodes that are labeled with a constant $c\in\F$ are labeled with the same field constant. Every other edge label is taken from the set $\{W,I\}$ and indexed by the order on the edge set. 
+\end{itemize} 
+To understand this definition, let $C(\F)$ be an algebraic circuit. Source nodes are the inputs to the circuit and either represent variables or constants. In a similar way sink nodes represent termination points of the circuit and are either output variables or constants. Constant sink nodes enforce computational outputs to take on certain values.  
 
-It should be noted that subtraction gates can be simulated in a two step process by first multiplying the subtrahend with $-1$ and then use an addition gate. Also division gates can be simulated for example by using Fermat's little theorem, which states that the multiplicative inverse of a field element $x\in\F$ is given by the power $x^{p-2}$ and powers are nothing but repeated multiplication. However simulating division this way might be inefficient.
+Nodes that are neither source nor sink nodes are also called \textbf{aithmetic gates}. Arithmetic gates that are decorated with the "$+$"-label are called \textbf{addition-gates} and gates that are decorated with the "$\cdot$"-label are called \textbf{multiplication-gates}. Every arithmetic gate has exactly two inputs, represented by the two incoming edges.
 
-It should also be noted that our definition differs slighly from the way algebraic circuits are used in many other parts of mathematics. They are however useful in the context of zero-knowledge proofing systems, because the edge labels define witness and instances, while the restriction on the number of incoming edges simplifies the translation into R1CS. We will look at this more closely in XXX.
+Since the set of edges is ordered we can write it as $\{E_1,E_2,\ldots, E_n\}$ for some $n\in \N$ and we use those indices to index the edge labels, too. Edge labels are therefore either constants or symbols like $I_j$, $W_j$ or $S_j$, where $j$ is an index compatible with the edge order. Labels $I_j$ represent instance variables, labels $W_j$ witness variables. Labels on the outgoing edges of input variables constrain the associated variable to that edge. Every other edge defines a constraining equation as we will explain in more detail in XXX.
 
-It can be shown that every rational function over $\F$ can be transformed into an algebraic circuit, a process often called \textit{flattening}.
+\begin{notation}
+In synthezising algebraic circuits assigning instance $I_j$ or witness $W_j$ labels to appropriate edges is often the final step. It is therefore convinient to not distiguishe both types of edges in previous steps. To acknowledge for that we often simply write $S_j$ for an edge label, indicating that this is an unspecified statement label and can either represent an instance or a witness label. 
+\end{notation}
+It can be shown that every bounded computation can be transformed into an algebraic circuit. We call Tthe process that transforms a computation into a circuit \textbf{flattening}.
 \begin{example}[Generalized factorization snark] To give a simple example of an algebraic circuit, consider our $3$-factorization problem from example XXX again.  To express the problem in the algebraic circuit model, consider the following function 
 \[
 f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
@@ -996,7 +1005,13 @@ In this section we will therefore provide an introduction to atomic types like b
 \subsection{Atomic Types} 
 % https://zeroknowledge.fm/172-2/ reference for all the languages
 Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
-\subsubsection{The Basefield type} The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
+\subsubsection{The Basefield type} 
+TECHNO:
+
+It should be noted that subtraction gates can be simulated in a two step process by first multiplying the subtrahend with $-1$ and then use an addition gate. Also division gates can be simulated for example by using Fermat's little theorem, which states that the multiplicative inverse of a field element $x\in\F$ is given by the power $x^{p-2}$ and powers are nothing but repeated multiplication. However simulating division this way might be inefficient.
+
+
+The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
 
 As this type is the basis for everything else, no circuit or constraint is needed to represent this type. The properties of this type are inherited from $\F$, that is we a notion of \textit{addition}, \textit{subtraction}, \textit{multiplication} and \textit{division}. 
 
@@ -2340,6 +2355,8 @@ As we can see a R1CS for scalar multiplication utilizes many R1CS that we have i
 %\end{codebox}
 
 \subsubsection{A Simple Pen and Paper Compiler Example}
+% Set membership proof?
+
 
 \subsection{Outlook on Real World Implementations}
 many circuits can be found here:
