@@ -291,47 +291,53 @@ To be more precise let $S_1$ and $S_2$ be two R1CS over $\F$, then a new R1CS $S
 
 As a consequence, developers are able to construct complex R1CS from simple ones and this modularity provides the theoretical foundation for many R1CS compilers as we will see in XXX.
 
-\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems define equations, such that solutions to these equations are knowledge proofs for the existence of words in associated languages. From the perspective of a proofer it is therefore import to solve those equations efficiently. However R1CS
-are non-linear equations over finite fields, which often consists of millions of constraints and there are no general methods to solve those equations efficiently. It is therefore of practical importance to have some way to compute solutions.
+\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems are quadratic equations, such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a proofer it is therefore important to solve those equations efficiently. 
 
-To achieve this we introduce another class of decision functions called \textit{algebraic circuits}, that are closely related to R1CS but which are able to not just define constraining equations, but also to provide a mechanism that actually computes their solutions.
+However in contrast to systems of linear equation, no general methods are known that solve systems of quadratic equations efficiently. Rank-1 constraint systems are therefore impractical from a proofers perspective and auxilliary information is needed that helps to compute solutions efficiently.
 
-Transforming high level computer programs into algebraic circuits is a process often called \textit{flattening} and as we will see in XXX, those circuits can be transformed futher into associated rank-1 constraints systems. Programs that achieve those transformations are often called \textit{circuit-compilers} and once a circuit is derived it can be \textit{executed} to compute solutions to the associated R1CS. The following paragraphs makes those ideas concrete.
+Methods which compute R1CS solutions are sometimes called \textit{witness generator functions} and to provide a common example, we introduce another class of decision functions called \textit{algebraic circuits}. As we will see, every algebraic circuit defines an associated R1CS and moreover provides an efficient way to compute solutions for that R1CS.
 
-\paragraph{Algebraic circuit representation} Let $\F$ be some field.
-The general idea of an algebraic circuit is that every polynomial function over $\F$ can be represented as a directed acyclic (multi)graph. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the defining field operations \textit{addition} as well as \textit{multiplication} and graph edges represent the connections between the operations of the individual nodes.
+It can be shown that every space and time bounded computation is expressible as an algebraic circuit and transforming high level computer programs into those circuits is a process often called \textit{flattening}. 
 
-To undertand this in more detail let $\F$ be a field. Then a directed, acyclic multi-graph $C(\F)$ is called an \textbf{algebraic circuit} over $\F$, such that
+To understand this in more detail we will introduce our model for algebraic circuits and look at the concept of circuit execution and valid assignments. After that we will show how to derive rank-1 constraint systems from circuits and how circuits are useful to compute solutions to their R1CS efficiently.
+\paragraph{Algebraic circuit representation} To see what algebraic circuits are, let $\F$ be a field. An algebraic circuit is then a directed acyclic (multi)graph that computes a polynomial function over $\F$. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the defining field operations \textit{addition} as well as \textit{multiplication}. Graph edges represent the flow of the computation along the nodes.
+
+To be more precise, in this book a directed acyclic multi-graph $C(\F)$ is called an \textbf{algebraic circuit} over $\F$, if the following conditions hold:
 \begin{itemize}
 \item The set of edges has a total order.  
 \item Every source node has a label, that represents either a variable or a constant from the field $\F$.
 \item Every sink node has exactly one incoming edge and a label, that represents either a variable or a constant from the field $\F$.
-\item Every other node has exactly two incoming edges and a label from the set $\{+,*\}$ that represents either addition or multiplication in $\F$.
+\item Every node that is neither a source nor a sink has exactly two incoming edges and a label from the set $\{+,*\}$ that represents either addition or multiplication in $\F$.
 \item All outgoing edges from a node have the same label.
 \item Outgoing edges from a node with a label that represents a variable have a label.
 \item Outgoing edges from a node with a label that represents multiplication have a label, if there is at least one labeled edge in both input path.
 \item All incoming edges to sink nodes have a label.
 \item No other edge has a label.
-\item Incoming edges to sink nodes that are labeled with a constant $c\in\F$ are labeled with the same field constant. Every other edge label is taken from the set $\{W,I\}$ and indexed by the order on the edge set. 
+\item Incoming edges to sink nodes that are labeled with a constant $c\in\F$ are labeled with the same constant. Every other edge label is taken from the set $\{W,I\}$ and indexed compatible with the order of the edge set. 
 \end{itemize} 
-To understand this definition, let $C(\F)$ be an algebraic circuit. Source nodes are the inputs to the circuit and either represent variables or constants. In a similar way sink nodes represent termination points of the circuit and are either output variables or constants. Constant sink nodes enforce computational outputs to take on certain values.  
+It should be noted that the details in the definitions of algbraic circuits vary between different sources. We use this definition as it is conceptually straight forward and well suited for pen and paper computations.
 
-Nodes that are neither source nor sink nodes are also called \textbf{aithmetic gates}. Arithmetic gates that are decorated with the "$+$"-label are called \textbf{addition-gates} and gates that are decorated with the "$\cdot$"-label are called \textbf{multiplication-gates}. Every arithmetic gate has exactly two inputs, represented by the two incoming edges.
+To get a better intuition of our definition, let $C(\F)$ be an algebraic circuit. Source nodes are the inputs to the circuit and either represent variables or constants. In a similar way sink nodes represent termination points of the circuit and are either output variables or constants. Constant sink nodes enforce computational outputs to take on certain values.  
 
-Since the set of edges is ordered we can write it as $\{E_1,E_2,\ldots, E_n\}$ for some $n\in \N$ and we use those indices to index the edge labels, too. Edge labels are therefore either constants or symbols like $I_j$, $W_j$ or $S_j$, where $j$ is an index compatible with the edge order. Labels $I_j$ represent instance variables, labels $W_j$ witness variables. Labels on the outgoing edges of input variables constrain the associated variable to that edge. Every other edge defines a constraining equation as we will explain in more detail in XXX.
+Nodes that are neither source nodes nor sink nodes are called \textbf{aithmetic gates}. Arithmetic gates that are decorated with the "$+$"-label are called \textbf{addition-gates} and arithmetic gates that are decorated with the "$\cdot$"-label are called \textbf{multiplication-gates}. Every arithmetic gate has exactly two inputs, represented by the two incoming edges.
 
+Since the set of edges is ordered we can write it as $\{E_1,E_2,\ldots, E_n\}$ for some $n\in \N$ and we use those indices to index the edge labels, too. Edge labels are therefore either constants or symbols like $I_j$, $W_j$ or $S_j$, where $j$ is an index compatible with the edge order. Labels $I_j$ represent instance variables, labels $W_j$ witness variables. Labels on the outgoing edges of input variables constrain the associated variable to that edge. Every other edge defines a constraining equation in the associated R1CS. we will explain this in more detail in XXX.
 \begin{notation}
-In synthezising algebraic circuits assigning instance $I_j$ or witness $W_j$ labels to appropriate edges is often the final step. It is therefore convinient to not distiguishe both types of edges in previous steps. To acknowledge for that we often simply write $S_j$ for an edge label, indicating that this is an unspecified statement label and can either represent an instance or a witness label. 
+In synthezising algebraic circuits assigning instance $I_j$ or witness $W_j$ labels to appropriate edges is often the final step. It is therefore convinient to not distiguishe both types of edges in previous steps. To acknowledge for that we often simply write $S_j$ for an edge label, indicating that the private/public property of the label is unspecified and might either represent an instance or a witness label. 
 \end{notation}
-It can be shown that every bounded computation can be transformed into an algebraic circuit. We call Tthe process that transforms a computation into a circuit \textbf{flattening}.
 \begin{example}[Generalized factorization snark] To give a simple example of an algebraic circuit, consider our $3$-factorization problem from example XXX again.  To express the problem in the algebraic circuit model, consider the following function 
 \[
-f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
+f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto x_{1}\cdot x_{2}\cdot x_{3}
 \]
-The zero-knowledge $3$-factorization problem as described in XXX can then be described in the following way: Given instance $I_1\in \F_{13}$ a valid witness a preimage of $f_{3.fac}$ at the point $I_1$, i.e. a valid witness are three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$, such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
+Using this function, we can describe the zero-knowledge $3$-factorization problem from XXX, in the following way: Given instance $I_1\in \F_{13}$ a valid witness is a preimage of $f_{3.fac}$ at the point $I_1$, i.e. a valid witness consists of three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$, such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
 
-To flatten function $f_{3.fac}$, that is to find some circuit that describes the function, observe that $f_{3.fac}$ needs two multiplications to compute its output. We therefore need a circuit that contains two multiplication gates and nothing more. We get:
-
+To see how this function can be transformed into an algebraic circuit over $\F_{13}$, it is a common first step to introduce brackets into the function's definition and then write the operations as binary operators, in order to highlight how exactly every field operation acts on its two inputs. Due to the associativitly laws in a field, we have different choices. We choose
+\begin{align*}
+f_{3.fac}(x_1,x_2,x_3) & = x_1\cdot x_2 \cdot x_3  & \text{\# bracket choice} \\
+                       & = (x_1\cdot x_2 ) \cdot x_3  & \text{\# operator notation} \\
+                       & = MUL(MUL(x_1,x_2),x_3)
+\end{align*}
+Using this expression we can write an associated algebraic circuit by first constraining the variables to edge labels $W_1=x_1$, $W_2=x_2$ and $W_3=x_3$ as well as $I_1=f_{3.fac}(x_1,x_2,x_3)$, taking the distinction between private and public inputs into account. We then rewrite the operator representation of $f_{3.fac}$ into circuit nodes and get: 
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G1}{
@@ -339,13 +345,13 @@ To flatten function $f_{3.fac}$, that is to find some circuit that describes the
 	//center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n3 [xlabel="W_1  "];
-	n2 -> n3 [xlabel="W_2 "];
+	n1 -> n3 [xlabel="W_2  "];
+	n2 -> n3 [xlabel="  W_1"];
 	n3 -> n5 [label="W_4"];
 	n4 -> n5 [label=" W_3"];
 	n5 -> n6 [label=" I_1"];
-	n1 [shape=box, label="x_1"];
-	n2 [shape=box, label="x_2"];
+	n1 [shape=box, label="x_2"];
+	n2 [shape=box, label="x_1"];
 	n3 [label="*"];
 	n4 [shape=box, label="x_3"];
 	n5 [label="*"];
@@ -359,29 +365,35 @@ To flatten function $f_{3.fac}$, that is to find some circuit that describes the
 %  &  &  & f(x_1,x_2,x_3)
 %}
 %\]
-So our directed acyclic multi-graph, is is binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
+In this case the directed acyclic multi-graph, is a binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
 
-The order we used to label the edges is choosen to make the edge labeling consistent with our decision from example XXX. Its not an order that arises from common ordering algorithms like deapth-first or breath-first ordering. In addition we declear the function output as the instance and the inputs as well as every step in the computation as private inputs.
+The order we used to label the edges is choosen to make the edge labeling consistent with the choice of $W_4$ as defined in example XXX. This order can for example be optained by deapth-first right-to-left-first traversal algorithm.
 \end{example}
 \begin{example} To give a more realistic example of an algebraic circuit look at the defining equation XXX of the tiny-jubjub curve again. A pair of field elements 
 $(x,y)\in \F_{13}^2$ is a curve point, precisely if
 $$
 3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2
-$$  
-We can rewrite this equation by shifting all terms to the right and get
+$$ 
+To understand how one might transform this identity into an algebraic circuit, we first rewrite this equation by shifting all terms to the right. We get:
 \begin{align*}
 3\cdot x^2 + y^2 & = 1+ 8\cdot x^2\cdot y^2 & \Leftrightarrow\\
 0 & = 1+ 8\cdot x^2\cdot y^2 - 3\cdot x^2 - y^2 & \Leftrightarrow\\
-0 & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2
+0 & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12\cdot y^2
 \end{align*}
-And we can use this expression to define a function, such that all points of tiny-jubjub are characterized its the preimages of $0$:
+Then we use this expression to define a function, such that all points of the tiny-jubjub curve are characterized as the functions preimages at $0$.
 $$
 f_{tiny-jj}: \F_{13}\times \F_{13}\to \F_{13}\; ; \;
-(x,y)\mapsto 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2
+(x,y)\mapsto 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12\cdot y^2
 $$
-then of course every pair $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve.
+Every pair of points $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve and there are no other curve points. The preimage $f_{tiny-jj}^{-1}(0)$ is therefore a complete description of the tiny-jubjub curve.
 
-We can flatten this function into an algebraic circuit over $\F_{13}$. To do so we have to decide which edges to declare instance and which to declare witness. In principle we could choose any combination, but for the sake of zero-knowledge proofs as we will discuss later, we only declare the output and the pair $(x,y)$ to be the instance. Everything else should be part of the witness. A proper circuit then might be:
+We can transform this function into an algebraic circuit over $\F_{13}$. We first introduce brackets into potentially ambigious expressions and then rewrite the function in terms of binary operators. We get
+\begin{align*}
+f_{tiny-jj}(x,y) & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2  & \Leftrightarrow\\
+ & = ((8\cdot ((x\cdot x)\cdot (y\cdot y))) + (1+ 10\cdot (x\cdot x))) + (12\cdot(y\cdot y))  & \Leftrightarrow\\
+  & = \scriptstyle ADD(ADD(MUL(8,MUL(MUL(x,x),MUL(y,y))), ADD(1,MUL(10,MUL(x,x)))),MUL(12,MUL(y,y)))
+\end{align*}
+Since we haven't decided which part of the computation should be public and which part should be private, we use the unspecified symbol $S$ to represent edge labels. Constraining all variables to edge labels $S_1=x$, $S_2=y$ and $S_6=f_{tiny-jj}$ we get the following circuit, representing the function $f_{tiny-jj}$, by inductively replaving binary operators with their associated arithmetic gates:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.4]{G2}{
@@ -389,25 +401,25 @@ We can flatten this function into an algebraic circuit over $\F_{13}$. To do so 
 	//center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+	n1 -> n4 [xlabel="S_1" /*, color=lightgray */];
         n1 -> n4 /*[ color=lightgray ]*/
-	n2 -> n5 [label="I_2" /*, color=lightgray */];
+	n2 -> n5 [xlabel="S_2" /*, color=lightgray */];
 	n2 -> n5 /*[ color=lightgray ]*/ ;
 	n3 -> n8 /*[ color=lightgray ]*/ ;
-	n4 -> n8 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
-	n4 -> n10 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
-	n5 -> n10 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
-	n5 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n4 -> n8 [taillabel="S_3", labeldistance="2" /*, color=lightgray */];
+	n4 -> n10 [taillabel="S_3", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [xlabel="S_4" /*, color=lightgray */];
+	n5 -> n13 [xlabel="S_4" /*, color=lightgray */];
 	n6 -> n13 /*[ color=lightgray ]*/ ;
 	n7 -> n11 /*[ color=lightgray ]*/ ;
 	n8 -> n11 /*[ color=lightgray ]*/ ;
 	n9 -> n12 /*[ color=lightgray ]*/ ;
-	n10 -> n12 [taillabel="W_3", labeldistance="4" /*, color=lightgray */];
+	n10 -> n12 [taillabel="S_5", labeldistance="4" /*, color=lightgray */];
 	n11 -> n14 /*[ color=lightgray ]*/ ;
 	n12 -> n14 /*[ color=lightgray ]*/ ;	
 	n13 -> n15 /*[ color=lightgray ]*/ ;
 	n14 -> n15 /*[ color=lightgray ]*/ ;
-	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n15 -> n16 [label="  S_6", labeldistance="2" /*, color=lightgray */];
 	n1 [shape=box, label="x" /*, color=lightgray */];
 	n2 [shape=box, label="y" /*, color=lightgray */];
 	n3 [shape=box, label="10" /*, color=lightgray */];
@@ -426,66 +438,34 @@ We can flatten this function into an algebraic circuit over $\F_{13}$. To do so 
 	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
 }
 \end{center}
-\begin{comment}
-% unused but to much work to delete it right now
-begingroup
-    \fontsize{8pt}{10pt}\selectfont
+This circuit is not a graph, but a multigraph, since there are more then one edge between some of the nodes. 
 
-\[
-\xymatrix{
- & &  & &
-x\ar^{I_1}@/^/[d]\ar_{I_1}@/_/[d]  &  & & 
-y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
- & 10 \ar[dr]& & &
-\cdot \ar^{W_1}[drr] \ar_{W_1}[dll]&  & &
-\cdot \ar_{W_2}[dl] \ar^{W_2}[ddr] &  &
-12 \ar[ddl] \\
-1 \ar[dr] & &  
- \cdot \ar[dl] & & 
- 8 \ar[dr] & &
- \cdot \ar_{W_3}[dl] & & 
- \\
- & 
- + \ar[drr] & & & &
- \cdot \ar[dll] & & &
- \cdot \ar[ddlll]\\
- & & & 
- + \ar[drr]& & & 
- \\
- & & & & & 
- + \ar_{I_3}[d]\\
- & & & & & 
- f_{tiny-jj}(x,y)
-}
-\]
-\endgroup
-\end{comment} 
-Of course this is just one proper circuit from an infinite set of possible circuit. To see this oberseve that we can always add some constant and then later subtract the same constant again. It follows that circuit representations are not unique, not even up to ordering of the edges and nodes in the graph. An alernative circuit is given by:
+In the designing process of circuits from functions, it should be noted that circuit representations are not unique in general. In case of function $f_{tiny-jj}$, the circuit shape is dependent on our choice of bracketing in XXX. An alernative design is for example given by the following circuit, which occures when the bracketed expression $8\cdot ( (x\cdot x) \cdot (y\cdot y) )$ is replaced by the expression $(x\cdot x) \cdot ( 8 \cdot (y\cdot y) )$. 
 \begin{center}
 \digraph[scale=0.4]{G2A}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+	n1 -> n4 [label="S_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
         n1 -> n4 /*[ color=lightgray ]*/
-	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 [label="S_2" /*, color=lightgray */];
 	n2 -> n6 /*[ color=lightgray ]*/ ;
 	n3 -> n9 /*[ color=lightgray ]*/ ;
-	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
-	n4 -> n12 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n4 -> n9 [taillabel="S_3", labeldistance="2" /*, color=lightgray */];
+	n4 -> n12 [taillabel="S_3", labeldistance="4" /*, color=lightgray */];
 	n5 -> n10 /*[ color=lightgray ]*/ ;
-	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
-	n6 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n10 [headlabel="S_4", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 [taillabel="S_4", labeldistance="4" /*, color=lightgray */];
 	n7 -> n13 /*[ color=lightgray ]*/ ;
 	n8 -> n11 /*[ color=lightgray ]*/ ;
 	n9 -> n11 /*[ color=lightgray ]*/ ;
 	n10 -> n12 /*[ color=lightgray ]*/ ; 
 	n11 -> n14 /*[ color=lightgray ]*/ ;
-	n12 -> n14 [xlabel="W_3  "  /*, color=lightgray */];	
+	n12 -> n14 [xlabel="S_5  "  /*, color=lightgray */];	
 	n13 -> n15 /*[ color=lightgray ]*/ ;
 	n14 -> n15 /*[ color=lightgray ]*/ ;
-	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n15 -> n16 [label="  S_6", labeldistance="2" /*, color=lightgray */];
 	n1 [shape=box, label="x" /*, color=lightgray */];
 	n2 [shape=box, label="y" /*, color=lightgray */];
 	n3 [shape=box, label="10" /*, color=lightgray */];
@@ -504,21 +484,64 @@ Of course this is just one proper circuit from an infinite set of possible circu
 	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
 }
 \end{center}
-technobov
+Of course both circuits represent the same function, due to the associativity and commutativity laws that hold true in any field.
+
+With a circuit that represents the function $f_{tiny-jj}$, we can now proceed to derive a circuit that constrains arbitray pairs $(x,y)$ of field elements to be points on the tiny-jubjub curve. To do so, we have to constrain the output to be zero, that is we have to constrain $S_6=0$. To indicate this in the circuit we replace the output variable by the constant $0$ and constrain the related edge label accordingly. We get 
+\begin{center}
+\digraph[scale=0.4]{G2AJA}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="S_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="S_2" /*, color=lightgray */];
+	n2 -> n6 /*[ color=lightgray ]*/ ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="S_3", labeldistance="2" /*, color=lightgray */];
+	n4 -> n12 [taillabel="S_3", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="S_4", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 [taillabel="S_4", labeldistance="4" /*, color=lightgray */];
+	n7 -> n13 /*[ color=lightgray ]*/ ;
+	n8 -> n11 /*[ color=lightgray ]*/ ;
+	n9 -> n11 /*[ color=lightgray ]*/ ;
+	n10 -> n12 /*[ color=lightgray ]*/ ; 
+	n11 -> n14 /*[ color=lightgray ]*/ ;
+	n12 -> n14 [xlabel="S_5  "  /*, color=lightgray */];	
+	n13 -> n15 /*[ color=lightgray ]*/ ;
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  S_6=0", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*" /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];	
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="0" /*, color=lightgray */];		
+}
+\end{center}
 \end{example}
-Algebraic circuits are usually derived by compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important. We will see in XXX how such compilers might be costructed by deriving building blocks for major imperative primitives.
-\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes are decorated with variables and constants as well as addition and multiplication symbols. In particular every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tupel $(f_1,\ldots,f_m)$ $m$ from $\F^m$. The transformation is done by sending values associated to a node along the outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the label. This is repeatedly done for all edges until a sink node is reached.
+It can be shown that every space and time bounded computation can be transformed into an algebraic circuit. We call any process that transforms a bounded computation into a circuit \textbf{flattening}. 
+\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables, can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tupel $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gates label and the process is repeated along all edges until a sink node is reached. We call this computation \textbf{circuit execution}.
 
-Executing a circuit this way, it is possible to not only to compute the output values of the circuit but field elements for all edge labels of the circuit. The result is a tupel $(I_1,\ldots,I_n; W_1,\ldots,W_m)$ of field elements, that is called a \textbf{valid asignment} of the circuit. 
+Executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges and in particulr for all edge labels in the circuit. The result is a tupel $(S_1,S_2,\ldots, S_n)$ of field elements associated to all labeled edges, which we call a \textbf{valid asignment} to the circuit. In contrast any assignment $(S'_1,S'_2,\ldots, S'_n)$ of field elements to edge labels, that can not arise from circuit execution is called an \textbf{invalid assignment}.
 
-Valid asignments of circuit execution can be seen as a kind of record, that not just hold the output of a computation but intermediate steps as well. What distinguishes a \textit{valid} assigment to edge labels from any other assignment is the fact that it is the result of a circuit eecution. An Assignment is valid, if the field element arise from executing the circuit, and every other assignment is invalid. Valid assignments are therefore \textit{proofs for proper circuit execution}.
+Valid asignments can be interpreted as \textit{proofs for proper circuit execution} because they keep record of the computational result as well as intermediate computational steps. 
+\begin{example}[3-factorization] Consider the $3$-factorization problem from example XXX and its representation as an algebraic circuit from XXX. We know that the set of edge labels is given by $S:=\{I_{1};W_{1},W_{2},W_{3}, W_{4}\}$. 
 
-So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acyclic graphs, that express arbitrary, but bounded computation. Vertices with only outgoing edges (leafs, sources) represent inputs to the computation, vertices with only ingoing edges (roots, sinks) represent outputs from the computation and internal vertices represent field operations (Either addition or multiplication). It should be noted however that there are many circuits that can represent the same laguage.
-\begin{example}[3-factorization] Consider the $3$-factorization problem from example XXX and its representation as an algebraic circuit from XXX again. We know that the set of edge labels is given by $S:=\{I_{1},W_{1},W_{2},W_{3}, W_{4}\}$. To see how circuit execution looks in this example, lets consider the inputs $x_1=2$, $x_2=3$ as well as $x_3=4$. So we instantiated the variable labels $x_1$, $x_2$ and $x_3$ with actual values from the prime field $\F_{13}$. Executing the circuit then means to follow the edges and assign values to all edge labels. 
+To understand how this circuit is executed, consider the variables $x_1=2$, $x_2=3$ as well as $x_3=4$. Following all edges in the graph, we get the assignments $W_1=2$, $W_2=3$ and $W_3=4$. Then the assigments of $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
 
-We immediately get $W_1=2$, $W_2=3$ and $W_3=4$. Then the values $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
-
-Summarizing this computation a valid assignment to our circuit $C_{3.fac}(\F_{13})$ is therefore the set $S_{valid}:=\{2,3,4,6,10\}$, with an assigned circuit given by
+A valid assignment to the 3-factorization circuit $C_{3.fac}(\F_{13})$ is therefore given by the set $S_{valid}:=\{11;2,3,4,6\}$. We can picture this assignment in the circuit as follows:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G3}{
@@ -526,20 +549,20 @@ Summarizing this computation a valid assignment to our circuit $C_{3.fac}(\F_{13
 	//center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n3 [xlabel="W_1=2  "];
-	n2 -> n3 [xlabel="W_2=3 "];
+	n1 -> n3 [xlabel="W_2=3  "];
+	n2 -> n3 [xlabel="W_1=2 "];
 	n3 -> n5 [label="W_4=6"];
 	n4 -> n5 [label=" W_3=4"];
 	n5 -> n6 [label=" I_1=11"];
-	n1 [shape=box, label="x_1"];
-	n2 [shape=box, label="x_2"];
+	n1 [shape=box, label="x_2"];
+	n2 [shape=box, label="x_1"];
 	n3 [label="*"];
 	n4 [shape=box, label="x_3"];
 	n5 [label="*"];
 	n6 [shape=box, label="f_(3.fac_zk)"];
 }
 \end{center}
-To see how an invalid assignment looks like, consider the assignment $S_{err}:=\{2,3,4,7,8\}$. In this assignment the input values are the same as in the previous case. The associated circuit is:
+To see how an invalid assignment looks like, consider the assignment $S_{err}:=\{8;2,3,4,7\}$. In this assignment the input values are the same as in the previous case. The associated circuit is:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G4}{
@@ -547,24 +570,24 @@ To see how an invalid assignment looks like, consider the assignment $S_{err}:=\
 	//center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n3 [xlabel="W_1=2  "];
-	n2 -> n3 [xlabel="W_2=3 "];
+	n1 -> n3 [xlabel="W_2=3  "];
+	n2 -> n3 [xlabel="W_1=2 "];
 	n3 -> n5 [label="W_4=7"];
 	n4 -> n5 [label=" W_3=4"];
 	n5 -> n6 [label=" I_1=8"];
-	n1 [shape=box, label="x_1"];
-	n2 [shape=box, label="x_2"];
+	n1 [shape=box, label="x_2"];
+	n2 [shape=box, label="x_1"];
 	n3 [label="*"];
 	n4 [shape=box, label="x_3"];
 	n5 [label="*"];
 	n6 [shape=box, label="f_(3.fac_zk)"];
 }
 \end{center}
-So this assignment is invalid as the assignments of $I_1$ and $W_4$ can not be obtained by executing the circuit.
+This assignment is invalid as the assignments of $I_1$ and $W_4$ can not be obtained by executing the circuit.
 \end{example}
-\begin{example} To give a more realistic example of algebraic circuit execution and assignment, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example XXX again. We already know from the way this circuit is constructed that any valid assignment with $I_1=x$, $I_2=y$ and $I_3=0$ will ensure that the pair $(x,y)$ is a point on the tiny jubjub curve XXX in its Edwards representation. 
+\begin{example} To compute a more realistic algebraic circuit execution, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example XXX again. We already know from the way this circuit is constructed that any valid assignment with $S_1=x$, $S_2=y$ and $S_6=0$ will ensure that the pair $(x,y)$ is a point on the tiny jubjub curve XXX in its Edwards representation. 
 
-From example XXX we know that the pair $(11,6)$ is a point on the tiny-jubjub Edwards curve so we execute the circuit with $I_1=11$ and $I_2=6$. Executing the circuit we get:
+From example XXX we know that the pair $(11,6)$ is a proper point on the tiny-jubjub curve and we use this point as input to a circuit execution. We get:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.4]{G2C}{
@@ -572,25 +595,25 @@ From example XXX we know that the pair $(11,6)$ is a point on the tiny-jubjub Ed
 	//center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1=11" /* comment*/ labeldistance="4" /*, color=lightgray */];
+	n1 -> n4 [label="S_1=11" labeldistance="4" /*, color=lightgray */];
         n1 -> n4 /*[ color=lightgray ]*/
-	n2 -> n5 [label="I_2=6" /*, color=lightgray */];
+	n2 -> n5 [label="S_2=6" /*, color=lightgray */];
 	n2 -> n5 /*[ color=lightgray ]*/ ;
 	n3 -> n8 /*[ color=lightgray ]*/ ;
-	n4 -> n8 [taillabel="W_1=4  " /*, color=lightgray */];
-	n4 -> n10 [taillabel="W_1=4", labeldistance="4" /*, color=lightgray */];
-	n5 -> n10 [xlabel="W_2=10 " /*, color=lightgray */];
-	n5 -> n13 [headlabel="W_2=10", labeldistance="4" /*, color=lightgray */];
+	n4 -> n8 [taillabel="S_3=4  " /*, color=lightgray */];
+	n4 -> n10 [taillabel="S_3=4", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [xlabel="S_4=10 " /*, color=lightgray */];
+	n5 -> n13 [headlabel="S_4=10", labeldistance="4" /*, color=lightgray */];
 	n6 -> n13 /*[ color=lightgray ]*/ ;
 	n7 -> n11 /*[ color=lightgray ]*/ ;
 	n8 -> n11 [headlabel="[10*4=1]    "];
 	n9 -> n12 /*[ color=lightgray ]*/ ;
-	n10 -> n12 [taillabel="W_3=1  " /*, color=lightgray */];
+	n10 -> n12 [taillabel="S_5=1  " /*, color=lightgray */];
 	n11 -> n14 [headlabel="[1+1=2]    "];
 	n12 -> n14 [label="  [8*1=8]"];	
 	n13 -> n15 [headlabel="    [10*12=3]"];
 	n14 -> n15 [taillabel="   [2+8=10]"];
-	n15 -> n16 [label="  I_3=0", labeldistance="2" /*, color=lightgray */];
+	n15 -> n16 [label="  S_6=0", labeldistance="2" /*, color=lightgray */];
 	n1 [shape=box, label="x" /*, color=lightgray */];
 	n2 [shape=box, label="y" /*, color=lightgray */];
 	n3 [shape=box, label="10" /*, color=lightgray */];
@@ -606,173 +629,130 @@ From example XXX we know that the pair $(11,6)$ is a point on the tiny-jubjub Ed
 	n13 [label="*" /*, color=lightgray */];
 	n14 [label="+" /*, color=lightgray */];
 	n15 [label="+" /*, color=lightgray */];
-	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-
-\begin{comment}
-\begingroup
-    \fontsize{8pt}{10pt}\selectfont
-\[
-\xymatrix{
- & &  & &
-x\ar^{I_1=11}@/^/[d]\ar_{I_1=11}@/_/[d]  &  & & 
-y\ar^{I_2=6}@/^/[d]\ar_{I_3=6}@/_/[d]\\
- & 10 \ar[dr]& & &
-\cdot \ar^{W_1=4}[drr] \ar_{W_1=4}[dll]&  & &
-\cdot \ar_{W_2=10}[dl] \ar^{W_2=10}[ddr] &  &
-12 \ar[ddl] \\
-1 \ar[dr] & &  
- \cdot \ar^{[10\cdot 4 = 1]}[dl] & & 
- 8 \ar[dr] & &
- \cdot \ar_{W_3=1}[dl] & & 
- \\
- & 
- + \ar^{[1+1=2]}[drr] & & & &
- \cdot \ar^{[8\cdot 1 = 1]}[dll] & & &
- \cdot \ar^{[10\cdot 12=3]}[ddlll]\\
- & & & 
- + \ar^{[2+8=10]}[drr]& & & 
- \\
- & & & & & 
- + \ar_{I_3=0}[d]\\
- & & & & & 
- f_{tiny-jj}(x,y)
-}
-\]
-\endgroup
-\end{comment}
-Executing the circuit we indeed compute $I_3=0$ as expected, which proofs that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by 
+Executing the circuit we indeed compute $S_6=0$ as expected, which proofs that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by 
 $$
-S_{tiny-jj} = \{I_1, I_2, I_3; W_1, W_2, W_3\} = \{11, 6, 0; 4, 10, 1\}
+S_{tiny-jj} = \{S_1, S_2, S_3, S_4, S_5, S_6\} = \{11, 6, 4, 10, 1, 0\}
 $$
 \end{example}
-
-\paragraph{Circuit Satisfyability} To understand how algebraic circuits give rise to formal languages, oberserve that every given algebraic circuit $C_{\F}$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{Circuit Satisfyability} To understand how algebraic circuits give rise to formal languages, oberserve that every algebraic circuit $C(\F)$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
-R_{R1CS} : \F^* \times \F^* \to \{TRUE, FALSE\}\;;\;
+R_{C(\F)} : \F^* \times \F^* \to \{true, false\}\;;\;
 (I;W) \mapsto
 \begin{cases}
-TRUE & (I;W) \text{ is a valid assignment}\\
-FALSE & else
+true & (I;W) \text{is valid assignment to } C(\F)\\
+false & else
 \end{cases}
 \end{equation}
-We write $L_{Circuit-SAT}$ for the associated language and call it \textbf{algebraic circuit satisfyability}. The grammar of this language is exapressed by the structure of the circuit and words in this language are valid circuit assignments. 
+Every algebraic circuit therefore defines a formal language. The grammar of this language is encoded in the shape of the circuit, words are assigments to edge label that a derived from circuit execution and \textbf{statements} are knowledge claims "Given instance $I$, there is a witness $W$, such that $(I;W)$ is a valid assignment to the circuit". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verfied by executing the circuit to see if the assignment of the execution meets the assignment of the proof. 
 
-Now since every algebraic circuit gives rise to a formal language, a \textbf{statement} for a given circuit, is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ can be optained by executing the circuit". One way to proof such a claim is therefore to actually execute the circuit. A proof for proper execution of the computation. In the context of zero knowledge proofing systems, executing circuits is also often called \textbf{witness generation}, since in prectise the instance part is usually public, while its the task of a proofer to compute the witness part.
+In the context of zero knowledge proofing systems, executing circuits is also often called \textbf{witness generation}, since in apllications the instance part is usually public, while its the task of a proofer to compute the witness part.
+
+\begin{remark}[Circuit satisfyability] It should be noted that in our definition, every circuit defines its own language. However in more theoretical approaches another language usually called \textit{circuit satisfyability} is often considered, which is useful when it comes to more abstract problems like expressiviness, or computational complexity of the class of \textit{all} algebraic circuit over a given field. From our perspective the circuit saisfyability language is optained by union of all circuit languages that arie in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
+$$
+L_{CIRCUIT\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a circuit } C(\F) \text{ such that } (i;w) \text{ is valid assignment}\}
+$$
+\end{remark}
 \begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from example XXX again. We call the associated language $L_{3.fac\_circ}$.
 
-To give an intuition of how a naive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$" a proofer therefore has to provide proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Those values can be computed by circuit execution and we therefore know from example that $(2,3,4,6)$ is a proper proof.
+To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$" a proof therefore has to consists of proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Any proofer therefore has to find input values for $W_1$, $W_2$ and $W_3$ and then execute the circuit to compute $W_4$ under the assumption $I_1=11$. 
+
+Example XXX implies that $(2,3,4,6)$ is a proper constructive proof and in order to verify the proof a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
 \end{example}
-\paragraph{Circuit to R1CS compilers} As we have seen in XXX, R1CS provide a compact way to represent statements in terms of a system of quadratic equations over finite fields. As we will see in XXX they are particulary useful in the context of pairing based zero knowledge proofing systems. However R1CS provide no practical way for proofer to actually \textit{compute} a proof. They are just a system of \textit{checking} any given proof against a set of constraints.
+\paragraph{Associated Constraint Systems} As we have seen in XXX, rank-1 constraint systems defines a way to represent statements in terms of a system of quadratic equations over finite fields, suiteable for pairing based zero-knowledge proofing systems. However those equations provide no practical way for a proofer to actually compute a solution. On the other hand algebraic circuits can be executed in order to derive valid assignments efficiently. 
 
-On the other hand algebraic circuits have a notation of execution and executing any such circuit provides a way to compute valid assignments and proof for statements in associated languages. 
+In this paragraph we show how to transform any algebraic circuit into a rank-1 constraint systems, such that valid circuit assignments are in 1:1 correspondence with solutions to the associated R1CS. 
 
-The question therefore remains, if we can combine the both approaches to have a representation, suteable for pairing based zero knowledge proofing systems that can also be used to compute proofs efficiently.
-
-Fortunately it is straight forward to transform any algebraic circuit into a rank-1 constraint systems. To see how this is done, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with edge labeling $(I_1,\ldots,I_n;W_1,\ldots,W_m)$. The task is to compute a R1CS $S$ over $\F$ from $C(\F)$.  
-
-Every multiplication gate in $C(\F)$ that has a label on its outgoing edges, defines a new quadratic constraint in $S$. If $L_j\in\{I_j,W_j\}$ is the label of the outgoing edge, then the constraint is given by
+To see this, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with a set of edge labels $\{S_1,S_2,\ldots, S_n\}$. Then one of the following steps is executed for every edge label $S_j$ from that set:
+\begin{itemize}
+\item If the edge label $S_j$ is an outgoing edge of a multiplication gate, the R1CS gets a new quadratic constraint
 \begin{equation}
-(\text{left input})\cdot (\text{right input}) = L_j
+(\text{left input})\cdot (\text{right input}) = S_j
 \end{equation}  
-where $(\text{left input})$ respectively $(\text{right input})$ is the output from the execution of the subgraph that consists of the left respectively right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other gates.
-
-Every addition gate that has a label on its output, defines a new quadratic constraint in $S$. If $L_j\in\{I_j,W_j\}$ is the label of the outgoing edge, then the constraint is given by
+where $(\text{left input})$ respectively $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the left respectively right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
+\item If the edge label $S_j$ is an outgoing edge of an addition gate, the R1CS gets a new quadratic constraint
 \begin{equation}
-(\text{left input} + \text{right input})\cdot 1 = L_j
+(\text{left input} + \text{right input})\cdot 1 = S_j
 \end{equation}  
-where $(\text{left input})$ respctively $(\text{right input})$ is the computation of all previous constant inputs or labels that result in the left respectively right input to this addition gate.  
+where $(\text{left input})$ respectively $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the left respectively right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
+\item No other edge label adds a constraints to the system.
+\end{itemize}
+The result of this method is a rank-1 constraints system and in this sense every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \textbf{associated R1CS} of the circuit. It can be shown, that a tupel of field elements $(S_1,S_2,\ldots, S_n)$ is a valid assignment to a circuit, if and only if the same tuplel is a solution to the associated R1CS. Circuit executions therefore compute solutions to rank-1 constraints systems efficiently. 
 
-It can be shown, that a tupel $(I_1,\ldots, I_n;W_1,\ldots,W_m)$ is a solution to the synthesized R1CS if and only if the same tupel is a valid assignment to the associated circuit.
+To understand the contribution of algebraic gates to the number of constraints, note that
+by definition multiplication gates have labels on their outgoing edges, if and only if
+there is at least one labeled edge in both input path, or if the outgoing edge is an input to a sink node. This implies that multiplication with a constant is essentially free in the sense that it doesn't add a new constraint to the system, as long as that multiplication gate is not am input to an output node. 
 
-As addition gates only add constraints if their result is an output, addition is \textit{essentially for free} in R1CS.
-\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac}(\F_{13})$ again:
- 
-\[
-\xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
- & \cdot \ar^{W_4}[drr] &   & & x_3\ar_{W_3}[dl]\\
-  &  &  & \cdot\ar_{I_1}[d]\\
-  &  &  & f(x_1,x_2,x_3)
+Moreover addition gates have labels on their outgoing edges, if and only if they are inputs to sink nodes. This implies that addition is essentially free in the sense that it doesn't add a new constraint to the system, as long as that addition gate is not an input to an output node. 
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac}(\F_{13})$. Out task is to transform this circuit into an equivalent rank-1 constraint system.
+\begin{center}
+\digraph[scale=0.5]{G1}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_2  "];
+	n2 -> n3 [xlabel="  W_1"];
+	n3 -> n5 [label="W_4"];
+	n4 -> n5 [label=" W_3"];
+	n5 -> n6 [label=" I_1"];
+	n1 [shape=box, label="x_2"];
+	n2 [shape=box, label="x_1"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
 }
-\]
-Out task is to transform this circuit into an equivalent rank-1 constraint system. Since the circuit consists of two multiplication gates that have labels on their outgoing edges, the resulting R1CS will consist of two quadratic constraints. 
+\end{center}
+We start with an empty R1CS and in order to generate all constraints, we have to iterate over the set of edge labels $\{I_1;W_1,W_2,W_3,W_4\}$. 
 
-To find those constraints, we begin at the up-left gate. Since its outgoing edge is labeled as $W_4$ and all imcoming edges have labels themself we get the following constraint
+Starting with the edge label $I_1$, we see that it is an outgoing edge of a multiplication gate and since both input edges are labeled, we  have to add the following constraint to the system:
 \begin{align*}
-(\text{left input})\cdot (\text{right input})  &= L_j & \Leftrightarrow\\
-W_1\cdot W_2  &= W_4
-\end{align*}
-Then we consider the second multiplication gate. Since its outgoing edge is labeled as $I_1$ and all imcoming edges have labels themself we get the following constraint
-\begin{align*}
-(\text{left input})\cdot (\text{right input})  &= L_j & \Leftrightarrow\\
+(\text{left input})\cdot (\text{right input})  &= I_1 & \Leftrightarrow\\
 W_4\cdot W_3  &= I_1
 \end{align*}
-Since there are no more gates with labeled outgoing adges, we are done deriving the constraints. Combining all constraints together, we get the associated R1CS as
+Next we consider the edge label $W_1$ and since its not an outgoing edge of a multiplication or addition label, we don't add a constraint to the system. The same holds true for the labels $W_2$ and $W_3$. 
+
+For edge label $W_4$ , we see that it is an outgoing edge of a multiplication gate and since both input edges are labeled, we have to add the following constraint to the system:
 \begin{align*}
- W_1\cdot W_2 & = W_4\\
- W_4\cdot W_3 & = I_1
+(\text{left input})\cdot (\text{right input})  &= W_4 & \Leftrightarrow\\
+W_2\cdot W_1  &= W_4
+\end{align*} 
+Since there are no more labeled edges, all constraints are generated and we have to combine them to get the associated R1CS of $C_{3.fac}(\F_{13})$: 
+\begin{align*}
+ W_4\cdot W_3 & = I_1\\
+ W_2\cdot W_1 & = W_4
 \end{align*}
-which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same thing.
+This system is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways of expressing the same language.
 \end{example}
-\begin{example} To consider a more general transformation, lets consider the tiny-jubjub circuit from example XXX  again. A proper circuit is given by
-\begin{comment}
-\begingroup
-    \fontsize{8pt}{10pt}\selectfont
-\[
-\xymatrix{
- & &  & &
-x\ar^{I_1}@/^/[d]\ar_{I_1}@/_/[d]  &  & & 
-y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
- & 10 \ar[dr]& & &
-\cdot \ar^{W_1}[ddr] \ar_{W_1}[dll]&  
-8 \ar[dr]& &
-\cdot \ar_{W_2}[dl] \ar^{W_2}[ddr] &  &
-12 \ar[ddl] \\
-1 \ar[dr] & &  
- \cdot \ar[dl] & & & &
- \cdot \ar[dl] & & 
- \\
- & 
- + \ar[drr] & & & &
- \cdot \ar_{W_3}[dll] & & &
- \cdot \ar[ddlll]\\
- & & & 
- + \ar[drr]& & & 
- \\
- & & & & & 
- + \ar_{I_3}[d]\\
- & & & & & 
- f_{tiny-jj}(x,y)
-}
-\]
-\endgroup
-\end{comment}
+\begin{example} To consider a more general transformation, we consider the tiny-jubjub circuit from example XXX  again. A proper circuit is given by
 \begin{center}
 \digraph[scale=0.4]{G2D}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+	n1 -> n4 [label="S_1" labeldistance="4" /*, color=lightgray */];
         n1 -> n4 /*[ color=lightgray ]*/
-	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 [label="S_2" /*, color=lightgray */];
 	n2 -> n6 /*[ color=lightgray ]*/ ;
 	n3 -> n9 /*[ color=lightgray ]*/ ;
-	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
-	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n4 -> n9 [taillabel="S_3", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="S_3", labeldistance="4" /*, color=lightgray */];
 	n5 -> n10 /*[ color=lightgray ]*/ ;
-	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
-	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n10 [headlabel="S_4", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="S_4", labeldistance="4" /*, color=lightgray */];
 	n7 -> n11 /*[ color=lightgray ]*/ ;
 	n8 -> n12 /*[ color=lightgray ]*/ ;
 	n9 -> n12 /*[ color=lightgray ]*/ ;
 	n10 -> n13 /*[ color=lightgray ]*/ ; 
 	n11 -> n15 /*[ color=lightgray ]*/ ;
 	n12 -> n14 /*[ color=lightgray ]*/ ;	
-	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n13 -> n14 [xlabel="S_5  "  /*, color=lightgray */];
 	n14 -> n15 /*[ color=lightgray ]*/ ;
-	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n15 -> n16 [label="  S_6=0", labeldistance="2" /*, color=lightgray */];
 	n1 [shape=box, label="x" /*, color=lightgray */];
 	n2 [shape=box, label="y" /*, color=lightgray */];
 	n3 [shape=box, label="10" /*, color=lightgray */];
@@ -788,36 +768,39 @@ y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
 	n13 [label="*", style=filled /*, color=lightgray */];
 	n14 [label="+" /*, color=lightgray */];
 	n15 [label="+", style=filled /*, color=lightgray */];
-	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-To compute the number of constraints, observe that we have $3$ multiplication gates, that have labeles on their outgoing edges and $1$ addition gate that has a label on its outgoing edge. We therefore have to cmpute $4$ quadratic constraints.
-Looking at the multiplication gate
+To compute the number of constraints, observe that we have $3$ multiplication gates, that have labeles on their outgoing edges and $1$ addition gate that has a label on its outgoing edge. We therefore have to cmpute $4$ quadratic constraints. 
+
+In order to derive the associated R1CS, we have start with an empty R1CS and then iterate over the set $\{S_1,S_2,S_3,S_4,S_5,S_6=0\}$ of all edge label, in order to generate the constraints. 
+
+Considering edge label $S_1$, we see that the associated edges are not outgoing edges of any algebraic gate and we therefore have to add no new constraint to the system. The same holds true for edge label $S_2$. Looking at edge label $S_3$, we see that the associated edges are outgoing edges of a multiplication gate and that the associated subgraph is given by:
 \begin{center}
 \digraph[scale=0.4]{G2E}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+	n1 -> n4 [label="S_1" labeldistance="4" /*, color=lightgray */];
     n1 -> n4 /*[ color=lightgray ]*/
-	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [label="S_2", color=lightgray];
 	n2 -> n6 [ color=lightgray ] ;
 	n3 -> n9 [ color=lightgray ] ;
-	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
-	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n4 -> n9 [taillabel="S_3", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="S_3", labeldistance="4" /*, color=lightgray */];
 	n5 -> n10 [ color=lightgray ] ;
-	n6 -> n10 [headlabel="W_2", labeldistance="4", color=lightgray];
-	n6 -> n11 [taillabel="W_2", labeldistance="4", color=lightgray];
+	n6 -> n10 [headlabel="S_4", labeldistance="4", color=lightgray];
+	n6 -> n11 [taillabel="S_4", labeldistance="4", color=lightgray];
 	n7 -> n11 [ color=lightgray ] ;
 	n8 -> n12 [ color=lightgray ] ;
 	n9 -> n12 [ color=lightgray ] ;
 	n10 -> n13 [ color=lightgray ] ; 
 	n11 -> n15 [ color=lightgray ] ;
 	n12 -> n14 [ color=lightgray ] ;	
-	n13 -> n14 [xlabel="W_3  ", color=lightgray];
+	n13 -> n14 [xlabel="S_5  ", color=lightgray];
 	n14 -> n15 [ color=lightgray ] ;
-	n15 -> n16 [label="  I_3", labeldistance="2", color=lightgray];
+	n15 -> n16 [label="  S_6=0", labeldistance="2", color=lightgray];
 	n1 [shape=box, label="x" /*, color=lightgray */];
 	n2 [shape=box, label="y", color=lightgray];
 	n3 [shape=box, label="10", color=lightgray ];
@@ -833,39 +816,39 @@ Looking at the multiplication gate
 	n13 [label="*", style=filled, color=lightgray];
 	n14 [label="+", color=lightgray];
 	n15 [label="+", style=filled, color=lightgray];
-	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
+	n16 [shape=box, label="0", color=lightgray];		
 }
 \end{center}
-we see that both the left input to this gate as well as the right input to this gate are given by the label $I_1$. Since the label of the outgoing adges is $W_1$, the associated constraint is given by
+Both the left and the right input to this multiplication gate are labeled by $S_1$. We therefore have to add the following constraint to the system:
 $$
-I_1 \cdot I_1 = W_1
+S_1 \cdot S_1 = S_3
 $$
-We can look at the subgraph of the second multiplication gate in a similar way. We get 
+Looking at edge label $S_4$, we see that the associated edges are outgoing edges of a multiplication gate and that the associated subgraph is given by:
 \begin{center}
 \digraph[scale=0.4]{G2F}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" labeldistance="4", color=lightgray];
+	n1 -> n4 [label="S_1" labeldistance="4", color=lightgray];
         n1 -> n4 [ color=lightgray ]
-	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 [label="S_2" /*, color=lightgray */];
 	n2 -> n6 /* [ color=lightgray ] */ ;
 	n3 -> n9 [ color=lightgray ] ;
-	n4 -> n9 [taillabel="W_1", labeldistance="2", color=lightgray];
-	n4 -> n13 [taillabel="W_1", labeldistance="4", color=lightgray];
+	n4 -> n9 [taillabel="S_3", labeldistance="2", color=lightgray];
+	n4 -> n13 [taillabel="S_3", labeldistance="4", color=lightgray];
 	n5 -> n10 [ color=lightgray ] ;
-	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
-	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n10 [headlabel="S_4", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="S_4", labeldistance="4" /*, color=lightgray */];
 	n7 -> n11 [ color=lightgray ] ;
 	n8 -> n12 [ color=lightgray ] ;
 	n9 -> n12 [ color=lightgray ] ;
 	n10 -> n13 [ color=lightgray ] ; 
 	n11 -> n15 [ color=lightgray ] ;
 	n12 -> n14 [ color=lightgray ] ;	
-	n13 -> n14 [xlabel="W_3  ", color=lightgray];
+	n13 -> n14 [xlabel="S_5  ", color=lightgray];
 	n14 -> n15 [ color=lightgray ] ;
-	n15 -> n16 [label="  I_3", labeldistance="2", color=lightgray];
+	n15 -> n16 [label="  S_6=0", labeldistance="2", color=lightgray];
 	n1 [shape=box, label="x", color=lightgray];
 	n2 [shape=box, label="y", /* color=lightgray */];
 	n3 [shape=box, label="10", color=lightgray];
@@ -881,39 +864,39 @@ We can look at the subgraph of the second multiplication gate in a similar way. 
 	n13 [label="*", style=filled, color=lightgray];
 	n14 [label="+", color=lightgray];
 	n15 [label="+", style=filled, color=lightgray];
-	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
+	n16 [shape=box, label="0", color=lightgray];		
 }
 \end{center}
-We see that both the left input to this gate as well as the right input to this gate are given by the label $I_2$. Since the label of the outgoing adges is $W_2$, the associated constraint is given by
+Both the left and the right input to this multiplication gate are labeled by $S_2$ and we therefore have to add the following constraint to the system:
 $$
-I_2 \cdot I_2 = W_2
+S_2 \cdot S_2 = S_4
 $$
-The next multiplication gate that has a label on its outgoing edge is more interesting. To compute the associated constraint, we have to construct the associated subgraph first. The subgraph consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get  
+Edge label $S_5$ is more interesting. To see if it implies a constraint, we have to construct the associated subgraph first, which consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get  
 \begin{center}
 \digraph[scale=0.4]{G2G}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" labeldistance="4", color=lightgray];
+	n1 -> n4 [label="S_1" labeldistance="4", color=lightgray];
         n1 -> n4 [ color=lightgray ]
-	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [label="S_2", color=lightgray];
 	n2 -> n6 [ color=lightgray ] ;
 	n3 -> n9 [ color=lightgray ] ;
-	n4 -> n9 [taillabel="W_1", labeldistance="2", color=lightgray];
-	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n4 -> n9 [taillabel="S_3", labeldistance="2", color=lightgray];
+	n4 -> n13 [taillabel="S_3", labeldistance="4" /*, color=lightgray */];
 	n5 -> n10 /*[ color=lightgray ]*/ ;
-	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
-	n6 -> n11 [taillabel="W_2", labeldistance="4", color=lightgray ];
+	n6 -> n10 [headlabel="S_4", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="S_4", labeldistance="4", color=lightgray ];
 	n7 -> n11 [ color=lightgray ] ;
 	n8 -> n12 [ color=lightgray ] ;
 	n9 -> n12 [ color=lightgray ] ;
 	n10 -> n13 /*[ color=lightgray ]*/ ; 
 	n11 -> n15 [ color=lightgray ] ;
 	n12 -> n14 [ color=lightgray ] ;	
-	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n13 -> n14 [xlabel="S_5  "  /*, color=lightgray */];
 	n14 -> n15 [ color=lightgray ] ;
-	n15 -> n16 [label="  I_3", labeldistance="2" , color=lightgray ];
+	n15 -> n16 [label="  S_6=0", labeldistance="2" , color=lightgray ];
 	n1 [shape=box, label="x", color=lightgray];
 	n2 [shape=box, label="y", color=lightgray];
 	n3 [shape=box, label="10", color=lightgray];
@@ -929,39 +912,39 @@ The next multiplication gate that has a label on its outgoing edge is more inter
 	n13 [label="*", style=filled /*, color=lightgray */];
 	n14 [label="+", color=lightgray];
 	n15 [label="+", style=filled, color=lightgray];
-	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
+	n16 [shape=box, label="0", color=lightgray];		
 }
 \end{center}
-The left input to is given by the labeled edge $W_1$. However the right input is not a labeled edge. To comput the right factor in the quadratic constraint, we therefore have to compute the output of the subgraph associated to the right edge, which is $8\cdot W_2$. Combining this we get
+The right input to the associated multiplication gate is given by the labeled edge $S_3$. However the left input is not a labeled edge, but has a labeled edge in one of its path. This implies that we have to add a constraint to the system. To comput the left factor of that constraint, we have to compute the output of subgraph associated to the left edge, which is $8\cdot W_2$. This gives the constraint
 $$
-W_1\cdot 8\cdot W_2 = W_3
+(S_4 \cdot 8) \cdot S_3 = S_5
 $$ 
-To compute the $4$th constraint, observe the associated gate is an addition gate.  To compute the associated constraint, we have to construct the associated subgraph. The subgraph consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get
+The last edge label is the constant $S_6=0$. To see if it implies a constraint, we have to construct the associated subgraph, which consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get
 \begin{center}
 \digraph[scale=0.4]{G2H}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4", color=lightgray];
+	n1 -> n4 [label="S_1" /* comment*/ labeldistance="4", color=lightgray];
     n1 -> n4 [ color=lightgray ]
-	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [label="S_2", color=lightgray];
 	n2 -> n6 [ color=lightgray ] ;
 	n3 -> n9 /*[ color=lightgray ]*/ ;
-	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
-	n4 -> n13 [taillabel="W_1", labeldistance="4" , color=lightgray ];
+	n4 -> n9 [taillabel="S_3", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="S_3", labeldistance="4" , color=lightgray ];
 	n5 -> n10 [ color=lightgray ] ;
-	n6 -> n10 [headlabel="W_2", labeldistance="4" , color=lightgray ];
-	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n10 [headlabel="S_4", labeldistance="4" , color=lightgray ];
+	n6 -> n11 [taillabel="S_4", labeldistance="4" /*, color=lightgray */];
 	n7 -> n11 /*[ color=lightgray ]*/ ;
 	n8 -> n12 /*[ color=lightgray ]*/ ;
 	n9 -> n12 /*[ color=lightgray ]*/ ;
 	n10 -> n13 [ color=lightgray ] ; 
 	n11 -> n15 /*[ color=lightgray ]*/ ;
 	n12 -> n14 /*[ color=lightgray ]*/ ;	
-	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n13 -> n14 [xlabel="S_5  "  /*, color=lightgray */];
 	n14 -> n15 /*[ color=lightgray ]*/ ;
-	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n15 -> n16 [label="  S_6=0", labeldistance="2" /*, color=lightgray */];
 	n1 [shape=box, label="x", color=lightgray];
 	n2 [shape=box, label="y", color=lightgray];
 	n3 [shape=box, label="10" /*, color=lightgray */];
@@ -977,21 +960,21 @@ To compute the $4$th constraint, observe the associated gate is an addition gate
 	n13 [label="*", style=filled /*, color=lightgray */];
 	n14 [label="+" /*, color=lightgray */];
 	n15 [label="+", style=filled /*, color=lightgray */];
-	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in subcircuit. We get
+Both the left and the right input are not labeled, but have a labeled edges in their path. This implies that we have to add a constraint to the system. Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in subcircuit. We get
 $$
-(1 + 10\cdot W_1 + W_3 + W_2\cdot 12)\cdot 1 = I_3
+(12\cdot S_4 + S_5 + 10\cdot S_3 + 1)\cdot 1 = 0
 $$
-Since there are no more gates with labeled outgoing adges, we are done deriving the constraints. Combining all constraints together, we get the associated R1CS as
+Since there are no more labeled outgoing edges, we are done deriving the constraints. Combining all constraints together, we get the following R1CS:
 \begin{align*}
- I_1 \cdot I_1 &= W_1\\
- I_2 \cdot I_2 &= W_2\\
- 8\cdot W_1\cdot W_2 &= W_3\\
- (1 + 10\cdot W_1 + W_3 + 12\cdot W_2)\cdot 1 &= I_3
+ S_1 \cdot S_1 &= S_3\\
+ S_2 \cdot S_2 &= S_4\\
+ (S_4\cdot 8)\cdot S_3 &= S_5\\
+ (12\cdot S_4 + S_5 + 10\cdot S_3 + 1)\cdot 1 &= 0
 \end{align*}
-which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same thing.
+which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same language.
 \end{example}
 \section{Statement Compilers} It is possible to verify the the correct execution of arbitrary bounded computation in terms of rank-$1$ contraints systems and it is possible to encode such computations in terms of algebraic circuits. However writing actual computer programs as circuits and the associated verification in terms of rank-1 constraint systems is as least as troublesome as writing any other low level language like assembler code. 
 
