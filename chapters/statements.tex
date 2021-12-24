@@ -17,17 +17,19 @@ Roughly speaking a formal language (or just language for short) is nothing but a
 
 To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite tupels $(x_1,\ldots,x_n)$ of elements $x_j$ from $\Sigma$ including the empty tupel $(\;)\in \Sigma^*$. Then a \textbf{language} $L$ is in its most general definition nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \textbf{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \textbf{words}. The rules that specify which tupels from $\Sigma^*$ belong to the language and which don't, are called the \textbf{grammar} of the language. 
 
+If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \textbf{equivalent}, if there is a 1:1 correspondence between the words in $L_1$ and the words in $L_2$.
+
 \paragraph{Decision Functions} Our previous definition of formal languages is very general and many subclasses of languages like \textit{regular languages} or \textit{context-free languages} are known in the literature. However in the context of snark development languages are commonly defined as \textit{decision problems} where a so called \textbf{deciding relation} $R\subset \Sigma^*$ decides whether a given tupel $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
 
 Unfortunately in some literature on proof systems $x\in R$ is often written as $R(x)$, which is  misleading since in general $R$ is not a function but a relation in $\Sigma^*$. For the sake of this book we therefore adopt a different point of view and work with what we might call a \textbf{decision function} instead:
 \begin{equation}
 R: \Sigma^* \to \{true, false\}
 \end{equation}
-Decision functions therefore decide if a tupel $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all tupels that satisfies the grammar, i.e as the set:
+Decision functions therefore decide if a tupel $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all tupels that are decided by $R$, i.e as the set:
 \begin{equation}
 L_R := \{x\in \Sigma^*\;|\; R(x)=true\}
 \end{equation}
-In the context of formal languages and decision problems a \textbf{statement} $S$ is a claim, that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \textbf{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and such a proof is \textbf{verified} by checking $R(P)=true$. In this case $P$ is called an \textbf{instance} of the statement $S$.
+In the context of formal languages and decision problems a \textbf{statement} $S$ is the claim, that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \textbf{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and such a proof is \textbf{verified} by checking $R(P)=true$. In this case $P$ is called an \textbf{instance} of the statement $S$.
 
 Also the term \textit{language} might suggest a deeper relation to the well known \textit{natural languages} like English, both concepts a different in many ways. The following examples will provide some intuition about formal languages, highlighting the concepts of statements, proofs and instances:
 \begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters of arbitrary length. 
@@ -56,8 +58,18 @@ $$
 $$
 is an example of such a proof as it is excepted by the Malbolge compiler and is compiled to an executable binary that displays "Hello, World." (See XXX). In this example the Malbolge compiler therefore serves as the verification process.
 \end{example}
-\begin{example}[3-Factorization]
-As one of our main runing examples in this book, we want to develop a snark that proofs knowledge of three factors of some element from the finite field $\F_{13}$. There is nothing particulary useful about this example from an application point of view, however in a sense it is the most simple example that gives rise to a non trivial snark in some of the most common zero knowledge proofing systems. 
+\begin{example}[The Empty Language] To see that not every language has a word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetics as derived in XXX together with the following decision function 
+$$
+R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
+(x_1,\ldots,x_n) \mapsto
+\begin{cases}
+true & n=4 \text{ and } x_1\cdot x_1 = 2\\
+true & else
+\end{cases}
+$$
+We write $L_\emptyset$ for the associated language. As we can see from the multiplication table XXX of $\Z_6$, the ring $\Z_6$ does not contain any element $x$, such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proofing the statement "There exist a word in $L_\emptyset$" constructively by providing an instance is therefore impossible. The verification will never check any tuple.
+\end{example}
+\begin{example}[3-Factorization] We will use the following simple example repeadly throughout this book. The task is to develop a snark that proofs knowledge of three factors of an element from the finite field $\F_{13}$. There is nothing particulary useful about this example from an application point of view, however in a sense it is the most simple example that gives rise to a non trivial snark in some of the most common zero knowledge proofing systems. 
 
 Formalizing the high level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those tupels of field elements from $\F_{13}$, that contain exactly $4$ letters $w_1,w_2,w_3,w_4$ which satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.   
 
@@ -72,20 +84,30 @@ true & n=4 \text{ and } x_1\cdot x_2 \cdot x_3 = x_4\\
 false & else
 \end{cases}
 $$
-Having defined the language $L_{3.fac}$ it then makes sense to claim the statement "There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement "There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$" such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds. 
+Having defined the language $L_{3.fac}$ it then makes sense to claim the statement "There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement "There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$ such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds. "
 
 Proofing the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement and the computation $R_{3.fac}(2,12,4,5)=true$ is a verification  of that proof. In contrast the tuple $(2, 12, 4, 7)$ is not a proof of the statement, since the check $R_{3.fac}(2,12,4,7)=false$ does not verify the proof.
-\begin{example}[The Empty Language] To see that not every language has a word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetics as derived in XXX together with the following decision function 
+\end{example}
+\begin{example}[Tiny JubJub Membership] In our main example, we derive a snark that proofs a pair $(x,y)$ of field elements from $\F_{13}$ to be a point on the tiny jubjub curve in its Edwards form XXX.
+
+In a first step we define a language, such that points on the tiny jubjub curve are in 1:1 correspondence with words in that language.
+
+Since the tiny jubjub curve is an elliptic curve over the field $\F_{13}$, we choose the alphabet $\Sigma = \F_{13}$. In this case the set $\F_{13}^*$ consists of all finite strings of field elements from $\F_{13}$. To define the grammar, recall from XXX that a point on the tiny jubjub curve is a pair $(x,y)$ of field elements, such that $3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2$. We can use this equation to derive the following decision function:
 $$
-R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
+R_{tiny.jj} : \F_{13}^* \to \{true, false\}\;;\;
 (x_1,\ldots,x_n) \mapsto
 \begin{cases}
-true & n=4 \text{ and } x_1\cdot x_1 = 2\\
-true & else
+true & n=2 \text{ and } 3\cdot x_1^2 + x_2^2 = 1+ 8\cdot x_1^2\cdot x_2^2\\
+false & else
 \end{cases}
 $$
-We write $L_\emptyset$ for the associated language. As we can see from the multiplication table XXX of $\Z_6$, the ring $\Z_6$ does not contain any element $x$, such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proofing the statement "There exist a word in $L_\emptyset$" constructively by providing an instance is therefore impossible. The verification will never check any tuple.
-\end{example}
+The associated language $L_{tiny.jj}$ is then given as the set of all strings from $\F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj}$. We get
+$$
+L_{tiny.jj} = \{(x_1,\ldots,x_n)\in \F_{13}^*\;|\; R_{tiny.jj(x_1,\ldots,x_n)=true}\}
+$$
+We can claim the statement "There is a word in $L_{tiny.jj}$" and because $L_{tiny.jj}$ is defined by $R_{tiny.jj}$, this statement is equivalent to the claim "The tiny jubjub curve in its Edwards form has curve a point." 
+
+A constructive proof for this statement is a pair $(x,y)$ of field elements that satisfies the Edwards equation. Example XXX therfore implies that the tuple $(11,6)$ is a constructive proof and the computation $R_{tiny.jj}(11,6)=true$ is a proof verification. In contrast the tuple $(1,1)$ is not a proof of the statement, since the check $R_{tiny.jj}(1,1)=false$ does not verify the proof.
 \end{example}
 \begin{exercise} Consider exercise XXX again. Define a decision function, such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: "There exist a word in $L_{Exercise_XXX}$ and verify the proof.  
 \end{exercise}
@@ -99,8 +121,6 @@ false & else
 \end{cases}
 \end{equation*}
 Compute all words in the associated language $L_{example\_XXX}$, provide a constructive proof for the statement "There exist a word in $L_{example\_XXX}$" and verify the proof.
-\end{exercise}
-\begin{exercise}[Tiny JubJub] Consider the tiny-jubjub curve in its Edwards form from example XXX. Define an alphabet $\Sigma$ and a decision function $R_{tiny.jubjub}$ with associated language $L_{tiny.jubjub}$, such that a string $x\in \Sigma^*$ is a word in $L_{tiny.jubjub}$ if and only if $x$ is point on the tiny-jubjub curve. Then provide a constructive proof for the statement "The language $L_{tiny.jubjub}$ contains a word" and verify that proof. In addition provide a constructive proof that is unverifyable.
 \end{exercise}
 \paragraph{Instance and Witness}
 % https://www.claymath.org/sites/default/files/pvsnp.pdf
@@ -119,25 +139,6 @@ L_R := \{(i\,;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i\,;w)=true\}
 In this refined context a \textbf{statement} $S$ is a claim that given an instance $i\in\Sigma_I^*$ there is a witness $w\in \Sigma_W^*$, such that language $L$ contains a word $(i\,;w)$. A constructive \textbf{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \textbf{verified} by checking $R(P)=true$. 
 
 It is worth to understand the difference between statements as defined in XXX and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen knowledge-proofs, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX sec 1.4]
-\begin{example}[3-factorization] To give an intuition about the implication of refined languages, consider $L_{3.fac}$ from example XXX again. As we have seen, a constrctive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the product in modular $13$ aithmetics of the first three elements is equal to the $4$'th element. 
-
-Splitting words from $L_{3.fac}$ into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example we could reformulate the membership statement of $L_{3.fac}$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. A statement for this reformulation is then expressed by the claim: "Given a publically known field element $x_4$, there are three private factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any tuple $(x_1,x_2,x_3)$, such that $x_1\cdot x_2\cdot x_3= x_4$. 
-
-At this point it is important to note that, while constructive proofs in the refinement don't look much different from constructive proofs in the original language, we will see in XXX that there are proofing systems, able to proof the statement (at least with high probability) without revealing anything about the factors $x_1$, $x_2$, or $x_3$. The importance of the refinement therefore only shows up, once more elaborate proofing methods then naive constructive proofs are provided.
-
-We can formalize this new language, which we might call $L_{3.fac\_zk}$ by defining the following decision function: 
-\begin{multline*}
-R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{true, false\}\;;\;\\
-((i_1,\ldots,i_n);(w_1,\ldots, w_m)) \mapsto
-\begin{cases}
-true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
-false & else
-\end{cases}
-\end{multline*}
-The associated language $L_{3.fac\_zk}$ is defined by all tupels from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
-
-Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask, why we decided the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose an other combination? This was an arbitrary choice in the example. Every other combination of private and public factors would be equally valid. For example it would be possible to declaring all variables as private or to declare all variables as public. Actual choices are determined by the application only.
-\end{example}
 \begin{example}[SHA256 -- Knowlege of Preimage] One of the most common examples in the context of zero-knowledge proofing systems is the knowledge-of-a-preimage proof for some cryptographic hash function like $SHA256$, where a publically known $SHA256$ digest value is given and the task is to proof knowledge of a preimage for that digest under the $SHA256$ function, without revealing that preimage. 
 
 To understand this problem in detail, we have to introduce a language able to describe the knowledge-of-preimage problem in such a way that the claim "Given digest $i$, there is a preimage $w$, such that $SHA256(w)=i$" becomes a statement in that language. Since $SHA256$ is a function
@@ -158,6 +159,51 @@ false & else
 We write $L_{SHA256}$ for the associated language and note that it consists of words, which are tuples $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
 
 Given some instance $i\in \{0,1\}^{256}$ a statements in $L_{SHA256}$ is the claim "Given digest $i$, there is a preimage $w$, such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by checking $SHA256(w)=i$. 
+\end{example}
+\begin{example}[3-factorization] To give an intuition about the implication of refined languages, consider $L_{3.fac}$ from example XXX again. As we have seen, a constrctive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the product in modular $13$ aithmetics of the first three elements is equal to the $4$'th element. 
+
+Splitting words from $L_{3.fac}$ into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example we could reformulate the membership statement of $L_{3.fac}$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. A statement for this reformulation is then expressed by the claim: "Given a publically known field element $x_4$, there are three private factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any tuple $(x_1,x_2,x_3)$, such that $x_1\cdot x_2\cdot x_3= x_4$. 
+
+At this point it is important to note that, while constructive proofs in the refinement don't look much different from constructive proofs in the original language, we will see in XXX that there are proofing systems, able to proof the statement (at least with high probability) without revealing anything about the factors $x_1$, $x_2$, or $x_3$. The importance of the refinement therefore only shows up, once more elaborate proofing methods then naive constructive proofs are provided.
+
+We can formalize this new language, which we might call $L_{3.fac\_zk}$ by defining the following decision function: 
+\begin{multline*}
+R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{true, false\}\;;\;\\
+((i_1,\ldots,i_n);(w_1,\ldots, w_m)) \mapsto
+\begin{cases}
+true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
+false & else
+\end{cases}
+\end{multline*}
+The associated language $L_{3.fac\_zk}$ is defined by all tupels from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
+
+Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask, why we decided the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose an other combination? This was an arbitrary choice in the example. Every other combination of private and public factors would be equally valid. For example it would be possible to declaring all variables as private or to declare all variables as public. Actual choices are determined by the application only.
+\end{example}
+\begin{example}[The Tiny JubJub Curve] Consider the language $L_{tiny.jj}$ from example XXX. As we have seen, a constrctive proof in $L_{tiny.jj}$ is given by a pair $(x_1,x_2)$ of field elements from $\F_{13}$, such that the pair is a point of the tiny jubjub curve in its Edwards representation.
+
+We look at a reasonable splitting of words from $L_{tiny.jj}$ into private and public parts. The two obvious choices, are to either choose both coordinates $x_1$ as $x_2$ as public inputs, or to choose both coordinates $x_1$ as $x_2$ as prive inputs. 
+
+In case both coordinate are public, we define the grammar of the associated language by introducing the following decision function:
+\begin{multline*}
+R_{tiny.jj.1} : \F_{13}^*\times \F_{13}^* \to \{true, false\}\;;\;\\
+(I_1,\ldots,I_n;W_1,\ldots,W_m) \mapsto
+\begin{cases}
+true & n=2, m=0 \text{ and } 3\cdot I_1^2 + I_2^2 = 1+ 8\cdot I_1^2\cdot I_2^2\\
+false & else
+\end{cases}
+\end{multline*}
+The language $L_{tiny.jj.1}$ is defined as the set of all strings from $\F_{13}^*\times \F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj.1}$. 
+
+In case both coordinates are private, we define the grammar of the associated refined language by introducing the following decision function:
+\begin{multline*}
+R_{tiny.jj\_zk} : \F_{13}^*\times \F_{13}^* \to \{true, false\}\;;\;\\
+(I_1,\ldots,I_n;W_1,\ldots,W_m) \mapsto
+\begin{cases}
+true & n=0, m=m \text{ and } 3\cdot W_1^2 + W_2^2 = 1+ 8\cdot W_1^2\cdot W_2^2\\
+false & else
+\end{cases}
+\end{multline*}
+The language $L_{tiny.jj\_zk}$ is defined as the set of all strings from $\F_{13}^*\times \F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj\_zk}$. 
 \end{example}
 \begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example XXX as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
 \begin{multline*}
@@ -259,6 +305,67 @@ With this choice, the rank-1 constraint system of our $3$-factorization problem 
 \left(c^2_0 + c_1^2 I_2 + c_2^2 W_2 + c_3^2 W_2 + c_4^2 W_3 + c_5^2 W_4\right)
 \end{align*}
 \end{example}
+\begin{example}[The Tiny Jubjub curve] Consider the languages $L_{tiny.jj.1}$ from example XXX, which consist of words $(I_1,I_2)$ over the alphabet $\F_{13}$, such that $3\cdot I_1^2 + I_2^2 = 1 + 8\cdot I_1^2\cdot I_2^2$. 
+
+We derive a rank-1 constraint system, such that its associated language is equivalent to $L_{tiny.jj.1}$ and to achieve this, we first rewrite the defining equation:
+\begin{align*}
+3\cdot I_1^2 + I_2^2  & = 1 + 8\cdot I_1^2\cdot I_2^2 & \Leftrightarrow \\
+ 0 & = 1 + 8\cdot I_1^2\cdot I_2^2 - 3\cdot I_1^2 - I_2^2  & \Leftrightarrow \\
+ 0 & = 1 + 8\cdot I_1^2\cdot I_2^2 + 10\cdot I_1^2 +12\cdot I_2^2
+\end{align*}
+Since R1CS are systems of quadratic equations, we have to reformulate this expression into a system of quadratic equations. To do so, we have to introduce new variables that constraint intermediate steps in the computation and we have to decide if those variables should be public or private. We decide to declare all new variables as private and get the following constraints
+\begin{align*}
+I_1 \cdot I_1 & = W_1 & \text{constraint } 1\\
+I_2 \cdot I_2 & = W_2 & \text{constraint } 2\\
+(8 \cdot W_1) \cdot W_2 & = W_3 & \text{constraint } 3\\
+(12\cdot W_2 + W_3 + 10\cdot W_1 + 1)\cdot 1 & = 0 & \text{constraint } 4
+\end{align*}
+To see that these four quadratic equations qualify as a rank-1 constraint system acording to definition XXX, choose the parameter $n=2$, $m=3$ and $k=4$ as well as
+$$
+\begin{array}{llllll}
+a_0^1 = 0 & a_1^1= 1 & a_2^1= 0 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
+a_0^2 = 0 & a_1^2= 0 & a_2^2= 1 & a_3^2 = 0 & a_4^2= 0  & a_5^2= 0 \\ 
+a_0^3 = 0 & a_1^3= 0 & a_2^3= 0 & a_3^3 = 8 & a_4^3= 0  & a_5^3= 0 \\ 
+a_0^4 = 1 & a_1^4= 0 & a_2^4= 0 & a_3^4 = 10 & a_4^4= 12  & a_5^4= 1 \\ 
+\\
+b_0^1 = 0 & b_1^1= 1 & b_2^1= 0 & b_3^1 = 0 & b_4^1= 0  & b_5^1= 0 \\ 
+b_0^2 = 0 & b_1^2= 0 & b_2^2= 1 & b_3^2 = 0 & b_4^2= 0  & b_5^2= 0 \\ 
+b_0^3 = 0 & b_1^3= 0 & b_2^3= 0 & b_3^3 = 0 & b_4^3= 1  & b_5^3= 0 \\ 
+b_0^4 = 1 & b_1^4= 0 & b_2^4= 0 & b_3^4 = 0 & b_4^4= 0  & b_5^4= 0 \\ 
+\\
+c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 1 & c_4^1= 0  & c_5^1= 0 \\ 
+c_0^2 = 0 & c_1^2= 0 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 1  & c_5^2= 0 \\
+c_0^3 = 0 & c_1^3= 0 & c_2^3= 0 & c_3^3 = 0 & c_4^3= 0  & c_5^3= 1 \\ 
+c_0^4 = 0 & c_1^4= 0 & c_2^4= 0 & c_3^4 = 0 & c_4^4= 0  & c_5^4= 0
+\end{array} 
+$$
+With this choice, the rank-1 constraint system of our tiny-jubjub curve point problem can be written in its most general form as follows:
+\begin{align*}
+\scriptstyle
+\left(a_0^1 + a_1^1 I_1 + a_2^1 I_2 + a_3^1 W_1 + a_4^1 W_2 + a_5^1 W_3\right)\cdot
+\left(b_0^1 + b_1^1 I_1 + b_2^1 I_2 + b_3^1 W_1 + b_4^1 W_2 + b_5^1 W_3\right) &=
+\scriptstyle
+\left(c_0^1 + c_1^1 I_1 + c_2^1 I_2 + c_3^1 W_1 + c_4^1 W_2 + c_5^1 W_3\right)\\
+\scriptstyle
+\left(a_0^2 + a_1^2 I_1 + a_2^2 I_2 + a_3^2 W_1 + a_4^2 W_2 + a_5^2 W_3\right)\cdot
+\left(b_0^2 + b_1^2 I_1 + b_2^2 I_2 + b_3^2 W_1 + b_4^2 W_2 + b_5^2 W_3\right) &=
+\scriptstyle
+\left(c_0^2 + c_1^2 I_1 + c_2^2 I_2 + c_3^2 W_1 + c_4^2 W_2 + c_5^2 W_3\right)\\\scriptstyle
+\left(a_0^3 + a_1^3 I_1 + a_2^3 I_2 + a_3^3 W_1 + a_4^3 W_2 + a_5^3 W_3\right)\cdot
+\left(b_0^3 + b_1^3 I_1 + b_2^3 I_2 + b_3^3 W_1 + b_4^3 W_2 + b_5^3 W_3\right) &=
+\scriptstyle
+\left(c_0^3 + c_1^3 I_1 + c_2^3 I_2 + c_3^3 W_1 + c_4^3 W_2 + c_5^3 W_3\right)\\\scriptstyle
+\left(a_0^4 + a_1^4 I_1 + a_2^4 I_2 + a_3^4 W_1 + a_4^4 W_2 + a_5^4 W_3\right)\cdot
+\left(b_0^4 + b_1^4 I_1 + b_2^4 I_2 + b_3^4 W_1 + b_4^4 W_2 + b_5^4 W_3\right) &=
+\scriptstyle
+\left(c_0^4 + c_1^4 I_1 + c_2^4 I_2 + c_3^4 W_1 + c_4^4 W_2 + c_5^4 W_3\right)\\
+\end{align*}
+In what follows we write $L_{jubjub}$ for the associated language that consists of solutions to the R1CS.
+
+To see that $L_{jubjub}$ is equivalent to $L_{tiny.jj.1}$, let $(I_1,I_2; W_1, W_2, W_3)$ be a word in $L_{jubjub}$, then $(I_1,I_2)$ is a word in $L_{tiny.jj.1}$, since the defining R1CS of $L_{jubjub}$ implies that $I_1$ and $I_2$ satisfy the Edwards equation of the tiny jubjub curve. On the other hand let $(I_1,I_2)$ be a word in $L_{tiny.jj.1}$. Then $(I_1,I_2; I_1^2, I_2^2, 8\cdot I_1^2\cdot I_2^2)$ is a word in $L_{jubjub}$ and both maps are inverse to each other.
+\end{example}
+\begin{exercise} Consider the language $L_{tiny.jj\_zk}$ and define a rank-1 constraint relation with decision function, such that the associated language is equivalent to $L_{tiny.jj\_zk}$.
+\end{exercise} 
 \paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems define formal languages, oberserve that every R1CS over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
 R_{R1CS} : \F^* \times \F^* \to \{true, false\}\;;\;
@@ -284,6 +391,16 @@ W_1 \cdot W_2 &= W_4 & \text{\# } 2\cdot 3 = 6\\
 W_4 \cdot W_3 &= I_1 & \text{\# } 6\cdot 4 = 11
 \end{align*}
 A proper constructive proof is therefore given by $P=(2,3,4,6)$. Of course $P$ is not the only possible proof for this statement. Since factorization is in general not unique in a field, another constructive proof is given by $P'=(3,5,12,2)$. 
+\end{example}
+\begin{example}[The tiny jubjub curve] Consider the language $L_{jubjub}$ from example XXX and its associated R1CS. To see how constructive proofs in $L_{jubjub}$ look like, consider the instance $(I_1,I_2)= (11,6)$. To proof the statement "There exist a witness $W$, such that $(I_1,I_2;W)$ is a word in $L_{jubjub}$" constructively a proof has to privide assignments to all witness variables $W_1$, $W_2$ and $W_3$. Since the alphabet is $\F_{13}$, an example assignment is given by
+$W=(4,10,8)$ since $(I_1,I_2;W)$ satisfies the R1CS
+\begin{align*}
+I_1 \cdot I_1 & = W_1 & 11\cdot 11 = 4\\
+I_2 \cdot I_2 & = W_2 & 6 \cdot 6 = 10 \\
+(8 \cdot W_1) \cdot W_2 & = W_3 & (8\cdot 4)\cdot 10 = 8\\
+(12\cdot W_2 + W_3 + 10\cdot W_1 + 1)\cdot 1 & = 0 & 12\cdot 10 + 8 + 10\cdot 4 + 1 = 0
+\end{align*}
+A proper constructive proof is therefore given by $P=(4,10,8)$, which shows that the instance $(11,6)$ is a point on the tiny jubjub curve. 
 \end{example}
 \paragraph{Modularity} As we discuss in XXX, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 constraint systems are particulary useful for this as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
 
@@ -530,6 +647,50 @@ With a circuit that represents the function $f_{tiny-jj}$, we can now proceed to
 	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
+The previous circuit enforces input values assigned to the labels $S_1$ and $S_2$ to be points on the tiny jubjub curve. However it does not specify which labels are considered public and which are considered private. The following circuit defines the inputs to be public, while all other labels are private:
+\begin{center}
+\digraph[scale=0.4]{G2AJA2}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /*[ color=lightgray ]*/ ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n12 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n13 /*[ color=lightgray ]*/ ;
+	n8 -> n11 /*[ color=lightgray ]*/ ;
+	n9 -> n11 /*[ color=lightgray ]*/ ;
+	n10 -> n12 /*[ color=lightgray ]*/ ; 
+	n11 -> n14 /*[ color=lightgray ]*/ ;
+	n12 -> n14 [xlabel="W_3  "  /*, color=lightgray */];	
+	n13 -> n15 /*[ color=lightgray ]*/ ;
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  0", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*" /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];	
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="0" /*, color=lightgray */];		
+}
+\end{center} 
 \end{example}
 It can be shown that every space and time bounded computation can be transformed into an algebraic circuit. We call any process that transforms a bounded computation into a circuit \textbf{flattening}. 
 \paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables, can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tupel $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gates label and the process is repeated along all edges until a sink node is reached. We call this computation \textbf{circuit execution}.
