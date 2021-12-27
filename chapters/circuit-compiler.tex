@@ -1,15 +1,111 @@
 \chapter{Circuit Compiler} 
-
-
 It is possible to verify the the correct execution of arbitrary bounded computation in terms of rank-$1$ contraints systems and it is possible to encode such computations in terms of algebraic circuits. However writing actual computer programs as circuits and the associated verification in terms of rank-1 constraint systems is as least as troublesome as writing any other low level language like assembler code. 
 
-From a practical point of view it is therefore necessary to have some kind of compiler framework at hand, capable to transform some high level language into arithmetic circuits or rank-1 constraint systems. 
-
-TEXT about hardware description languages, attapts for RAM model compilers etct.
+From a practical point of view it is therefore necessary to have some kind of compiler framework at hand, capable to transform high level languages into arithmetic circuits and associated rank-1 constraint systems. 
 
 As we have seen in XXX as well as XXX and XXX, both arithmetic circuits and rank-1 constraint systems have a modularity property by which it is possible to synthezise  complex circuits and constraint systems from simpler ones. A basic approach taken by circuit/R1CS compilers like (LIST) is therefore to provide a library of atomic and simple circuits and then define a way to combine them into arbitrary complex systems. 
 
-In this section we will therefore provide an introduction to atomic types like booleans and uInts and define the fundamental control flow primitives like the ternery operator or the bounded loop. We will also look at basic functionality primitives like elliptic curve cryptography and cryptographic hash functions. Primitives like those are often called \textbf{gadgets} in the literature. We also give a very shallow introduction to how compilers for complex circuit design might be constructed, also we only scratch the surface. In particular we focus on a kind of typed hardware description language style of compilers and will only look into more elaborate approaches like RAM-model compilers in future versions of the book.
+In this chapter we will provide an introduction to basic concepts of so called \textit{circuit/R1CS compilers} and derive a toy language which we can "compile" in a pen and paper approach into algebraic circuits and their associated rank-1 constraints systems. The language is very simple, informal, somewhat typed and similar to the hardware description language paradigm but without a notion of time. 
+
+We start with a general introduction to our language and then intoduce atomic types like booleans, unsigned integers and define the fundamental control flow primitives like the ternery operator or the bounded loop. We will also look at basic functionality primitives like elliptic curve cryptography and cryptographic hash functions. Primitives like those are often called \textbf{gadgets} in the literature. We also give a very shallow introduction to how compilers for complex circuit design might be constructed, also we only scratch the surface. In particular we focus on a kind of typed hardware description language style of compilers and will only look into more elaborate approaches like RAM-model compilers in future versions of the book.
+
+From a developers perspective, it is desireable to design statements in formal languages like normal computer programs and then let a compiler handle the technical details. 
+
+However in contrast to normal executable programs, programs for circuit compilers have two modes of execution. The first mode is usally called \textit{setup phase} is executed in order to generate the circuit and its associated rank-1 constraint system, the letter of which is then usually used as input to some zero knowledge proofing system.
+
+The second mode of execution is usually called the \textit{proofer phase} and in this phase a proofer usually computes a valid assignment to the circuit. Depending on the usecase this valid assignment is then either directly used as constructive proof for proper circuit execution or is transfered as input to the proof generation algorithm of some zero knowledge proofing system, where the full size, non hiding constructive proof is processed into a succinct proof with various levels of zero-knowledge.
+
+Modern circuit languages and their associated compilers abstract over those two phase and provide a unified interphase to the developer, who then writes a single program that can be used in both phases. 
+
+\subsection{The PAPER Language} To explain basic concepts of circuit compiler, we derive a toy language and associate compiler nemed \texttt{PAPER} which is an acronym for the "(P)en (A)nd (P)aper (E)xecution (R)ules", which we develop.
+
+PAPER allows programmers to define algebraic circuit in VERILOG like pseudo-code. Complex circuits are build from simple once. 
+
+A circuit description starts with the reserved keyword \textit{circuit} and is followed by the field where the circuit is defined on, followed by a list of unsigned integers, known at compile time.
+
+After this the circuits input and output nodes are defined. Every input and output nodes has a specifier that declares the associated edge label to be public or private. Constant input and output nodes are always private.
+
+% used the command line style formalized e.g. here: http://docopt.org/
+\begin{lstlisting}
+module <Name> {<F : Field> [ , <N_1: unsigned>,... ] } {
+	[ input ( public | private ) <Name> : <Type> ;... ]
+	[ input const <Name> : <Type> = <Value> ;... ]
+	[ output ( public | private ) <Name> : <Type> ;... ]
+	[ output const <Name> : <Type> = <Value> ;... ]
+
+	circuit
+		[ output <== expression(input) ;... ]
+}
+\end{lstlisting} 
+where expression is SOMETHING
+
+The language only accepts binary field operations, that is expressions like $x_1\cdot x_2\cdot x_3$ are not allowed.
+
+\begin{itemize}
+\item For every input:
+\begin{itemize}
+\item  draw an input node and label the node with the name of the input.
+\item If the input is a variable draw the edge label $S_j$ on ever outgoing edge
+\item draw the constraining circuit of the type
+\end{itemize}
+\item For every output:
+\begin{itemize}
+\item  draw an output node and label the node with the name of the out.
+\item If the output is a variable draw the edge label $S_j$ on the ingoing edge
+\item If the output is a constant draw the edge label $S_value$ on its ingoing edge
+\end{itemize}
+\item check if all modules are defined
+\item type check the module body 
+\item Draw edges from the input nodes to the output nodes by inductively rewriting all modules in the module body with their associated circuits and replace all edges label with witness labels.
+\end{itemize}
+\begin{example}[A trivial Circuit] To give an intuition of how to write and compile circuits in the \texttt{PAPER} language, consider a trivial circuit, that has three inputs and four outputs and forwards its inputs to the outputs.
+\begin{lstlisting}
+module trivial_circuit {F_13} {
+	input private in_1 : F ; 
+	input public in_2 : F ; 
+	input const inc_1 : F = 7 ;
+	output private out_1 : F ;
+	output public out_2 : F ;
+	output const outc_1 : F = 0 ;   
+
+	circuit
+		out_1 <== inc_1;
+		out_2 <== in_1;
+		outc_1 <== in_2;
+}
+\end{lstlisting} 
+Using \texttt{PAPER}, we start with an empty circuit and then add $3$ input nodes and $3$ output node to that circuit. Nodes that corresponse to variables are labeled with the variable's names and nodes that corresponse to constants are labeled with the associated values. As we will see in paragraph XXX, the field type has no associated constraints, so we don't need to draw any circuits associated the types of the variables. 
+
+We then check the validity of every expression in the \texttt{circuit} section of the module, including a type check. Since the circuit only wires inputs to outputs and all inputs are of the same type as all outputs, the check is valid.
+
+We then draw the edges from the input nodes to the output nodes, by inductive rewriting all modules in all exprssions. Since we don't have any modules in the expression, we don't have to evaluate anything and can simply wire inputs to outputs directly. We get the following edges
+\begin{align*}
+E(inc_1, out_1) \\
+E(in_1, out_2) \\
+E(in_2, outc_1)
+\end{align*}
+To label those edges, we use the general rules of algebraic circuits as defined in XXX. According to those rules every incoming edge of a sink node has a label and every outgoing edge of a source node has a label, if the node is labeled with a variable.
+
+Since nodes that represent constants are implicitly assumed to be private and since the private public specifiers determine if we have to choose the symbol $W$ or $I$ for the edge labels, we get the following circuit:
+\begin{center}
+\digraph[scale=0.4]{TRIVIAL1}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 [shape=box, label="in_1"];
+	n2 [shape=box, label="in_2"];
+	n3 [shape=box, label="7"];
+	n4 [shape=box, label="out_1"];
+	n5 [shape=box, label="out_2"];
+	n6 [shape=box, label="0"];
+	
+	n1 -> n5 [xlabel="W_(in_1)"] ;
+	n2 -> n6 [xlabel="I_(in_2)"] ;
+	n3 -> n4 ;
+}
+\end{center}
+\end{example}
 \subsection{Atomic Types} 
 % https://zeroknowledge.fm/172-2/ reference for all the languages
 Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
@@ -30,6 +126,22 @@ input (private) y : F ;
 const c : F = value ; 
 \end{lstlisting} 
 are compiled into input nodes of the circuit the compiler generates. Public and private inputes are compiled into source nodes decorated with input variables and constants are compiled into source nodes decorated with the allocated constant. In out notation, outgoing edges of public inputs are labeled with instance variables $I_j$ and outgoing edges of private inputs are labeled with witness variables $W_j$.
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in example XXX. We want to define a module in the \texttt{PAPER} language, that we can compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$. We write
+\begin{lstlisting}
+module 3_fac_zk (F_13) (
+	input private x_1 : F ; 
+	input private x_2 : F ;
+	input private x_3 : F ;  
+	output public f_3.fac_zk : F ; 
+
+	circuit
+		f_3.fac_zk <== (x_1 * x_2) * x_3;
+)
+\end{lstlisting} 
+Using \texttt{PAPER}, we start with an empty circuit and then add $3$ input nodes and $1$ output node to that circuit. All these nodes are decorated with the associated variable names. 
+
+\end{example}
+
 \begin{example} To give an intuition of how a simple hardware description language like circuit compiler might work, lets consider the following VERILOG like pseudo-code:
 \begin{lstlisting}
 input (public) x : F ; 
