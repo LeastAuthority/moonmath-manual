@@ -1,4 +1,5 @@
 \chapter{Circuit Compiler} 
+% finite field arithmetics https://johnkerl.org/doc/ffcomp.pdf
 It is possible to verify the the correct execution of arbitrary bounded computation in terms of rank-$1$ contraints systems and it is possible to encode such computations in terms of algebraic circuits. However writing actual computer programs as circuits and the associated verification in terms of rank-1 constraint systems is as least as troublesome as writing any other low level language like assembler code. 
 
 From a practical point of view it is therefore necessary to have some kind of compiler framework at hand, capable to transform high level languages into arithmetic circuits and associated rank-1 constraint systems. 
@@ -17,32 +18,65 @@ The second mode of execution is usually called the \textit{proofer phase} and in
 
 Modern circuit languages and their associated compilers abstract over those two phase and provide a unified interphase to the developer, who then writes a single program that can be used in both phases. 
 
-\subsection{The PAPER Language} To explain basic concepts of circuit compiler, we derive a toy language and associate compiler nemed \texttt{PAPER} which is an acronym for the "(P)en (A)nd (P)aper (E)xecution (R)ules", which we develop.
+Since both algebraic circuits and their associated rank-1 constraint systems are defined over a finite field, elements from that field are the atomic informational units in those models. In this sense field elements $x\in \F$ are for algebraic circuits what bits are for computers. 
 
-PAPER allows programmers to define algebraic circuit in VERILOG like pseudo-code. Complex circuits are build from simple once. 
+In contrast to other well known models of computation, algebraic circuits have no notion of memory and all assignments of values to variables are immutable. It is true however that mutability can be simulated in high level languages, by transfering the problem to the compiler. In addition, algebraic circuits have no notion of branching 
 
-A circuit description starts with the reserved keyword \textit{circuit} and is followed by the field where the circuit is defined on, followed by a list of unsigned integers, known at compile time.
+\subsection{The PAPER Language} To explain basic concepts of circuit compiler and their associated high level languages, we derive a mostly informal toy language and associates brain compiler named \texttt{PAPER} (\textbf{P}en \textbf{A}nd \textbf{P}aper \textbf{E}xecution \textbf{R}ules). \texttt{PAPER} allows programmers to define statements in Rust-like pseudo-code and provides a simple set of rules to compile the high level description into pen and paper circuits. It is mostly inspired by \texttt{ZOKRATES} and \texttt{circom}.
 
-After this the circuits input and output nodes are defined. Every input and output nodes has a specifier that declares the associated edge label to be public or private. Constant input and output nodes are always private.
-
+In \texttt{PAPER} any statement is defined as an ordered list of functions, where any function has to be declared in the list before it is called in other functions of that list. The last entry in a statement has to be a special function, called \texttt{main}. Any statement is parameterized over the field that the circuit will be defined over and it has optinal parameters of unsigned type. The following definition makes this precise: 
 % used the command line style formalized e.g. here: http://docopt.org/
 \begin{lstlisting}
-module <Name> {<F : Field> [ , <N_1: unsigned>,... ] } {
-	[ input ( public | private ) <Name> : <Type> ;... ]
-	[ input const <Name> : <Type> = <Value> ;... ]
-	[ output ( public | private ) <Name> : <Type> ;... ]
-	[ output const <Name> : <Type> = <Value> ;... ]
-
-	circuit
-		[ output <== expression(input) ;... ]
+statement <Name> {F:<Field> [ , <N_1: unsigned>,... ] } {
+  [def <Name>([[pub]<Arg>:<Type>,...])->([[pub]<Rslt>:<Type>,...]){
+    [ rslt <== expression(arg) ;... ]
+  } ;...]
+  def main([[pub]<Arg>:<Type>,...])->(){
+    [ expression(Arg,...) ;... ]
+  } ;
 }
-\end{lstlisting} 
-where expression is SOMETHING
+\end{lstlisting}
+Function arguments are private by default but can be declared as public by the \texttt{pub} specifier. Declaring variables as public always overwrites any previous or conflicting private declaration. 
 
-The language only accepts binary field operations, that is expressions like $x_1\cdot x_2\cdot x_3$ are not allowed.
+\begin{lstlisting}
+fn <Name>([[pub]<Arg>:<Type>,...])->([pub]<Rslt>:<Type>){
+  [ constant <Const>:<Type>=<Value> ;... ]
+  Rslt<==(fn([<Arg>|<Const>,...])|(<Arg>|<Const>)) ;
+}
+\end{lstlisting}
+
+In \texttt{PAPER} any function is a high level description of a circuit. The compiler draws a box-node for every argument of a function 
+
+of the circuit labeled with the arguments name that represent variables and there are no other source nodes labeled with variables in the functions circuit. 
+
+If the function has return values, they are compiled to sink nodes of the circuit labeled with the result name that represent variables and there are no other sink nodes labeled with variables in the functions circuit. 
+
+The compiler draws a box-node for every constant that is declared in the function and labels it with the value of that constant.
+
+THEN ASSOCIATES CONSTRAINT CIRCUITS TO THE TYPES. THEN VALIDITY AND TYPE CHECK
+
+The compiler checks, if every result value is the left side of an \texttt{<==} operator. If the associated right side is not a function an edge is drawn from the right side to the left side. LABEL!!! 
+
+If the right side is a function, the compiler substitutes the box-node that represents that function. If that function is in the \texttt{PAPER} library, the box node will be replaced by the circuit from the library. 
+
+The compiler draws a box-node for every occurence of the \texttt{<==} operator and lables it with the right side of that operator. It then draws an edge to the node on the left side of the operator. If the left side represents a private result it gets label $W$ and if public it gets label $I$ indexed by a unique symbol.
+
+If the right side of the \texttt{<==} operator is another function, the compiler substitutes the box-node that represents that function. If that function is in the \texttt{PAPER} library, the box node will be replaced by the circuit from the library. 
+
+OPTIMIZATION: COLLAPSING BOX NODES IN PATHS.
+
+\texttt{PAPER} is then build on simple substitution rules and a circuit library that provides basic circuit building blocks.  
+
+
+
+
+
+
+
+
 
 \begin{itemize}
-\item For every input:
+\item Compilation starts with an empty circuit and on function \texttt{main}.
 \begin{itemize}
 \item  draw an input node and label the node with the name of the input.
 \item If the input is a variable draw the edge label $S_j$ on ever outgoing edge
@@ -58,31 +92,31 @@ The language only accepts binary field operations, that is expressions like $x_1
 \item type check the module body 
 \item Draw edges from the input nodes to the output nodes by inductively rewriting all modules in the module body with their associated circuits and replace all edges label with witness labels.
 \end{itemize}
-\begin{example}[A trivial Circuit] To give an intuition of how to write and compile circuits in the \texttt{PAPER} language, consider a trivial circuit, that has three inputs and four outputs and forwards its inputs to the outputs.
+\begin{example}[A trivial Circuit] To give an intuition of how to write and compile circuits in the \texttt{PAPER} language, consider the following statement description:
 \begin{lstlisting}
-module trivial_circuit {F_13} {
-	input private in_1 : F ; 
-	input public in_2 : F ; 
-	input const inc_1 : F = 7 ;
-	output private out_1 : F ;
-	output public out_2 : F ;
-	output const outc_1 : F = 0 ;   
+statement trivial_circuit {F:F_13} {
+  def main{F}(in1 : F, pub in2 : F) -> (out1:F, out2:F){
 
-	circuit
-		out_1 <== inc_1;
-		out_2 <== in_1;
-		outc_1 <== in_2;
+    let const outc1 : F = 0 ;   
+    let const inc1 : F = 7 ;
+
+    out1 <== inc1;
+    out2 <== in1;
+    outc1 <== in2;
+  }
 }
 \end{lstlisting} 
-Using \texttt{PAPER}, we start with an empty circuit and then add $3$ input nodes and $3$ output node to that circuit. Nodes that corresponse to variables are labeled with the variable's names and nodes that corresponse to constants are labeled with the associated values. As we will see in paragraph XXX, the field type has no associated constraints, so we don't need to draw any circuits associated the types of the variables. 
+To compile this statement into an algebraic circuit we use \texttt{PAPER}. According to those rule we start with an empty circuit evaluate function \texttt{main}, which is the only function in this statement. 
 
-We then check the validity of every expression in the \texttt{circuit} section of the module, including a type check. Since the circuit only wires inputs to outputs and all inputs are of the same type as all outputs, the check is valid.
+We then draw box-nodes for every argument and every return value of the function as well as for every constant that was declared in the function. Then we have to draw a constraint circuit for every type. As we will see in paragraph XXX, the field type has no associated constraints, so we don't need to draw any circuits associated the types of the variables. 
 
-We then draw the edges from the input nodes to the output nodes, by inductive rewriting all modules in all exprssions. Since we don't have any modules in the expression, we don't have to evaluate anything and can simply wire inputs to outputs directly. We get the following edges
+After that we check that there is one \texttt{<==} operator for every result value of the function. We then check the validity of every expression in the \texttt{circuit} section of the module, including a type check. Since the circuit only wires inputs to outputs and all inputs are of the same type as all outputs, the check is valid.
+
+We evaluate those operators. Since in our case the right side of each edge operator is not a function, we draw edges from the box-nodes on the right side to the associated box node on the left side. We get the following edges
 \begin{align*}
-E(inc_1, out_1) \\
-E(in_1, out_2) \\
-E(in_2, outc_1)
+E(inc1, out1) \\
+E(in1, out2) \\
+E(in2, outc1)
 \end{align*}
 To label those edges, we use the general rules of algebraic circuits as defined in XXX. According to those rules every incoming edge of a sink node has a label and every outgoing edge of a source node has a label, if the node is labeled with a variable.
 
@@ -106,27 +140,116 @@ Since nodes that represent constants are implicitly assumed to be private and si
 }
 \end{center}
 \end{example}
-\subsection{Atomic Types} 
+\subsection{Primitive Types} 
 % https://zeroknowledge.fm/172-2/ reference for all the languages
-Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
+Primitive data types like booleans, (unsigned) integers, or strings  are the most basic building blocks one might expect in every general high level programing language. In order to write statements as computer programs that compile into circuits, it is therefore necessary to implement primitive types as constraints systems and define their associated operations as circuits.
+
+In this section we will look at some common ways to achieve this. After a recapitulation of the atomic type of prime field elements, we start with an implementation of the boolean type and its associated boolean algebra as circuits. After that we define unsigned integers on top of the boolean type. and leave the implementation of signed integers as an exercise to the reader. 
+
+It should be noted however that while in common programing languages like C, Go, or Rust primitive data types have a one-to-one correspondence with objects in the computer's memory. This is different for most languages that compile into algebraic circuits. As we will see in the following paragraphs, common primitives like booleans or unsigned integers require many constraints and memory. Primitives different from the underlying field elements can be expensive.
+
 \subsubsection{The Basefield type} 
-TECHNO:
+The most basic type of any algebraic circuit is the type $\F$ of its underlaying field. Field elements $x\in\F$ are for algebraic circuits what machine words are for computers. They are the fundamental computational units that everything else is expressed in and no circuit or constraint is needed to represent this type. 
 
-It should be noted that subtraction gates can be simulated in a two step process by first multiplying the subtrahend with $-1$ and then use an addition gate. Also division gates can be simulated for example by using Fermat's little theorem, which states that the multiplicative inverse of a field element $x\in\F$ is given by the power $x^{p-2}$ and powers are nothing but repeated multiplication. However simulating division this way might be inefficient.
+In \texttt{PAPER} we write \texttt{F} for this type and specify the actual field instance for every statement in curly brackets after the name of that statement. Two functions are associated to this type, which are induced by the \textit{addition} and \textit{multiplication} law in the field \texttt{F}. We write
+\begin{equation}
+\mathtt{MUL}:\; \mathtt{F} \times \mathtt{F} \to \mathtt{F}\;;\; (x,y) \mapsto \mathtt{MUL}(x,y)
+\end{equation}
+\begin{equation}
+\mathtt{ADD}:\; \mathtt{F} \times \mathtt{F} \to \mathtt{F}\;;\; (x,y) \mapsto \mathtt{ADD}(x,y)
+\end{equation}
+Circuit compilers have to compile these functions into the algebraic gates, as explained in XXX. Every other function has to be expressed in terms of them and proper wireing.
 
-
-The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
-
-As this type is the basis for everything else, no circuit or constraint is needed to represent this type. The properties of this type are inherited from $\F$, that is we a notion of \textit{addition}, \textit{subtraction}, \textit{multiplication} and \textit{division}. 
-
-A commonn strategy from the perspective of circuit/r1cs compiler design, is that allocating variables of the base field type in expressions like
+To represent addition and multiplication in the \texttt{PAPER} language, we defin the following two functions:
 \begin{lstlisting}
-input (public) x : F ; 
-input (private) y : F ; 
-const c : F = value ; 
+fn MUL(x : F, y : F) -> (MUL(x,y):F){}
+\end{lstlisting}  
+\begin{lstlisting}
+fn ADD(x : F, y : F) -> (ADD(x,y):F){}
+\end{lstlisting}
+The compiler then compiles every occurence of the $\mathtt{MUL}$ or the $\mathtt{ADD}$ function into the following circuits:
+\begin{center}
+\digraph[scale=0.5]{FNMUL}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 [shape=box, label="x"];
+	n2 [shape=box, label="y"];
+	n3 [label="*"];	
+	n4 [label="MUL(x,y)"];
+	
+	n1 -> n3 [xlabel="W_x"] ;
+	n2 -> n3 [xlabel="W_y"];
+	n3 -> n4 [xlabel="W_STUFF"] ;
+	
+	n5 [shape=box, label="x"];
+	n6 [shape=box, label="y"];
+	n7 [shape=box, label="+"];	
+	n8 [shape=box, label="ADD(x,y)"];
+	
+	n5 -> n7 [xlabel="W_x"] ;
+	n6 -> n7 [xlabel="W_y"];
+	n7 -> n8 [xlabel="W_STUFF"] ;
+}
+\end{center}
+\begin{example}[Basic gates] To give an intuition of how \texttt{PAPER} compiles field addition and multiplication into circuit gates, consider the following program:
+\begin{lstlisting}
+module basic_ops {F_13} {
+	input private in_1 : F ; 
+	input public in_2 : F ; 
+	output public product : F ;
+	output private sum : F ; 
+
+	circuit
+		product <== MUL(in_1,in_2) ;
+		sum <== ADD(in_1,in_2) ;
+}
 \end{lstlisting} 
-are compiled into input nodes of the circuit the compiler generates. Public and private inputes are compiled into source nodes decorated with input variables and constants are compiled into source nodes decorated with the allocated constant. In out notation, outgoing edges of public inputs are labeled with instance variables $I_j$ and outgoing edges of private inputs are labeled with witness variables $W_j$.
-\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in example XXX. We want to define a module in the \texttt{PAPER} language, that we can compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$. We write
+
+\begin{lstlisting}
+def basic_ops<F_13>(in_1 : F, in_2 : F)-> (F,F) {  
+
+    let x : F 
+
+	circuit
+		prod == MUL(in_1,in_2) ;
+		sum <== ADD(in_1,in_2) ;
+}
+\end{lstlisting} 
+
+Using \texttt{PAPER}, we start with an empty circuit and then add $2$ input nodes and $2$ output nodes to that circuit. All these nodes are decorated with the associated variable names. 
+
+After that we evaluate the \texttt{circuit} descriptors. In the first descriptor we have one multiplication operator and with \texttt{PAPER} we replace that operator by a multiplication gate in the circuit, such that its outgoing edge is connected to the node label with \texttt{product} and the incoming edges are connected to the nodes labeled with \texttt{in\_1} and \texttt{in\_2}. We proceed accordingly for the second descriptor. We get the following circuit: 
+\begin{center}
+\digraph[scale=0.5]{SIMPLEMUL}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 [shape=box, label="in_1"];
+	n2 [shape=box, label="in_2"];
+	n3 [shape=box, label="product"];
+	n4 [shape=box, label="sum"];
+	n5 [shape=box, label="*"];
+	n6 [shape=box, label="+"];	
+	
+	n1 -> n5 [xlabel="W_(in_1)"] ;
+	n1 -> n6 [xlabel="W_(in_1)"];
+	n2 -> n5 [xlabel="I_(in_2)"] ;
+	n2 -> n6 [xlabel="I_(in_2)"];
+	n5 -> n3 [xlabel="W_1 = I_(product)"] ;
+	n6 -> n4 [xlabel="W_(sum)"];
+}
+\end{center} 
+Using the general process of deriving an associated rank-1 constraint system to this circuit, we get
+\begin{align*}
+W_{in_1} \cdot I_{in_2} &= I_{product} \\
+( W_{in_1} + I_{in_2} ) \cdot 1 &= W_{sum}
+\end{align*}
+\end{example} 
+
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in example XXX. We want to define a module, that we can compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$. We write
 \begin{lstlisting}
 module 3_fac_zk (F_13) (
 	input private x_1 : F ; 
@@ -135,56 +258,52 @@ module 3_fac_zk (F_13) (
 	output public f_3.fac_zk : F ; 
 
 	circuit
-		f_3.fac_zk <== (x_1 * x_2) * x_3;
+		f_3.fac_zk <== MUL( MUL( x_1 , x_2 ) , x_3 );
 )
 \end{lstlisting} 
 Using \texttt{PAPER}, we start with an empty circuit and then add $3$ input nodes and $1$ output node to that circuit. All these nodes are decorated with the associated variable names. 
 
-\end{example}
-
-\begin{example} To give an intuition of how a simple hardware description language like circuit compiler might work, lets consider the following VERILOG like pseudo-code:
-\begin{lstlisting}
-input (public) x : F ; 
-input (private) y : F ; 
-const c : F = 1 ; 
-
-begin
-	x * y == c ;
-end ;
-\end{lstlisting}
-A very simple compiler would then allocate two input nodes for the variables $x$ and $y$, a multiplication gate for the single multiplication gate and another node for the field constant $c=1$. The outgoing edges of $x$ are public edges and the outgoing edges of $y$ are private edges. If the compiler assumes the rule that all edges not explicitly declared as public are private, it could generate the following circuit: 
+After that we evaluate the single \texttt{circuit} descriptor. We have two nested multiplication operators and we replace them by multiplication gates, starting with the most outer operator. We get: 
 \begin{center}
-\digraph[scale=0.4]{SIMPLEMUL}{
+\digraph[scale=0.5]{PAPER3FUC}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n4 [xlabel="I_1"] ;
-	n2 -> n4 [xlabel="W_2"] ;
-	n4 -> n3 [xlabel="W_3=1"];
-	n1 [shape=box, label="x"];
-	n2 [shape=box, label="y"];
-	n3 [shape=box, label="1"];
-	n4 [label="*"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [shape=box, label="x_3"];
+	n4 [shape=box, label="f_3.fac_zk"];
+	n5 [shape=box, label="*"];
+	n6 [shape=box, label="*"];	
+	
+	n1 -> n5 [xlabel="W_(x_1)"] ;
+	n2 -> n5 [xlabel="W_(x_2)"] ;
+	n3 -> n6 [xlabel="W_(x_3)"];
+	n5 -> n6 [xlabel="W_1"] ;
+	n6 -> n4 [xlabel="W_2 = I_(f_3.fac_zk)"];
 }
 \end{center} 
-And using the general process of deriving an associated rank-1 constraint system to this circuit, the compiler might produce:
-$$
-I_1 \cdot W_2 =1
-$$
-\end{example} 
-\paragraph{The Subtraction Constraints System}Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field subtraction, despite field division being a native single op in every field. Algebraic circuits therefore need another way to deal with subtraction. To see how this can be achieved, recall that subtraction is defined as addition with the multipilcative inverse in the field and the additive inverse can be computed efficiently by multiplication with the additive inverse of $-1$, which is a field conatant that only needs to be computed once during setup time. An associated circuit could the look like:
+Using the general process of deriving an associated rank-1 constraint system to this circuit, we get
+\begin{align*}
+W_{x_1} \cdot I_{x_2} &= W_{1} \\
+W_{1} \cdot W_{x_3}   &= I_{f\_3.fac\_zk}
+\end{align*}
+\end{example}
+\paragraph{The Subtraction Constraints System} By definition, algebraic circuits only contain addition and multiplication gates and it follows thar there is no single gate for field subtraction, despite the fact that subtraction is a native operation in every field.
+
+High level languages and their associated circuit compilers therefore need another way to deal with subtraction. To see how this can be achieved, recall that subtraction is defined by addition with the additive inverse and that the inverse can be computed efficiently by multiplication with $-1$. A circuit for field subtraction is therefore given by
 \begin{center}
 \digraph[scale=0.4]{BTSUB}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n5 [xlabel="E_1    "];
-	n2 -> n4 [xlabel="E_2    "];
+	n1 -> n5 [xlabel="S_1    "];
+	n2 -> n4 [xlabel="S_2    "];
 	n3 -> n4 ;
 	n4 -> n5 ;
-	n5 -> n6 [xlabel="E_3    "];
+	n5 -> n6 [xlabel="S_3    "];
 	n1 [shape=box, label="x"];
 	n2 [shape=box, label="y"];
 	n3 [shape=box, label="-1"];
@@ -193,71 +312,122 @@ $$
 	n6 [shape=box, label="SUB(x,y)"]
 }
 \end{center}
-Any valid assignment $\{E_1,E_2, E_3\}$ to this circuit enforces that $E_3$ is the difference $E_1- E_2$.
-
-Using the mothod from XXX, we transform this circuit in the following rank-1 constraint system:
+Using the general mothod from XXX, the circuits associated rank-1 constraint system is given by:
 \begin{equation}
-\left(E_1 + (-1)\cdot E_2\right)\cdot 1 = E_3
+\left(S_1 + (-1)\cdot S_2\right)\cdot 1 = S_3
 \end{equation}
+Any valid assignment $\{S_1,S_2, S_3\}$ to this circuit therefore enforces $S_3$ to be the difference $S_1- S_2$ and in \texttt{PAPER} we define the following subtraction module that compiles to the previous circuit:
+\begin{lstlisting}
+module SUB {F_13} {
+	input private x : F ; 
+	input private y : F ; 
+	input private c : F = -1 ; 
+	output public SUB : F ; 
 
-\paragraph{The Inversion Constraint System} Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field inversion, despite field inversion being a native single op in every field. Algebraic circuits therefore need another way to deal with field inversion. 
+	circuit
+		SUB <== ADD(x , MUL( y ,  c) );
+}
+\end{lstlisting}
+\texttt{PAPER} compiles every occurence of the $\mathtt{SUB}$ operator into an instance of the subtraction circuit XXX, such that both the left and the right input are replacements for the input nodes of that circuit. Edge labels are generated according to the rules from XXX.
+\begin{example}
 
-If the underlying field is a prime field, one approach would be to use Fermat's little theorem XXX to compute the multiplicative inverse inside the circuit. To see how this works let $\F_p$ be the prime field. Then the multiplicative inverse of a field elemen $x\in\F$ with $x\neq 0$ is given by $x^{-1}= x^{p-2}$. We therefore need to compute $x^{p-2}$ in the circuit. For large prime numbers $p$ as they are used in cryptographically relevent prime fields, $p-2$ repeaded multiplication gates to compute $x\cdot\ldots \cdot x$ is infeasible and a double andcmultiply approach as in XXX is needed to compute $x^{p-2}$ in roughly $log_2(p)$ steps. This is possible but adds a lot of constraints to the circuit, ignoring that inversion is a field native operation.
+\end{example} 
 
-A more constraints friendly approach is to allow inversion outside of the circuit and then only enforce correctness of the inversion in the circuit. To understand what this means, observe that by defintion, a field element $y\in \F$ is the mutiplicative inverse of a field element $x\in \F$, if and only if $x\cdot y =1$ in $\F$. We can therefore define a circuit, that takes not only $x$ as input but another input $y$ and design it, such that a valid assignment enforces $y$ to be the multiplicative inverse of $x$. The following cicuit represents the equation $x\cdot y =1$ and therefore does the trick:
+\paragraph{The Inversion Constraint System} By definition, algebraic circuits only contain addition and multiplication gates and it follows thar there is no single gate for field inversion, despite the fact that inversion is a native operation in every field. 
+
+If the underlying field is a prime field, one approach would be to use Fermat's little theorem XXX to compute the multiplicative inverse inside the circuit. To see how this works let $\F_p$ be the prime field. The multiplicative inverse $x^{-1}$ of a field element $x\in\F$ with $x\neq 0$ is then given by $x^{-1}= x^{p-2}$ and computing $x^{p-2}$ in the circuit therefore computes the multiplicative inverse. 
+
+Unfortunately, real world primes $p$ are large and computing $x^{p-2}$ by repeaded multiplication of $x$ with itself is infeasible. A double and multiply approach as described in XXX is faster as it computes the power in roughly $log_2(p)$ steps, but still adds a lot of constraints to the circuit. 
+
+Computing inverses in the circuit makes no use of the fact, that inversion is a native operation in any field. A more constraints friendly approach is therefore to compute the multiplicative inverse outside of the circuit and then only enforce correctness of the computation in the circuit. 
+
+To understand how this can be achieved, observe that a field element $y\in \F$ is the mutiplicative inverse of a field element $x\in \F$, if and only if $x\cdot y =1$ in $\F$. We can use this and define a circuit, that has two inputs $x$ and $y$ and enforces $x\cdot y =1$. It is then guranteed that $y$ is the multiplicative inverse of $x$. The price we pay is that we can not compute $y$ by circuit execution, but auxillary data is needed to tell any proofer which value of $y$ is needed for a valid circuit assignment.  The following circuit defines the constraint
 \begin{center}
 \digraph[scale=0.4]{BTINV}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n3 [xlabel="E_1  "];
-	n2 -> n3 [xlabel="E_2  "];
-	n3 -> n4 [xlabel="E_3 =1  "];
+	n1 -> n3 [xlabel="S_1  "];
+	n2 -> n3 [xlabel="S_2  "];
+	n3 -> n4 [xlabel="S_3 =1  "];
 	n1 [shape=box, label="x"];
-	n2 [shape=box, label="x_INV"];
+	n2 [shape=box, label="x^(-1)"];
 	n3 [label="*"];	
 	n4 [shape=box, label="1"];	
 }
 \end{center}
-Any valid assignment $\{E_1,E_2\}$ to this circuit enforces that $E_2$ is the multiplicative inverse of $E_1$ and since there is no field element $E_2$, such that $0\cdot E_2=1$, it also handles the fact, that the mltiplicative inverse of $0$ is not defined in any field.
-
-Using the mothod from XXX, we transform this circuit in the following rank-1 constraint system, enforcing that input $y$ is the multiplicative :
+Using the general method from XXX, the circui is transformed into the following rank-1 constraint system:
 \begin{equation}
-E_1 \cdot E_2 = 1
+S_1 \cdot S_2 = 1
 \end{equation}
-\paragraph{The Division Constraint System} Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field division, despite field division being a native single op in every field. Algebraic circuits therefore need another way to deal with division.
+Any valid assignment $\{S_1,S_2\}$ to this circuit enforces that $S_2$ is the multiplicative inverse of $S_1$ and since there is no field element $S_2$, such that $0\cdot S_2=1$, it also handles the fact, that the multiplicative inverse of $0$ is not defined in any field. In \texttt{PAPER} we define the following inversion module that compiles to the previous circuit:
+\begin{lstlisting}
+module INV {F_13} {
+	input private x : F ; 
+	input private x^(-1) : F ; 
+	output const c : F = 1 ;
 
-Since by definition, division is nothing but multiplication with the multiplicative inverse, we can define divsion in circuits using the inversion circuit and constraint system from the prvious paragraph XXX, executing the expensive inversion part outside of the circuit. We get 
+	circuit
+		c <== MUL( x ,  x^(-1) ) );
+}
+\end{lstlisting}
+\texttt{PAPER} compiles every occurence of the binary $\mathtt{INV}$ operator into an instance of the inversion circuit XXX, such that the left input is replacements for the input nodes of that circuit and the right input is an additional input node to the circuit, labeled by $x^{-1}$. Edge labels are generated according to the rules from XXX.
+\paragraph{The Division Constraint System} By definition, algebraic circuits only contain addition and multiplication gates and it follows thar there is no single gate for field division, despite the fact that division is a native operation in every field.
+
+Implementing division as a circuit, we use the fact that division is multiplication with the multiplicative inverse. We therefore define divsion as a circuit using the inversion circuit and constraint system from the prvious paragraph. Expensive inversion is computed outside of the circuit. We get 
 \begin{center}
 \digraph[scale=0.4]{BTDIV}{
 	forcelabels=true;
 	center=true;
 	splines=ortho;
 	nodesep= 2.0;
-	n1 -> n6 [xlabel="E_1  "];
-	n2 -> n4 [xlabel="E_2  "];
-	n3 -> n6 [xlabel="E_3  "];
-	n3 -> n4 [xlabel="E_3  "];
-	n4 -> n5 [xlabel="E_4  "];
-	n6 -> n7 [xlabel="E_5  "];
+	n1 -> n6 [xlabel="S_1  "];
+	n2 -> n4 [xlabel="S_2  "];
+	n3 -> n6 [xlabel="S_3  "];
+	n3 -> n4 [xlabel="S_3  "];
+	n4 -> n5 [xlabel="1  "];
+	n6 -> n7 [xlabel="S_4  "];
 	n1 [shape=box, label="x"];
 	n2 [shape=box, label="y"];
-	n3 [shape=box, label="y_INV"];
+	n3 [shape=box, label="y^(-1)"];
 	n4 [label="*"];	
 	n5 [shape=box, label="1"];
 	n6 [label="*"];	
 	n7 [shape=box, label="DIV(x,y)"];	
 }
 \end{center} 
-Any valid assignment $\{E_1,E_2,E_3,E_4,E_5\}$ to this circuit enforces that $E_5$ is the output of the field divsion of $E_1$ by $E_2$. It handles the fact, that division by $0$ is not defined, by not having any valid assignment in case $E_2=0$.
-
-Using the mothod from XXX, we transform this circuit in the following rank-1 constraint system, enforcing that input $y$ is the multiplicative :
+Using the mothod from XXX, we transform this circuit into the following rank-1 constraint system:
 \begin{align*}
-E_2 \cdot E_3 &= 1\\
-E_1 \cdot E_3 &= E_5
+S_2 \cdot S_3 &= 1\\
+S_1 \cdot S_3 &= S_4
 \end{align*}
+Any valid assignment $\{S_1,S_2,S_3,S_4\}$ to this circuit enforces $S_4$ to be the field divsion of $S_1$ by $S_2$. It handles the fact, that division by $0$ is not defined, since there is no valid assignment in case $S_2=0$. In \texttt{PAPER} we define the following division module that compiles to the previous circuit:
+\begin{lstlisting}
+module DIV {F_13} {
+	input private x : F ; 
+	input private y : F ;
+	input private y^(-1) : F ; 
+	output private DIV : F ;
+
+	circuit
+		DIV <== MUL( x ,  INV( y, y^(-1) ) ) );
+}
+\end{lstlisting}
+\texttt{PAPER} compiles every occurence of the binary $\mathtt{INV}$ operator into an instance of the inversion circuit XXX, such that the left input is replacements for the input nodes of that circuit and the right input is an additional input node to the circuit, labeled by $x^{-1}$. Edge labels are generated according to the rules from XXX.
+
+
 \paragraph{Modularity} Implementing bounded computation in algebraic circuits it is often necessary to deal with complex expressions of the field type. As we have seen in XXX and XXX, both algebraic circuits and R1CS have a modularity property, which enables a compiler to derive algebraic circuit implementations for arbitrary circuits. 
+\begin{example}
+To given an intuition of how real world circuit compilers make use of the modularity property to synthezise complex circuits from high level programs, we derive a circuit for the following \texttt{PAPER} code:
+\begin{lstlisting}
+def main<F_13>(private x : F, private y : F, private y^(-1) : F ) -> () {
+
+	circuit:
+		outc1 == DIV( ADD( , ) , , );
+}
+\end{lstlisting}
+\end{example}
 \begin{comment}
 \begin{example} Consider the prime field $\F_{13}$. In this example, we want to derive an algebraic circuit and associated R1CS that enforces a pair $(x,y)\in \F_{13}^2$ to be the sum of two tiny jubjub curve points $(x_1,y_1)$ and $(x_2,y_2)$. We assume that we already know that $(x_1,x_2)$ as well as $(x_2,y_2)$ are tiny jubjub points, that is we assume that they are the inputs to valid assignments of circuit XXX. 
 
@@ -317,31 +487,27 @@ We then proceed inductively choosing circuits for the outer most operators, whic
 
 \subsubsection{The Boolean Type} 
 % implementations can be found here: https://github.com/filecoin-project/zexe/tree/master/snark-gadgets/src/bits
-
-It is often necessary to assume that a statement contains expressions of boolean variables. However by definition the alphabet of a statement is a finite field, which is usually the scalar field of a large prime order cyclic group. So developers need a way to simulate boolean algebra inside finite fields.
-
-The most common way to do this in algebraic circuits and their associated rank-1 constraint systems, is to interpret the additive and multiplicate neutral element $\{0,1\}\subset \F$ as boolean values, such that $0$ represents $false$ and $1$ represents $true$. Boolean functions like $and$, $or$, $xor$ and so on are the expressable in terms of computations inside $\F$. 
+Booleans are a classical primitive type, implemented by virtually every higher programing language. It is therefore a importance to implement booleans in circuits. One of the most common ways to do this is by interpreting the additive and multiplicative neutral element $\{0,1\}\subset \F$ as the two boolean values, such that $0$ represents $false$ and $1$ represents $true$. Boolean operators like $and$, $or$, or $xor$ are then expressable as algebraic computations inside $\F$. 
 
 Representing booleans this way is convinient because the elements $0$ and $1$ are defined in any field. The representation is therefore independent of the actual field in consideration. 
 
-To fix Boolean algebra notation in what follows, we often write $0$ to represent $false$ and $1$ to represent $true$. We also write $\wedge$ to represent the boolean AND as well as $\vee$ to represent the boolean OR operator. The boolean NOT operator is written as $\lnot$. 
-\paragraph{The Boolean Constraint System}
-If boolean variables appear as part of a statement, a constraint is required to actually enforces the variable to be either $1$ or $0$. In fact many of the following constraints for boolean functions, are only correct under the assumption that their input variables are boolean constraint. Not constraining boolean variables is a common issue in circuit design.
+To fix Boolean algebra notation we write $0$ to represent $false$ and $1$ to represent $true$ and we write $\wedge$ to represent the boolean AND as well as $\vee$ to represent the boolean OR operator. The boolean NOT operator is written as $\lnot$. 
+\paragraph{The Boolean Constraint System} Once a circuit compiler has decided to represent the booleans by the additive and multiplicative neutral elements of a field, a constraint is required to actually enforces variables of boolean type to be either $1$ or $0$. In fact many of the following circuits that represent boolean functions, are only correct under the assumption that their input variables are constraint to be either $0$ or $1$. Not constraining boolean variables is a common issue in circuit design.
 
-In order to constrain an arbitrary field element $x\in \F$ to be $1$ or $0$, the key observatio is that the equation $x \cdot (1-x) =0$ has only two solutions $0$ and $1$.
+In order to constrain an arbitrary field element $x\in \F$ to be $1$ or $0$, the key observation is that the equation $x \cdot (1-x) =0$ has only two solutions $0$ and $1$. Implementing this equation as a circuit therefore generates the correct constraint:
 \begin{center}
 \digraph[scale=0.4]{BOOLCONS}{
   forcelabels=true;
   center=true;
   splines=ortho;
   nodesep= 2.0;
-  nCONS1 -> nCONS4 [xlabel="E_1"] ;
-  nCONS1 -> nCONS6 [xlabel="E_1  "] ;
+  nCONS1 -> nCONS4 [xlabel="S_1"] ;
+  nCONS1 -> nCONS6 [xlabel="S_1  "] ;
   nCONS2 -> nCONS5 ;
   nCONS3 -> nCONS4 ;
   nCONS4 -> nCONS5 ;
   nCONS5 -> nCONS6 ;
-  nCONS6 -> nCONS7 [xlabel="E_2  "] ;
+  nCONS6 -> nCONS7 [xlabel="0  "] ;
   nCONS1 [shape=box, label="x"] ;
   nCONS2 [shape=box, label="1"] ;
   nCONS3 [shape=box, label="-1"] ;
@@ -351,10 +517,24 @@ In order to constrain an arbitrary field element $x\in \F$ to be $1$ or $0$, the
   nCONS7 [shape=box, label="0"] ;
 }
 \end{center}
-To enfore a field element to be boolean constraint the following R1CS is therefore enough
-\begin{equation}
-W_1 \cdot (1-W_1) =0
-\end{equation}
+Using the mothod from XXX, we transform this circuit into the following rank-1 constraint system:
+$$
+S_1 \cdot (1-S_1) = 0
+$$
+Any valid assignment $\{S_1\}$ to this circuit enforces $S_1$ to be either $0$ or $1$. In \texttt{PAPER} we define the following boolean constraint module that compiles to the previous circuit:
+\begin{lstlisting}
+module BOOL {F_13} {
+	input private x : F ; 
+	output const c1 : F = 0 ;
+	output const c2 : F = 1 ;
+	output const c3 : F = -1 ;
+
+	circuit
+		c1 <== MUL( x ,  ADD( c2 , MUL( x , c3) ) ) );
+}
+\end{lstlisting}
+\texttt{PAPER} compiles every occurence of a variable of boolean type into an instance of the boolean constraint circuit XXX. Edge labels are generated according to the rules from XXX.
+
 In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
 \begin{center}
 \digraph[scale=0.6]{BOOLMETA}{
@@ -936,6 +1116,8 @@ module mask_merge(N) (
 \end{lstlisting}
 Let $L_{mask\_merge}$ be the language defined by the R1CS of the circuit. Provide a knowledge proof in $L_{mask\_merge}$ for the instance $I=(I_a, I_b, I_{mask}, I_r) = (14, 5, 10, 4)$. Also show that there is no knowledge proof in $L_{mask\_merge}$ for the instance $(11, 6, 10, 7)$.
 \end{exercise}
+\subsubsection{Arrays}
+
 \subsection{Control Flow}
 \subsubsection{The Conditional Assignment} Implementing complex control flow in circuits, it is often necessary to have a way for conditional assignment of values or computational output to variables.
 

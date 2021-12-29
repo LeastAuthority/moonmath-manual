@@ -492,29 +492,76 @@ n1 -> n5 [xlabel="W_(in_1)"] ;
 n2 -> n6 [xlabel="I_(in_2)"] ;
 n3 -> n4 ;
 }
+digraph FNMUL {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 [shape=box, label="x"];
+n2 [shape=box, label="y"];
+n3 [shape=box, label="*"]; 
+n4 [shape=box, label="MUL(x,y)"];
+
+n1 -> n3 [xlabel="W_x"] ;
+n2 -> n3 [xlabel="W_y"];
+n3 -> n4 [xlabel="W_STUFF"] ;
+
+n5 [shape=box, label="x"];
+n6 [shape=box, label="y"];
+n7 [shape=box, label="+"]; 
+n8 [shape=box, label="ADD(x,y)"];
+
+n5 -> n7 [xlabel="W_x"] ;
+n6 -> n7 [xlabel="W_y"];
+n7 -> n8 [xlabel="W_STUFF"] ;
+}
 digraph SIMPLEMUL {
 forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-n1 -> n4 [xlabel="I_1"] ;
-n2 -> n4 [xlabel="W_2"] ;
-n4 -> n3 [xlabel="W_3=1"];
-n1 [shape=box, label="x"];
-n2 [shape=box, label="y"];
-n3 [shape=box, label="1"];
-n4 [label="*"];
+n1 [shape=box, label="in_1"];
+n2 [shape=box, label="in_2"];
+n3 [shape=box, label="product"];
+n4 [shape=box, label="sum"];
+n5 [shape=box, label="*"];
+n6 [shape=box, label="+"]; 
+
+n1 -> n5 [xlabel="W_(in_1)"] ;
+n1 -> n6 [xlabel="W_(in_1)"];
+n2 -> n5 [xlabel="I_(in_2)"] ;
+n2 -> n6 [xlabel="I_(in_2)"];
+n5 -> n3 [xlabel="W_1 = I_(product)"] ;
+n6 -> n4 [xlabel="W_(sum)"];
+}
+digraph PAPER3FUC {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 2.0;
+n1 [shape=box, label="x_1"];
+n2 [shape=box, label="x_2"];
+n3 [shape=box, label="x_3"];
+n4 [shape=box, label="f_3.fac_zk"];
+n5 [shape=box, label="*"];
+n6 [shape=box, label="*"]; 
+
+n1 -> n5 [xlabel="W_(x_1)"] ;
+n2 -> n5 [xlabel="W_(x_2)"] ;
+n3 -> n6 [xlabel="W_(x_3)"];
+n5 -> n6 [xlabel="W_1"] ;
+n6 -> n4 [xlabel="W_2 = I_(f_3.fac_zk)"];
 }
 digraph BTSUB {
 forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-n1 -> n5 [xlabel="E_1 "];
-n2 -> n4 [xlabel="E_2 "];
+n1 -> n5 [xlabel="S_1 "];
+n2 -> n4 [xlabel="S_2 "];
 n3 -> n4 ;
 n4 -> n5 ;
-n5 -> n6 [xlabel="E_3 "];
+n5 -> n6 [xlabel="S_3 "];
 n1 [shape=box, label="x"];
 n2 [shape=box, label="y"];
 n3 [shape=box, label="-1"];
@@ -527,11 +574,11 @@ forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-n1 -> n3 [xlabel="E_1 "];
-n2 -> n3 [xlabel="E_2 "];
-n3 -> n4 [xlabel="E_3 =1 "];
+n1 -> n3 [xlabel="S_1 "];
+n2 -> n3 [xlabel="S_2 "];
+n3 -> n4 [xlabel="S_3 =1 "];
 n1 [shape=box, label="x"];
-n2 [shape=box, label="x_INV"];
+n2 [shape=box, label="x^(-1)"];
 n3 [label="*"]; 
 n4 [shape=box, label="1"]; 
 }
@@ -540,15 +587,15 @@ forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-n1 -> n6 [xlabel="E_1 "];
-n2 -> n4 [xlabel="E_2 "];
-n3 -> n6 [xlabel="E_3 "];
-n3 -> n4 [xlabel="E_3 "];
-n4 -> n5 [xlabel="E_4 "];
-n6 -> n7 [xlabel="E_5 "];
+n1 -> n6 [xlabel="S_1 "];
+n2 -> n4 [xlabel="S_2 "];
+n3 -> n6 [xlabel="S_3 "];
+n3 -> n4 [xlabel="S_3 "];
+n4 -> n5 [xlabel="1 "];
+n6 -> n7 [xlabel="S_4 "];
 n1 [shape=box, label="x"];
 n2 [shape=box, label="y"];
-n3 [shape=box, label="y_INV"];
+n3 [shape=box, label="y^(-1)"];
 n4 [label="*"]; 
 n5 [shape=box, label="1"];
 n6 [label="*"]; 
@@ -559,13 +606,13 @@ forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-nCONS1 -> nCONS4 [xlabel="E_1"] ;
-nCONS1 -> nCONS6 [xlabel="E_1 "] ;
+nCONS1 -> nCONS4 [xlabel="S_1"] ;
+nCONS1 -> nCONS6 [xlabel="S_1 "] ;
 nCONS2 -> nCONS5 ;
 nCONS3 -> nCONS4 ;
 nCONS4 -> nCONS5 ;
 nCONS5 -> nCONS6 ;
-nCONS6 -> nCONS7 [xlabel="E_2 "] ;
+nCONS6 -> nCONS7 [xlabel="0 "] ;
 nCONS1 [shape=box, label="x"] ;
 nCONS2 [shape=box, label="1"] ;
 nCONS3 [shape=box, label="-1"] ;
