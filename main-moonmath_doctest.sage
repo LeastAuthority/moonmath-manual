@@ -54,28 +54,28 @@ Sage commandline, line 352::
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 419::
+Sage commandline, line 421::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 495::
+Sage commandline, line 497::
 
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
 sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 
-Sage commandline, line 567::
+Sage commandline, line 569::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 615::
+Sage commandline, line 617::
 
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
 sage: Z5(3)**(-1)
 sage: Z5(3)**(5-2) == Z5(3)**(-1)
 
-Sage commandline, line 684::
+Sage commandline, line 686::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -90,7 +90,7 @@ sage: p2
 sage: p6 = Zx([0])
 sage: p6.degree()
 
-Sage commandline, line 718::
+Sage commandline, line 720::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -101,7 +101,7 @@ sage: p1 = Z6x([17,-4,2])
 sage: p1
 sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
-Sage commandline, line 747::
+Sage commandline, line 749::
 
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -109,14 +109,14 @@ sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
 sage: p1(ZZ(2))
 sage: p7(ZZ(-6)) == ZZ(-264)
 
-Sage commandline, line 764::
+Sage commandline, line 766::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
 sage: p1 = Z6x([5,-4,2])
 sage: p1(Z6(2)) == Z6(5)
 
-Sage commandline, line 801::
+Sage commandline, line 803::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -124,7 +124,7 @@ sage: Q = Zx([5,0,-2,1])
 sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 820::
+Sage commandline, line 822::
 
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -132,7 +132,7 @@ sage: Q = Z6x([5,0,-2,1])
 sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
 sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 878::
+Sage commandline, line 880::
 
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -141,14 +141,14 @@ sage: M = Zx([-80,19,-4,1])
 sage: R = Zx([-89,339])
 sage: A == M*B + R
 
-Sage commandline, line 910::
+Sage commandline, line 912::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 935::
+Sage commandline, line 937::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)

@@ -169,7 +169,7 @@ sage: ZZ(4).divides(ZZ(12))
 \end{example}
 Methods to compute Euclidean division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school. (It should be noted, however, that there are faster methods like \term{Newton–Raphson division}.)
 
-As long division is the standard method used for pen-\&-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it throughout this book when we do simple pen-and-paper computations. However, instead of defining the algorithm formally, we rather give some examples that will hopfuelly  make the process clear.
+As long division is the standard method used for pen-and-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it throughout this book when we do simple pen-and-paper computations. However, instead of defining the algorithm formally, we rather give some examples that will hopfuelly  make the process clear.
 
 In a nutshell, the algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the dividend. \tbds{Add more explanation of how this works}
 
@@ -336,11 +336,11 @@ In the next step we want to shift all instances of $x$ to left and every other t
 \kongru{14x-x +158-158}{x-x-102-158}{6} \Leftrightarrow \\
 \kongru{13x}{-260}{6}
 \end{multline*}
-If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruency, we need to make sure that the modulus and the number we want to divide by are coprime first – only then will we get an equivalent expression. So we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute 
+If our congruency would just be a normal integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruency, we need to make sure that the modulus and the number we want to divide by are coprime first – only then will we get an equivalent expression. So we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that $gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute 
 $$
 \kongru{13x}{-260}{6} \Leftrightarrow \kongru{x}{-20}{6}
 $$
-Our task is now to find all integers $x$, such that $x$ is congruent to $-20$ with respect to the modulus $6$. So we have to find all $x$ such
+Our task is now to find all integers $x$, such that $x$ is congruent to $-20$ with respect to the modulus $6$. So we have to find all $x$ such that
 $$
 \Zmod{x}{6} = \Zmod{-20}{6}
 $$
@@ -348,7 +348,7 @@ Since $-4\cdot 6 +4 = -20$ we know $ \Zmod{-20}{6} = 4$ and hence we know that $
 $$
 \{\ldots, -8,-2, 4,10, 16,\ldots\} = \{4+k\cdot 6 \;|\; k\in \Z\}
 $$
-Putting all this together, we have shown that the every $x$ from the set $\{x=4+k\cdot 6 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{6}$. We double ckeck for, say, $x=4$ as well as $x=14 + 12\cdot 6 = 86$ using sage:
+Putting all this together, we have shown that every $x$ from the set $\{x=4+k\cdot 6 \;|\; k\in \Z\}$ is a solution to the congruency $\kongru{7\cdot(2x+21) + 11}{x-102}{6}$. We double check for, say, $x=4$ as well as $x=14 + 12\cdot 6 = 86$ using sage:
 \begin{sagecommandline}
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
@@ -361,7 +361,9 @@ Readers who had not been familiar with modular arithmetics until now and who mig
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{46}{23}$
 \end{exercise}
-\paragraph{The Chinese Remainder Theorem} We have seen how to solve congruencies in modular arithmetic. However, one question that remains is how to solve systems of congruencies with different moduli? The answer is given by the \term{Chinese reimainder theorem}, which states that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $, the so-called \term{simultaneous congruency}
+\paragraph{The Chinese Remainder Theorem} We have seen how to solve congruencies in modular arithmetic. However, one question that remains is how to solve systems of congruencies with different moduli. The answer is given by the \term{Chinese reimainder theorem}, which states that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $,  \term{simultaneous congruency} (shown in \ref{eq_simultaneous_congruency} below) has a solution, and all possible solutions of this congruence system are congruent modulo
+the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult XXX \smelong{add references}} \tbds{add equation name}
+
 \begin{equation}
 \label{eq_simultaneous_congruency}
 \begin{array}{c}
@@ -371,10 +373,10 @@ Readers who had not been familiar with modular arithmetics until now and who mig
 \kongru{x}{a_k}{n_k} \\
 \end{array}
 \end{equation}
-has a solution, and all possible solutions of this congruence system are congruent modulo
-the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chinese remainder theorem as it was already known in ancient China. Under certain circumstances, the theorem can be extended to non-coprime moduli $ n_1, \ldots, n_k $ but this is beyond the scope of this book. Interested readers should consult XXX \smelong{add references}} In fact, the following algorithm computes the solution set: \tbds{Algorithm sometimes floated to the next page, check this for final version}
-\begin{algorithm}\caption{Chinese Reminder Theorem}
-\label{alg_ext_euclid_alg}
+
+The following algorithm computes the solution set: \tbds{Algorithm sometimes floated to the next page, check this for final version}
+\begin{algorithm}\caption{Chinese Remainder Theorem}
+\label{alg_chinese_remainder_theorem}
 \begin{algorithmic}[0]
 \Require $n_0,\ldots,n_{k-1} \in \N$ coprime
 \Procedure{Congruency-Systems-Solver}{$k,a_{0,\ldots,k-1},n_{0,\ldots,k-1}$}
@@ -420,9 +422,9 @@ $ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are in
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 \end{sagecommandline}
 \end{example}
-As we have seen in various examples before, computing congruencies can be cumbersome and solution sets are large in general. It is therefore advantaegous to find some kind of simplification for modular arithmetic. 
+As we have seen in various examples before, computing congruencies can be cumbersome and solution sets are large in general. It is therefore advantageous to find some kind of simplification for modular arithmetic. 
 
-Fortunately, this is possible and relatively straightforward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. Then we can go a step further, and identify each set of numbers with equal remainder with that remainder and call it a \term{remainder class} or \term{residue class} in modulo $n$ arithmetics. 
+Fortunately, this is possible and relatively straightforward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. Then we can go a step further, and identify each set of numbers with an equal remainder with that remainder and call it a \term{remainder class} or \term{residue class} in modulo $n$ arithmetics. 
 
 It then follows from the properties of Euclidean division that there are exactly $ n $ different remainder classes for every modulus $n$ and that integer addition and multiplication can be projected to a new kind of addition and multiplication on those classes. 
 
@@ -466,7 +468,7 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
         5 & 0 & 5 & 2 & 3 & 2 & 1
   \end{tabular}
 \end{center}
-This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. It is called\term{modular 6 arithmetics} and written as $\Z_6$.
+This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. It is called \term{modular 6 arithmetics} and written as $\Z_6$.
 
 To see why such an identification of a congruency class with its remainder is useful and actually simplifies congruency computations a lot, lets go back to the congruency from example \ref{example_first_congruency} again:
 \begin{equation}
@@ -516,9 +518,9 @@ Let $S$ be our set that has some notion $a\cdot b$ of multiplication and a \term
 \begin{equation}
 a\cdot a^{-1} = 1
 \end{equation}
-Informally speaking, the definition of a multiplicative inverse is means that it ``cancels" the original element to give $1$ when they are multiplied. 
+Informally speaking, the definition of a multiplicative inverse means that it ``cancels" the original element to give $1$ when they are multiplied. 
 
-Numbers that have multiplicative inverses are of particular interest, because they immediately lead to the definition of division by those numbers. In fact, if $a$ is number such that the multiplicative inverse $a^{-1}$ exists, then we define \term{division} by $a$ simply as multiplication by the inverse:
+Numbers that have multiplicative inverses are of particular interest, because they immediately lead to the definition of division by those numbers. In fact, if $a$ is a number such that the multiplicative inverse $a^{-1}$ exists, then we define \term{division} by $a$ simply as multiplication by the inverse:
 \begin{equation}
 \frac{b}{a}:= b\cdot a^{-1}
 \end{equation}
@@ -529,7 +531,7 @@ For example, the multiplicative inverse of $3$ is $\frac{1}{3}$, since $3\cdot \
 \end{example}
 \begin{example}Looking at  the set $\Z$ of integers, we see that with respect to multiplication the neutral element is the number $1$ and we notice, that no integer $a\neq 1$ has a multiplicative inverse, since the equation $a\cdot x =1$ has no integer solutions for $a\neq 1$. 
 
-The definition of multiplicative inverse works verabtim for addition as well. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exist and is given by the negative number $-a$, since $a+(-1)=0$.  \sme{(-1) should be (-a)?}
+The definition of multiplicative inverse works verabtim for addition as well. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exists and is given by the negative number $-a$, since $a+(-1)=0$.  \sme{(-1) should be (-a)?}
 \end{example}
 \begin{example} Looking at the set $\Z_6$ of residual classes modulo $6$ from example \ref{def_residue_ring_z_6}, we can use the multiplication table to find multiplicative inverses. To do so, we look at the row of the element and then find the entry equal to $1$. If such an entry exists, the element of that column is the multiplicative inverse. If, on the other hand, the row has no entry equal to $1$, we know that the element has no multiplicative inverse.
 
@@ -646,7 +648,7 @@ Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{5}$. 
 Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{6}$. Then project the congruency into $\Z_6$ and try to solve the resulting equation in $\Z_6$.
 \end{exercise}
 \section{Polynomial Arithmetics}
-A polynomial is an expression consisting of variables (also called indeterminates) and coefficients, that involves only the operations of addition, subtraction, multiplication, and non-negative integer exponentiation of variables. All coefficients of a polynomial must have the same type, e.g. being integers or fractions etc. To be more precise a \textit{univariate polynomial} is an expression
+A polynomial is an expression consisting of variables (also called indeterminates) and coefficients, that involves only the operations of addition, subtraction, multiplication, and non-negative integer exponentiation of variables. All coefficients of a polynomial must have the same type, e.g. being integers or fractions etc. To be more precise, a \term{univariate polynomial} is an expression
 \begin{equation}
 P(x) := \sum _{j = 0} ^{m}{a} _{j}{t} ^{j} ={a} _{m}x^m +{a} _{m-1} x^{m-1} + \dots + a_1 x + a_0 \;,
 \end{equation}
@@ -743,7 +745,7 @@ P(a) = \sum_{j=0}^m a_j b^j
  &P_6(1274) =0 \\
  &P_7(-6)   = (-6-2)(-6+3)(-6+5) = -264 \\
 \end{align*}
-Note, however, that is not possible to evaluate any of those polynomial on values of different type. For example, it is strictly speaking wrong\tbds{rephrase} to write $P_1(0.5)$, since $0.5$ is not an integer. We can verify our computations using Sage:
+Note, however, that it is not possible to evaluate any of those polynomial on values of different type. For example, it is strictly speaking wrong\tbds{rephrase} to write $P_1(0.5)$, since $0.5$ is not an integer. We can verify our computations using Sage:
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -786,13 +788,13 @@ $ \sum _{n = 0} ^{m_2}{b} _{n}{x} $ be two polynomials from $ R[x]$. Then the \t
 A rule for polynomial subtraction can be deduced from these two rules by first multiplying the \href{https://www.splashlearn.com/math-vocabulary/subtraction/subtrahend}{\uterm{subtrahend}} 
 with (the polynomial) $-1$ and then add the result to the \href{https://www.splashlearn.com/math-vocabulary/subtraction/minuend}{\uterm{minuend}}.
 
-Regarding the definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is Sage, which would violate this rule.
-\begin{example} To given an example of how polynomial arithmetics works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
+Regarding the definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both \term{summands}, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ in Sage, which would violate this rule.
+\begin{example} To give an example of how polynomial arithmetics works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
 \begin{align*}
 (P+Q)(x) & = (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
          & = x^3 +3x^2 -4x +7
 \end{align*}
-The product of these two polynomials is computed by multiplication of each term in the first factor with each term in the second factor. We get
+The product of these two polynomials is computed by the multiplication of each term in the first factor with each term in the second factor. We get
 \begin{align*}
 (P\cdot Q)(x) & = (5x^2 -4x +2)\cdot (x^3-2x^2 +5) \\
               & = (5 x^5 -10 x^4 +25 x^2)+ (-4x^4 +8 x^3 -20x) + (2x^3 -4x^2+10) \\
@@ -838,9 +840,9 @@ A = M\cdot B + R
 and $deg(R) < deg(B)$. Similarly to integer Euclidean division, both $M$ and $R$ are uniquely defined by these relations. 
 \begin{notation}
 \label{eq_polynomial_euklidean_division_notation}
-Suppose that the polynomials $ A, B, M $ and $ R $ satisfy equation XX. Then we often write 
+Suppose that the polynomials $ A, B, M $ and $ R $ satisfy equation XX\sme{add reference}. Then we often write 
 \begin{equation}
-\label{def_integer_division_and_modulus}
+\label{def_polynom_division_and_modulus}
 \begin{array}{lcr}
 \Zdiv{A}{B}: = M, & & \Zmod{A}{B}: = R 
 \end{array}
@@ -849,7 +851,7 @@ to describe the quotient and the remainder polynomials of the Euclidean division
 \end{notation}
 Analogously to integers, methods to compute Euclidean division for polynomials are called \term{polynomial division algorithms}. Probably the best known algorithm is the so called \term{polynomial long division}. 
 \begin{algorithm}\caption{Polynomial Euclidean Algorithm}
-\label{alg_ext_euclid_alg}
+\label{alg_polynom_euclid_alg}
 \begin{algorithmic}[0]
 \Require $A,B \in R[x]$ with $B\neq 0$, such that $Lc(B)^{-1}$ exists in $R$
 \Procedure{Poly-Long-Division}{$A,B$}
@@ -870,7 +872,7 @@ Analogously to integers, methods to compute Euclidean division for polynomials a
 
 % https://math.stackexchange.com/questions/2140378/division-algorithm-for-polynomials-in-rx-where-r-is-a-commutative-ring-with-u
 This algorithm works only when there is a notion of division by the leading coefficient of $B$. It can be generalized, but we will only need this somewhat simpler method in what follows.
-\begin{example}[Polynomial Long Division] To give an example of how the previous algorithm works, let us divide the integer polynomial $A(x)=x^5+2x^3-9\in \Z[x]$ by the integer polynomial $B(x)=x^2+4x-1\in\Z[x]$. Since $B$ is not the zero polynomial and the leading coefficient of $B$ is $1$, which is invertible as an integer, we can apply algorithm \ref{alg_ext_euclid_alg}. Our goal is to find solutions to equation XXX, that is, we need to find the quotient polynomial $M\in\Z[x]$ and the reminder polynomial $R \in \Z[x]$ such that $x^5+2x^3-9 = M(x)\cdot (x^2+4x-1) + R$. Using a notation that is mostly used in Commonwealth countries, we compute as follows:
+\begin{example}[Polynomial Long Division] To give an example of how the previous algorithm works, let us divide the integer polynomial $A(x)=x^5+2x^3-9\in \Z[x]$ by the integer polynomial $B(x)=x^2+4x-1\in\Z[x]$. Since $B$ is not the zero polynomial and the leading coefficient of $B$ is $1$, which is invertible as an integer, we can apply algorithm \ref{alg_ext_euclid_alg}. Our goal is to find solutions to equation XXX. That is, we need to find the quotient polynomial $M\in\Z[x]$ and the reminder polynomial $R \in \Z[x]$ such that $x^5+2x^3-9 = M(x)\cdot (x^2+4x-1) + R$. Using a notation that is mostly used in Commonwealth countries, we compute as follows:
 \begin{equation}
 \polylongdiv{X^5+2X^3-9}{X^2+4X-1}
 \end{equation}
@@ -922,7 +924,7 @@ Points where a polynomial evaluates to zero are called the \term{roots} of the p
 \begin{equation}
 R_0(P):=\{x_0\in R\;|\; P(x_0)=0\}
 \end{equation}
-Finding the roots of a polynomial is sometimes called \term{solving the polynomial}. It is a hard problem and has been the subject of much research throughout history. In fact, it is well known that, for polynomials of degree $5$ or higher, there is, in general, no closed expression, from which the roots can be deduced. 
+Finding the roots of a polynomial is sometimes called \term{solving the polynomial}. It is a hard problem and has been the subject of much research throughout history. In fact, it is well known that, for polynomials of degree $5$ or higher, there is, in general, no closed expression from which the roots can be deduced. 
 
 It can be shown that if $m$ is the degree of a polynomial $P$, then $P$ can not have more than $m$ roots. However, in general, polynomials can have less than $m$ roots. 
 \begin{example}
