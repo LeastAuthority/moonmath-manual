@@ -23,9 +23,9 @@ This repo contains the files needed to typeset the MoonMath Manual in LaTeX. Oth
     - [2.6 Software used in this book](#26-software-used-in-this-book)
       - [2.6.1 Sagemath](#261-sagemath)
   - [Chapter 3: Arithmetics](#chapter-3-arithmetics)
-    - [3.1 Integer Arithmetics](#31-integer-arithmetics)
-    - [3.2 Modular Arithmetics](#32-modular-arithmetics)
-    - [3.3 Polynomial Arithmetics](#33-polynomial-arithmetics)
+    - [3.1 Integer Arithmetic](#31-integer-arithmetic)
+    - [3.2 Modular Arithmetic](#32-modular-arithmetic)
+    - [3.3 Polynomial Arithmetic](#33-polynomial-arithmetic)
   - [Chapter 4: Algebra](#chapter-4-algebra)
     - [4.1 Groups](#41-groups)
       - [4.1.1 Cryptographic Groups](#411-cryptographic-groups)
@@ -135,9 +135,9 @@ This repo contains the files needed to typeset the MoonMath Manual in LaTeX. Oth
 |---|---|
 | fine for now and can be finalized ✅ | Sylvia?  |
 
-### 3.1 Integer Arithmetics
-### 3.2 Modular Arithmetics
-### 3.3 Polynomial Arithmetics
+### 3.1 Integer Arithmetic
+### 3.2 Modular Arithmetic
+### 3.3 Polynomial Arithmetic
 
 ## Chapter 4: Algebra
 

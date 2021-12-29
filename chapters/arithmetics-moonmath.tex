@@ -16,7 +16,7 @@ This is why we dedicated this chapter to explaining the mathematical foundations
 
 If, on the other hand, you are already skilled in elliptic curve cryptography, feel free to skip this chapter and only come back to it for reference and comparison. Maybe the most interesting parts are XXX \sme{Update reference when content is finalized}.
 
-We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like integer arithmetics. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and \uterm{methatical} structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar.
+We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like integer arithmetic. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and \uterm{methatical} structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar.
 
 We want to stress, however, that this introduction is informal, incomplete and optimized to enable the reader to understand zero-knowledge concepts as efficiently as possible. Our focus and design choices are to include as little theory as necessary, focusing on  the wealth of \tbds{numerical} examples. We believe that such an informal, example-driven approach to learning mathematics may make it easier for beginners to digest the material in the initial stages. 
 
@@ -27,13 +27,13 @@ However, in order to be able to derive these toy examples, some mathematical gro
 
 \subsection{The structure of this chapter}
 
-We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclid's algorithm. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
+We start with a brief recapitulation of basic integer arithmetic like long division, the greatest common divisor and Euclid's algorithm. After that, we introduce modular arithmetic as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetic and introduce the important concept of Lagrange interpolation.
 
 After this practical warm up, we introduce some basic algebraic terms like groups and fields, because those terms are used very frequently in academic papers relating to zero-knowledge proofs. The beginner is  advised to memorize those terms and \tbds{think about them}. We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
 
-\section{Integer Arithmetics}
+\section{Integer Arithmetic}
 \label{integer_arithmetics}
-In a sense, integer arithmetics is at the heart of large parts of modern cryptography, because it provides the most basic tools for doing computations in those systems. Fortunately, most readers will probably remember integer arithmetics from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
+In a sense, integer arithmetic is at the heart of large parts of modern cryptography, because it provides the most basic tools for doing computations in those systems. Fortunately, most readers will probably remember integer arithmetic from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
 
 In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}: \smelong{S: I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper. \\
 M:Yeah maybe we use the more suggestive leftarrows aks $\gets$ ? If a table of symbols is unavoidable then ok, I find I super ugly, though\\
@@ -217,7 +217,7 @@ Write an algorithm in \uterm{pseudocode} that computes integer long division, ha
 \end{exercise}
 
 \paragraph{The Extended Euclidean Algorithm}
-One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so-called \term{finite fields}, as we explain in XXX. In \uterm{modular arithmetics}, it is sometimes possible to define \uterm{actual division} and \uterm{multiplicative inverses} of numbers, that is very different from inverses as we know them from other systems like \uterm{factional numbers}. 
+One of the most critical parts in this book is modular arithmetic XXX and its application in the computations in so-called \term{finite fields}, as we explain in XXX. In \uterm{modular arithmetic}, it is sometimes possible to define \uterm{actual division} and \uterm{multiplicative inverses} of numbers, that is very different from inverses as we know them from other systems like \uterm{factional numbers}. 
 
 However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$.
 
@@ -281,11 +281,11 @@ Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
 \section{Modular arithmetic}
 In mathematics, \term{modular arithmetic} is a system of arithmetic for integers, where numbers "wrap around" when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$. For example, if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The number $31$ has no meaning on a normal clock that shows hours. 
 
-The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute. In addition, we will see that it provides the foundation of what is called finite fields (\sme{See XXX}).
+The number at which the wrap occurs is called the \term{modulus}. Modular arithmetic generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute. In addition, we will see that it provides the foundation of what is called finite fields (\sme{See XXX}).
 
 Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage the interested reader to work through the example and to discover that, \tbds{once they accept that this is a new kind of calculations, its actually not that hard}.
 \paragraph{Congurency}
-In what follows, let $n\in\N$ with $n\geq 2$ be a fixed counting number, that we will call the \term{modulus} of our modular arithmetics system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euclidean division \ref{Euclidean_division} by $n$ will give the same remainder. We then say that two numbers are \term{congruent} whenever they are in the same class.
+In what follows, let $n\in\N$ with $n\geq 2$ be a fixed counting number, that we will call the \term{modulus} of our modular arithmetic system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euclidean division \ref{Euclidean_division} by $n$ will give the same remainder. We then say that two numbers are \term{congruent} whenever they are in the same class.
 
 \begin{example}
 If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we \tbds{perform Euclidean division on them} by $12$. In the picture of an analog $12$-hour clock, starting at $5$ o'clock, when we add $12$ hours we are again at $5$ o'clock, representing the number $17$. On the other hand, when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$. 
@@ -309,7 +309,7 @@ $(5,19)$, $(13,0)$, $(-4,9)$, $(0,0)$.
 \begin{exercise}
 Find all integers $x$, such that the congruency $\kongru{x}{4}{6}$ is satisfied.
 \end{exercise}
-\paragraph{Modular Arithmetics}
+\paragraph{Modular Arithmetic}
 One particulary useful thing about congruencies is, that we can do calculations (arithmetics), much like we can with integer equations. That is, we can add or multiply numbers on both sides. The main difference is probably that the congruency $\kongru{a}{b}{n}$ is only equivalent to the congruency $\kongru{k\cdot a}{k\cdot b}{n}$ for some non zero integer $k\in \Z$, whenever $k$ and the modulus $n$ are coprime. The following list gives a set of useful rules:
 
 Suppose that the congurencies $\kongru{a_1}{b_1}{n}$ as well as $\kongru{a_2}{b_2}{n}$ are satisfied for integers $a_1,a_2,b_1,b_2\in\Z$ and that $k\in\Z$ is another integer. Then:
@@ -327,7 +327,7 @@ Note that the previous rules are implications, not equivalences, which means tha
 \item If $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ and $k$ is coprime with $n$, then $\kongru{a_1}{b_1}{n}$
 \item If $\kongru{k\cdot a_1}{k\cdot b_1}{k\cdot n}$ , then $\kongru{a_1}{b_1}{n}$
 \end{itemize}
-Another property of congruencies, not known in the traditional arithmetics of integers is the  \term{Fermat's Little Theorem}. In simple words, it states that, in modular arithmetics, every number raised to the power of a prime number modulus is congruent to the number itself. Or, to be more precise, if $ p \in \Prim $ is a prime number and $ k \in \mathbb{Z} $ is an integer, then:
+Another property of congruencies, not known in the traditional arithmetics of integers is the  \term{Fermat's Little Theorem}. In simple words, it states that, in modular arithmetic, every number raised to the power of a prime number modulus is congruent to the number itself. Or, to be more precise, if $ p \in \Prim $ is a prime number and $ k \in \mathbb{Z} $ is an integer, then:
 \begin{equation}
 \kongru{k ^ p}{k}{p} \;,
 \end{equation}
@@ -345,7 +345,7 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 \end{sagecommandline}
-Now, since for the sake of readers who have never encountered modular arithmetics before, let's compute an example that contains most of the concepts described in this section:   
+Now, since for the sake of readers who have never encountered modular arithmetic before, let's compute an example that contains most of the concepts described in this section:   
    
 \begin{example}
 \label{example_first_congruency}
@@ -378,7 +378,7 @@ sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % 
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 \end{sagecommandline}
 \end{example}
-Readers who had not been familiar with modular arithmetics until now and who might be discouraged by how complicated modular arithmetics seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetics is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of \uterm{prime fields} (and more general \uterm{residue class rings}) takes a different view on modular arithmetics with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
+Readers who had not been familiar with modular arithmetic until now and who might be discouraged by how complicated modular arithmetic seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetic is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of \uterm{prime fields} (and more general \uterm{residue class rings}) takes a different view on modular arithmetic with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
 \begin{exercise}Choose the modulus $13$ and find all solutions $x\in \Z$ to the following congruency $\kongru{5x+4}{28+2x}{13}$
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{5}{23}$
@@ -566,7 +566,7 @@ $$
 \end{example}
 From the last example, we can make the interesting observation that while $5$ has no multiplicative inverse as an integer, it has a multiplicative inverse in modular $6$ arithmetics. 
 
-The remaining question is to understand which elements have multiplicative inverses in modular arithmetics. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the extended Euclidean algorithm that there are numbers $s$ and $t$, such that 
+The remaining question is to understand which elements have multiplicative inverses in modular arithmetic. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the extended Euclidean algorithm that there are numbers $s$ and $t$, such that 
 \begin{equation}
 \label{eq_compute_multiplicative_inverse}
 1 = s\cdot n + t\cdot r
@@ -601,7 +601,7 @@ At this point, the attentive reader might notice that the situation where the mo
 This tells us that the multiplicative inverse of a residue class $r$ in modular $p$ arithmetic is precisely $r^{p-2}$.
 \begin{example} [Modular $5$ arithmetics] 
 \label{primfield_z_5}
-To see the unique properties of modular arithmetics whenever the modulus is a prime number, we will replicate our findings from example \ref{def_residue_ring_z_6}, but this time for the prime modulus $5$.
+To see the unique properties of modular arithmetic whenever the modulus is a prime number, we will replicate our findings from example \ref{def_residue_ring_z_6}, but this time for the prime modulus $5$.
 For $ n = 5 $ we have five equivalence classes of integers which are congruent modulo $ 5 $. We write
 $$
 \begin{array}{ccc}
@@ -644,7 +644,7 @@ sage: Z5(3)**(5-2) == Z5(3)**(-1)
 \end{sagecommandline}
 \end{example}
 \begin{example}
-To understand one of the principal differences between prime number modular arithmetics and non-prime number modular arithmetics, consider the linear equation $a\cdot x +b=0$ defined over both types $\F_5$ and $\Z_6$. Since in $\F_5$ every non zero element has a multiplicative inverse, we can always solve these types of equations in $\F_5$, which is not true in $\Z_6$. To see that, consider the equation $3x+3=0$. In $\F_5$ we have the following:
+To understand one of the principal differences between prime number modular arithmetic and non-prime number modular arithmetic, consider the linear equation $a\cdot x +b=0$ defined over both types $\F_5$ and $\Z_6$. Since in $\F_5$ every non zero element has a multiplicative inverse, we can always solve these types of equations in $\F_5$, which is not true in $\Z_6$. To see that, consider the equation $3x+3=0$. In $\F_5$ we have the following:
 \begin{align*}
 3x+3    &= 0 & \text{\# add 2 and on both sides} \\
 3x+3+2  &= 2 & \text{\# addition-table: } 2+3 = 0 \\
@@ -652,7 +652,7 @@ To understand one of the principal differences between prime number modular arit
 2\cdot(3x)      &= 2\cdot 2 & \text{\# multiplication-table: } 2+2=4 \\
  x      &= 4 & 
 \end{align*}
-So in the case of our prime number modular arithmetics, we get the unique solution $x=4$. Now consider $\Z_6$:
+So in the case of our prime number modular arithmetic, we get the unique solution $x=4$. Now consider $\Z_6$:
 \begin{align*}
 3x+3    &= 0 & \text{\# add 3 and on both sides} \\
 3x+3+3  &= 3 & \text{\# addition-table: } 3+3 = 0 \\
@@ -669,7 +669,7 @@ Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{5}$. 
 \begin{exercise}
 Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{6}$. Then project the congruency into $\Z_6$ and try to solve the resulting equation in $\Z_6$.
 \end{exercise}
-\section{Polynomial Arithmetics}
+\section{Polynomial Arithmetic}
 A polynomial is an expression consisting of variables (also called indeterminates) and coefficients, that involves only the operations of addition, subtraction, multiplication, and non-negative integer exponentiation of variables. All coefficients of a polynomial must have the same type, e.g. being integers or fractions etc. To be more precise a \textit{univariate polynomial} is an expression
 \begin{equation}
 P(x) := \sum _{j = 0} ^{m}{a} _{j}{t} ^{j} ={a} _{m}x^m +{a} _{m-1} x^{m-1} + \dots + a_1 x + a_0 \;,
@@ -796,7 +796,7 @@ sage: p1(Z6(2)) == Z6(5)
 \begin{exercise}
 Compare both expansions of $P_7$ from $\Z[x]$ and from $\Z_6[x]$ in example XXX and example XXX ,and consider the definition of $\Z_6$ as given in example XXX. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?
 \end{exercise}
-\paragraph{Polynomial Arithmetics}
+\paragraph{Polynomial Arithmetic}
 Polynomials behave like integers in many ways. In particular, they can be added, subtracted and multiplied. In addition, they have their own notion of Euclidean division. Informally speaking, we can add two polynomials  by simply adding the coefficients of the same index, and we can multiply them by applying the distributive property, that is, by multiplying every term of the left factor with every term of the right factor and adding the results together.
 
 To be more precise let $ \sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} $ and
@@ -811,7 +811,7 @@ A rule for polynomial subtraction can be deduced from these two rules by first m
 with (the polynomial) $-1$ and then add the result to the \href{https://www.splashlearn.com/math-vocabulary/subtraction/minuend}{\uterm{minuend}}.
 
 Regarding the definition of the degree of a polynomial, we see that the degree of the sum is always the maximum of the degrees of both summands, and the degree of the product is always the degree of the factors, since we defined $-\infty \cdot m= \infty$ for every integer $m\in\Z$. Using Sage's definition of degree, this would not hold, as the zero polynomials degree is $-1$ is Sage, which would violate this rule.
-\begin{example} To given an example of how polynomial arithmetics works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
+\begin{example} To given an example of how polynomial arithmetic works, consider the following two integer polynomials $P,Q\in \Z[x]$ with $P(x)= 5x^2 -4x +2$ and $Q(x)=x^3-2x^2 +5$. The sum of these two polynomials is computed by adding the coefficients of each term with equal exponent in $x$. This gives
 \begin{align*}
 (P+Q)(x) & = (0+1)x^3 + (5-2)x^2 + (-4 +0) x +(2+5) \\
          & = x^3 +3x^2 -4x +7
