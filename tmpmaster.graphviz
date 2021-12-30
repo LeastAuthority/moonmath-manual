@@ -499,42 +499,144 @@ splines=ortho;
 nodesep= 2.0;
 n1 [shape=box, label="x"];
 n2 [shape=box, label="y"];
-n3 [shape=box, label="*"]; 
-n4 [shape=box, label="MUL(x,y)"];
+n3 [label="*"]; 
+n4 [shape=box, label="(x*y)"];
 
-n1 -> n3 [xlabel="W_x"] ;
-n2 -> n3 [xlabel="W_y"];
-n3 -> n4 [xlabel="W_STUFF"] ;
+n1 -> n3 [xlabel="W_1"] ;
+n2 -> n3 [xlabel="W_2"];
+n3 -> n4 [xlabel="W_3"] ;
 
 n5 [shape=box, label="x"];
 n6 [shape=box, label="y"];
-n7 [shape=box, label="+"]; 
-n8 [shape=box, label="ADD(x,y)"];
+n7 [label="+"]; 
+n8 [shape=box, label="(x+y)"];
 
-n5 -> n7 [xlabel="W_x"] ;
-n6 -> n7 [xlabel="W_y"];
-n7 -> n8 [xlabel="W_STUFF"] ;
+n5 -> n7 [xlabel="W_1"] ;
+n6 -> n7 [xlabel="W_2"];
+n7 -> n8 [xlabel="W_3"] ;
 }
-digraph SIMPLEMUL {
+digraph BASICOPS {
 forcelabels=true;
-center=true;
+//center=true;
 splines=ortho;
 nodesep= 2.0;
-n1 [shape=box, label="in_1"];
-n2 [shape=box, label="in_2"];
-n3 [shape=box, label="product"];
-n4 [shape=box, label="sum"];
-n5 [shape=box, label="*"];
-n6 [shape=box, label="+"]; 
 
-n1 -> n5 [xlabel="W_(in_1)"] ;
-n1 -> n6 [xlabel="W_(in_1)"];
-n2 -> n5 [xlabel="I_(in_2)"] ;
-n2 -> n6 [xlabel="I_(in_2)"];
-n5 -> n3 [xlabel="W_1 = I_(product)"] ;
-n6 -> n4 [xlabel="W_(sum)"];
+subgraph cluster_input {
+nin1 [shape= box, label="in_1"] ;
+nin2 [shape= box, label="in_2"] ;
+color=lightgray ;
+label="inputs" ;
+}
+
+subgraph cluster_output {
+nout1 [shape= box, label="out_1"] ;
+nout2 [shape= box, label="out_2"] ;
+color=lightgray ;
+label="outputs" ;
+}
+
+subgraph cluster_mul {
+nmul1 [shape=box, label="x"];
+nmul2 [shape=box, label="y"];
+nmul3 [label="*"]; 
+nmul4 [shape=box, label="(x*y)"];
+
+nmul1 -> nmul3 [xlabel="W_1 "] ;
+nmul2 -> nmul3 [xlabel="W_2"];
+nmul3 -> nmul4 [xlabel="W_3 "] ;
+color=lightgray ;
+label="fn MUL" ;
+}
+
+subgraph cluster_add {
+nadd1 [shape=box, label="x"];
+nadd2 [shape=box, label="y"];
+nadd3 [label="+"]; 
+nadd4 [shape=box, label="(x+y)"];
+
+nadd1 -> nadd3 [xlabel="W_1"] ;
+nadd2 -> nadd3 [xlabel="W_2 "];
+nadd3 -> nadd4 [xlabel="W_3 "] ;
+color=lightgray ;
+label="fn ADD" ;
+}
+// subgraph connectors
+nin1 -> {nmul1, nadd1} [xlabel="W_1", style=dashed, color=grey] ;
+nin2 -> {nmul2, nadd2} [xlabel="I_2 ", style=dashed, color=grey] ;
+nmul4 -> nout1 [headlabel="W_3 ", style=dashed, color=grey] ;
+nadd4 -> nout2 [headlabel="W_4 ", style=dashed, color=grey] ;
+}
+digraph BASICOPSOPTI {
+forcelabels=true;
+//center=true;
+splines=ortho;
+nodesep= 2.0;
+
+n1 [shape= box, label="in_1"] ;
+n2 [shape= box, label="in_2"] ;
+n3 [shape= box, label="out_1"] ;
+n4 [shape= box, label="out_2"] ;
+n5 [label="*"] ; 
+n6 [label="+"] ;
+
+n1 -> {n5, n6} [xlabel="W_1"] ;
+n2 -> {n5, n6} [xlabel="I_2 "] ;
+n5 -> n3 [xlabel="W_3 "] ;
+n6 -> n4 [label=" W_4"] ;
 }
 digraph PAPER3FUC {
+forcelabels=true;
+//center=true;
+splines=ortho;
+nodesep= 2.0;
+
+subgraph cluster_input {
+nin1 [shape= box, label="x_1"] ;
+nin2 [shape= box, label="x_2"] ;
+nin3 [shape= box, label="x_3"] ;
+color=lightgray ;
+label="inputs" ;
+}
+
+subgraph cluster_output {
+nout1 [shape= box, label="f_3.fac_zk"] ;
+color=lightgray ;
+label="outputs" ;
+}
+
+subgraph cluster_mul1 {
+nmul11 [shape=box, label="x"];
+nmul12 [shape=box, label="y"];
+nmul13 [label="*"]; 
+nmul14 [shape=box, label="(x*y)"];
+
+nmul11 -> nmul13 [xlabel="W_1"] ;
+nmul12 -> nmul13 [xlabel="W_2"];
+nmul13 -> nmul14 [xlabel="W_3"] ;
+color=lightgray ;
+label="fn MUL" ;
+}
+
+subgraph cluster_mul2 {
+nmul21 [shape=box, label="x"];
+nmul22 [shape=box, label="y"];
+nmul23 [label="*"]; 
+nmul24 [shape=box, label="(x*y)"];
+
+nmul21 -> nmul23 [xlabel="W_1"] ;
+nmul22 -> nmul23 [xlabel="W_2"];
+nmul23 -> nmul24 [xlabel="W_3"] ;
+color=lightgray ;
+label="fn MUL" ;
+}
+// subgraph connectors
+nin1 -> nmul11 [xlabel="W_1", style=dashed, color=grey] ;
+nin2 -> nmul12 [xlabel="W_2", style=dashed, color=grey] ;
+nin3 -> nmul22 [xlabel="W_3", style=dashed, color=grey] ;
+nmul14 -> nmul21 [xlabel="W_4", style=dashed, color=grey] ;
+nmul24 -> nout1 [xlabel="W_5", style=dashed, color=grey] ;
+}
+digraph PAPER3FUCOPTI {
 forcelabels=true;
 center=true;
 splines=ortho;
@@ -543,14 +645,14 @@ n1 [shape=box, label="x_1"];
 n2 [shape=box, label="x_2"];
 n3 [shape=box, label="x_3"];
 n4 [shape=box, label="f_3.fac_zk"];
-n5 [shape=box, label="*"];
-n6 [shape=box, label="*"]; 
+n5 [label="*"];
+n6 [label="*"]; 
 
-n1 -> n5 [xlabel="W_(x_1)"] ;
-n2 -> n5 [xlabel="W_(x_2)"] ;
-n3 -> n6 [xlabel="W_(x_3)"];
-n5 -> n6 [xlabel="W_1"] ;
-n6 -> n4 [xlabel="W_2 = I_(f_3.fac_zk)"];
+n1 -> n5 [xlabel="W_1"] ;
+n2 -> n5 [xlabel="W_2"] ;
+n3 -> n6 [xlabel="W_3"];
+n5 -> n6 [xlabel="W_4"] ;
+n6 -> n4 [xlabel="I_1"];
 }
 digraph BTSUB {
 forcelabels=true;
