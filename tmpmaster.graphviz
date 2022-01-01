@@ -634,7 +634,7 @@ nin1 -> nmul11 [xlabel="W_1", style=dashed, color=grey] ;
 nin2 -> nmul12 [xlabel="W_2", style=dashed, color=grey] ;
 nin3 -> nmul22 [xlabel="W_3", style=dashed, color=grey] ;
 nmul14 -> nmul21 [xlabel="W_4", style=dashed, color=grey] ;
-nmul24 -> nout1 [xlabel="W_5", style=dashed, color=grey] ;
+nmul24 -> nout1 [xlabel="I_1", style=dashed, color=grey] ;
 }
 digraph PAPER3FUCOPTI {
 forcelabels=true;
@@ -723,195 +723,248 @@ nCONS5 [label="+"] ;
 nCONS6 [label="*"] ;
 nCONS7 [shape=box, label="0"] ;
 }
-digraph BOOLMETA {
-forcelabels=true;
-center=true;
-splines=ortho;
-nodesep= 2.0;
-n1 [shape=box, label="BOOL"] ;
-n2 [shape=none, label=" "] ;
-n2 -> n1 ;
-}
 digraph BOOLAND {
 forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-nAND1 -> nAND3 [xlabel="E_1 "] ;
-nAND2 -> nAND3 [xlabel="E_2"] ;
-nAND3 -> nAND4 [xlabel="E_3 "] ;
+nAND1 -> nAND3 [xlabel="S_1 "] ;
+nAND2 -> nAND3 [xlabel="S_2"] ;
+nAND3 -> nAND4 [xlabel="S_3 "] ;
 
-nAND1 [shape=box, label="x"] ;
-nAND2 [shape=box, label="y"] ;
+nAND1 [shape=box, label="b_1"] ;
+nAND2 [shape=box, label="b_2"] ;
 nAND3 [label="*"] ;
-nAND4 [shape=box, label="AnANDD(x,y)"] ;
-}
-digraph ANDMETA {
-forcelabels=true;
-center=true;
-splines=ortho;
-nodesep= 2.0;
-n1 [shape=box, label="AND"] ;
-n2 [shape=none, label=" "] ;
-n3 [shape=none, label=" "] ;
-n4 [shape=none, label=" "] ;
-n2 -> n1 ;
-n3 -> n1 ;
-n1 -> n4 ;
+nAND4 [shape=box, label="AND(b_1,b_2)"] ;
 }
 digraph BOOLOR {
 forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-nOR1 -> nOR5 [xlabel="E_1 "] ;
-nOR2 -> nOR7 [xlabel="E_2 "] ;
-nOR3 -> {nOR5, nOR7, nOR10} ;
-nOR4 -> {nOR6, nOR8, nOR11} ;
-nOR5 -> nOR6;
-nOR6 -> nOR9 ;
-nOR7 -> nOR8 ;
-nOR8 -> nOR9 ;
-nOR9 -> nOR10 [xlabel="E_3 "] ;
-nOR10 -> nOR11 ;
-nOR11 -> nOR12 [xlabel="E_4 "] ;
 
-nOR1 [shape=box, label="x"] ;
-nOR2 [shape=box, label="y"] ;
+nOR1 [shape=box, label="b_1"] ;
+nOR2 [shape=box, label="b_2"] ;
 nOR3 [shape=box, label="-1"] ;
-nOR4 [shape=box, label="1"] ;
+nOR4 [label="*"] ;
 nOR5 [label="*"] ;
 nOR6 [label="+"] ;
-nOR7 [label="*"] ;
-nOR8 [label="+"] ;
-nOR9 [label="*"] ;
-nOR10 [label="*"] ;
-nOR11 [label="+"] ;
-nOR12 [shape=box, label="OR(x,y)"] ;
-}
-digraph ORMETA {
-forcelabels=true;
-center=true;
-splines=ortho;
-nodesep= 2.0;
-n1 [shape=box, label="OR"] ;
-n2 [shape=none, label=" "] ;
-n3 [shape=none, label=" "] ;
-n4 [shape=none, label=" "] ;
-n2 -> n1 ;
-n3 -> n1 ;
-n1 -> n4 ;
+nOR7 [label="+"] ;
+nOR8 [shape="box", label="OR(b_1,b_2)"]
+
+nOR1 -> nOR4 [xlabel="S_1"] ;
+nOR1 -> nOR6 [xlabel="S_1"] ;
+nOR2 -> nOR4 [taillabel="S_2 "] ;
+nOR2 -> nOR6 [taillabel="S_2 "] ;
+nOR4 -> nOR5 [headlabel=" S_3"] ;
+nOR3 -> nOR5 ;
+nOR5 -> nOR7 ;
+nOR6 -> nOR7 ;
+nOR7 -> nOR8 [xlabel="S_4 "] ;
+
 }
 digraph BOOLNOT {
 forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
-nNOT1 -> nNOT4 [xlabel="E_1 "] ;
+nNOT1 -> nNOT4 [xlabel="S_1 "] ;
 nNOT2 -> nNOT4 ;
 nNOT3 -> nNOT5 ;
 nNOT4 -> nNOT5 ;
-nNOT5 -> nNOT6 [xlabel="E_2 "] ;
+nNOT5 -> nNOT6 [xlabel="S_2 "] ;
 
-nNOT1 [shape=box, label="x"] ;
+nNOT1 [shape=box, label="b"] ;
 nNOT2 [shape=box, label="-1"] ;
 nNOT3 [shape=box, label="1"] ;
 nNOT4 [label="*"] ;
 nNOT5 [label="+"] ;
-nNOT6 [shape=box, label="nNOT(x)"] ;
-}
-digraph NOTMETA {
-forcelabels=true;
-center=true;
-splines=ortho;
-nodesep= 2.0;
-n1 [shape=box, label="NOT"] ;
-n2 [shape=none, label=" "] ;
-n4 [shape=none, label=" "] ;
-n2 -> n1 ;
-n1 -> n4 ;
+nNOT6 [shape=box, label="NOT(b)"] ;
 }
 digraph BOOLCOMPLEX {
 forcelabels=true;
 center=true;
 splines=ortho;
-nodesep= 2.0;
+nodesep= 1.0;
+rankdir=TB;
+
+subgraph clusterINPUT {
+nb1 [shape=box, label="b_1"] ;
+nb2 [shape=box, label="b_2"] ;
+nb3 [shape=box, label="b_3"] ;
+nb4 [shape=box, label="b_4"] ;
+color=lightgray;
+label="inputs" ;
+}
+
+subgraph clusterOUTPUT {
+nout1 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"]
+color=lightgray;
+label="outputs" ;
+}
+
+subgraph clusterCONS {
+subgraph clusterBCONS1 {
+nCONSB11 -> nCONSB14 [xlabel="S_1"] ;
+nCONSB11 -> nCONSB16 [xlabel="S_1"] ;
+nCONSB12 -> nCONSB15 ;
+nCONSB13 -> nCONSB14 ;
+nCONSB14 -> nCONSB15 ;
+nCONSB15 -> nCONSB16 ;
+nCONSB16 -> nCONSB17 [xlabel="w_5=0 "] ;
+nCONSB11 [shape=box, label="b", color=lightgray ] ;
+nCONSB12 [shape=box, label="1"] ;
+nCONSB13 [shape=box, label="-1"] ;
+nCONSB14 [label="*"] ;
+nCONSB15 [label="+"] ;
+nCONSB16 [label="*"] ;
+nCONSB17 [shape=box, label="0"] ;
+color=lightgray;
+label="b1 : BOOL" ;
+}
+
+subgraph clusterBCONS2 {
+nCONSB21 -> nCONSB24 [xlabel="S_1"] ;
+nCONSB21 -> nCONSB26 [xlabel="S_1"] ;
+nCONSB22 -> nCONSB25 ;
+nCONSB23 -> nCONSB24 ;
+nCONSB24 -> nCONSB25 ;
+nCONSB25 -> nCONSB26 ;
+nCONSB26 -> nCONSB27 [xlabel="W_6=0 "] ;
+nCONSB21 [shape=box, label="b", color=lightgray ] ;
+nCONSB22 [shape=box, label="1"] ;
+nCONSB23 [shape=box, label="-1"] ;
+nCONSB24 [label="*"] ;
+nCONSB25 [label="+"] ;
+nCONSB26 [label="*"] ;
+nCONSB27 [shape=box, label="0"] ;
+color=lightgray;
+label="b2 : BOOL" ;
+}
+
+subgraph clusterBCONS3 {
+nCONSB31 -> nCONSB34 [xlabel="S_1"] ;
+nCONSB31 -> nCONSB36 [xlabel="S_1"] ;
+nCONSB32 -> nCONSB35 ;
+nCONSB33 -> nCONSB34 ;
+nCONSB34 -> nCONSB35 ;
+nCONSB35 -> nCONSB36 ;
+nCONSB36 -> nCONSB37 [xlabel="W_7=0 "] ;
+nCONSB31 [shape=box, label="b", color=lightgray ] ;
+nCONSB32 [shape=box, label="1"] ;
+nCONSB33 [shape=box, label="-1"] ;
+nCONSB34 [label="*"] ;
+nCONSB35 [label="+"] ;
+nCONSB36 [label="*"] ;
+nCONSB37 [shape=box, label="0"] ;
+color=lightgray;
+label="b3 : BOOL" ;
+}
+
+subgraph clusterBCONS4 {
+nCONSB41 -> nCONSB44 [xlabel="S_1"] ;
+nCONSB41 -> nCONSB46 [xlabel="S_1"] ;
+nCONSB42 -> nCONSB45 ;
+nCONSB43 -> nCONSB44 ;
+nCONSB44 -> nCONSB45 ;
+nCONSB45 -> nCONSB46 ;
+nCONSB46 -> nCONSB47 [xlabel="W_8=0 "] ;
+nCONSB41 [shape=box, label="b", color=lightgray ] ;
+nCONSB42 [shape=box, label="1"] ;
+nCONSB43 [shape=box, label="-1"] ;
+nCONSB44 [label="*"] ;
+nCONSB45 [label="+"] ;
+nCONSB46 [label="*"] ;
+nCONSB47 [shape=box, label="0"] ;
+color=lightgray;
+label="b4 : BOOL" ;
+}
+color = white ;
+}
+
+subgraph clusterCIRC{
 
 subgraph clusterORb1b2 {
-nOR1 -> nOR5 [xlabel="E_1 "] ;
-nOR2 -> nOR7 [xlabel="E_2 "] ;
-nOR3 -> {nOR5, nOR7, nOR10} ;
-nOR4 -> {nOR6, nOR8, nOR11} ;
-nOR5 -> nOR6;
-nOR6 -> nOR9 ;
-nOR7 -> nOR8 ;
-nOR8 -> nOR9 ;
-nOR9 -> nOR10 [xlabel="E_3 "] ;
-nOR10 -> nOR11 ;
-nOR11 -> nOR12 [xlabel="E_4 "] ;
-nOR1 [shape=box, label="b_1"] ;
-nOR2 [shape=box, label="b_2"] ;
+nOR1 [shape=box, label="b_1", color=lightgray] ;
+nOR2 [shape=box, label="b_2", color=lightgray] ;
 nOR3 [shape=box, label="-1"] ;
-nOR4 [shape=box, label="1"] ;
+nOR4 [label="*"] ;
 nOR5 [label="*"] ;
 nOR6 [label="+"] ;
-nOR7 [label="*"] ;
-nOR8 [label="+"] ;
-nOR9 [label="*"] ;
-nOR10 [label="*"] ;
-nOR11 [label="+"] ;
-nOR12 [shape=box, label="OR( b1 , b2 )", color=lightgray] ;
-label = "OR( b1 , b2 )";
+nOR7 [label="+"] ;
+nOR8 [shape="box", label="OR(b_1,b_2)", color=lightgray]
+
+nOR1 -> nOR4 [xlabel="S_1"] ;
+nOR1 -> nOR6 [xlabel="S_1"] ;
+nOR2 -> nOR4 [taillabel="S_2 "] ;
+nOR2 -> nOR6 [taillabel="S_2 "] ;
+nOR4 -> nOR5 [headlabel=" S_3"] ;
+nOR3 -> nOR5 ;
+nOR5 -> nOR7 ;
+nOR6 -> nOR7 ;
+nOR7 -> nOR8 [xlabel="S_4 "] ;
 color=lightgray;
-label="Circuit_2 -- OR-Circuit"
+label="fn OR" ;
 }
 
 subgraph clusterANDb3NOTb4 {
-nAND21 -> nAND23 [xlabel="E_1 "] ;
-nAND22 -> nAND23 [xlabel="E_2"] ;
-nAND23 -> nAND24 [xlabel="E_3 "] ;
+nAND21 -> nAND23 [headlabel=" S_1"] ;
+nAND22 -> nAND23 [xlabel="S_2"] ;
+nAND23 -> nAND24 [xlabel="S_3 "] ;
 
-nAND21 [shape=box, label="b3"] ;
-nAND22 [shape=box, label="NOT( b4 )", color=lightgray ] ;
+nAND21 [shape=box, label="b_1", color=lightgray ] ;
+nAND22 [shape=box, label="b_2", color=lightgray ] ;
 nAND23 [label="*"] ;
-nAND24 [shape=box, label="AND( b3 , NOT( b4 ) )", color=lightgray] ;
+nAND24 [shape=box, label="AND( b_1 , b_2 )", color=lightgray] ;
 color=lightgray;
-label="Circuit_3 -- AND-Circuit"
+label="fn AND"
 }
 
 subgraph clusterNOTb4 {
-nNOT1 -> nNOT4 [xlabel="E_1 "] ;
+nNOT1 -> nNOT4 [xlabel="S_1 "] ;
 nNOT2 -> nNOT4 ;
 nNOT3 -> nNOT5 ;
 nNOT4 -> nNOT5 ;
-nNOT5 -> nNOT6 [xlabel="E_2 "] ;
+nNOT5 -> nNOT6 [headlabel="S_2 "] ;
 
-nNOT1 [shape=box, label="b4"] ;
+nNOT1 [shape=box, label="b", color=lightgray ] ;
 nNOT2 [shape=box, label="-1"] ;
 nNOT3 [shape=box, label="1"] ;
 nNOT4 [label="*"] ;
 nNOT5 [label="+"] ;
-nNOT6 [shape=box, label="NOT( b4 )", color=lightgray ] ;
+nNOT6 [shape=box, label="NOT( b )", color=lightgray ] ;
 color=lightgray;
-label="Circuit_4 -- NOT-Circuit"
+label="fn NOT"
 }
 
 subgraph clusterAND1 {
-nAND1_1 -> nAND1_3 [headlabel="E_1 ."] ;
-nAND1_2 -> nAND1_3 [xlabel="E_2 "] ;
-nAND1_3 -> nAND1_4 [xlabel="E_3 "] ;
-nAND1_1 [shape=box, label="OR( b1 , b2 )", color=lightgray ] ;
-nAND1_2 [shape=box, label="AND( b3 , NOT( b4 ) )", color=lightgray] ;
+nAND1_1 -> nAND1_3 [xlabel="S_1"] ;
+nAND1_2 -> nAND1_3 [xlabel="S_2 "] ;
+nAND1_3 -> nAND1_4 [xlabel="S_3 "] ;
+nAND1_1 [shape=box, label="b_1", color=lightgray ] ;
+nAND1_2 [shape=box, label="b_2", color=lightgray] ;
 nAND1_3 [label="*"] ;
-nAND1_4 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"] ;
+nAND1_4 [shape=box, label="AND( b_1 , b_2 )", color=lightgray] ;
 color=lightgray;
-label="Circuit_1 -- AND-Circuit"
+label="fn AND"
 }
-
-// outer circuit
 nNOT6 -> nAND22 [style=dashed, color=grey] ;
-nOR12 -> nAND1_1 [style=dashed, color=grey] ;
+nOR8 -> nAND1_1 [style=dashed, color=grey] ;
 nAND24 -> nAND1_2 [style=dashed, color=grey] ;
+
+color = white ;
+}
+// outer circuit
+nb1 -> nCONSB11 [xlabel="W_1", style=dashed, color=grey] ;
+nCONSB11 -> nOR1 [style=dashed, color=grey] ;
+nb2 -> nCONSB21 [headlabel="W_2", style=dashed, color=grey] ;
+nCONSB21 -> nOR2 [style=dashed, color=grey] ;
+nb3 -> nCONSB31 [xlabel="W_3 ", style=dashed, color=grey] ;
+nCONSB31 -> nAND21 [style=dashed, color=grey] ;
+nb4 -> nCONSB41 [xlabel="W_4", style=dashed, color=grey] ;
+nCONSB41 -> nNOT1 [style=dashed, color=grey] ;
+nAND1_4 -> nout1 [xlabel="I_1"; style=dashed, color=grey] ;
+
 }
 digraph BOOLCOMPLEXOPTI {
 forcelabels=true;
@@ -922,7 +975,7 @@ one -> nCONSb15 ;
 minusone -> nCONSb14 ;
 nCONSb14 -> nCONSb15 ;
 nCONSb15 -> nCONSb16 ;
-nCONSb16 -> zero [taillabel=" W_1"] ;
+nCONSb16 -> zero [xlabel="W_5"] ;
 nCONSb14 [label="*"] ;
 nCONSb15 [label="+"] ;
 nCONSb16 [label="*"] ;
@@ -931,7 +984,7 @@ one -> nCONSb25 ;
 minusone -> nCONSb24 ;
 nCONSb24 -> nCONSb25 ;
 nCONSb25 -> nCONSb26 ;
-nCONSb26 -> zero [taillabel="W_2 "] ;
+nCONSb26 -> zero [headlabel="W_6 "] ;
 nCONSb24 [label="*"] ;
 nCONSb25 [label="+"] ;
 nCONSb26 [label="*"] ;
@@ -940,7 +993,7 @@ one -> nCONSb35 ;
 minusone -> nCONSb34 ;
 nCONSb34 -> nCONSb35 ;
 nCONSb35 -> nCONSb36 ;
-nCONSb36 -> zero [xlabel="W_3"] ;
+nCONSb36 -> zero [taillabel="W_7"] ;
 nCONSb34 [label="*"] ;
 nCONSb35 [label="+"] ;
 nCONSb36 [label="*"] ;
@@ -949,26 +1002,47 @@ one -> nCONSb45 ;
 minusone -> nCONSb44 ;
 nCONSb44 -> nCONSb45 ;
 nCONSb45 -> nCONSb46 ;
-nCONSb46 -> zero [xlabel="W_4"] ;
+nCONSb46 -> zero [taillabel="W_8 "] ;
 nCONSb44 [label="*"] ;
 nCONSb45 [label="+"] ;
 nCONSb46 [label="*"] ;
 
-minusone -> {nOR5, nOR7, nOR10} ;
-one -> {nOR6, nOR8, nOR11} ;
-nOR5 -> nOR6;
-nOR6 -> nOR9 ;
-nOR7 -> nOR8 ;
-nOR8 -> nOR9 ;
-nOR9 -> nOR10 [headlabel="W_5 "] ;
-nOR10 -> nOR11 ;
+//minusone -> {nOR5, nOR7, nOR10} ;
+//one -> {nOR6, nOR8, nOR11} ;
+//nOR5 -> nOR6;
+//nOR6 -> nOR9 ;
+//nOR7 -> nOR8 ;
+//nOR8 -> nOR9 ;
+//nOR9 -> nOR10 [headlabel="W_9 "] ;
+//nOR10 -> nOR11 ;
+//nOR5 [label="*"] ;
+//nOR6 [label="+"] ;
+//nOR7 [label="*"] ;
+//nOR8 [label="+"] ;
+//nOR9 [label="*"] ;
+//nOR10 [label="*"] ;
+//nOR11 [label="+"] ;
+
+// new
+//nOR1 [shape=box, label="b_1"] ;
+//nOR2 [shape=box, label="b_2"] ;
+//nOR3 [shape=box, label="-1"] ;
+minusone -> nOR5 ;
+nOR4 [label="*"] ;
 nOR5 [label="*"] ;
 nOR6 [label="+"] ;
-nOR7 [label="*"] ;
-nOR8 [label="+"] ;
-nOR9 [label="*"] ;
-nOR10 [label="*"] ;
-nOR11 [label="+"] ;
+nOR7 [label="+"] ;
+//nOR8 [shape="box", label="OR(b_1,b_2)"]
+
+//nOR1 -> nOR4 [xlabel="S_1"] ;
+//nOR1 -> nOR6 [xlabel="S_1"] ;
+//nOR2 -> nOR4 [taillabel="S_2 "] ;
+//nOR2 -> nOR6 [taillabel="S_2 "] ;
+nOR4 -> nOR5 [taillabel="W_9"] ;
+//nOR3 -> nOR5 ;
+nOR5 -> nOR7 ;
+nOR6 -> nOR7 ;
+//nOR7 -> nOR8 [xlabel="S_4 "] ;
 
 nAND23 [label="*"] ;
 minusone -> nNOT4 ;
@@ -977,18 +1051,28 @@ nNOT4 -> nNOT5 ;
 nNOT4 [label="*"] ;
 nNOT5 [label="+"] ;
 
-nOR11 -> nAND1_3;
-nAND23 -> nAND1_3 [xlabel="W_6 "] ;
-nAND1_3 -> nAND1_4 [xlabel="I_5 "] ;
+nOR7 -> nAND1_3; // here
+nAND23 -> nAND1_3 [xlabel="W_10"] ;
+nAND1_3 -> nAND1_4 [xlabel="I_1 "] ;
 nAND1_3 [label="*"] ;
 nAND1_4 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"] ;
 
 // outer circuit
 nNOT5 -> nAND23 ;
-b1 -> {nOR5, nCONSb14, nCONSb16} [taillabel="I1 "] ;
-b2 -> {nOR7, nCONSb24, nCONSb26} [taillabel=" I2"] ;
-b3 -> {nAND23, nCONSb34, nCONSb36} [taillabel="I3 "] ;
-b4 -> {nNOT4, nCONSb44, nCONSb46} [taillabel="I4"] ;
+b1 -> nOR4 [taillabel=" W_1"] ;
+b1 -> nOR6 [xlabel="W_1"] ;
+b1 -> nCONSb14 [headlabel="W_1 "] ;
+b1 -> nCONSb16 [headlabel="W_1 "] ;
+b2 -> nOR4 [taillabel=" W_2"] ;
+b2 -> nOR6 [headlabel=""] ;
+b2 -> nCONSb24 [headlabel=" W_2 "] ;
+b2 -> nCONSb26 [headlabel=" W_2 "] ;
+b3 -> nAND23 [xlabel=" W_3 "] ;
+b3 -> nCONSb34 [taillabel=" W_3"] ;
+b3 -> nCONSb36 [taillabel=""] ;
+b4 -> nNOT4 [headlabel=" W_4"] ;
+b4 -> nCONSb44 [headlabel=" W_4"] ;
+b4 -> nCONSb46 [headlabel="W_4"] ;
 b1 [shape=box, label="b1"] ;
 b2 [shape=box, label="b2"] ;
 b3 [shape=box, label="b3"] ;

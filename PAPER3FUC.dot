@@ -3,6 +3,13 @@ digraph PAPER3FUC {
 		nodesep=2.0,
 		splines=ortho
 	];
+	subgraph cluster_output {
+		graph [color=lightgray,
+			label=outputs
+		];
+		nout1	[label="f_3.fac_zk",
+			shape=box];
+	}
 	subgraph cluster_input {
 		graph [color=lightgray,
 			label=inputs
@@ -13,21 +20,6 @@ digraph PAPER3FUC {
 			shape=box];
 		nin3	[label=x_3,
 			shape=box];
-	}
-	subgraph cluster_mul1 {
-		graph [color=lightgray,
-			label="fn MUL"
-		];
-		nmul11	[label=x,
-			shape=box];
-		nmul13	[label="*"];
-		nmul11 -> nmul13	[xlabel=W_1];
-		nmul12	[label=y,
-			shape=box];
-		nmul12 -> nmul13	[xlabel=W_2];
-		nmul14	[label="(x*y)",
-			shape=box];
-		nmul13 -> nmul14	[xlabel=W_3];
 	}
 	subgraph cluster_mul2 {
 		graph [color=lightgray,
@@ -44,12 +36,20 @@ digraph PAPER3FUC {
 			shape=box];
 		nmul23 -> nmul24	[xlabel=W_3];
 	}
-	subgraph cluster_output {
+	subgraph cluster_mul1 {
 		graph [color=lightgray,
-			label=outputs
+			label="fn MUL"
 		];
-		nout1	[label="f_3.fac_zk",
+		nmul11	[label=x,
 			shape=box];
+		nmul13	[label="*"];
+		nmul11 -> nmul13	[xlabel=W_1];
+		nmul12	[label=y,
+			shape=box];
+		nmul12 -> nmul13	[xlabel=W_2];
+		nmul14	[label="(x*y)",
+			shape=box];
+		nmul13 -> nmul14	[xlabel=W_3];
 	}
 	nin1 -> nmul11	[color=grey,
 		style=dashed,
@@ -65,5 +65,5 @@ digraph PAPER3FUC {
 		xlabel=W_4];
 	nmul24 -> nout1	[color=grey,
 		style=dashed,
-		xlabel=W_5];
+		xlabel=I_1];
 }
