@@ -1081,140 +1081,187 @@ minusone [shape=box, label="-1"] ;
 one [shape=box, label="1"] ;
 zero [shape=box, label="0"] ;
 }
-digraph UINTN {
-forcelabels=true;
-center=true;
-splines=ortho;
-//nodesep= 2.0;
-n1 [shape=box, label="UINT_N"] ;
-n2 [shape=none, label=" "] ;
-n3 [shape=none, label=" "] ;
-n4 [shape=none, label=" "] ;
-n5 [shape=none, label=" "] ;
-n2 -> n1 ;
-n3 -> n1 ;
-n4 -> n1 [style=dashed, color=lightgrey] ;
-n5 -> n1 ;
-}
-digraph ONEBFULLADD {
+digraph SIMPLEARRAYCIRC {
 forcelabels=true;
 center=true;
 splines=ortho;
 nodesep= 2.0;
 
-subgraph clusterin {
-nADD01 [shape=box, label="bx_j"] ;
-nADD02 [shape=box, label="by_j"] ;
-nADD03 [shape=box, label="c_(j-1)"] ;
-color = white ;
+subgraph cluster_input {
+subgraph cluster_array1 {
+nx1 [shape= box, label="x[0]"] ;
+nx2 [shape= box, label="x[1]"] ;
+color=lightgray ;
+label="x[]" ;
 }
 
-subgraph clustermid {
-nADD04 [shape=box, label="XOR"] ;
-nADD05 [shape=box, label="XOR"] ;
-nADD06 [shape=box, label="AND"] ;
-nADD07 [shape=box, label="AND"] ;
-nADD08 [shape=box, label="OR"] ;
-
-nADD04 -> {nADD05, nADD06} ;
-nADD06 -> nADD08 ;
-nADD07 -> nADD08 ;
-
-color = white ;
+subgraph cluster_array2 {
+nc1 [shape= box, label="c[0]"] ;
+nc2 [shape= box, label="c[1]"] ;
+color=lightgray ;
+label="c[]" ;
+}
+color=lightgray ;
+label="inputs" ;
 }
 
-subgraph clusterout {
-nADD09 [shape=box, label="bz_j"] ;
-nADD010 [shape=box, label="c_j"] ;
-color = white ;
+subgraph cluster_output {
+nout1 [shape= box, label="out"] ;
+color=lightgray ;
+label="outputs" ;
 }
 
-nADD01 -> {nADD04, nADD07} ;
-nADD02 -> {nADD04, nADD07} ;
-nADD03 -> {nADD05, nADD06} ;
-nADD05 -> nADD09 ;
-nADD08 -> nADD010 ;
+subgraph cluster_expression {
+nexp1 [shape=box, label="MUL(ADD,ADD)"];
+color=lightgray ;
+label="fn MUL" ;
 }
-digraph BADDMETA {
+
+// subgraph connectors
+nx1 -> nexp1 [xlabel="Wx0"] ;
+nx2 -> nexp1 [xlabel="Wx1"] ;
+nc1 -> nexp1 [xlabel="Wc0"] ;
+nc2 -> nexp1 [xlabel="Wc1"] ;
+nexp1 -> nout1 [xlabel="Wout"] ;
+}
+digraph u4SHIFTER {
 forcelabels=true;
 center=true;
 splines=ortho;
-//nodesep= 2.0;
-n1 [shape=box, label="FULLADD"] ;
-n2 [shape=none, label="bx_j"] ;
-n3 [shape=none, label="by_j"] ;
-n4 [shape=none, label="c_(j-1)"] ;
-n5 [shape=none, label="bz_j"] ;
-n6 [shape=none, label="c_j"] ;
-n2 -> n1 ;
-n3 -> n1 ;
-n4 -> n1 ;
-n1 -> {n5, n6} ;
-}
-digraph UINTADD {
-forcelabels=true;
-center=true;
-splines=ortho;
-//nodesep= 2.0;
+nodesep= 1.0;
 
-subgraph clusterin0 {
-nADD01 [shape=box, label="FULLADD"] ;
-nADD02 [shape=none, label="bx_0"] ;
-nADD03 [shape=none, label="by_0"] ;
-nADD05 [shape=none, label="bz_0"] ;
-nADD02 -> nADD01 ;
-nADD03 -> nADD01 ;
-nADD01 -> nADD05 ;
+subgraph clusteru41 {
+subgraph clusterBOOL1 {
+nb11 [shape=box, label="x_1"] ;
+nb12 [shape=box, label="x_2"] ;
+nb13 [shape=box, label="x_3"] ;
+nb14 [shape=box, label="x_4"] ;
+color=lightgray;
+label="BOOL[4]" ;
+}
+color = lightgray ;
+label = "u4"
+}
+
+subgraph clusteru42 {
+subgraph clusterBOOL2 {
+nb21 [shape=box, label="y_1"] ;
+nb22 [shape=box, label="y_2"] ;
+nb23 [shape=box, label="y_3"] ;
+nb24 [shape=box, label="y_4"] ;
+color=lightgray;
+label="BOOL[4]" ;
+}
+color = lightgray ;
+label = "u4"
+}
+
+subgraph clusterCONS {
+subgraph clusterBCONS1 {
+nCONSB11 -> nCONSB14 [xlabel="S_1"] ;
+nCONSB11 -> nCONSB16 [xlabel="S_1"] ;
+nCONSB11 -> nCONSB18 [style=dashed, color=lightgrey] ;
+nCONSB12 -> nCONSB15 ;
+nCONSB13 -> nCONSB14 ;
+nCONSB14 -> nCONSB15 ;
+nCONSB15 -> nCONSB16 ;
+nCONSB16 -> nCONSB17 [xlabel="S_2=0 "] ;
+nCONSB11 [shape=box, label="b:BOOL", color=lightgray ] ;
+nCONSB12 [shape=box, label="1"] ;
+nCONSB13 [shape=box, label="-1"] ;
+nCONSB14 [label="*"] ;
+nCONSB15 [label="+"] ;
+nCONSB16 [label="*"] ;
+subgraph clusterBCONS1out {
+nCONSB17 [shape=box, label="0"] ;
+nCONSB18 [shape=box, label="x:F", color=lightgrey] ;
 color = white ;
 }
-
-subgraph clusterin1 {
-nADD11 [shape=box, label="FULLADD"] ;
-nADD12 [shape=none, label="bx_1"] ;
-nADD13 [shape=none, label="by_1"] ;
-//nADD14 [shape=none, label="c_0"] ;
-nADD15 [shape=none, label="bz_1"] ;
-nADD12 -> nADD11 ;
-nADD13 -> nADD11 ;
-//nADD14 -> nADD11 ;
-nADD11 -> nADD15 ;
-color = white ;
+color=lightgray;
+label="x1 : BOOL" ;
 }
 
-subgraph clusterin2 {
-nADD21 [shape=box, label="FULLADD", color=lightgray] ;
-nADD22 [shape=none, label="bx_j", color=lightgray] ;
-nADD23 [shape=none, label="by_j", color=lightgray] ;
-//nADD24 [shape=none, label="c_(j-1)", color=lightgray] ;
-nADD25 [shape=none, label="bz_j", color=lightgray] ;
-nADD22 -> nADD21 [color=lightgray];
-nADD23 -> nADD21 [color=lightgray];
-//nADD24 -> nADD21 ;
-nADD21 -> nADD25 [color=lightgray] ;
+subgraph clusterBCONSB2 {
+nCONSB21 -> nCONSB24 [xlabel="S_1"] ;
+nCONSB21 -> nCONSB26 [xlabel="S_1"] ;
+nCONSB21 -> nCONSB28 [style=dashed, color=lightgrey] ;
+nCONSB22 -> nCONSB25 ;
+nCONSB23 -> nCONSB24 ;
+nCONSB24 -> nCONSB25 ;
+nCONSB25 -> nCONSB26 ;
+nCONSB26 -> nCONSB27 [xlabel="S_2=0 "] ;
+nCONSB21 [shape=box, label="b:BOOL", color=lightgray ] ;
+nCONSB22 [shape=box, label="1"] ;
+nCONSB23 [shape=box, label="-1"] ;
+nCONSB24 [label="*"] ;
+nCONSB25 [label="+"] ;
+nCONSB26 [label="*"] ;
+subgraph clusterBCONS1out {
+nCONSB27 [shape=box, label="0"] ;
+nCONSB28 [shape=box, label="x:F", color=lightgrey] ;
 color = white ;
 }
-
-subgraph clusterinN {
-nADDN1 [shape=box, label="FULLADD"] ;
-nADDN2 [shape=none, label="bx_(N-1)"] ;
-nADDN3 [shape=none, label="by_(N-1)"] ;
-//nADDN4 [shape=none, label="c_(N-2)"] ;
-nADDN5 [shape=none, label="bz_(N-1)"] ;
-nADDN2 -> nADDN1 ;
-nADDN3 -> nADDN1 ;
-//nADDN4 -> nADDN1 ;
-nADDN1 -> nADDN5
-color = white ;
+color=lightgray;
+label="x2 : BOOL" ;
 }
 
-nADD04 [shape=none, label="0"] ;
-nADD04 -> nADD01 ;
-nADD01 -> nADD11 ;
-nADD11 -> nADD21 [style=dashed, color=lightgrey] ;
-nADD21 -> nADDN1 [style=dashed, color=lightgrey] ;
-nADDN6 [shape=none, label="c_out"] ;
-nADDN1 -> nADDN6 ;
+subgraph clusterBCONSB3 {
+nCONSB31 -> nCONSB34 [xlabel="S_1"] ;
+nCONSB31 -> nCONSB36 [xlabel="S_1"] ;
+nCONSB31 -> nCONSB38 [style=dashed, color=lightgrey] ;
+nCONSB32 -> nCONSB35 ;
+nCONSB33 -> nCONSB34 ;
+nCONSB34 -> nCONSB35 ;
+nCONSB35 -> nCONSB36 ;
+nCONSB36 -> nCONSB37 [xlabel="S_2=0 "] ;
+nCONSB31 [shape=box, label="b:BOOL", color=lightgray ] ;
+nCONSB32 [shape=box, label="1"] ;
+nCONSB33 [shape=box, label="-1"] ;
+nCONSB34 [label="*"] ;
+nCONSB35 [label="+"] ;
+nCONSB36 [label="*"] ;
+subgraph clusterBCONS1out {
+nCONSB37 [shape=box, label="0"] ;
+nCONSB38 [shape=box, label="x:F", color=lightgrey] ;
+color = white ;
+}
+color=lightgray;
+label="x3 : BOOL" ;
+}
 
+subgraph clusterBCONSB4 {
+nCONSB41 -> nCONSB44 [xlabel="S_1"] ;
+nCONSB41 -> nCONSB46 [xlabel="S_1"] ;
+nCONSB41 -> nCONSB48 [style=dashed, color=lightgrey] ;
+nCONSB42 -> nCONSB45 ;
+nCONSB43 -> nCONSB44 ;
+nCONSB44 -> nCONSB45 ;
+nCONSB45 -> nCONSB46 ;
+nCONSB46 -> nCONSB47 [xlabel="S_2=0 "] ;
+nCONSB41 [shape=box, label="b:BOOL", color=lightgray ] ;
+nCONSB42 [shape=box, label="1"] ;
+nCONSB43 [shape=box, label="-1"] ;
+nCONSB44 [label="*"] ;
+nCONSB45 [label="+"] ;
+nCONSB46 [label="*"] ;
+subgraph clusterBCONS1out {
+nCONSB47 [shape=box, label="0"] ;
+nCONSB48 [shape=box, label="x:F", color=lightgrey] ;
+color = white ;
+}
+color=lightgray;
+label="x4 : BOOL" ;
+}
+color = white ;
+}
+nb11 -> nCONSB11 ;
+nb12 -> nCONSB21 ;
+nb13 -> nCONSB31 ;
+nb14 -> nCONSB41 ;
+nCONSB18 -> nb22;
+nCONSB28 -> nb23;
+nCONSB38 -> nb24;
+nCONSB48 -> nb21;
 }
 digraph CONDASSIGN {
 forcelabels=true;
@@ -1228,23 +1275,132 @@ n3 [shape=box, label="d"]
 n4 [shape=box, label="b ? c : d"]
 n5 [shape=box, label="-1"]
 n6 [shape=box, label="1"]
-n7 [shape=box, label="*"]
-n8 [shape=box, label="*"]
-n9 [shape=box, label="*"]
-n10 [shape=box, label="+"]
-n11 [shape=box, label="+"]
+n7 [label="*"]
+n8 [label="*"]
+n9 [label="*"]
+n10 [label="+"]
+n11 [label="+"]
 
-n1 -> n7 [taillabel= "E_1 "] ;
-n1 -> n8 [taillabel= "E_1 "] ;
-n2 -> n7 [xlabel= "E_2"] ;
-n3 -> n9 [xlabel= "E_4"] ;
+n1 -> n7 [taillabel= "S_1 "] ;
+n1 -> n8 [taillabel= "S_1 "] ;
+n2 -> n7 [xlabel= "S_2"] ;
+n3 -> n9 [xlabel= "S_4"] ;
 n5 -> n8 ;
 n6 -> n10 ;
-n7 -> n11 [xlabel= "E_3 "] ;
+n7 -> n11 [xlabel= "S_3 "] ;
 n8 -> n10 ;
-n9 -> n11 [xlabel= "E_5"] ;
+n9 -> n11 [xlabel= "S_5"] ;
 n10 -> n9 ;
-n11 -> n4 [xlabel= "E_6 "] ;
+n11 -> n4 [xlabel= "S_6 "] ;
+}
+digraph CONDITIONALOP {
+forcelabels=true;
+center=true;
+splines=ortho;
+nodesep= 1.0;
+
+subgraph clusterinput {
+nb11 [shape=box, label="x:F"] ;
+nb12 [shape=box, label="y:F"] ;
+nb13 [shape=box, label="b:BOOL"] ;
+color = lightgray ;
+label = "input"
+}
+
+subgraph clusterout {
+nb21 [shape=box, label="z"] ;
+color=lightgray;
+label="output" ;
+}
+
+subgraph clusterBCONS1 {
+nCONSB11 -> nCONSB14 [xlabel="S_1"] ;
+nCONSB11 -> nCONSB16 [xlabel="S_1"] ;
+nCONSB11 -> nCONSB18 [style=dashed, color=lightgrey] ;
+nCONSB12 -> nCONSB15 ;
+nCONSB13 -> nCONSB14 ;
+nCONSB14 -> nCONSB15 ;
+nCONSB15 -> nCONSB16 ;
+nCONSB16 -> nCONSB17 [xlabel="S_2=0 "] ;
+nCONSB11 [shape=box, label="b:BOOL", color=lightgray ] ;
+nCONSB12 [shape=box, label="1"] ;
+nCONSB13 [shape=box, label="-1"] ;
+nCONSB14 [label="*"] ;
+nCONSB15 [label="+"] ;
+nCONSB16 [label="*"] ;
+subgraph clusterBCONS1out {
+nCONSB17 [shape=box, label="0"] ;
+nCONSB18 [shape=box, label="x:F", color=lightgrey] ;
+color = white ;
+}
+color=lightgray;
+label="x1 : BOOL" ;
+}
+
+subgraph clusterconditional{
+nCONDI1 [shape=box, label="b", color=lightgrey]
+nCONDI2 [shape=box, label="c", color=lightgrey]
+nCONDI3 [shape=box, label="d", color=lightgrey]
+nCONDI4 [shape=box, label="b ? c : d", color=lightgrey]
+nCONDI5 [shape=box, label="-1"]
+nCONDI6 [shape=box, label="1"]
+nCONDI7 [label="*"]
+nCONDI8 [label="*"]
+nCONDI9 [label="*"]
+nCONDI10 [label="+"]
+nCONDI11 [label="+"]
+
+nCONDI1 -> nCONDI7 [taillabel= "S_1 "] ;
+nCONDI1 -> nCONDI8 [taillabel= "S_1 "] ;
+nCONDI2 -> nCONDI7 [xlabel= "S_2"] ;
+nCONDI3 -> nCONDI9 [xlabel= "S_4"] ;
+nCONDI5 -> nCONDI8 ;
+nCONDI6 -> nCONDI10 ;
+nCONDI7 -> nCONDI11 [xlabel= "S_3 "] ;
+nCONDI8 -> nCONDI10 ;
+nCONDI9 -> nCONDI11 [xlabel= "S_5"] ;
+nCONDI10 -> nCONDI9 ;
+nCONDI11 -> nCONDI4 [xlabel= "S_6 "] ;
+
+color=lightgray;
+label="b ? c : d" ;
+}
+
+subgraph clusterADD {
+nADD1 [shape=box, label="x", color=lightgrey] ;
+nADD2 [shape=box, label="y", color=lightgrey] ;
+nADD3 [label="+"] ;
+nADD4 [shape=box, label="ADD(x,y)", color=lightgrey] ;
+
+nADD1 -> nADD3 ;
+nADD2 -> nADD3 ;
+nADD3 -> nADD4 ;
+
+color=lightgray;
+label="ADD" ;
+}
+
+subgraph clusterMUL {
+nMUL1 [shape=box, label="x", color=lightgrey] ;
+nMUL2 [shape=box, label="y", color=lightgrey] ;
+nMUL3 [label="+"] ;
+nMUL4 [shape=box, label="MUL(x,y)", color=lightgrey] ;
+
+nMUL1 -> nMUL3 ;
+nMUL2 -> nMUL3 ;
+nMUL3 -> nMUL4 ;
+
+color=lightgray;
+label="MUL" ;
+}
+nb11 -> {nMUL1, nADD1} [style=dashed, color=lightgrey] ;
+nb12 -> {nMUL2, nADD2} [style=dashed, color=lightgrey] ;
+nb13 -> nCONSB11 [style=dashed, color=lightgrey] ;
+nCONSB18 -> nCONDI1 [style=dashed, color=lightgrey] ;
+nADD4 -> nCONDI2 [style=dashed, color=lightgrey] ;
+nMUL4 -> nCONDI3 [style=dashed, color=lightgrey] ;
+nCONDI4 -> nb21 [style=dashed, color=lightgrey] ;
+// outer circuit
 }
 digraph BINARYREP {
 forcelabels=true;

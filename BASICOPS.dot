@@ -3,23 +3,20 @@ digraph BASICOPS {
 		nodesep=2.0,
 		splines=ortho
 	];
-	subgraph cluster_output {
+	subgraph cluster_add {
 		graph [color=lightgray,
-			label=outputs
+			label="fn ADD"
 		];
-		nout1	[label=out_1,
+		nadd1	[label=x,
 			shape=box];
-		nout2	[label=out_2,
+		nadd3	[label="+"];
+		nadd1 -> nadd3	[xlabel=W_1];
+		nadd2	[label=y,
 			shape=box];
-	}
-	subgraph cluster_input {
-		graph [color=lightgray,
-			label=inputs
-		];
-		nin1	[label=in_1,
+		nadd2 -> nadd3	[xlabel="W_2 "];
+		nadd4	[label="(x+y)",
 			shape=box];
-		nin2	[label=in_2,
-			shape=box];
+		nadd3 -> nadd4	[xlabel="W_3 "];
 	}
 	subgraph cluster_mul {
 		graph [color=lightgray,
@@ -36,20 +33,23 @@ digraph BASICOPS {
 			shape=box];
 		nmul3 -> nmul4	[xlabel="W_3 "];
 	}
-	subgraph cluster_add {
+	subgraph cluster_input {
 		graph [color=lightgray,
-			label="fn ADD"
+			label=inputs
 		];
-		nadd1	[label=x,
+		nin1	[label=in_1,
 			shape=box];
-		nadd3	[label="+"];
-		nadd1 -> nadd3	[xlabel=W_1];
-		nadd2	[label=y,
+		nin2	[label=in_2,
 			shape=box];
-		nadd2 -> nadd3	[xlabel="W_2 "];
-		nadd4	[label="(x+y)",
+	}
+	subgraph cluster_output {
+		graph [color=lightgray,
+			label=outputs
+		];
+		nout1	[label=out_1,
 			shape=box];
-		nadd3 -> nadd4	[xlabel="W_3 "];
+		nout2	[label=out_2,
+			shape=box];
 	}
 	nin1 -> nmul1	[color=grey,
 		style=dashed,
