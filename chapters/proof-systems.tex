@@ -269,18 +269,30 @@ In addition the setup phase uses those $5$ random elements together with the two
 \begin{align*}
 CRS_{\mathbb{G}_{1}} &= \textstyle\left\{ \begin{array}{c}
 g_1^\alpha,g_1^\beta,g_1^\delta,\left(g_1^{s^j},\ldots\right)_{j=0}^{deg(T)-1},
-\left(g_1^{\frac{\beta\cdot A_{j}(s)+\alpha\cdot B_{j}(s)+C_{j}(s)}{\gamma}},\ldots\right)_{j=1}^n\\
-\left(g_1^{\frac{\beta\cdot A_{j}(s)+\alpha\cdot B_{j}(s)+C_{j}(s)}{\delta}},\ldots\right)_{j=1}^m,\left(g_1^{\frac{s^{j}\cdot T(s)}{\delta}},\ldots\right)_{j=0}^{deg(T)-2}
+\left(g_1^{\frac{\beta\cdot A_{j}(s)+\alpha\cdot B_{j}(s)+C_{j}(s)}{\gamma}},\ldots\right)_{j=0}^n\\
+\left(g_1^{\frac{\beta\cdot A_{j+n}(s)+\alpha\cdot B_{j+n}(s)+C_{j+n}(s)}{\delta}},\ldots\right)_{j=1}^m,\left(g_1^{\frac{s^{j}\cdot T(s)}{\delta}},\ldots\right)_{j=0}^{deg(T)-2}
 \end{array}\right\} \\
 CRS_{\mathbb{G}_{2}} &= \left\{g_2^\beta ,g_2^\gamma,g_2^\delta,\left(g_2^{s^j},\ldots\right) _{j=0}^{deg(T)-1}\right\}
 \end{align*}
 Common reference strings depend on random elements and are therefor not unique to the proplem. Any language can have more then one common reference string. The  size of a common reference string is linear in the size of the instance and the size witness.
- 
+
+If a simulation trapdoor $\tau = (\alpha,\beta,\gamma,\delta, s)$ is given, we call the element $s$ a \textit{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$ then a key feature of any common reference string is, that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $s$ in the exponent of the generator $g_1$ or $g_2$, without knowning $s$.
+
+To be more precise, let $s$ be the secret evaluation point and $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(s)}$ without knowing what the actual value of $s$ is:
+\begin{align*}
+g_1^{P(s)} & = g_1^{a_0\cdot s^0 + a_1\cdot s^1 + \ldots a_k\cdot s^k} \\
+ & = g_1^{a_0\cdot s^0} \cdot g_1{a_1\cdot s^1} \cdot \ldots \cdot g_1^{a_k\cdot s^k}\\
+ & = \Big(g_1^{s^0}\Big)^{a_0} \cdot \Big(g_1^{s^1}\Big)^{a_1} \cdot \ldots \cdot \Big(g_1^{s^k}\Big)^{a_k}\\
+\end{align*}
+In this expression all the group points $g_1^{s^j}$ are part of the common reference string and hence can be used to compute the result. The same holds true for the evaluation of $g_2^{P(s)}$ since the $\G_2$ part of the common reference string containt the points $g_2^{s^j}$. 
+
 In real world applications, a simulation trapdoor is often called the \textit{toxic waste} of the protocol, while a common reference string is called a pair of \textit{proofer and verifier key}. 
 
 In order to make the protocol secure the setup needs to be executed in a way, such that it is guranteed that the simulation trapdoor is deleted. Anyone in possesion of it can simulate proofs. The most simple approach to achieve this is by a so called \textit{trusted third party}, where the trust assumes that the party generate the common reference string precisely as defined and deletes the simulation backdoor.
 
 However as trusted third parties are not easy to find in real world application more sophisticated protocols exists that execute the setup phase as a multi party computation, where the proper execution can be publically verified and the simulation trapdoor is deleted if at least one participants deletes their individual contribution to the randomness.
+
+Proofer and verifier key. Public/private verification
 \begin{example}[The $3$-factorization Problem] To see how the setup phase of Groth16 zk-SNARK can be computed, consider the $3$-factorization problem from XXX and our protocol parameters from XXX. As we have seen in XXX an associated quadratic arithmetic program is given by
 \begin{multline*}
 QAP(R_{3.fac\_zk}) =\\
@@ -291,98 +303,139 @@ Our simulation backdoor is therefore given by
 $$
 \tau = (6,5,4,3,2)
 $$
-and we keep this secret in order to simulate proofs later on. We are careful though to hide them from anyone how hasn't read this book. From those values we then instantiate the common reference string XXX. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. We get
+and we keep this secret in order to simulate proofs later on. We are careful though to hide them from anyone how hasn't read this book. From those values we then instantiate the common reference string XXX. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
+
+To compute the $\G_1$ part of the common reference string we use the logarithmic order of the group $\G_1$ XXX and the generator $g_1=(13,15)$ as well as the values from the simulation backdoor. Since $deg(T)=2$, we get:
+\begin{align*}
+[\alpha]g_1 & = [6](13,15) = (27,34) \\
+[\beta]g_1 & = [5](13,15) = (26,34) \\
+[\delta]g_1 & = [3](13,15) = (38,15)
+\end{align*}
+To compute the rest of the $\G_1$ part of the common reference string, we expand the indexed tuples and insert the secret random elements from the simulation backdoor. We get
+\begin{align*}
+\Big( [s^{j}]g_1,\ldots\Big) _{j=0}^{1} = 
+ & \Big( [2^0](13,15), [2^1](13,15)\Big)  \\
+ = & \Big((13,15),(33,34)\Big)\\
+\Big([\frac{\beta A_{j}(s)+ \alpha B_{j}(s) + C_{j}(s)}{\gamma}]g_1,\ldots\Big)_{j=0}^1 =
+ & \Big([\frac{5 A_{0}(2)+6 B_{0}(2)+C_{0}(2)}{4}](13,15),\\
+ &\phantom{\Big(} [\frac{5 A_{1}(2)+6 B_{1}(2)+C_{1}(2)}{4}](13,15)\Big)\\
+\Big([\frac{\beta A_{j+n}(s)+ \alpha B_{j+n}(s) + C_{j+n}(s)}{\delta}]g_1,\ldots\Big)_{j=1}^4 = 
+&  \Big( [\frac{5 A_{2}(2)+ 6 B_{2}(2) + C_{2}(2)}{3}](13,15),\\ 
+& \phantom{\Big(} [\frac{5 A_{3}(2)+ 6 B_{3}(2) + C_{3}(2)}{3}](13,15),\\
+& \phantom{\Big(} [\frac{5 A_{4}(2)+ 6 B_{4}(2) + C_{4}(2)}{3}](13,15),\\ 
+& \phantom{\Big(} [\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{6}(2)}{3}](13,15)\Big)\\
+\Big([\frac{s^j\cdot T(s)}{\delta})]g_1\Big)_{j=0}^0 = & \Big([\frac{2^0\cdot T(2)}{3}](13,15)\Big) 
+\end{align*}
+To compute the curve points on the right side of these expressions we need the polynomials from the associated quadratic arithmetic program and evaluaten them on the secret point $s=2$. Since $4^{-1}=10$ and $3^{-1}=9$ in $\F_{13}$, we get 
+\begin{align*}
+[\frac{5 A_{0}(2)+6 B_{0}(2)+C_{0}(2)}{4}](13,15) = 
+ & [(5 \cdot 0 +6\cdot 0 + 0)\cdot 10](13,15) = [0](13,14)\\
+ & \mathcal{O} \\
+[\frac{5 A_{1}(2)+6 B_{1}(2)+C_{1}(2)}{4}](13,15) = 
+ & [(5\cdot 0 +6\cdot 0 + (7\cdot 2 + 4))\cdot 10](13,15) = [11](13,15) = \\
+ & (33,9) \\
+[\frac{5 A_{2}(2)+ 6 B_{2}(2) + C_{2}(2)}{3}](13,15) =
+ & [(5\cdot (6\cdot 2 +10) +6\cdot 0 +0 )\cdot 9](13,15) = [2](13,15) = \\
+ & (33,34) \\
+[\frac{5 A_{3}(2)+ 6 B_{3}(2) + C_{3}(2)}{3}](13,15) =
+ & [(5\cdot 0 +6\cdot (6\cdot 2 + 10) + 0 )\cdot 9](13,15) = [5](13,15) = \\
+ & (26,34) \\
+[\frac{5 A_{4}(2)+ 6 B_{4}(2) + C_{4}(2)}{3}](13,15) = 
+ & [(5\cdot 0+6\cdot(7\cdot 2 +4)+0)\cdot 9](13,15) =[10](13,15) = \\
+ & (38,28) \\
+[\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{6}(2)}{3}](13,15) =
+ & [(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 0 )\cdot 9](13,15) = [4](13,15) = \\
+ & (35,28)\\
+[\frac{2^0\cdot T(2)}{3}](13,15) =
+ & [1\cdot (2^2+2+9)\cdot 9](13,15)= [5](13,15) = \\
+ & (26,34)
+\end{align*}
+Putting all those values together we see that the $\mathbb{G}_1$ part of the common reference string is given by the following set of $12$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_1$: 
 $$
 CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
-[6](13,15),[5](13,15),[3](13,15),\left\{ [s^{k}](13,15)\right\} _{k=0}^{1},\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{4}](13,15)\right\} _{k\in S}\\
-\left\{ [\frac{5 a_{k}(2)+6 b_{k}(2)+c_{k}(2)}{3}](13,15)\right\} _{k\in W},\left\{ [\frac{s^{k}t(2)}{3}](13,15)\right\} _{k=0}^{0}
+(27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
+\Big(\mathcal{O}, (33,9)\Big)\\
+\Big((33,34),(26,34),(38,28),(35,28)\Big),
+\Big((26,34)\Big)
 \end{array}\right\}
 $$
-Since we have instance indices $I=\{1, in_1,in_2\}$ and witness indices $W=\{in_3,mid_1,out_1\}$ we have 
-The instance parts.
-\begin{multline*}
-\left[\frac{5 a_{c}(2)+6 b_{c}(2)+c_{c}(2)}{4}\right](13,15) = 
-\left[\frac{5\cdot 0 +6\cdot 0 + 0 }{4}\right](13,15) =
-\left[0\right](13,15) = \mathcal{O}
-\end{multline*}
-\begin{multline*}
-\left[\frac{5 a_{in_3}(2)+6 b_{in_3}(2)+c_{in_3}(2)}{4}\right](13,15) =
-\left[(5\cdot 0+6\cdot(7\cdot 2 +4)+0)\cdot 10\right](13,15) =\\
-\left[(6\cdot 5 )\cdot 10\right](13,15) =
-\left[1\right](13,15) =
-(13,15)
-\end{multline*}
-\begin{multline*}
-\left[\frac{5 a_{out}(2)+6 b_{out}(2)+c_{out}(2)}{4}\right](13,15) = 
-\left[(5\cdot 0 +6\cdot 0 + (7\cdot 2 + 4))\cdot 10 \right](13,15) =\\
-\left[5\cdot 10 \right](13,15) =
-\left[11\right](13,15) = 
-(33,9)
-\end{multline*}
-
-Witness part:
-\begin{multline*}
-\left[\frac{5 a_{in_1}(2)+6 b_{in_1}(2)+c_{in_1}(2)}{3}\right](13,15) = 
-\left[(5\cdot (6\cdot 2 +10) +6\cdot 0 +0 )\cdot 9\right](13,15) = \\
-\left[(5\cdot 9)\cdot 9\right](13,15) =
-\left[2\right](13,15) = (33,34)
-\end{multline*}
-\begin{multline*}
-\left[\frac{5 a_{in_2}(2)+6 b_{in_2}(2)+c_{in_2}(2)}{3}\right](13,15) = 
-\left[(5\cdot 0 +6\cdot (6\cdot 2 + 10) + 0 )\cdot 9\right](13,15) = \\
-\left[(6\cdot 9)\cdot 9\right](13,15) =
-\left[5\right](13,15) =
-(26,34)
-\end{multline*}
-\begin{multline*}
-\left[\frac{5 a_{mid_1}(2)+6 b_{mid_1}(2)+c_{mid_1}(2)}{3}\right](13,15) = 
-\left[(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 0 )\cdot 9\right](13,15) = \\
-\left[(5\cdot 5)\cdot 9\right](13,15) =
-\left[4\right](13,15) =
-(35,28)
-\end{multline*}
-For $\left\{\left[\frac{s^{k}t(2)}{3}\right](13,15)\right\} _{k=0}^{0}$ we get
-\begin{multline*}
-\left[\frac{2^{0}t(2)}{3}\right](13,15)=
-[t(2)\cdot 9](13,15)= 
-[(2^2+2+9)\cdot 9](13,15)= 
-[5](13,15) =
-(26,34)
-\end{multline*}
-All together, the $\mathbb{G}_1$ part of the CRS is:
+To compute the $\G_2$ part of the common reference string we use the logarithmic order of the group $\G_2$ XXX and the generator $g_2=(7v^2,16v^3)$ as well as the values from the simulation backdoor. Since $deg(T)=2$, we get:
+\begin{align*}
+[\beta]g_2 & = [5](7v^2,16v^3) = (16v^2,28v^3) \\
+[\gamma]g_2 & = [4](7v^2,16v^3) = (37v^2,27v^3) \\
+[\delta]g_2 & = [3](7v^2,16v^3) = (42v^2,16v^3)
+\end{align*}
+To compute the rest of the $\G_2$ part of the common reference string, we expand the indexed tuple and insert the secret random elements from the simulation backdoor. We get
+\begin{align*}
+\Big( [s^{j}]g_2,\ldots\Big) _{j=0}^{1} = 
+ & \Big( [2^0](7v^2,16v^3), [2^1](7v^2,16v^3)\Big)  \\
+ = & \Big((7v^2,16v^3),(10v^2,28v^3)\Big)
+\end{align*}
+Putting all those values together we see that the $\mathbb{G}_2$ part of the common reference string is given by the following set of $5$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_2$:
 $$
-CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
-(27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
-\left\{\mathcal{O}, (13,15), (33,9)\right\}\\
-\left\{(33,34),(26,34),(35,28)\right\},
-\left\{(26,34)\right\}
-\end{array}\right\}
+CRS_{\mathbb{G}_{2}}=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\Big(7v^2,16v^3), (10v^2,28v^3)\Big)\right\} 
 $$
-To compute the $\mathbb{G}_2$ part 
-$$
-CRS_{\mathbb{G}_{2}}=\left\{ [5](7v^2,16v^3) ,[4](7v^2,16v^3),[3](7v^2,16v^3),\left\{[2^k](7v^2,16v^3)\right\} _{k=0}^{1}\right\} 
-$$
-$$
-CRS_{\mathbb{G}_{2}}=\left\{ [5](7v^2,16v^3) ,[4](7v^2,16v^3),[3](7v^2,16v^3),\left\{[1](7v^2,16v^3), [2](7v^2,16v^3)\right\}\right\} 
-$$
-$$
-CRS_{\mathbb{G}_{2}}=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\} 
-$$
-
-So alltogether our common reference string is 
-$$
-\begin{pmatrix}
-\left\{ \begin{array}{c}
-(27,34),(26,34),(38,15),\left\{(13,15),(33,34)\right\},
-\left\{\mathcal{O}, (13,15), (33,9)\right\}\\
-\left\{(33,34),(26,34),(35,28)\right\},
-\left\{(26,34)\right\}
+Given the simlutation trapdoor $\tau$ and the quadratic arithmetic program XXX, the associated common reference string of the $3$-factorization proplem is given by
+\begin{align*}
+CRS_{\mathbb{G}_{1}} &=\left\{ \begin{array}{c}
+(27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
+\Big(\mathcal{O}, (33,9)\Big)\\
+\Big((33,34),(26,34),(38,28),(35,28)\Big),
+\Big((26,34)\Big)
 \end{array}\right\}\\
-\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\left\{(7v^2,16v^3), (10v^2,28v^3)\right\}\right\}
-\end{pmatrix}
-$$
+CRS_{\mathbb{G}_{2}} &=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\Big(7v^2,16v^3), (10v^2,28v^3)\Big)\right\}
+\end{align*}
+Lets assume that we have deleted the simulation trapdoor. In that case we have no way to know the secrete evaluation point anymore and hence can not evaluate polynomials at that point. However we can evaluate polynomials of degree smaller then the degree of the targt polynomial in the exponent of both generators at that point. 
+
+To see that consider for example the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secrete point $s$, without knowing the value of $s$ (which is $2$), we can use the common reference string and equation XXX. Using the scalar product notation, instead of exponentiation, we get
+\begin{align*}
+[A_2(s)]g_1 & = [6\cdot s^1 + 10\cdot s^0] g_1 \\
+     & = [6](33,34) + [10](13,15) & \text{\# } [s^0]g_1 = (13,15), [s^1]g_1 = (33,34)\\
+     & = [6\cdot 2](13,15) + [10](13,15) = [9](13,15) & \text{\# logarithmic order on } \G_1 \\   
+     & = (35,15)\\
+[A_5(s)]g_1 & = [7\cdot s^1 + 4\cdot s^0] g_1 \\
+     & = [7](33,34) + [4](13,15) \\
+     & = [7\cdot 2](13,15) + [4](13,15) = [5](13,15)\\
+     & = (26,34)     
+\end{align*}
+Indeed we are able to evalute the polynomials in the exponent at a secret evaluation point because that point is encrypted in the curve point $(33,34)$ and is secrecy is protected by the discrete logarithm assumption. Of course in our computation we recovered the secret point $s=2$, but that was only possible, because we have a logarithmic ordering of the group to simplify our pen and paper computations. Such an order is infisible to compute in cryptographically secure curves. We can do the same computation on $\G_2$ and get
+\begin{align*}
+[A_2(s)]g_2 & = [6\cdot s^1 + 10\cdot s^0] g_2 \\
+     & = [6](10v^2,28v^3) + [10](7v^2,16v^3) \\
+     & = [6\cdot 2](7v^2,16v^3) + [10](7v^2,16v^3) = [9](7v^2,16v^3) \\   
+     & = (37v^2,16v^3)\\
+[A_5(s)]g_2 & = [7\cdot s^1 + 4\cdot s^0] g_1 \\
+     & = [7](10v^2,28v^3) + [4](7v^2,16v^3) \\
+     & = [7\cdot 2](7v^2,16v^3) + [4](7v^2,16v^3) = [5](7v^2,16v^3)\\
+     & = (16v^2,28v^3)     
+\end{align*}
+Except the target polynomial $T$ all polynomial of the quadratic arithmetic program can be evaluated in the exponent this way.
+\end{example}
+\paragraph{The Proofer Phase} We assume that any proofer has access to the rank-1 constraints system of the problem in addition with some algorithm, that tells the proofer how to compute constructive proofs for the R1CS. In addition the proofer needs accces to a  common reference string and its associated quadratic arithmetic program. 
+
+Assuming some inatance $(I_1,\ldots, I_n)$ is given. In order to generate a zk-SNARK for this instance, the proofer first needs to compute a valid constructive proof as explained in XXX, that is the proofer needs to compute a proper witness $W$. The proofer then uses the quadratic arithmetic program and computes the polynomial $P_{(I;W)}$ and divides it by the target polynomial $T$, to get another polynomial $H:= P / T$, with $deg(H)<deg(T)$. 
+
+Let $(W_1,\ldots,W_m)$ be the witness from the constructive proof. The proofer then samples two random field elements $r,t\in \F_r$ and generates a zk-SNARK $\pi = (g_1^A, g_1^C, g_2^B)$, where
+\begin{align*}
+g_1^A & = g_1^\alpha \cdot g_1^{A_0(s)} \cdot \Big(g_1^{A_1(s)}\Big)^{I_1}\cdots \Big(g_1^{A_n(s)}\Big)^{I_n} \cdot \Big(g_1^{A_{n+1}(s)}\Big)^{W_1}\cdots \Big(g_1^{A_{n+m}(s)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^r \\
+g_2^B & = g_2^\beta \cdot g_2^{B_0(s)} \cdot \Big(g_2^{B_1(s)}\Big)^{I_1}\cdots \Big(g_2^{B_n(s)}\Big)^{I_n} \cdot \Big(g_2^{B_{n+1}(s)}\Big)^{W_1}\cdots \Big(g_2^{B_{n+m}(s)}\Big)^{W_m} \cdot \Big(g_2^\delta\Big)^t \\
+\end{align*}  
+As we have seen in XXX, the group elements $g_1^{A_j(s)}$, $g_2^{B_j(s)}$, can be derived from the common reference string. In fact those points only have to be computed once and can then be published and reused for multiple proof generations. All other group elements are part of the common reference string. 
+
+
+Proofs are not unique for a given witness. randomness. This is important, because if one proof is knwon to proof a specific witness one can not see that other proof are for the same witness
+
+\begin{example} T
+Two proofs for Different witnesses
+
+impossible to tell if the proofs are for the same witness of for different ones
 \end{example}
 
+\paragraph{The Verification Phase}
+
+\paragraph{Proof Simulation}
+
+\paragraph{Proof Matability} Anti-Groth+Maller
 \begin{comment}
 % Unfortunately too much for the first version of the book. Will finish that
 % another time ... With a better pend and paper hash function.
