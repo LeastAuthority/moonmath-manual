@@ -380,7 +380,7 @@ sage: Hash5('')
 \end{sagecommandline}
 We can then use sage to apply this function to a large set of input values in order to plot a visualization of the distribution over the set $\{0,\ldots,15\}$. Executing over $500$ input values gives:
 \begin{sagesilent}
-H1 = list_plot([Hash5(ZZ(i).str(2)) for i in range(500)])
+H1 = list_plot([Hash5(ZZ(k).str(2).encode('utf-8')) for k in range(500)])
 \end{sagesilent}
 \begin{center} 
 \sageplot[scale=.5]{H1} 
@@ -390,7 +390,7 @@ To get an intuition of uniformity, we can count the number of times the hash fun
 arr = []
 arr = [0 for i in range(16)]
 for i in range(100000):
-    arr[Hash5(ZZ(i).str(2))] +=1
+    arr[Hash5(ZZ(i).str(2).encode('utf-8'))] +=1
 H2 = list_plot(arr, ymin=0,ymax=10000)
 \end{sagesilent}
 \begin{center} 
@@ -401,7 +401,7 @@ The uniformity of the distribution problem becomes apparent if we want to constr
 arr = []
 arr = [0 for i in range(31)]
 for i in range(100000):
-    arr[Hash5(ZZ(i).str(2))] +=1
+    arr[Hash5(ZZ(i).str(2).encode('utf-8'))] +=1
 H3 = list_plot(arr, ymin=0,ymax=10000)
 \end{sagesilent}
 \begin{center} 
@@ -430,7 +430,7 @@ sage: import Crypto
 sage: from Crypto.Hash import SHA256
 sage: Z23 = Integers(23)
 sage: def Hash_mod23(x, k2):
-....:     h = SHA256.new(x)
+....:     h = SHA256.new(x.encode('utf-8'))
 ....:     d = h.hexdigest()
 ....:     d = ZZ(d, base=16)
 ....:     d = d.str(2)[-k2:]

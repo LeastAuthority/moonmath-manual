@@ -188,7 +188,7 @@ sage: import Crypto
 sage: from Crypto.Hash import SHA256
 sage: Z23 = Integers(23)
 sage: def Hash_mod23(x, k2):
-....:     h = SHA256.new(x)
+....:     h = SHA256.new(x.encode('utf-8'))
 ....:     d = h.hexdigest()
 ....:     d = ZZ(d, base=16)
 ....:     d = d.str(2)[-k2:]
@@ -486,7 +486,7 @@ sage: import Crypto
 sage: from Crypto.Hash import SHA256
 sage: def try_hash(s,c):
 ....:     s_1 = s+c
-....:     h = SHA256.new(s_1)
+....:     h = SHA256.new(s_1.encode('utf-8'))
 ....:     d = h.hexdigest()
 ....:     d = Integer(d,base=16)
 ....:     sign = d.str(2)[-5:-4]
