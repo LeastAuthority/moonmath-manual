@@ -299,10 +299,10 @@ With this choice, the rank-1 constraint system of our $3$-factorization problem 
 \scriptstyle
 \left(c^1_0 + c_1^1 I_1 + c_2^1 W_1 + c_3^1 W_2 + c_4^1 W_3 + c_5^1 W_4\right)\\
 \scriptstyle
-\left(a^2_0 + a_1^2 I_2 + a_2^2 W_2 + a_3^2 W_2 + a_4^2 W_3 + a_5^2 W_4\right)\cdot
-\left(b^2_0 + b_1^2 I_2 + b_2^2 W_2 + b_3^2 W_2 + b_4^2 W_3 + b_5^2 W_4\right) &=
+\left(a^2_0 + a_1^2 I_1 + a_2^2 W_2 + a_3^2 W_2 + a_4^2 W_3 + a_5^2 W_4\right)\cdot
+\left(b^2_0 + b_1^2 I_1 + b_2^2 W_2 + b_3^2 W_2 + b_4^2 W_3 + b_5^2 W_4\right) &=
 \scriptstyle
-\left(c^2_0 + c_1^2 I_2 + c_2^2 W_2 + c_3^2 W_2 + c_4^2 W_3 + c_5^2 W_4\right)
+\left(c^2_0 + c_1^2 I_1 + c_2^2 W_2 + c_3^2 W_2 + c_4^2 W_3 + c_5^2 W_4\right)
 \end{align*}
 \end{example}
 \begin{example}[The Tiny Jubjub curve] Consider the languages $L_{tiny.jj.1}$ from example XXX, which consist of words $(I_1,I_2)$ over the alphabet $\F_{13}$, such that $3\cdot I_1^2 + I_2^2 = 1 + 8\cdot I_1^2\cdot I_2^2$. 
@@ -1232,10 +1232,22 @@ $A_4(x)=0$ &$ B_4(x)=7x+4  $ & $C_4(x)=0$ \tabularnewline\hline
 $A_5(x)=7x+4$ &$ B_5(x)=0      $ & $C_5(x)=6x+10$ \tabularnewline\hline 
 \end{tabular}
 \end{center}
-Combining this computation, we the target polynomial we derive earlier gives a quadratic arithmetic program associated to the rank-1 constraint system $R_{3.fac\_zk}$ is given by
+We can invoke sage to verify our computation. In sage every polynomial ring has a function \texttt{lagrange\_polynomial} that takes the defining points as inputs and the associated Langrange polynomial as output.
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: T = F13t((t-5)*(t-7))
+sage: A2 = F13t.lagrange_polynomial([(5,1),(7,0)])
+sage: A5 = F13t.lagrange_polynomial([(5,0),(7,1)])
+sage: T == F13t(t^2 + t + 9)
+sage: A2 == F13t(6*t + 10)
+sage: A5 == F13t(7*t + 4)
+\end{sagecommandline}
+
+Combining this computation, together with the target polynomial we derive earlier, a quadratic arithmetic program associated to the rank-1 constraint system $R_{3.fac\_zk}$ is given by
 \begin{multline*}
-QAP(R_{3.fac\_zk}) =\\
-\scriptstyle \{x^{2}+x+9,\{0,6x+10,0,0,7x+4,0\},\{0,0,6x+10,7x+4,0,0\},\{0,0,0,0,6x+10,7x+4\}\}$$
+QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
+ \{0,0,6x+10,0,0,7x+4\},\{0,0,0,6x+10,7x+4,0\},\{0,7x+4,0,0,0,6x+10\}\}
 \end{multline*}
 \end{example}
 \paragraph{QAP Satisfyability} One of the major points of quadratic arithmetic programs in proofing systems is, that solutions of their associated rank-1 constraints systems are in 1:1 correspondence with certain polynomials $P$, such that $P$ is divisible by the target polynomial $T$ of the QAP, if and only if the solution id a solution. Verifying solutions to the R1CS and hence checking proper circuit execution, is then achieveable by polynomial division of $P$ by $T$.
@@ -1274,14 +1286,22 @@ In the case of $(I_1;W_1,W_2,W_3,W_5)=(11;2,3,4,6)$  the associated proof is com
 \begin{align*}
 P_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j\cdot A_{n+j} \right) \cdot \left(B_0 + \sum_{j}^n I_j\cdot B_j + \sum_{j}^m W_j\cdot B_{n+j} \right) 
 -\left(C_0 + \sum_{j}^n I_j\cdot C_j + \sum_{j}^m W_j\cdot C_{n+j} \right)\\
-= & (2(6x+10)+6(7x+4))\cdot(3(6x+10)+4(7x+4))-(6(6x+10)+11(7x+4)) \\
-= & ((12x+7)+(3x+11))\cdot((5x+4)+(2x+3))-((10x+8)+(12x+5)) \\
+= & (2(6x+10)+6(7x+4))\cdot(3(6x+10)+4(7x+4))-(11(7x+4)+6(6x+10)) \\
+= & ((12x+7)+(3x+11))\cdot((5x+4)+(2x+3))-((12x+5)+(10x+8)) \\
 = & (2x+5)\cdot(7x+7)-(9x) \\
 = & (x^{2}+2\cdot7x+5\cdot7x+5\cdot7)-(9x) \\
 = & (x^{2}+x+9x+9)-(9x) \\
 = & x^{2}+x+9
 \end{align*}
 Given instance $I_1=11$ a proofer therefore provides the puolynomial $x^2+x+9$ as proof. To verify this proof any verifier can then look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example $P_{(I;W)}$ is equal to the target polynomial $T$ and hence it is divisible by $T$ with $P/T=1$. The verification therefore checks the proof.
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: T = F13t(t^2 + t + 9)
+sage: P = F13t((2*(6*t+10)+6*(7*t+4))*(3*(6*t+10)+4*(7*t +4))-(11*(7*t+4)+6*(6*t+10)))
+sage: P == T
+sage: P % T # remainder
+\end{sagecommandline}
 
 To give an example of a false proof, consider the tuple $(I_1;W_1,W_2,W_3,W_4)=(11, 2, 3, 4, 8)$. Executing the circuit we can see that this is not a valid assignment and not a solution to the R1CS and hence not a constructive knowledge proof in $L_{3.fac\_zk}$. However a proofer might use these values to construct a false proof $P_{(I;W)}$:
 \begin{align*}
@@ -1295,4 +1315,12 @@ $$
 (8x^{2}+6)/(x^{2}+x+9) =8+\frac{5x+12}{x^{2}+x+9} 
 $$
 This implies that $P_{(I;W)}$ is not divisible by $T$ and hence the verification does not check the proof. Any verfifier therefore showed that the proof is false.
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: T = F13t(t^2 + t + 9)
+sage: P = F13t((2*(6*t+10)+8*(7*t+4))*(3*(6*t+10)+4*(7*t+4))-(8*(6*t+10)+11*(7*t+4)))
+sage: P == F13t(8*t^2 + 6)
+sage: P % T # remainder
+\end{sagecommandline}
 \end{example}

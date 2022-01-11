@@ -104,6 +104,7 @@ From XXX we know, that the moon-math curve \texttt{BLS6\_6} has two subgroups $\
 $$
 \mathtt{Groth\_16-Param}(R_{3.fac\_zk})=(r, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3))
 $$
+It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has a proper bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real world applications, where SNARKS with equivalent behaviour are defined over different curves, used in different applications.
 \end{example}
 \paragraph{The Setup Phase} To generate zk-SNARKs from constructive knowledge proofs in the Groth16 protocol, a preprocessing phase is required that has to be executed a single time for every rank-1 constraints system and any associated quadratic arithmetic program. The outcome of this phase is a common reference string, that proofer and verifier need to generate and verify the zk-SNARK. In addition a simulation trapdoor is produced that can be used to simulate proofs.
 
@@ -141,11 +142,11 @@ In order to make the protocol secure the setup needs to be executed in a way, su
 However as trusted third parties are not easy to find in real world application more sophisticated protocols exists that execute the setup phase as a multi party computation, where the proper execution can be publically verified and the simulation trapdoor is deleted if at least one participants deletes their individual contribution to the randomness. Each participant only posesses a fraction of the simulation trapdoor and the toxic waste can only be recovered if all participants collude and share their fraction.
 \begin{example}[The $3$-factorization Problem] To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the $3$-factorization problem from XXX and the parameters from XXX. As we have seen in XXX an associated quadratic arithmetic program is given by
 \begin{multline*}
-QAP(R_{3.fac\_zk}) =\\
-\{x^{2}+x+9,\{0,6x+10,0,0,7x+4,0\},\{0,0,6x+10,7x+4,0,0\},\{0,0,0,0,6x+10,7x+4\}\}$$
+QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
+ \{0,0,6x+10,0,0,7x+4\},\{0,0,0,6x+10,7x+4,0\},\{0,7x+4,0,0,0,6x+10\}\}
 \end{multline*}
 To transform this QAP into a common reference string, we choose the following field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$. 
-Our simulation trapdoor is then given by
+In real world applications it is important to sample those values randomly from the scalar fiel, but in our approach, we choose those non random values to make them more memorizable, which helps in pen and paper computations. Our simulation trapdoor is then given by
 $$
 \tau = (6,5,4,3,2)
 $$
@@ -189,7 +190,7 @@ To compute the curve points on the right side of these expressions we need the p
 [\frac{5 A_{4}(2)+ 6 B_{4}(2) + C_{4}(2)}{3}](13,15) = 
  & [(5\cdot 0+6\cdot(7\cdot 2 +4)+0)\cdot 9](13,15) =[10](13,15) = \\
  & (38,28) \\
-[\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{6}(2)}{3}](13,15) =
+[\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{5}(2)}{3}](13,15) =
  & [(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 0 )\cdot 9](13,15) = [4](13,15) = \\
  & (35,28)\\
 [\frac{2^0\cdot T(2)}{3}](13,15) =
@@ -374,13 +375,9 @@ $$
 We ca no publish this zk-SNARK or send it to a designated verifier. Note that if we had sampled different values for $r$ and $t$, we would have computed a different SNARK for the same witness. The SNARK therefore hides the witness perfectly, which means that it is impossible to reconstruct the witness from the SNARK.
 \end{example}
 
-\paragraph{The Verification Phase}Given some rank-1 constraints system $R$, instance $I=(I_1,\ldots, I_n)$ and zk-SNARK $\pi$, the task of the verifier phase is to check that $\pi$ is correct. Assuming that the simulation trapdoor does not exists anymore and the verifications checks the proof, the verifier can be convinced, that someone knows a witness $W=(W_1,\ldots,W_m)$, such that $(I;W)$ is word in the associated language of $R$.  
+\paragraph{The Verification Phase}Given some rank-1 constraints system $R$, instance $I=(I_1,\ldots, I_n)$ and zk-SNARK $\pi$, the task of the verifier phase is to check that $\pi$ is indeed an argument for a constructive proof. Assuming that the simulation trapdoor does not exists anymore and the verification checks the proof, the verifier can be convinced, that someone knows a witness $W=(W_1,\ldots,W_m)$, such that $(I;W)$ is a word in the language of $R$.  
 
-To achieve this in the Groth16 protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently and has access to the common reference string used to produce the SNARK $\pi$. In fac the verifier only need access to the so called \textit{verifier key}, which is the following subset of the common reference string:
-
-XXX 
-
-In order to verify the SNARK with respect to the instance $(I_1,\ldots, I_n)$, the verifier computes the following curve point:
+To achieve this in the Groth16 protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently and has access to the common reference string used to produce the SNARK $\pi$. In order to verify the SNARK with respect to the instance $(I_1,\ldots, I_n)$, the verifier computes the following curve point:
 \begin{align*}
 g_1^I & = \Big(g_1^{\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}}\Big)\cdot \Big(g_1^{\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}}\Big)^{I_1} \cdots \Big(g_1^{\frac{\beta\cdot A_{n}(s)+\alpha\cdot B_{n}(s)+C_{n}(s)}{\gamma}}\Big)^{I_n}\\
 \end{align*}
@@ -389,21 +386,21 @@ With this group element the verifier is then able to verify the SNARK $\pi=(g_1^
 e(g_1^A, e_2^B) = e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)
 \end{equation}
 If the equation holds true, the SNARK is accepted and if the equation does not hold, the SNARK is rejected.
-
+\begin{remark}
 We know from XXX that computing pairings in cryptographically secure pairing groups is computationally expensive. As we can see, in the Groth16 protocol $3$ pairings are required to verify the SNARK, because the pairing $e(g_1^\alpha,g_2^\beta)$ is independend of the proof and can be computed once and then stored as an amendment to the verifeyer key. 
 
 In [GROTH16] the author showed that $2$ pairings is the minimal amout of pairings that any protocol with similar properties has to use. This protocol is therefore close to the theoretic minimum. In the same paper the author outlined an adoptation that only uses $2$ pairings. However that reduction comes with the price of much more overhead computation. $3$ pairings is therefore a compromize that gives the overall best performance. To date the Groth16 protocol is the most efficient in its class. 
-
+\end{remark}
 \begin{example}[The $3$-factorization Problem] To see how a verifier might check  
-a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from XXX, our protocol parameters from XXX, the common reference string from XXX and the SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$, which claims to proof knowledge of a witness for the instance $I_1=11$.
+a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from XXX, our protocol parameters from XXX, the common reference string from XXX as well as the zk-SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$, which claims to be an argument of knowledge for a witness for the instance $I_1=11$.
 
 In order to verfify the zk-SNARK for that instance, we first compute the curve point $g_1^I$. Using scalar products instead of the exponential notation and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point
 \begin{align*}
-[I]g_1 = & g_1^{\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}} \oplus [I_1]g_1^{\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}}
+[I]g_1 = & [\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}]g_1
 \end{align*}
-To compute this point, we have to rememer that a verifier should not be in posession of the simulation trapdoor and hence does not know what $\alpha$, $\beta$, $\delta$ and $s$ are. In order to compute this group element, the verifier therefore need the common reference string. Using the logarithmic order from XXX and instance $I_1$ we get
+To compute this point, we have to rememer that a verifier should not be in posession of the simulation trapdoor and hence does not know what $\alpha$, $\beta$, $\gamma$ and $s$ are. In order to compute this group element, the verifier therefore need the common reference string. Using the logarithmic order from XXX and instance $I_1$ we get
 \begin{align*}
-[I]g_1 & = g_1^{\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}} \oplus [I_1]g_1^{\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}}\\   
+[I]g_1 & = [\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}]g_1\\
        & = \mathcal{O} \oplus [11](33,9)\\
        & = [11\cdot 11](13,15) = [4](13,15)\\
        & = (35,28)
@@ -413,122 +410,134 @@ In a next step we have to compute all the pairings invold in equation XXX. Using
 e([A]g_1,[B]g_2) & = e((35,15),(7v^2,27v^3))
                    = e([9](13,15),[12](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{9\cdot 12}\\
-               & = e((13,15),(7v^2,16v^3))^{4}\\
+               & = e((13,15),(7v^2,16v^3))^{108}\\
 e([\alpha]g_1,[\beta]g_2) & = e((27,34),(16v^2,28v^3)) 
                             = e([6](13,15),[5](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{6\cdot 5}\\
-               & = e((13,15),(7v^2,16v^3))^{4}\\   
+               & = e((13,15),(7v^2,16v^3))^{30}\\   
 e([I]g_1,[\gamma]g_2) & = e((35,28),(37v^2,27v^3)) 
                             = e([4](13,15),[4](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{4\cdot 4}\\
-               & = e((13,15),(7v^2,16v^3))^{3}\\ 
+               & = e((13,15),(7v^2,16v^3))^{16}\\ 
 e([C]g_1,[\delta]g_2) & = e((27,9),(42v^2,16v^3)) 
                             = e([7](13,15),[3](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{7\cdot 3}\\
-               & = e((13,15),(7v^2,16v^3))^{8}\\                                             
+               & = e((13,15),(7v^2,16v^3))^{21}
 \end{align*}  
-Putting all this together we get
+In order to check equation XXX, observe that the target group $\G_T$ of the Weil pairing is a finite cyclic group of order $13$. Exponentition is therfore done in modular $13$ arithmetics. Using this we evaluate the left side of equation XXX as  
+$$
+e([A]g_1,[B]g_2) = e((13,15),(7v^2,16v^3))^{108} =e((13,15),(7v^2,16v^3))^{4}
+$$
+since $\Zmod{108}{13}=4$. Similarly, we evaluate the right side of equation XXX using modular $13$ arithmetics and the exponential law $a^x\cdot a^y = a^{x+y}$. We get
 \begin{align*}
-e([A]g_1, [B]e_2) &= e([\alpha]g_1,[\beta]g_2)\cdot e([I]g_1,[\gamma]g_2)\cdot e([C]g_1,[\delta]g_2) & \Rightarrow \\
-e((13,15),(7v^2,16v^3))^{4}&= e((13,15),(7v^2,16v^3))^{4} \cdot e((13,15),(7v^2,16v^3))^{3} \cdot e((13,15),(7v^2,16v^3))^{8} & \Leftrightarrow \\
-e((13,15),(7v^2,16v^3))^{4}&= e((13,15),(7v^2,16v^3))^{4+3+8} & \Leftrightarrow \\
-e((13,15),(7v^2,16v^3))^{4}&= e((13,15),(7v^2,16v^3))^{3}
+e([\alpha]g_1,[\beta]g_2)\cdot e([I]g_1,[\gamma]g_2)\cdot e([C]g_1,[\delta]g_2) =\\
+e((13,15),(7v^2,16v^3))^{30}\cdot e((13,15),(7v^2,16v^3))^{16}\cdot e((13,15),(7v^2,16v^3))^{21} =\\
+e((13,15),(7v^2,16v^3))^{4}\cdot e((13,15),(7v^2,16v^3))^{3}\cdot e((13,15),(7v^2,16v^3))^{8} =\\
+e((13,15),(7v^2,16v^3))^{4+3+8} = \\
+e((13,15),(7v^2,16v^3))^{2}
 \end{align*}
+As we can see both the left and the right side of equation XXX are identical, which implies that the verification process accepts the simulated proof.
+
+NOTE: UNFORTUNSATELY NOT! :-(( HENCE THERE IS AN ERROR SOMEWHERE ... NEED TO FIX IT AFTER VACATION
 \end{example}
-\paragraph{Proof Simulation} As we have pointed out, during any execution of setup phase, a common reference string and an associated simulation trapdoor is peduced and the simulation trapdoor can be used to \textit{simulate proofs}.
+\paragraph{Proof Simulation} During the execution of a setup phase, a common reference string is generated acompanied by a simulation trapdoor, the latter of which must be deleted at the end of the setup-phase. As an alternative a more complicated multi-party protocol like [XXX] can be used to split the knowledge of the simulation trapdoor among many different parties.
 
-In real world applications simulated proofs are often the same thing as forged proof and the key point of such fake proof is that it can be generated without the existence of a witness. 
+In this paragraph we will show, why knowledge of the simulation trapdoor is problematic and how it can be used to generate zk-SNARKs for given instances without any knowledge or the existence of associated witnesses. 
 
-To see how this is done, lets assume that a forger has access to the rank-1 constraints system of the problem and in addition has access to the simulation trapdoor
+To be more precise, let $I$ be an instance for some R1CS language $L_R$. We call a zk-SNARK for $L_R$ \textbf{forged} or \textbf{simulated}, if it passes any verification but its generation does not require the existence of a witness $W$, such that $(I;W)$ is a word in $L_R$. 
+
+To see how simulated zk-SNARKs can be computed, assume that a forger has knowledge of proper Groth\_16 parameters, a quadratic arithmetic program of the problem, a common reference string and its associated simulation trapdoor
 \begin{equation}
 \tau = (\alpha,\beta,\gamma,\delta,s)
 \end{equation}
-Given some instance $I$ the forgers task is to generate a valid zk-SNARK for this instance, without access to any other zk-SNARK for this instance and without knowledge of a valid witness $W$.
+Given some instance $I$ the forgers task is to generate a zk-SNARK for this instance that passes the verification process, without access to any other zk-SNARK for this instance and without knowledge of a valid witness $W$.
 
-To achieve this in the Groth16 protocol, the forger can use the simulation trapdoor, together with two arbitrary field elements $A$ and $B$ from the scalar field $\F_r$ of the pairing groups. Given instance $(I_1,\ldots,I_n)$ the forger then computes 
+To achieve this in the Groth\_16 protocol, the forger can use the simulation trapdoor in combination with the QAP and two arbitrary field elements $A$ and $B$ from the scalar field $\F_r$ of the pairing groups to compute 
 \begin{align*}
-g_1^C & = g_1^{A\cdot B}\cdot g_1^{-\alpha\cdot \beta}\cdot 
-      g_1^{\frac{\beta A_0(s) + \alpha B_0(s)+ C_0(s)}{\delta}}cdot      
-      \Big(g_1^{\frac{\beta A_1(s) + \alpha B_1(s)+ C_1(s)}{\delta}}\Big)^{I_1}\cdots
-      \Big(g_1^{\frac{\beta A_n(s) + \alpha B_n(s)+ C_n(s)}{\delta}}\Big)^{I_n}\
-\end{align*}  
-and publishes the simulated zk-SNARK $\pi = (g_1^A, g_1^C, g_2^B)$, which they where able to compute without the knowledge of any valid witness $(W_1,\ldots,W_m)$ of the problem.
+g_1^C & = g_1^{\frac{A\cdot B}{\delta}}\cdot g_1^{-\frac{\alpha\cdot \beta}{\delta}}\cdot g_1^{-\frac{\beta A_0(s) + \alpha B_0(s)+ C_0(s)}{\delta}}\cdot \Big(g_1^{-\frac{\beta A_1(s) + \alpha B_1(s)+ C_1(s)}{\delta}}\Big)^{I_1}\cdots \Big(g_1^{-\frac{\beta A_n(s) + \alpha B_n(s)+ C_n(s)}{\delta}}\Big)^{I_n}\
+\end{align*} 
+for the instance $(I_1,\ldots,I_n)$. The forger then publishes the zk-SNARK $\pi_{forged} = (g_1^A, g_1^C, g_2^B)$, which will pass the verification process and is computable without the existence of a witness $(W_1,\ldots,W_m)$.
 
-To see that the simulation trapdoor is necessary and sufficient to compute $\pi$, first observe that both generators $g_1$ and $g_2$ are known to the forger, as they are part of the common reference string, encoded as $g_1^{s^0}$ and $g_2^{s^0}$. The forger is therefore able to compute $g_1^{A\cdot B}$. Moreover since the forger knows $\alpha$, $\beta$, $\delta$ and $s$ from the trapdoor, they are able to compute all factors in the product.
+To see that the simulation trapdoor is necessary and sufficient to compute the simulated proof $\pi_{forged}$, first observe that both generators $g_1$ and $g_2$ are known to the forger, as they are part of the common reference string, encoded as $g_1^{s^0}$ and $g_2^{s^0}$. The forger is therefore able to compute $g_1^{A\cdot B}$. Moreover since the forger knows $\alpha$, $\beta$, $\delta$ and $s$ from the trapdoor, they are able to compute all factors in the computation of $g_1^C$.
 
-If on the other hand the simulation trapdoor is unknown, it is not possible to compute $g_1^C$, since for example the computational Diffie-Hellman assumption makes the computation of $g_1^{\alpha\cdot \beta}$ from $g_1^\alpha$ and $g_1^\beta$ infesible.
-
-I THINK THERE IS A MISMATCH OF GAMMA AND DELTA SOMEWHERE IN THE PROOF!
-
+If on the other hand the simulation trapdoor is unknown, it is not possible to compute $g_1^C$, since for example the computational Diffie-Hellman assumption makes the derivation of $g_1^{\alpha\cdot \beta}$ from $g_1^\alpha$ and $g_1^\beta$ infesible.
 \begin{example}[The $3$-factorization Problem] To see how a forger might simulate a  
-zk-SNARK for some given instance $I$, consider the $3$-factorization problem from XXX, our protocol parameters from XXX, the common reference string from XXX and the simulation trapdoor $\tau = (6,5,4,3,2)$.
+zk-SNARK for some given instance $I$, consider the $3$-factorization problem from XXX, our protocol parameters from XXX, the common reference string from XXX and the simulation trapdoor $\tau = (6,5,4,3,2)$ of that CRS.
 
-In order to forge a zk-SNARK for instance $I_1=11$ we don't have to compute a constructive proof for the associated rank-1 constraints system, but only need to choose $2$ elements from $\F_{13}$. We choose $A=9$ and $B=3$. With these values we compute
+In order to forge a zk-SNARK for instance $I_1=11$ we don't need a constructive proof for the associated rank-1 constraints system, which implies that we don't have to execute the circuit $C_{3.fac}(\F_{13})$. Instead we have to choose $2$ arbitrary elements $A$ and $B$ from $\F_{13}$ and compute $g_1^A$, $g_2^B$ and $g_1^C$ as defined in XXX. We choose $A=9$ and $B=3$ and since $\delta^{-1}=3$, we compute
 \begin{align*}
-[A]g_1 & = [9](13,15) = (35,15)\\
-[B]g_2 & = [3](7v^2,16v^3) = (42v^2,16v^3)\\
-[C]g_1 & = [A\cdot B]g_1\oplus [-\alpha\cdot\beta]g_1\oplus 
-      [\frac{\beta A_0(s) + \alpha B_0(s)+ C_0(s)}{\delta}]g_1\oplus 
-      [I_1][\frac{\beta A_1(s) + \alpha B_1(s)+ C_1(s)}{\delta}]g_1\\
-      & = [9\cdot 3](13,15)\oplus [-6\cdot5](13,15)\oplus 
-      [0](13,15)\oplus [11][(7\cdot 2 + 2)\cdot 9](13,15)\\
-      & = [9\cdot 3 -6\cdot 5 + 11+ (7\cdot 2 + 2)\cdot 9](13,15)=[9](13,15)\\
-      & = (35,15)
+[A]g_1 =& [9](13,15) = (35,15)\\
+[B]g_2 =& [3](7v^2,16v^3) = (42v^2,16v^3)\\
+[C]g_1 =& [\frac{A\cdot B}{\delta}]g_1\oplus 
+           [-\frac{\alpha\cdot\beta}{\delta}]g_1\oplus 
+      [-\frac{\beta A_0(s) + \alpha B_0(s)+ C_0(s)}{\delta}]g_1\oplus\\
+      &[I_1][-\frac{\beta A_1(s) + \alpha B_1(s)+ C_1(s)}{\delta}]g_1\\      
+     = & [(9\cdot 3)\cdot 9 ](13,15)\oplus 
+      [-(6\cdot 5)\cdot 9](13,15)\oplus 
+      [0](13,15)\oplus 
+      [11][-(7\cdot 2 + 4)\cdot 9](13,15)\\      
+     = &[9](13,15)\oplus [3](13,15)\oplus [12](13,15)= [11](13,15)\\       
+     = &(33,9)
 \end{align*}
-We therefore publish the simulated zk-SNARK
+This is all we need to generate our forged proof for the $3$-factorization problem. We publish the simulated zk-SNARK
 $$
-\pi=((35,15),(35,15),(42v^2,16v^3))
+\pi_{fake}=((35,15),(33,9),(42v^2,16v^3))
 $$
-To see that this SNARK passes the verification, we proceed as in XXX and compute 
-the curve point $g_1^I$. Since we use the same instance as in example XXX, the computation is identical and we get
+Despite the fact that this zk-SNARK was generated without knowledge of a proper witness, it is indistingushable from a zk-SNARK that proofs knowledge of a proper witness. 
+
+To see that we show that our forged SNARK passes the verification process. In order to verify $\pi_{fake}$ we proceed as in XXX and compute the curve point $g_1^I$ for the instance $I_1=11$. Since the instance is the same as in example XXX, we can parallel the computation from XXX and get
 \begin{align*}
-[I]g_1 & = g_1^{\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}} \oplus [I_1]g_1^{\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}}\\
-       & =  (35,28)
+[I]g_1 & = [\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}]g_1\\
+       & = (35,28)
 \end{align*} 
 In a next step we have to compute all the pairings invold in equation XXX. Using the logarithmic order on $\G_1$ and $\G_2$ as well as the bilinearity property of the pairing map we get
 \begin{align*}
 e([A]g_1,[B]g_2) & = e((35,15),(42v^2,16v^3))
                    = e([9](13,15),[3](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{9\cdot 3}\\ 
-               & = e((13,15),(7v^2,16v^3))^{1}\\
+               & = e((13,15),(7v^2,16v^3))^{27}\\
 e([\alpha]g_1,[\beta]g_2) & = e((27,34),(16v^2,28v^3)) 
                             = e([6](13,15),[5](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{6\cdot 5}\\
-               & = e((13,15),(7v^2,16v^3))^{4}\\   
+               & = e((13,15),(7v^2,16v^3))^{30}\\   
 e([I]g_1,[\gamma]g_2) & = e((35,28),(37v^2,27v^3)) 
                             = e([4](13,15),[4](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{4\cdot 4}\\
-               & = e((13,15),(7v^2,16v^3))^{3}\\ 
-e([C]g_1,[\delta]g_2) & = e((35,15),(42v^2,16v^3)) 
-                            = e([9](13,15),[3](7v^2,16v^3))\\
-               & = e((13,15),(7v^2,16v^3))^{9\cdot 3}\\
-               & = e((13,15),(7v^2,16v^3))^{1}\\                                             
+               & = e((13,15),(7v^2,16v^3))^{16}\\ 
+e([C]g_1,[\delta]g_2) & = e((33,9),(42v^2,16v^3)) 
+                            = e([11](13,15),[3](7v^2,16v^3))\\
+               & = e((13,15),(7v^2,16v^3))^{11\cdot 3}\\
+               & = e((13,15),(7v^2,16v^3))^{33}\\                                             
 \end{align*}  
-Putting all this together we get
+In order to check equation XXX, observe that the target group $\G_T$ of the Weil pairing is a finite cyclic group of order $13$. Exponentition is therfore done in modular $13$ arithmetics. Using this we evaluate the left side of equation XXX as  
+$$
+e([A]g_1,[B]g_2) = e((13,15),(7v^2,16v^3))^{27} =e((13,15),(7v^2,16v^3))^{1}
+$$
+since $\Zmod{27}{13}=1$. Similarly, we evaluate the right side of equation XXX using modular $13$ arithmetics and the exponential law $a^x\cdot a^y = a^{x+y}$. We get
 \begin{align*}
-e([A]g_1, [B]e_2) &= e([\alpha]g_1,[\beta]g_2)\cdot e([I]g_1,[\gamma]g_2)\cdot e([C]g_1,[\delta]g_2) & \Rightarrow \\
-e((13,15),(7v^2,16v^3))^{1}&= e((13,15),(7v^2,16v^3))^{4} \cdot e((13,15),(7v^2,16v^3))^{3} \cdot e((13,15),(7v^2,16v^3))^{1} & \Leftrightarrow \\
-e((13,15),(7v^2,16v^3))^{4}&= e((13,15),(7v^2,16v^3))^{4+3+1} & \Leftrightarrow \\
-e((13,15),(7v^2,16v^3))^{4}&= e((13,15),(7v^2,16v^3))^{8}
+e([\alpha]g_1,[\beta]g_2)\cdot e([I]g_1,[\gamma]g_2)\cdot e([C]g_1,[\delta]g_2) =\\
+e((13,15),(7v^2,16v^3))^{30}\cdot e((13,15),(7v^2,16v^3))^{16}\cdot e((13,15),(7v^2,16v^3))^{33} =\\
+e((13,15),(7v^2,16v^3))^{4}\cdot e((13,15),(7v^2,16v^3))^{3}\cdot e((13,15),(7v^2,16v^3))^{7} =\\
+e((13,15),(7v^2,16v^3))^{4+3+7} = \\
+e((13,15),(7v^2,16v^3))^{1}
 \end{align*}
+As we can see both the left and the right side of equation XXX are identical, which implies that the verification process accepts the simulated proof. $\pi_{fake}$ therefore convince the verifier that a witness to $3$-factorization problem exists, however no such witness was really necessary to generate the proof.
 \end{example}
 
-\paragraph{Proof Matability} As we have seen in the previous paragraph, given some instance $I$, knowledge of the simulation trapdoor allows for the computation of a valid zk-SNARK without knowledge of an actual witness for that instance. 
+%\paragraph{Proof Matability} As we have seen in the previous paragraph, given some instance $I$, knowledge of the simulation trapdoor allows for the computation of a valid zk-SNARK without knowledge of an actual witness for that instance. 
 
-Another way to construct 
+%Another way to construct 
 
-To see this, let $\pi=(g_1^A, g_1^C, g_2^B)$ be a zk-Snark for some instance $I$ in the Groth16 protocol. Then for any non zero field element $a\in\F_r$, another proof $\pi'$ is given by
-\begin{equation}
-\pi=\Big(\Big(g_1^A\Big)^a, \Big(g_1^C\Big)^a, \Big(g_2^B\Big)^{a^2}\Big)
-\end{equation}  
+%To see this, let $\pi=(g_1^A, g_1^C, g_2^B)$ be a zk-Snark for some instance $I$ in the Groth16 protocol. Then for any non zero field element $a\in\F_r$, another proof $\pi'$ is given by
+%\begin{equation}
+%\pi=\Big(\Big(g_1^A\Big)^a, \Big(g_1^C\Big)^a, \Big(g_2^B\Big)^{a^2}\Big)
+%\end{equation}  
 %To see this recall from XXX, that a verifier checks the validity of any given SNARK by computing the equation $e(g_1^A, e_2^B) = e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)$. However if that equation holds true for the proof $\pi$ it it also satisfied for $\pi'$, since
 %\begin{align*}
 %e(g_1^A, e_2^B) & = e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta) & \Leftrightarrow\\
 %\Big(e(g_1^A, e_2^B)\Big^{a^2} &= \Big(e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)\Big^{a^2} & \Leftrightarrow\\  
 %e((g_1^A)^a, (e_2^B)^a) &= \Big(e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)\Big^a & \Leftrightarrow\\ 
 %\end{align*} 
-sss
-
 
 
 
