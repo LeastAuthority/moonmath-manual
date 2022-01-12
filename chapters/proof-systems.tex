@@ -1,86 +1,49 @@
-\chapter{Proof Systems }
+\chapter{Zero Knowledge Protocols}
 % Intro from https://core.ac.uk/download/pdf/82198769.pdf
 % CONTAINS NICE HIHG LEVEL STUFF
+% Term SNARK was introduced in  Bitansky, Nir; Canetti, Ran; Chiesa, Alessandro; Tromer, Eran (January 2012). "From extractable collision resistance to succinct non-interactive arguments of knowledge, and back again"
+A so called \textit{zero-knowledge protocol} is a set of mathematical rules by which one party usually called \textit{the prover} can convince another party usually called \textit{the verifier} that a given statement is true, while not revealing any additional information apart from the truth of the statement. 
 
-TODO: true instance: Instance such that a witness exists and (instance,witness) is a word in language.
+As we have seen in chapter XXX, given some language $L$ and instnce $I$ the knowledge claim "there is a witness $W$, such that $(I;W)$ is a word in $L$ is constructively proofable by providing $W$ to the verifier. However the challenge for a zero-knowledge protocol is to prove knowledge of a witness without revealing any information beyond its bare existence.
 
-Proofs are the evidence of correctness of the assertions, and people can verify the cor-rectness by reading the proof. However, we obtain much more than the correctness itself:After you read one proof of an assertion, you know not only the correctness, but also why itis correct. Is it possible to solely show the correctness of an assertion without revealing theknowledge of proofs? It turns out that it is indeed possible, and this is the topic of today’slecture: Zero Knowledge Systems.
-% from http://resources.mpi-inf.mpg.de/departments/d1/teaching/ss14/gitcs/notes6.pdf
+In this chapter, we will look at various systems that exists to solve this task. We start with an introduction to the basic concepts and terminology in zero knowledge proofing systems and then introduce the so called Groth\_16 protocol as one of the most efficient systems. We will update the book with new inventions, in future versions of this book.
 
-\subsection{Proofs}
-Proofs vs Arguments
+\section{Proof Systems}
+From an abstract point of view, a proof system is a set of rules which models the generation and exchange of messages between two parties: a prover and a verifier. Its task is to ascertain whether a given string belongs to a formal language or not.  
 
-perfect completeness and perfect zero-knowledge, soundness in the generic bilinear group model (GROTH16 We say an algorithm is generic if it only uses generic group operations to create
-and manipulate group elements. Shoup [Sho97] formalized the generic group model by
-considering random injective encodings [·]i
-instead of real group elements).
+Proof systems are often classified by certain trust assumptions and the computational capabilities of both parties. In it most general form, the prover usually possesses unlimited computational resources but cannot be trusted, while the verifier has bounded computation power but is assumed to be honest.
 
-negligible and overwhelming functions
+Proofing the membership statement for some string is then executed by the generation of certain messages that are sent between prover and verifier until the verifier is convinced that the string is an element of the language in consideration.
 
-Technique. All pairing-based SNARKs in the literature follow a common paradigm
-where the prover computes a number of group elements using generic group operations
-and the verifier checks the proof using a number of pairing product equations. Bitansky
-et al. [BCI+13] formalize this paradigm through the definition of linear interactive proofs
-(LIPs). A linear interactive proof works over a finite field and the prover’s and verifier’s
-messages consist of vectors of field elements. It furthermore requires that the prover
-computes her messages using only linear operations. Once we have an approriate 2-move
-LIP, it can be compiled into a SNARK by executing the equations “in the exponent”
-using pairing-based cryptography. One source of our efficiency gain is that we design
-a LIP system for arithmetic circuits where the prover only sends 3 field elements. In
-comparison, the quadratic arithmetic programs by [GGPR13,PHGR13] correspond to
-LIPs where the prover sends 4 field elements.
-A second source of efficiency gain compared
-
-
-Now a \textit{proof system} is nothing but a game between two parties, where one parties task is to convince the other party, that a given string over some alphabet is a statement is some agreed on language. To be more precise. Such a system is more over \textit{zero knowledge} if this possible without revealing any information about the (parts of) that string.
-\begin{definition}[(Interactive) Proofing System]
 % https://link.springer.com/content/pdf/10.1007/BF00195207.pdf
-Let $L$ be some formal language over an alphabet $\Sigma$. Then an \textbf{interactive proof system} for $L$ is a pair $(P,V)$ of two probabilistic interactive algorithms, where $P$ is called the \textbf{prover} and $V$ is called the \textbf{verifier}. 
+To be more specific, let $\Sigma$ be an alphabet and $L$ a formal language defined over $\Sigma$. Then a \textbf{proof system} for language $L$ is a pair of probabilistic interactive algorithms $(P,V)$, where $P$ is called the \textbf{prover} and $V$ is called the \textbf{verifier}. 
 
-Both algorithms are able to send messages to one another. Each algorithm only sees its own state, some shared initial state and the communication messages. 
+Both algorithms are able to send messages to one another and each algorithm has its own state, some shared initial state and access to the messages. The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops and output either \texttt{accept} or \texttt{reject} indicating that it accepts or rejects a given string to be in $L$. In contrast, there are bounds on the computational power of the prover.
 
-The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops in an accept state or in a reject state. We impose no restrictions on the local computation conducted by the prover. 
-
-We require that, whenever the verifier is executed the following two conditions hold:
+After the execution of the verifier algorithm stops the following conditions are required to hold:
 \begin{itemize}
-\item (Completeness) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and both prover and verifier follow the protocol; the verifier will accept.
-\item (Soundness) If a string $x\in \Sigma^*$ is not a member of language $L$, that is $x\notin L$ and the verifier follows the protocol; the verifier will not be convinced.
-\item (Zero-knowledge) If a string $x\in \Sigma^*$ is a member of language $L$, that is $x\in L$ and the prover follows the protocol; the verifier will not learn anything about $x$ but $x\in L$.
+\item (Completeness) If the tuple $x\in \Sigma^*$ is a word in language $L$ and both prover and verifier follow the protocol, the verifier outputs \texttt{accept}.
+\item (Soundness) If the tuple $x\in \Sigma^*$ is not a word in language $L$ and the verifier follows the protocol, the verifier outputs \texttt{reject}, except with some small probability.
 \end{itemize}
-\end{definition}
+In addition a proof system is called \textbf{zero knowledge}, if the verifier learns nothing about $x$ other than $x\in L$. 
 
-In the context of zero knowledge proving systems definition XXX gets a slight adaptation:
-\begin{itemize}
-\item Instance: Input commonly known to both prover (P) and verifier (V), and used to support the statement of what needs to be proven. This common input may either be local to the prover-verifier interaction, or public in the sense of being known by external parties (Some scientific articles use "instance" and "statement" interchangeably, but we distinguish between the two.).
-\item Witness: Private input to the prover. Others may or may not know something about the witness.
-\item Relation: Specification of relationship between instances and witness. A relation can be viewed as a set of permissible pairs (instance, witness).
-\item Language: Set of statements that appear as a permissible pair in the given relation.
-\item Statement:Defined by instance and relation. Claims the instance has a witness in the relation(which is either true or false).
-\end{itemize}
+The previous definition of proof systems is very general and many sub-classes of proofing systems are known in the field. The type of languages any proof system can support, crucially depends on the abilities of the verifier, for example to make random choices, or not, or on the nature and number of the messages that can be eschanged. If the system only requires to send a singls message from the prover to the verifier, the proof system is called \textit{non-interactive}, because no interaction other then sending the actual proof is required. In contrast any other proof system is called \textit{interactive}.
 
-The following subsections define ways to describe checking relations that are particularly useful in the context of zero knowledge proofing systems
+A proof system is usually called \textbf{succinct}, if the size of the proof is shorter then the witness necessary to generate the proof. Moreover a proof system is called \textbf{computationally sound}, if soundness only holds under the assumption that the computational capabilities of the prover are polynomial bound. The distinguish general proofs from computationally sound proofs, the latter are often called \textbf{arguments}. zero-knowledge, succint, non-interactive arguments of knowledge claims are often called \textbf{zk-SNARKs}.
+\begin{example}[Constructive Proofs for Algebraic Circuits] To formalize our previous notion of constructive proof for algebraic circuits, let $\F$ be a finite field and $C(\F)$ an algebraic circuit over $\F$ with associated language $L_{C(\F)}$. A non-interactive proof system for $L_{C(\F)}$ is given by the following two algorithms:
 
+Given some instance $I$, the prover algorithm $P$ uses its unlimited computational power to compute a witness $W$, such that the pair $(I;W)$ is a valid assignment to $C(\F)$, whenever the circuit is satisfyable for $I$. The prover then sends the constructive proof $(I;W)$ to the verifier.
 
+On receiving a message $(I;W)$ the verifier algorithm $V$ assigns the constructive proof $(I;W)$ to circuit $C(\F)$ and decides if the assignment is valid, by executing all gates in the circuit. The runtime is polynomial in the number of gates. If the assignment is valid the verifier returns \texttt{accepts}, if not it returns \texttt{reject}. 
 
-\subsection{Pairing Based Non-interactive zero-knowledge arguments of knowledge}
+To see that this proof system has the completeness and soundness property, let $C(\F)$ be a circuit of the field $\F$ and $I$ an instance. The circuit may or may not have a witness $W$, such that $(I;W)$ is a valid assignment to $C(\F)$. 
 
-Preprocessing style: trusted setup, multi party ceremony
+If no $W$ exists, $I$ is not part of any word in $L_{C(\F)}$ and there is no way for $P$ to generate a valid assignment. If follows that the verifier will not accept any claimed proof send by $P$, which implies that the system has \textit{soundness}.
 
-Blum, Feldman and Micali
-% Manuel  Blum,  Paul  Feldman,  and  Silvio  Micali.   Non-interactive  zero-knowledge  and  itsapplications.  InSTOC, pages 103–112, 1988.
- extended the notion tonon-interactivezero-knowledge(NIZK)  proofs in the  common  reference  string  model.  NIZK  proofs  are  useful  in  theconstruction of non-interactive cryptographic schemes, e.g., digital signatures and CCA-secure public key encryption.
- 
-\begin{definition} 
-Let $\mathcal{R}$ be a relation generator that given a security parameter $\lambda$ in unary returns a polynomial time decidable binary relation $R$. For pairs $(i,w)\in R$ we call $i$ the instance\footnote{Note that in Groth16 this is called the statement. We think the term instance is more consistent with SOMETHING. } and $w$ the witness. We define $R_\lambda$ to be the set of possible relations $R$ the relation generator may output given $1^\lambda$. We will in the following for notational simplicity assume $\lambda$ can be deduced from the description of $R$. The relation generator may also output some side information, an auxiliary input $z$, which will be given to the adversary. An efficient prover publicly verifiable non-interactive argument for $R$ is a quadruple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Prove},\textsc{Vfy},\textsc{Sim})$ such 
-\begin{itemize}
-\item Setup: $(CRS,\tau)\rightarrow Setup(R)$: The setup produces a common reference string $CRS$ and a simulation trapdoor $\tau$ for the relation $R$.
-\item Proof: $\pi\rightarrow Prove(R,CRS,i,w)$: The prover algorithm takes as input a common reference string $CRS$ and a statement $(i,w)\in R$ and returns an argument $\pi$.
-\item Verify: $0/1\rightarrow Vfy(R,CRS,i,\pi)$: The  verification algorithm  takes as input a common reference string $CRS$, an instance $i$ and an argument $\pi$ and returns 0 (reject) or 1 (accept).
-\item $\pi\rightarrow Sim(R,\tau,i)$: The simulator takes as input a simulation trapdoor $\tau$ and instance $i$ and returns an argument $\pi$. 
-\end{itemize}
-\end{definition}
+If on the other hand $W$ exists and $P$ is honest, $P$ can use its unlimited computational power to compute $W$ and send $(I;W)$ to $V$, which $V$ will accept in polynomial time. This implies that the system has \textit{completeness}.
 
-
+The system is non-interactive because the prover only sends a single message to the verifier, which contains the proof itselfand since in this simple system the witness itself is the proof, the proof system is \textit{not} succinct.
+\end{example}
 \section{The "Groth16" Protocol} In chapter XXX we have introcuded algebraic circuits, their associated rank-1 constraints systems and their induced quadratic arithmetic programs. These models define formal languages and associated membership as well as knowledge claim can be constructively proofed by executing the circuit in order to compute a solution to its associated R1CS. The solution can then be transformed into a polynomial, such that the polynomial is divisible by another polynomial if and only if the solution is correct. 
  
 In [XXX] Jens Groth provids a method that can transform those proofs into zero-knowledge succinct non interactive arguments of knowledge. Assuming that pairung groups $(\G_1,\G_2,\G_T,b)$ are given, the arguments are of constant size and consist of $2$ elements from $G_1$ and a single element from $\G_2$, regardless of the size of the witness. They are zero-knowledge in the sense, that the verifier learns nothing about the witness, besides the fact that the instnce, witness pair is a proper word in the language of the problem.
@@ -89,11 +52,20 @@ Verification is non interactive and needs to compute a number of exponentiations
 
 The generated argument has perfect completeness, perfect zero-knowledge and soundness in the generic bilinear group model, assuming that a trusted third party exists, that executes a preprocessing phase to generate a common reference string and a simulation trapdoor. This party must be trusted to delete the simulation trapdoor, since everyone in posession of it can simulate proofs. 
 
-To be more precise let $L$ be a language and $R$ a rank-1 constraints system defined over some finite field $\F_r$. Then \textit{Groth\_16 parameters} for $R$ are given by the set
+To be more precise let $R$ be a rank-1 constraints system defined over some finite field $\F_r$. Then \textit{Groth\_16 parameters} for $R$ are given by the set
 \begin{equation}
 \mathtt{Groth\_16-Param}(R)=(r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2)
 \end{equation}
-where $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a generator of $\G_1$, $g_2$ is a generator of $\G_2$ and $e: \G_1 \times \G_2 \to \G_T$ is a non-degenerate, bilinear pairing for some target group $\G_T$. 
+where $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a generator of $\G_1$, $g_2$ is a generator of $\G_2$ and $e: \G_1 \times \G_2 \to \G_T$ is a non-degenerate, bilinear pairing for some target group $\G_T$. In applications the parameter set is usually agreed on in advance. 
+
+Given some Groth\_16 parameters a \textbf{Groth\_16 protocol} is then a quadruple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Prove},\textsc{Vfy},\textsc{Sim})$ such that
+\begin{itemize}
+\item (Setup-Phase): $(CRS,\tau)\leftarrow \mathtt{Setup}(R)$: Algorithm $\mathtt{Setup}$ takes the R1CS $R$ as input and computes a common reference string $CRS$ and a simulation trapdoor $\tau$.
+\item (Prover-Phase): $\pi\leftarrow Prove(R,CRS,I,W)$: Given a constructive proof $(I;W)$ for $R$, algorithm $\mathtt{Prove}$ takes the R1CS $R$, the common reference string $CRS$ and the constructive proof $(I,W)$ as input and computes an zk-SNARK $\pi$.
+\item Verify: $\{\mathtt{accept},\mathtt{reject}\}\leftarrow Vfy(R,CRS,I,\pi)$:   Algorithm \texttt{Vfy} takes the R1CS $R$, the common reference string $CRS$, the instance $I$ and the zk-SNARK $\pi$ as input and returns \texttt{reject} or \texttt{accept}.
+\item $\pi\leftarrow Sim(R,\tau,CRS, I)$: Algorithm \texttt{Sim} takes the R1CS $R$, the common reference string $CRS$, the simulation trapdoor $\tau$ and the instance $I$ as input and returns a zk-SNARK $\pi$. 
+\end{itemize}
+We will explain those algorithms together with examples in detail in the appropriate paragraphs of this section.
 
 Assuming a trusted third party for the setup, the protocol is then able to compute a zk-SNARK from a constructive proof for $R$, assuming that $r$ is sufficiently large and in particular larger then the number of constraints in the associated R1CS.
 \begin{example}[The 3-Factorization Problem] Consider the $3$-factorization problem from XXX and its associated algebraic circuit and rank-1 constraints system from  XXX. In this example, we want to agree on a parameter set $(R,r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2)$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
