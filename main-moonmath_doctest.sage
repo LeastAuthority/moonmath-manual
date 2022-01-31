@@ -195,20 +195,20 @@ sage: def Hash_mod23(x, k2):
 ....:     d = ZZ(d, base=2)
 ....:     return Z23(d)
 
-Sage commandline, line 656::
+Sage commandline, line 654::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 680::
+Sage commandline, line 678::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 944::
+Sage commandline, line 943::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
