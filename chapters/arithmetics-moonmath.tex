@@ -94,11 +94,11 @@ sage: n = NN(19214758032624000)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \comms{reverse}, that is, computing the product of a given set of prime numbers, is fast. \commslong{MIRCO: inverse process? Its not reversing something actually, but my english doesn't resolve to this level very well}
+This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \comms{reverse}, that is, computing the product of given a set of prime numbers, is fast. \commslong{MIRCO: inverse process? Its not reversing something actually, but my english doesn't resolve to this level very well}
 
 From this, an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \hilight{factorization problem} and, as far as we know, there is no method on a classical \uterm{Turing machine} that is able to compute this representation in \uterm{polynomial time}. The fastest algorithm known today run \uterm{sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $}.
 
-It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. \hilight{The existence of one-way functions is a basic cryptographic assumptions that the security of many cryptographic systems is based on}.
+It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. \hilight{The existence of one-way functions is a basic cryptographic assumptions that the security of many crypto systems is based on}.
 
 It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in 1994 which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that crptyosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \tbds{Add text} \tbdslong{along the lines of "this is the best we got for now" Possibly something on when we can reasonably expect quantum computers to become accessible/usable enough}
 
@@ -195,15 +195,15 @@ Write an algorithm in \uterm{pseudocode} that computes integer long division, ha
 \paragraph{The Extended Euclidean Algorithm}
 One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so-called \term{finite fields}, as we explain in XXX. In \uterm{modular arithmetics}, it is sometimes possible to define \uterm{actual division} and \uterm{multiplicative inverses} of numbers, that is very different from inverses as we know them from other systems like \uterm{factional numbers}. 
 
-However, to actually compute those inverses, we have to get familiar with the so-called \term{Extended Euclidean Algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$.
+However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$; that is $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$.
 
-The Extended Euclidean Algorithm is a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the following equation holds:
+The extended Euclidean algorithm is a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the following equation holds:
 \begin{equation}
 \label{eq: erw_Eukl_algo}
 gcd (a, b) = s \cdot a + t \cdot b
 \end{equation}
 
-The following pseudocode shows in detail how to calculate these numbers with the Extended Euclidean Algorithm:
+The following pseudocode shows in detail how to calculate these numbers with the extended Euclidean algorithm:
 
 \begin{algorithm}\caption{Extended Euclidean Algorithm}
 \label{alg_ext_euclid_alg}
@@ -405,7 +405,7 @@ $$
 \end{array}
 $$
 Clearly all moduli are coprime and we have $ N = 7 \cdot 3 \cdot 5 \cdot 11 = 1155 $, as well as
-$ N_1 = 165 $, $ N_2 = 385 $, $ N_3 = 231 $ and $ N_4 = 105 $. From this we calculate with the Extended Euclidean Algorithm
+$ N_1 = 165 $, $ N_2 = 385 $, $ N_3 = 231 $ and $ N_4 = 105 $. From this we calculate with the extended Euclidean algorithm
 $$
 \begin{array}{cccc}
  1 = & 2 \cdot 165  & + & -47 \cdot 7 \\
@@ -544,7 +544,7 @@ $$
 \end{example}
 From the last example, we can make the interesting observation that while $5$ has no multiplicative inverse as an integer, it has a multiplicative inverse in modular $6$ arithmetics. 
 
-The remaining question is to understand which elements have multiplicative inverses in modular arithmetics. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the Extended Euclidean Algorithm that there are numbers $s$ and $t$, such that 
+The remaining question is to understand which elements have multiplicative inverses in modular arithmetics. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the extended Euclidean algorithm that there are numbers $s$ and $t$, such that 
 \begin{equation}
 \label{eq_compute_multiplicative_inverse}
 1 = s\cdot n + t\cdot r
@@ -554,7 +554,7 @@ If we take the modulus $n$ on both sides, the term $s\cdot n$ vanishes, which te
 
 Now, trying to determine that $2\in \Z_6$ has no multiplicative inverse in $\Z_6$ without using the lookup table, we immediately observe that $2$ and $6$ are not coprime, since their greatest common divisor is $2$. It follows that equation \ref{eq_compute_multiplicative_inverse} has no solutions $s$ and $t$, which means that $2$ has no multiplicative inverse in $Z_6$.
 
-The same reasoning works for $3$ and $4$, as neither of these are coprime with $6$. The case of  $5$ is different, since $ggt(6,5)=1$. To compute the multiplicative inverse of $5$, we use the Extended Euclidean Algorithm and compute  the following:
+The same reasoning works for $3$ and $4$, as neither of these are coprime with $6$. The case of  $5$ is different, since $ggt(6,5)=1$. To compute the multiplicative inverse of $5$, we use the extended Euclidean algorithm and compute  the following:
 \begin{center}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ s_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
