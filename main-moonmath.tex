@@ -1,10 +1,17 @@
-% % with font size 10, I think there is just too much Information per page.
-% HOWTO BUILD:
-%
-% 2.) Execute sage:
+% 1.) The document uses graphviz which generates .ps files and
+%     auto-pst-pdf to convert to pdf.
+%     => Build command needs an update:
+%        --enable-write18 
+%     Example: 
+%       pdflatex -synctex=1 -interaction=nonstopmode --enable-write18 FILE.tex
+%If using an editor to build the document, enable shell escape:
+%	--shell-escape
+%	Example (under "Engines" in TexShop Preferences): 	
+%pdflatex --file-line-error --synctex=1 --enable-write18 --shell-escape
+ %2.) Execute Sage:
 %     a.) build latex
 %     b.) sage moonmath.sagetex.sage
-%     c.) build latex again MANY TIMES! :-) LIKE 3x or so, IDK 
+%     c.) build latex again MANY TIMES! :-) (3x according to Mirco)
 %
 \documentclass[a4paper,oneside,12pt]{book}
 
@@ -14,6 +21,7 @@
 %headers and footers
 \usepackage{fancyhdr}%version 4.0.1 or above should be used
 \pagestyle{fancy}
+\setlength{\headheight}{15pt}
 
 \fancyhead[L]{\leftmark}%current chapter
 \fancyhead[R]{\rightmark}%current section
@@ -52,7 +60,7 @@
 % writing complex graphs by hand is tedious and often not visually optimal
 % let graphviz handle this
 % graphs are written in the 'dot'-language
-\usepackage[singlefile, pdf]{graphviz}
+\usepackage[singlefile, pdf,tmpdir]{graphviz}
 %\usepackage{auto-pst-pdf}
 
 \usepackage{enumitem} % for personalizing enumeration with itemize
@@ -87,6 +95,9 @@ basicstyle={\small \ttfamily},
 backgroundcolor= \color{white},
 }
 
+%add line numbers to the PDF
+\usepackage{lineno}
+\linenumbers
 \usepackage{tabularx}
 
 %Load the following packages last
@@ -176,6 +187,12 @@ backgroundcolor= \color{white},
 \author{TechnoBob and the Least Scruples crew}
 \date{\today}
 
+%only typesets the chapters specified here, but keeps the TOC, page and section numbering, etc. comment the following line out if you want the whole book to be typeset; modify file names accordingly if you want to typeset other chapters
+\includeonly{chapters/ops-notes-moonmath,chapters/statements-moonmath}
+%the following command is a placeholder for the text that describes which chapters are typeset. it should be used in Operational notes. Define it as empty when the whole document is typeset.
+\newcommand{\inclonlytext}[1]{{\Large NB: This PDF only includes the Statements chapter}
+}
+
 \begin{document}
 % set the language for the listings package
 \lstset{language=python }
@@ -192,9 +209,9 @@ backgroundcolor= \color{white},
 \include{chapters/arithmetics-moonmath}
 \include{chapters/algebra-moonmath}
 \include{chapters/elliptic-curves-moonmath}
-\include{chapters/statements}
-\include{chapters/circuit-compiler}
-\include{chapters/proof-systems}
+\include{chapters/statements-moonmath}
+\include{chapters/circuit-compilers-moonmath}
+\include{chapters/zk-protocols-moonmath}
 \include{chapters/exercise-solutions-moonmath}
 
 
