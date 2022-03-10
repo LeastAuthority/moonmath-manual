@@ -3,6 +3,30 @@ digraph BASICOPS {
 		nodesep=2.0,
 		splines=ortho
 	];
+	subgraph cluster_input {
+		graph [color=lightgray,
+			label=inputs
+		];
+		nin1	[label=in_1,
+			shape=box];
+		nin2	[label=in_2,
+			shape=box];
+	}
+	subgraph cluster_mul {
+		graph [color=lightgray,
+			label="fn MUL"
+		];
+		nmul1	[label=x,
+			shape=box];
+		nmul3	[label="*"];
+		nmul1 -> nmul3	[xlabel="W_1 "];
+		nmul2	[label=y,
+			shape=box];
+		nmul2 -> nmul3	[xlabel=W_2];
+		nmul4	[label="(x*y)",
+			shape=box];
+		nmul3 -> nmul4	[xlabel="W_3 "];
+	}
 	subgraph cluster_output {
 		graph [color=lightgray,
 			label=outputs
@@ -26,30 +50,6 @@ digraph BASICOPS {
 		nadd4	[label="(x+y)",
 			shape=box];
 		nadd3 -> nadd4	[xlabel="W_3 "];
-	}
-	subgraph cluster_mul {
-		graph [color=lightgray,
-			label="fn MUL"
-		];
-		nmul1	[label=x,
-			shape=box];
-		nmul3	[label="*"];
-		nmul1 -> nmul3	[xlabel="W_1 "];
-		nmul2	[label=y,
-			shape=box];
-		nmul2 -> nmul3	[xlabel=W_2];
-		nmul4	[label="(x*y)",
-			shape=box];
-		nmul3 -> nmul4	[xlabel="W_3 "];
-	}
-	subgraph cluster_input {
-		graph [color=lightgray,
-			label=inputs
-		];
-		nin1	[label=in_1,
-			shape=box];
-		nin2	[label=in_2,
-			shape=box];
 	}
 	nin1 -> nmul1	[color=grey,
 		style=dashed,

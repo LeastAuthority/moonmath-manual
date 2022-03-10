@@ -1276,13 +1276,12 @@ Since the curve as well as our targetet subgroup are defined over the field $\F_
 
 To make this concrete let $s='10011001111010110100000111'$ be our binary string that we want to hash onto $\G_1$. We use a $4$-bit binary counter, starting at zero, i.e we choose $c=0000$. Invoking sage we define the try-hash function as
 \begin{sagecommandline}
-sage: import Crypto
-sage: from Crypto.Hash import SHA256
+sage: import hashlib
 sage: def try_hash(s,c):
 ....:     s_1 = s+c
-....:     h = SHA256.new(s_1.encode('utf-8'))
-....:     d = h.hexdigest()
-....:     d = Integer(d,base=16)
+....:     hasher = hashlib.sha256(s_1.encode('utf-8'))
+....:     digest = hasher.hexdigest()
+....:     d = Integer(digest,base=16)
 ....:     sign = d.str(2)[-5:-4]
 ....:     d = d.str(2)[-4:]
 ....:     z = Integer(d,base=2)
