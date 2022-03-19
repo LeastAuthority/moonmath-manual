@@ -1,0 +1,110 @@
+digraph SIMPLELOOP {
+	graph [center=true,
+		forcelabels=true,
+		rankdir=LR,
+		splines=ortho
+	];
+	subgraph clusterINPUT {
+		graph [color=lightgray,
+			label=input
+		];
+		nIN1	[label="fac[0]",
+			shape=box];
+		nIN2	[label="fac[1]",
+			shape=box];
+		nIN3	[label="fac[2]",
+			shape=box];
+		nIN4	[label="fac[3]",
+			shape=box];
+	}
+	subgraph clusterOUTPUT {
+		graph [color=lightgray,
+			label=output
+		];
+		nOUT4	[label="prod[3]",
+			shape=box];
+	}
+	subgraph clusterMUL3 {
+		graph [color=lightgray,
+			label=MUL
+		];
+		nMUL31	[color=lightgray,
+			label=x,
+			shape=box];
+		nMUL33	[label="*"];
+		nMUL31 -> nMUL33;
+		nMUL32	[color=lightgray,
+			label=y,
+			shape=box];
+		nMUL32 -> nMUL33;
+		nMUL34	[color=lightgray,
+			label="MUL(x,y)",
+			shape=box];
+		nMUL33 -> nMUL34;
+	}
+	subgraph clusterMUL2 {
+		graph [color=lightgray,
+			label=MUL
+		];
+		nMUL21	[color=lightgray,
+			label=x,
+			shape=box];
+		nMUL23	[label="*"];
+		nMUL21 -> nMUL23;
+		nMUL22	[color=lightgray,
+			label=y,
+			shape=box];
+		nMUL22 -> nMUL23;
+		nMUL24	[color=lightgray,
+			label="MUL(x,y)",
+			shape=box];
+		nMUL23 -> nMUL24;
+	}
+	subgraph clusterMUL1 {
+		graph [color=lightgray,
+			label=MUL
+		];
+		nMUL11	[color=lightgray,
+			label=x,
+			shape=box];
+		nMUL13	[label="*"];
+		nMUL11 -> nMUL13;
+		nMUL12	[color=lightgray,
+			label=y,
+			shape=box];
+		nMUL12 -> nMUL13;
+		nMUL14	[color=lightgray,
+			label="MUL(x,y)",
+			shape=box];
+		nMUL13 -> nMUL14;
+	}
+	nOUT1	[color=lightgrey,
+		label="prod[0]",
+		shape=box];
+	nIN1 -> nOUT1	[color=lightgrey,
+		style=dashed];
+	nIN2 -> nMUL11	[color=lightgrey,
+		style=dashed];
+	nIN3 -> nMUL21	[color=lightgrey,
+		style=dashed];
+	nIN4 -> nMUL31	[color=lightgrey,
+		style=dashed];
+	nOUT2	[color=lightgrey,
+		label="prod[1]",
+		shape=box];
+	nMUL14 -> nOUT2	[color=lightgrey,
+		style=dashed];
+	nOUT3	[color=lightgrey,
+		label="prod[2]",
+		shape=box];
+	nMUL24 -> nOUT3	[color=lightgrey,
+		style=dashed];
+	nMUL34 -> nOUT4	[color=lightgrey,
+		style=dashed];
+	nOUT1 -> nMUL12	[color=lightgrey,
+		style=dashed];
+	nOUT2 -> nMUL22	[color=lightgrey,
+		style=dashed];
+	nOUT3 -> nMUL32	[color=lightgrey,
+		style=dashed];
+}

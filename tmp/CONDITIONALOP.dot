@@ -1,0 +1,148 @@
+digraph CONDITIONALOP {
+	graph [center=true,
+		forcelabels=true,
+		nodesep=1.0,
+		splines=ortho
+	];
+	subgraph clusterBCONS1 {
+		graph [color=lightgray,
+			label="x1 : BOOL"
+		];
+		subgraph clusterBCONS1out {
+			graph [color=white];
+			nCONSB18	[color=lightgrey,
+				label="x:F",
+				shape=box];
+			nCONSB17	[label=0,
+				shape=box];
+		}
+		nCONSB11	[color=lightgray,
+			label="b:BOOL",
+			shape=box];
+		nCONSB14	[label="*"];
+		nCONSB11 -> nCONSB14	[xlabel=S_1];
+		nCONSB16	[label="*"];
+		nCONSB11 -> nCONSB16	[xlabel=S_1];
+		nCONSB11 -> nCONSB18	[color=lightgrey,
+			style=dashed];
+		nCONSB15	[label="+"];
+		nCONSB14 -> nCONSB15;
+		nCONSB16 -> nCONSB17	[xlabel="S_2=0 "];
+		nCONSB12	[label=1,
+			shape=box];
+		nCONSB12 -> nCONSB15;
+		nCONSB15 -> nCONSB16;
+		nCONSB13	[label=-1,
+			shape=box];
+		nCONSB13 -> nCONSB14;
+	}
+	subgraph clusterconditional {
+		graph [color=lightgray,
+			label="b ? c : d"
+		];
+		nCONDI1	[color=lightgrey,
+			label=b,
+			shape=box];
+		nCONDI7	[label="*"];
+		nCONDI1 -> nCONDI7	[taillabel="S_1 "];
+		nCONDI8	[label="*"];
+		nCONDI1 -> nCONDI8	[taillabel="S_1 "];
+		nCONDI2	[color=lightgrey,
+			label=c,
+			shape=box];
+		nCONDI2 -> nCONDI7	[xlabel=S_2];
+		nCONDI3	[color=lightgrey,
+			label=d,
+			shape=box];
+		nCONDI9	[label="*"];
+		nCONDI3 -> nCONDI9	[xlabel=S_4];
+		nCONDI4	[color=lightgrey,
+			label="b ? c : d",
+			shape=box];
+		nCONDI5	[label=-1,
+			shape=box];
+		nCONDI5 -> nCONDI8;
+		nCONDI6	[label=1,
+			shape=box];
+		nCONDI10	[label="+"];
+		nCONDI6 -> nCONDI10;
+		nCONDI11	[label="+"];
+		nCONDI7 -> nCONDI11	[xlabel="S_3 "];
+		nCONDI8 -> nCONDI10;
+		nCONDI9 -> nCONDI11	[xlabel=S_5];
+		nCONDI10 -> nCONDI9;
+		nCONDI11 -> nCONDI4	[xlabel="S_6 "];
+	}
+	subgraph clusterMUL {
+		graph [color=lightgray,
+			label=MUL
+		];
+		nMUL1	[color=lightgrey,
+			label=x,
+			shape=box];
+		nMUL3	[label="+"];
+		nMUL1 -> nMUL3;
+		nMUL2	[color=lightgrey,
+			label=y,
+			shape=box];
+		nMUL2 -> nMUL3;
+		nMUL4	[color=lightgrey,
+			label="MUL(x,y)",
+			shape=box];
+		nMUL3 -> nMUL4;
+	}
+	subgraph clusterinput {
+		graph [color=lightgray,
+			label=input
+		];
+		nb11	[label="x:F",
+			shape=box];
+		nb12	[label="y:F",
+			shape=box];
+		nb13	[label="b:BOOL",
+			shape=box];
+	}
+	subgraph clusterADD {
+		graph [color=lightgray,
+			label=ADD
+		];
+		nADD1	[color=lightgrey,
+			label=x,
+			shape=box];
+		nADD3	[label="+"];
+		nADD1 -> nADD3;
+		nADD2	[color=lightgrey,
+			label=y,
+			shape=box];
+		nADD2 -> nADD3;
+		nADD4	[color=lightgrey,
+			label="ADD(x,y)",
+			shape=box];
+		nADD3 -> nADD4;
+	}
+	subgraph clusterout {
+		graph [color=lightgray,
+			label=output
+		];
+		nb21	[label=z,
+			shape=box];
+	}
+	nb11 -> nADD1	[color=lightgrey,
+		style=dashed];
+	nb11 -> nMUL1	[color=lightgrey,
+		style=dashed];
+	nb12 -> nADD2	[color=lightgrey,
+		style=dashed];
+	nb12 -> nMUL2	[color=lightgrey,
+		style=dashed];
+	nb13 -> nCONSB11	[color=lightgrey,
+		style=dashed];
+	nCONSB18 -> nCONDI1	[color=lightgrey,
+		style=dashed];
+	nCONDI4 -> nb21	[color=lightgrey,
+		style=dashed];
+	nADD4 -> nCONDI2	[color=lightgrey,
+		style=dashed];
+	nMUL4 -> nCONDI3	[color=lightgrey,
+		style=dashed];
+}
