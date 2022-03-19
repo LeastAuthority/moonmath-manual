@@ -1,0 +1,2366 @@
+\chapter{Statements}
+% Update the circuit / r1cs examples to describe their languages and how naive proofs look
+
+% https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
+% https://docs.zkproof.org/reference.pdf
+As we have seen in the informal introduction XXX, a snarks is a short non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like "The proofer knows the prime factorization of a given number" or "The proofer knows the preimage to a given SHA2 digest value" and similar things. However human readable statements like those are imprecise and not very useful from a formal perspective. 
+
+In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for snark development. We start by introducing formal languages as a way to define statements properly. We will then look at algebraic circuits and rank-1 constraint systems as two particulary useful ways to define statements in certain formal languages. After that we have a look at fundamental building blocks of compilers that compile high level languages to circuits and associated rank-1 constraint systems.
+
+Proper statement design should be of high priority in the development of snarks, since unintended true statements can lead to potentially severe and almost undetectable security vulnarabilities in the applications of snarks.
+
+\section{Formal Languages} Formal languages provide the theoretical backround in which statements can be formulated in a logically regious way and where proofing the correctness of any given statement can be realized by computing words in that language.
+
+One might argue that understanding of formal languages is not very important in snark development and associated statement design, but terms from that field of research are standard jargon in many papers on zero knowledge proofs. We therefore believe that at least some introduction to formal languages and how they fit into the picture of snark development is beneficial, mostly to give developers a better intuition where all this is located in the bigger picture of the logic landscape. Formal language also give a better understanding what a formal proof for a statement actually is.
+
+Roughly speaking a formal language (or just language for short) is nothing but a set of words, that are strings of letters taken from some alphabet and formed according to some defining rules of that language. 
+
+To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite tupels $(x_1,\ldots,x_n)$ of elements $x_j$ from $\Sigma$ including the empty tupel $(\;)\in \Sigma^*$. Then a \textbf{language} $L$ is in its most general definition nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \textbf{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \textbf{words}. The rules that specify which tupels from $\Sigma^*$ belong to the language and which don't, are called the \textbf{grammar} of the language. 
+
+\paragraph{Decision Functions} Our previous definition of formal languages is very general and many subclasses of languages like \textit{regular languages} or \textit{context-free languages} are known in the literature. However in the context of snark development languages are commonly defined as \textit{decision problems} where a so called \textbf{deciding relation} $R\subset \Sigma^*$ decides whether a given tupel $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
+
+Unfortunately in some literature on proof systems $x\in R$ is often written as $R(x)$, which is  misleading since in general $R$ is not a function but a relation in $\Sigma^*$. For the sake of this book we therefore adopt a different point of view and work with what we might call a \textbf{decision function} instead:
+\begin{equation}
+R: \Sigma^* \to \{true, false\}
+\end{equation}
+Decision functions therefore decide if a tupel $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all tupels that satisfies the grammar, i.e as the set:
+\begin{equation}
+L_R := \{x\in \Sigma^*\;|\; R(x)=true\}
+\end{equation}
+In the context of formal languages and decision problems a \textbf{statement} $S$ is a claim, that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \textbf{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and such a proof is \textbf{verified} by checking $R(P)=true$. In this case $P$ is called an \textbf{instance} of the statement $S$.
+
+Also the term \textit{language} might suggest a deeper relation to the well known \textit{natural languages} like English, both concepts a different in many ways. The following examples will provide some intuition about formal languages, highlighting the concepts of statements, proofs and instances:
+\begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters of arbitrary length. 
+
+Then the associated language $L_{alt}$ is the set of all finite binary tupels, where a $1$ must follow a $0$ and vice versa. So for example $(1,0,1,0,1,0,1,0,1)\in L_{alt}$ is a proper word as well as $(0)\in L_{alt}$ or the empty word $(\;)\in L_{alt}$. However the binary tupel $(1,0,1,0,1,0,1,1,1)\in \{0,1\}^*$ is not a proper word as it violates the grammer of $L_{alt}$. In addition the tupel $(0,A,0,A,0,A,0)$ is not a proper word as its letter are not from the proper alphabet. 
+
+Atempting to write the grammar of this language in a more formal way, we can define the following decision function:
+$$
+R: \{0,1\}^* \to \{true,false\}\;;\; (x_0,x_1,\ldots,x_n) \mapsto 
+\begin{cases}
+true & x_{j-1} \neq x_{j} \text{ for all } 1\leq j \leq n \\
+false & \text{ else}
+\end{cases}
+$$
+We can use this function to decide if arbitrary binary tupels are words in $L_{alt}$ or not. For example $R(1,0,1)=true$, $R(0)=true$ and $R()=true$, but $R(1,1)=false $.
+
+Inside language $L_{alt}$ it makes sense to claim the following statement: "There exists an alternating string." One way to proof this statement constructively is by providing an actual instance, that is finding actual alternating string like $x = (1,0,1)$. Constructing string $(1,0,1)$ therefore proofs the statement "There exists an alternating string.", because it is easy to verify that $R(1,0,1)=true$.
+\end{example}
+\begin{example}[Programing Language]Programming languages are a very important class of formal languages. In this case the alphabet is usually (a subset) of the ASCII Table and the grammar is defined by the rules of the programming language's compiler. Words are then nothing but properly written computer programms that the compiler accepts. The compiler can therefore be interpreted as the decision function.
+
+To give an unusual example strange enough to highlight the point, consider the programing language Malbolge as defined in XXX. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An intersting claim is therefore the statement: "There exists a computer program in Malbolge". As it turned out proofing this statement constructively by providing an actual instance was not an easy task as it took two years after the introduction of Malbolge, to write a program that its compiler accepts. So for two years no one was able to proof the statement constructively.
+
+To look at this high level description more formally, we write $L_{Malbolge}$ for the language, that uses the ASCII table as its alphabet and words are tuples of ASCII letters that the Malbolge compiler accepts. Prooving the statement "There exists a computer program in Malbolge" is then equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
+$$
+\scriptstyle (=<'\#9]~6ZY327Uv4-QsqpMn\&+Ij"'E\%e\{Ab~w=\_:]Kw\%o44Uqp0/Q?xNvL:'H\%c\#DD2\wedge WV>gY;dts76qKJImZkj
+$$
+is an example of such a proof as it is excepted by the Malbolge compiler and is compiled to an executable binary that displays "Hello, World." (See XXX). In this example the Malbolge compiler therefore serves as the verification process.
+\end{example}
+\begin{example}[3-Factorization]
+As one of our main runing examples in this book, we want to develop a snark that proofs knowledge of three factors of some element from the finite field $\F_{13}$. There is nothing particulary useful about this example from an application point of view, however in a sense it is the most simple example that gives rise to a non trivial snark in some of the most common zero knowledge proofing systems. 
+
+Formalizing the high level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those tupels of field elements from $\F_{13}$, that contain exactly $4$ letters $w_1,w_2,w_3,w_4$ which satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$.   
+
+So for example the tuple $(2, 12, 4, 5)$ is a word in $L_{3.fac}$, while neither $(2, 12, 11)$, nor $(2, 12, 4, 7)$ nor $(2, 12, 7, 168)$ are words in $L_{3.fac}$ as they dont satisfy the grammar or are not define over the proper alphabet. 
+
+We can describe the language $L_{3.fac}$ more formally by introducing a decision function as described in XXX:
+$$
+R_{3.fac} : \F_{13}^* \to \{true, false\}\;;\;
+(x_1,\ldots,x_n) \mapsto
+\begin{cases}
+true & n=4 \text{ and } x_1\cdot x_2 \cdot x_3 = x_4\\
+false & else
+\end{cases}
+$$
+Having defined the language $L_{3.fac}$ it then makes sense to claim the statement "There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement "There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$" such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds. 
+
+Proofing the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement and the computation $R_{3.fac}(2,12,4,5)=true$ is a verification  of that proof. In contrast the tuple $(2, 12, 4, 7)$ is not a proof of the statement, since the check $R_{3.fac}(2,12,4,7)=false$ does not verify the proof.
+\begin{example}[The Empty Language] To see that not every language has a word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetics as derived in XXX together with the following decision function 
+$$
+R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
+(x_1,\ldots,x_n) \mapsto
+\begin{cases}
+true & n=4 \text{ and } x_1\cdot x_1 = 2\\
+true & else
+\end{cases}
+$$
+We write $L_\emptyset$ for the associated language. As we can see from the multiplication table XXX of $\Z_6$, the ring $\Z_6$ does not contain any element $x$, such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proofing the statement "There exist a word in $L_\emptyset$" constructively by providing an instance is therefore impossible. The verification will never check any tuple.
+\end{example}
+\end{example}
+\begin{exercise} Consider exercise XXX again. Define a decision function, such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: "There exist a word in $L_{Exercise_XXX}$ and verify the proof.  
+\end{exercise}
+\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example XXX, the alphabet $\Sigma = \Z_6$ and the decision function
+\begin{equation*}
+R_{example\_XXX} : \Sigma^*\to \{true, false\}\;;\;
+x \mapsto
+\begin{cases}
+true & x.len()=1 \text{ and } 3\cdot x + 3 = 0\\
+false & else
+\end{cases}
+\end{equation*}
+Compute all words in the associated language $L_{example\_XXX}$, provide a constructive proof for the statement "There exist a word in $L_{example\_XXX}$" and verify the proof.
+\end{exercise}
+\begin{exercise}[Tiny JubJub] Consider the tiny-jubjub curve in its Edwards form from example XXX. Define an alphabet $\Sigma$ and a decision function $R_{tiny.jubjub}$ with associated language $L_{tiny.jubjub}$, such that a string $x\in \Sigma^*$ is a word in $L_{tiny.jubjub}$ if and only if $x$ is point on the tiny-jubjub curve. Then provide a constructive proof for the statement "The language $L_{tiny.jubjub}$ contains a word" and verify that proof. In addition provide a constructive proof that is unverifyable.
+\end{exercise}
+\paragraph{Instance and Witness}
+% https://www.claymath.org/sites/default/files/pvsnp.pdf
+As we have seen in the previous paragraph, statements provide membership claims in formal languages and instances serve as constructive proofs for those claims. However, in the context of \textit{zero-knowledge} proofing systems our naive notion of constructive proofs is refined in such a way that  its possible to hide parts of the proofing instance and still be able to proof the statement. In this context it is therefore necessary to split a proof into a \textit{public part} which is then called the \textit{instance} and a private part called a \textit{witness}.
+
+To acknowledge for this seperation of a proof instance into a public and a private part, our previous definition of formal languages needs a refinement in the context of zero-knowledge proofing system. Instead of a single alphabet the refined picture considers two alphabets $\Sigma_I$ and $\Sigma_W$ and a decision function 
+\begin{equation}
+R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\; (i\,;w) \mapsto R(i\,;w)
+\end{equation}
+Words are therefore tupels $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ with $R(i\,;w)=true$ and the refinement picture differentiates between public inputes $i\in \Sigma_I$ and private inputs $w\in \Sigma_W$. The public input $i$ is called an \textbf{instance} and the private input $w$ is called a \textbf{wittness} of $R$. 
+
+If a decision function is given the associated language is defined as the set of all tupels from the underlying alphabet that are verified by the decision function:
+\begin{equation}
+L_R := \{(i\,;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i\,;w)=true\}
+\end{equation}
+In this refined context a \textbf{statement} $S$ is a claim that given an instance $i\in\Sigma_I^*$ there is a witness $w\in \Sigma_W^*$, such that language $L$ contains a word $(i\,;w)$. A constructive \textbf{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \textbf{verified} by checking $R(P)=true$. 
+
+It is worth to understand the difference between statements as defined in XXX and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen knowledge-proofs, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX sec 1.4]
+\begin{example}[3-factorization] To give an intuition about the implication of refined languages, consider $L_{3.fac}$ from example XXX again. As we have seen, a constrctive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$, such that the product in modular $13$ aithmetics of the first three elements is equal to the $4$'th element. 
+
+Splitting words from $L_{3.fac}$ into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example we could reformulate the membership statement of $L_{3.fac}$ into a statement, where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. A statement for this reformulation is then expressed by the claim: "Given a publically known field element $x_4$, there are three private factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any tuple $(x_1,x_2,x_3)$, such that $x_1\cdot x_2\cdot x_3= x_4$. 
+
+At this point it is important to note that, while constructive proofs in the refinement don't look much different from constructive proofs in the original language, we will see in XXX that there are proofing systems, able to proof the statement (at least with high probability) without revealing anything about the factors $x_1$, $x_2$, or $x_3$. The importance of the refinement therefore only shows up, once more elaborate proofing methods then naive constructive proofs are provided.
+
+We can formalize this new language, which we might call $L_{3.fac\_zk}$ by defining the following decision function: 
+\begin{multline*}
+R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{true, false\}\;;\;\\
+((i_1,\ldots,i_n);(w_1,\ldots, w_m)) \mapsto
+\begin{cases}
+true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
+false & else
+\end{cases}
+\end{multline*}
+The associated language $L_{3.fac\_zk}$ is defined by all tupels from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
+
+Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask, why we decided the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose an other combination? This was an arbitrary choice in the example. Every other combination of private and public factors would be equally valid. For example it would be possible to declaring all variables as private or to declare all variables as public. Actual choices are determined by the application only.
+\end{example}
+\begin{example}[SHA256 -- Knowlege of Preimage] One of the most common examples in the context of zero-knowledge proofing systems is the knowledge-of-a-preimage proof for some cryptographic hash function like $SHA256$, where a publically known $SHA256$ digest value is given and the task is to proof knowledge of a preimage for that digest under the $SHA256$ function, without revealing that preimage. 
+
+To understand this problem in detail, we have to introduce a language able to describe the knowledge-of-preimage problem in such a way that the claim "Given digest $i$, there is a preimage $w$, such that $SHA256(w)=i$" becomes a statement in that language. Since $SHA256$ is a function
+$$
+SHA256: \{0,1\}^* \to \{0,1\}^{256}
+$$
+that maps binary string of arbitrary length onto binary strings of length $256$ and we want to proof knowledge of preimages, we have to consider binary strings of size $256$ as instances and binary strings of arbitrary length as witnesses. 
+
+An appropriate alphabet $\Sigma_I$ for the set of all instances and an appropriate alphabet $\Sigma_W$ for the set of all witnesses is therefore given by the set $\{0,1\}$ of the two binary letters and a proper decision function is given by:
+\begin{multline*}
+R_{SHA256} : \{0,1\}^* \times \{0,1\}^* \to \{true, false\}\;;\;\\
+(i;w) \mapsto
+\begin{cases}
+true & i.len()=256,\; i = SHA256(w)\\
+false & else
+\end{cases}
+\end{multline*}
+We write $L_{SHA256}$ for the associated language and note that it consists of words, which are tuples $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
+
+Given some instance $i\in \{0,1\}^{256}$ a statements in $L_{SHA256}$ is the claim "Given digest $i$, there is a preimage $w$, such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by checking $SHA256(w)=i$. 
+\end{example}
+\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example XXX as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
+\begin{multline*}
+R_{linear} : \Sigma^* \times \Sigma^* \to \{true, false\}\;;\;\\
+(i;w) \mapsto
+\begin{cases}
+true & i.len()=3 \text{ and } w.len()=1 \text{ and } i_1\cdot w_1 + i_2 = i_3\\
+false & else
+\end{cases}
+\end{multline*}
+Which of the following instances $(i_1,i_2,i_3)$ has a proof of knowledge in $L_{linear}$: $(3,3,0)$, $(2,1,0)$, $(4,4,2)$.
+\end{exercise}
+\begin{exercise}[Edwards Addition on Tiny JubJub] Consider the tiny-jubjub curve together with its Edwards addition law from example XXX. Define an instance alphabet $\Sigma_I$, a witness alphabet $\Sigma_W$ and a decision function $R_{add}$ with associated language $L_{add}$, such that a string $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ is a word in $L_{add}$ if and only if $i$ is a pair of curve points on the tiny-jubjub curve in Edwards form and $w$ is the Edwards sum of those curve points.
+
+Choose some instance $i\in \Sigma_I^*$, provide a constructive proof for the statement "There is a witnes $w\in \Sigma_W^*$ such that $(i\,;w)$ is a word in $L_{add}$" and verify that proof. Then find some instance $i\in \Sigma_I^*$, such that $i$ has no knowledge proof in $L_{add}$.
+\end{exercise}
+\paragraph{Modularity} From a developers perspective it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero knowledge proofing systems those simple building blocks are often called \textit{gadgets} and gadget libraries usually contain representations of atomic types like booleans, integers, various hash functions, elliptic curve cryptography and many more. In order to synthesize statements, developers then combine predefined gadgets into complex logic. We call the ability to combine statements into more complex statements \textbf{modularity}. 
+
+To understand the concept of modularity on the level of formal languages defined by decision functions, we need to look at the \textit{intersection} of two languages, which exists whenever both languages are defined over the same alphabet. In this case the intersection is a language that consists of strings which are words in both languages. 
+
+To be more precise, let $L_1$ and $L_2$ be two languages defined over the same instance and witness alphabets $\Sigma_I$ and $\Sigma_W$. Then the intersection $L_1 \cap L_2$ of $L_1$ and $L_2$ is defined as
+\begin{equation}
+L_1 \cap L_2 := \{x\;|\; x\in L_1 \text{ and } x\in L_2\}
+\end{equation} 
+If both languages are defined by decision functions $R_1$ and $R_2$, the following function is a decision function for the intersection language $L_1 \cap L_2$:
+\begin{equation}
+R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\;
+(i,w) \mapsto R_1(i,w) \text{ and } R_2(i,w)
+\end{equation}
+The fact that the intersection of two decision function based languages is a decision function based language again is important from an implementations point of view as it allows to construct complex decision functions, their languages and associated statements from simple building blocks. Given a publically known instance $i\in \Sigma_I^*$ a statement in an intersection language then claims knowledge of a wittness that satisfies all relations simultaniously. 
+
+\section{Statement Representations} 
+As we have seen in the previous section, formal languages and their definition by decision functions are a powerful tool to describe statements in a formaly regurous manner. 
+
+However from the perspective of existing zero knowledge proofing systems not all ways to actually represent decision functions are equally useful. Depending on the proofing system some are more suitable then others. In this section will describe two of the most common ways to represent decision functions and their statements.
+\subsection{Rank-1 Quadratic Constraint Systems}
+Although decision functions are expressible in various ways, many contemporary proofing systems require the deciding ralation to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing based proofing systems like XXX, roughly because it is possible to check solutions to those equations "in the exponent" of pairing friendly cryptographic groups.
+
+In this section we will therefore have a closer look at a particular type of quadratic equations, called \textit{rank-1 quadratic constraints systems}, which are a common standard in zero knowledge proofing systems. We will start with a general introduction to those systems and then look at their relation to formal languages. We will look into a common way to compute solutions to those systems and after that is done we show how a simple compiler might derive rank-1 constraint systems from more high level programing code. 
+
+\paragraph{R1CS representation} To understand what \textit{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a field, $n$, $m$ and $k\in\N$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i\in\F$ constants from $\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a rank-1 constraint system (R1CS) is defined as follows: 
+\begin{align*}
+\scriptstyle\left(a^1_0 + \sum_{j=1}^n a^1_j \cdot I_j + \sum_{j=1}^m a^1_{n+j} \cdot W_j  \right) \cdot 
+\left(b^1_0 + \sum_{j=1}^n b^1_j \cdot I_j + \sum_{j=1}^m b^1_{n+j} \cdot W_j  \right) &=\, 
+\scriptstyle c^1_0 + \sum_{j=1}^n c^1_j \cdot I_j + \sum_{j=1}^m c^1_{n+j} \cdot W_j\\
+       & \vdots\\
+\scriptstyle\left(a^k_0 + \sum_{j=1}^n a^k_j \cdot I_j + \sum_{j=1}^m a^k_{n+j} \cdot W_j  \right) \cdot 
+\left(b^k_0 + \sum_{j=1}^n b^k_j \cdot I_j + \sum_{j=1}^m b^k_{n+j} \cdot W_j  \right) &=\, 
+\scriptstyle c^k_0 + \sum_{j=1}^n c^k_j \cdot I_j + \sum_{j=1}^m c^k_{n+j} \cdot W_j       
+\end{align*}
+If a rank-1 constraint system is given, the parameter $k$ is called the \textbf{number of constraints} and if a tuple $(I_1,\ldots, I_n; W_1,\ldots,W_m)$ of field elements satisfies theses equations, $(I_1,\ldots, I_n)$ is called an \textbf{instance} and $(W_1,\ldots,W_m)$ is called an associated \textbf{wittness} of the system.
+
+\begin{remark}[Matrix notation] The presentation of rank-1 constraint systems can be simplified using the notation of vectors and matrices, which abstracts over the indices. In fact if
+$x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, $C$ are $(n+m+1)\times k$-dimensional matrices and $\odot$ is the Schur/Hadamard product, then a R1CS can be written as
+$$
+Ax \odot Bx = Cx
+$$
+However since we did not introduced matrix calculus in the book, we use XXX as the defining equations for rank-1 constraints systems. We only highlighted the matrix notation, because it is sometimes used in the literature.
+\end{remark}
+%It can be shown, that every bounded computation is expressable as a rank-1 constraint system. R1CS are therefore universal models for bounded computations. We will derive a common approach of how to compile bounded computation into rank-1 constraint systems in XXX. Similar approaches are used in real world systems like XXX to build R1CS-compilers for subsets of high level languages like C, JAVA or Rust.
+Generally speaking, the idea of a rank-1 constraint system is to keep track of all the values that any variable can assume during a computation and to bind the relationships among all those variables that are implied by the computation itself. Enforcing relations between all the steps of a computer program, the execution is then constrainted to be computed in exactly the expected way without any oportunity for deviations. In this sense, solutions to rank-1 constraint systems are proofs of proper progam execution.
+\begin{example}[3-Factorization] To provide a better intuition of rank-1 constraint systems, consider the language $L_{3.fac\_zk}$ from example XXX again. As we have seen $L_{3.fac\_zk}$ consist of words $(I_1;W_1,W_2,W_3)$ over the alphabet $\F_{13}$, such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the decision function as a rank-1 constraint system.
+
+Since R1CS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$ which contain products of more then two factors (which are therefore not quadratic) have to be rewritten in a process often called \textit{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac\_zk}$ we introcuce a new variable $W_4$, which capture two of the three multiplications in $W_1\cdot W_2\cdot W_3$. We get the following two constraints
+\begin{align*}
+W_1 \cdot W_2 & = W_4 & \text{constraint } 1\\
+W_4 \cdot W_3 & = I_1 & \text{constraint } 2
+\end{align*}
+Given some instance $I_1$, any solution $(W_1,W_2,W_3,W_4)$ to this system of equations provides a solution to the original equation $I_1 = W_1\cdot W_2\cdot W_3$ and vice versa. Both equations are therefore equivalent in the sense that solutions are in a 1:1 correspondence.
+
+Looking at both equations, we see how each constraint enforces a step in the computation. In fact the first constraint forces any computation to multiply the witness $W_1$ and $W_2$ first. Otherwise it would not be possible to compute the witness $W_4$, which is needed to solve the second constraint. Witness $W_4$ therefore expresses the constraining of an intermediate computational state.
+
+At this point one might ask why equation $1$ constraints the system to compute $W_1\cdot W_2$ first, since computing $W_2\cdot W_3$, or $W_1\cdot W_3$ in the begining and then multiply with the remaining factor gives the exact same result. However the way we designed the R1CS prohibits any of these alternative computations. This is true and it shows that R1CS are in general \textit{not unique} descriptions of a language. Many different R1CS are able to describe the same problem.
+
+To see that the two quadratic equations qualify as a rank-1 constraint system, choose the parameter $n=1$, $m=4$ and $k=2$ as well as
+$$
+\begin{array}{llllll}
+a_0^1 = 0 & a_1^1= 1 & a_2^1= 0 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
+a_0^2 = 0 & a_1^2= 0 & a_2^2= 0 & a_3^2 = 0 & a_4^2= 1  & a_5^2= 0 \\ 
+\\
+b_0^1 = 0 & b_1^1= 0 & b_2^1= 1 & b_3^1 = 0 & b_4^1= 0  & b_5^1= 0 \\ 
+b_0^2 = 0 & b_1^2= 0 & b_2^2= 0 & b_3^2 = 1 & b_4^2= 0  & b_5^2= 0 \\ 
+\\
+c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 1  & c_5^1= 0 \\ 
+c_0^2 = 0 & c_1^2= 0 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 1 
+\end{array} 
+$$
+With this choice, the rank-1 constraint system of our $3$-factorization problem can be written in its most general form as follows:
+\begin{align*}
+\scriptstyle
+\left(a^1_0 + a_1^1 I_1 + a_2^1 W_1 + a_3^1 W_2 + a_4^1 W_3 + a_5^1 W_4\right)\cdot
+\left(b^1_0 + b_1^1 I_1 + b_2^1 W_1 + b_3^1 W_2 + b_4^1 W_3 + b_5^1 W_4\right) &=
+\scriptstyle
+\left(c^1_0 + c_1^1 I_1 + c_2^1 W_1 + c_3^1 W_2 + c_4^1 W_3 + c_5^1 W_4\right)\\
+\scriptstyle
+\left(a^2_0 + a_1^2 I_2 + a_2^2 W_2 + a_3^2 W_2 + a_4^2 W_3 + a_5^2 W_4\right)\cdot
+\left(b^2_0 + b_1^2 I_2 + b_2^2 W_2 + b_3^2 W_2 + b_4^2 W_3 + b_5^2 W_4\right) &=
+\scriptstyle
+\left(c^2_0 + c_1^2 I_2 + c_2^2 W_2 + c_3^2 W_2 + c_4^2 W_3 + c_5^2 W_4\right)
+\end{align*}
+\end{example}
+\paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems define formal languages, oberserve that every R1CS over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\begin{equation}
+R_{R1CS} : \F^* \times \F^* \to \{true, false\}\;;\;
+(I;W) \mapsto
+\begin{cases}
+true & (I;W) \text{ satisfies R1CS}\\
+false & else
+\end{cases}
+\end{equation}
+Every R1CS therefore defines a formal language. The grammar of this language is encoded in the constraints, words are solutions to the equations and  a \textbf{statement} is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ is a solution to the rank-1 constraints system". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verfied whenever the set of all instance and witness variables solves the R1CS. 
+
+\begin{remark}[R1CS satisfyability] It should be noted that in our definition, every R1CS defines its own language. However in more theoretical approaches another language usually called \textit{R1CS satisfyability} is often considered, which is useful when it comes to more abstract problems like expressiviness, or computational complexity of the class of \textit{all} R1CS. From our perspective the R1CS saisfyability language is optained by union of all R1CS languages that arie in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
+$$
+L_{R1CS\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a R1CS $R$ such that } R(i;w)=true  \}
+$$
+\end{remark}
+\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example XXX and the R1CS defined in example XXX. As we have seen in XXX solutions to the R1CS are in 1:1 correspondense with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages.
+
+To give an intuition of how constructive proofs in $L_{3.fac\_zk}$ look like, consider the instance $I_1= 11$. To proof the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$" constructively a proof has to privide assignments to all witness variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, an example assignment is given by
+$W=(2,3,4,6)$ since $(I_1;W)$ satisfies the R1CS
+\begin{align*}
+W_1 \cdot W_2 &= W_4 & \text{\# } 2\cdot 3 = 6\\
+W_4 \cdot W_3 &= I_1 & \text{\# } 6\cdot 4 = 11
+\end{align*}
+A proper constructive proof is therefore given by $P=(2,3,4,6)$. Of course $P$ is not the only possible proof for this statement. Since factorization is in general not unique in a field, another constructive proof is given by $P'=(3,5,12,2)$. 
+\end{example}
+\paragraph{Modularity} As we discuss in XXX, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 constraint systems are particulary useful for this as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
+
+To be more precise let $S_1$ and $S_2$ be two R1CS over $\F$, then a new R1CS $S_3$ is optained by the intersection $S_3 = S_1\cap S_2$  of $S_1$ and $S_2$, where in this context intersecion means, that both, the equations of $S_1$ \textit{and} the equations of $S_2$ have to be satisfied, in order to provide a solution for the system $S_3$.
+
+As a consequence, developers are able to construct complex R1CS from simple ones and this modularity provides the theoretical foundation for many R1CS compilers as we will see in XXX.
+
+\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems define equations, such that solutions to these equations are knowledge proofs for the existence of words in associated languages. From the perspective of a proofer it is therefore import to solve those equations efficiently. However R1CS
+are non-linear equations over finite fields, which often consists of millions of constraints and there are no general methods to solve those equations efficiently. It is therefore of practical importance to have some way to compute solutions.
+
+To achieve this we introduce another class of decision functions called \textit{algebraic circuits}, that are closely related to R1CS but which are able to not just define constraining equations, but also to provide a mechanism that actually computes their solutions.
+
+Transforming high level computer programs into algebraic circuits is a process often called \textit{flattening} and as we will see in XXX, those circuits can be transformed futher into associated rank-1 constraints systems. Programs that achieve those transformations are often called \textit{circuit-compilers} and once a circuit is derived it can be \textit{executed} to compute solutions to the associated R1CS. The following paragraphs makes those ideas concrete.
+
+\paragraph{Algebraic circuit representation} Let $\F$ be some field.
+The general idea of an algebraic circuit is that every polynomial function over $\F$ can be represented as a directed acyclic (multi)graph. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the defining field operations \textit{addition} as well as \textit{multiplication} and graph edges represent the connections between the operations of the individual nodes.
+
+To undertand this in more detail let $\F$ be a field. Then a directed, acyclic multi-graph $C(\F)$ is called an \textbf{algebraic circuit} over $\F$, such that
+\begin{itemize}
+\item The set of edges has a total order.  
+\item Every source node has a label, that represents either a variable or a constant from the field $\F$.
+\item Every sink node has exactly one incoming edge and a label, that represents either a variable or a constant from the field $\F$.
+\item Every other node has exactly two incoming edges and a label from the set $\{+,*\}$ that represents either addition or multiplication in $\F$.
+\item All outgoing edges from a node have the same label.
+\item Outgoing edges from a node with a label that represents a variable have a label.
+\item Outgoing edges from a node with a label that represents multiplication have a label, if there is at least one labeled edge in both input path.
+\item All incoming edges to sink nodes have a label.
+\item No other edge has a label.
+\item Incoming edges to sink nodes that are labeled with a constant $c\in\F$ are labeled with the same field constant. Every other edge label is taken from the set $\{W,I\}$ and indexed by the order on the edge set. 
+\end{itemize} 
+To understand this definition, let $C(\F)$ be an algebraic circuit. Source nodes are the inputs to the circuit and either represent variables or constants. In a similar way sink nodes represent termination points of the circuit and are either output variables or constants. Constant sink nodes enforce computational outputs to take on certain values.  
+
+Nodes that are neither source nor sink nodes are also called \textbf{aithmetic gates}. Arithmetic gates that are decorated with the "$+$"-label are called \textbf{addition-gates} and gates that are decorated with the "$\cdot$"-label are called \textbf{multiplication-gates}. Every arithmetic gate has exactly two inputs, represented by the two incoming edges.
+
+Since the set of edges is ordered we can write it as $\{E_1,E_2,\ldots, E_n\}$ for some $n\in \N$ and we use those indices to index the edge labels, too. Edge labels are therefore either constants or symbols like $I_j$, $W_j$ or $S_j$, where $j$ is an index compatible with the edge order. Labels $I_j$ represent instance variables, labels $W_j$ witness variables. Labels on the outgoing edges of input variables constrain the associated variable to that edge. Every other edge defines a constraining equation as we will explain in more detail in XXX.
+
+\begin{notation}
+In synthezising algebraic circuits assigning instance $I_j$ or witness $W_j$ labels to appropriate edges is often the final step. It is therefore convinient to not distiguishe both types of edges in previous steps. To acknowledge for that we often simply write $S_j$ for an edge label, indicating that this is an unspecified statement label and can either represent an instance or a witness label. 
+\end{notation}
+It can be shown that every bounded computation can be transformed into an algebraic circuit. We call Tthe process that transforms a computation into a circuit \textbf{flattening}.
+\begin{example}[Generalized factorization snark] To give a simple example of an algebraic circuit, consider our $3$-factorization problem from example XXX again.  To express the problem in the algebraic circuit model, consider the following function 
+\[
+f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto(x_{1}\cdot x_{2})\cdot x_{3}
+\]
+The zero-knowledge $3$-factorization problem as described in XXX can then be described in the following way: Given instance $I_1\in \F_{13}$ a valid witness a preimage of $f_{3.fac}$ at the point $I_1$, i.e. a valid witness are three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$, such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
+
+To flatten function $f_{3.fac}$, that is to find some circuit that describes the function, observe that $f_{3.fac}$ needs two multiplications to compute its output. We therefore need a circuit that contains two multiplication gates and nothing more. We get:
+
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.5]{G1}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_1  "];
+	n2 -> n3 [xlabel="W_2 "];
+	n3 -> n5 [label="W_4"];
+	n4 -> n5 [label=" W_3"];
+	n5 -> n6 [label=" I_1"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
+}
+\end{center}
+%\[
+%\xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
+% & \cdot \ar^{W_4}[drr] &   & & x_3\ar_{W_3}[dl]\\
+%  &  &  & \cdot\ar_{I_1}[d]\\
+%  &  &  & f(x_1,x_2,x_3)
+%}
+%\]
+So our directed acyclic multi-graph, is is binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
+
+The order we used to label the edges is choosen to make the edge labeling consistent with our decision from example XXX. Its not an order that arises from common ordering algorithms like deapth-first or breath-first ordering. In addition we declear the function output as the instance and the inputs as well as every step in the computation as private inputs.
+\end{example}
+\begin{example} To give a more realistic example of an algebraic circuit look at the defining equation XXX of the tiny-jubjub curve again. A pair of field elements 
+$(x,y)\in \F_{13}^2$ is a curve point, precisely if
+$$
+3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2
+$$  
+We can rewrite this equation by shifting all terms to the right and get
+\begin{align*}
+3\cdot x^2 + y^2 & = 1+ 8\cdot x^2\cdot y^2 & \Leftrightarrow\\
+0 & = 1+ 8\cdot x^2\cdot y^2 - 3\cdot x^2 - y^2 & \Leftrightarrow\\
+0 & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2
+\end{align*}
+And we can use this expression to define a function, such that all points of tiny-jubjub are characterized its the preimages of $0$:
+$$
+f_{tiny-jj}: \F_{13}\times \F_{13}\to \F_{13}\; ; \;
+(x,y)\mapsto 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2
+$$
+then of course every pair $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve.
+
+We can flatten this function into an algebraic circuit over $\F_{13}$. To do so we have to decide which edges to declare instance and which to declare witness. In principle we could choose any combination, but for the sake of zero-knowledge proofs as we will discuss later, we only declare the output and the pair $(x,y)$ to be the instance. Everything else should be part of the witness. A proper circuit then might be:
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.4]{G2}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n5 [label="I_2" /*, color=lightgray */];
+	n2 -> n5 /*[ color=lightgray ]*/ ;
+	n3 -> n8 /*[ color=lightgray ]*/ ;
+	n4 -> n8 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n10 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n5 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 /*[ color=lightgray ]*/ ;
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n11 /*[ color=lightgray ]*/ ;
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n12 [taillabel="W_3", labeldistance="4" /*, color=lightgray */];
+	n11 -> n14 /*[ color=lightgray ]*/ ;
+	n12 -> n14 /*[ color=lightgray ]*/ ;	
+	n13 -> n15 /*[ color=lightgray ]*/ ;
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [label="*" /*, color=lightgray */];
+	n6 [shape=box, label="12" /*, color=lightgray */];
+	n7 [shape=box, label="1" /*, color=lightgray */];
+	n8 [label="*" /*, color=lightgray */];
+	n9 [shape=box, label="8" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+\begin{comment}
+% unused but to much work to delete it right now
+begingroup
+    \fontsize{8pt}{10pt}\selectfont
+
+\[
+\xymatrix{
+ & &  & &
+x\ar^{I_1}@/^/[d]\ar_{I_1}@/_/[d]  &  & & 
+y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
+ & 10 \ar[dr]& & &
+\cdot \ar^{W_1}[drr] \ar_{W_1}[dll]&  & &
+\cdot \ar_{W_2}[dl] \ar^{W_2}[ddr] &  &
+12 \ar[ddl] \\
+1 \ar[dr] & &  
+ \cdot \ar[dl] & & 
+ 8 \ar[dr] & &
+ \cdot \ar_{W_3}[dl] & & 
+ \\
+ & 
+ + \ar[drr] & & & &
+ \cdot \ar[dll] & & &
+ \cdot \ar[ddlll]\\
+ & & & 
+ + \ar[drr]& & & 
+ \\
+ & & & & & 
+ + \ar_{I_3}[d]\\
+ & & & & & 
+ f_{tiny-jj}(x,y)
+}
+\]
+\endgroup
+\end{comment} 
+Of course this is just one proper circuit from an infinite set of possible circuit. To see this oberseve that we can always add some constant and then later subtract the same constant again. It follows that circuit representations are not unique, not even up to ordering of the edges and nodes in the graph. An alernative circuit is given by:
+\begin{center}
+\digraph[scale=0.4]{G2A}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /*[ color=lightgray ]*/ ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n12 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n13 /*[ color=lightgray ]*/ ;
+	n8 -> n11 /*[ color=lightgray ]*/ ;
+	n9 -> n11 /*[ color=lightgray ]*/ ;
+	n10 -> n12 /*[ color=lightgray ]*/ ; 
+	n11 -> n14 /*[ color=lightgray ]*/ ;
+	n12 -> n14 [xlabel="W_3  "  /*, color=lightgray */];	
+	n13 -> n15 /*[ color=lightgray ]*/ ;
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*" /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];	
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+technobov
+\end{example}
+Algebraic circuits are usually derived by compilers, that transform  higher languages to circuits. An example of such a compiler is XXX. Note: Different Compiler give very different circuit representations and Compiler optimization is important. We will see in XXX how such compilers might be costructed by deriving building blocks for major imperative primitives.
+\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes are decorated with variables and constants as well as addition and multiplication symbols. In particular every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tupel $(f_1,\ldots,f_m)$ $m$ from $\F^m$. The transformation is done by sending values associated to a node along the outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the label. This is repeatedly done for all edges until a sink node is reached.
+
+Executing a circuit this way, it is possible to not only to compute the output values of the circuit but field elements for all edge labels of the circuit. The result is a tupel $(I_1,\ldots,I_n; W_1,\ldots,W_m)$ of field elements, that is called a \textbf{valid asignment} of the circuit. 
+
+Valid asignments of circuit execution can be seen as a kind of record, that not just hold the output of a computation but intermediate steps as well. What distinguishes a \textit{valid} assigment to edge labels from any other assignment is the fact that it is the result of a circuit eecution. An Assignment is valid, if the field element arise from executing the circuit, and every other assignment is invalid. Valid assignments are therefore \textit{proofs for proper circuit execution}.
+
+So to summarize, algebraic circuits (over a field $\mathbb{F}$) are directed acyclic graphs, that express arbitrary, but bounded computation. Vertices with only outgoing edges (leafs, sources) represent inputs to the computation, vertices with only ingoing edges (roots, sinks) represent outputs from the computation and internal vertices represent field operations (Either addition or multiplication). It should be noted however that there are many circuits that can represent the same laguage.
+\begin{example}[3-factorization] Consider the $3$-factorization problem from example XXX and its representation as an algebraic circuit from XXX again. We know that the set of edge labels is given by $S:=\{I_{1},W_{1},W_{2},W_{3}, W_{4}\}$. To see how circuit execution looks in this example, lets consider the inputs $x_1=2$, $x_2=3$ as well as $x_3=4$. So we instantiated the variable labels $x_1$, $x_2$ and $x_3$ with actual values from the prime field $\F_{13}$. Executing the circuit then means to follow the edges and assign values to all edge labels. 
+
+We immediately get $W_1=2$, $W_2=3$ and $W_3=4$. Then the values $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
+
+Summarizing this computation a valid assignment to our circuit $C_{3.fac}(\F_{13})$ is therefore the set $S_{valid}:=\{2,3,4,6,10\}$, with an assigned circuit given by
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.5]{G3}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_1=2  "];
+	n2 -> n3 [xlabel="W_2=3 "];
+	n3 -> n5 [label="W_4=6"];
+	n4 -> n5 [label=" W_3=4"];
+	n5 -> n6 [label=" I_1=11"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
+}
+\end{center}
+To see how an invalid assignment looks like, consider the assignment $S_{err}:=\{2,3,4,7,8\}$. In this assignment the input values are the same as in the previous case. The associated circuit is:
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.5]{G4}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="W_1=2  "];
+	n2 -> n3 [xlabel="W_2=3 "];
+	n3 -> n5 [label="W_4=7"];
+	n4 -> n5 [label=" W_3=4"];
+	n5 -> n6 [label=" I_1=8"];
+	n1 [shape=box, label="x_1"];
+	n2 [shape=box, label="x_2"];
+	n3 [label="*"];
+	n4 [shape=box, label="x_3"];
+	n5 [label="*"];
+	n6 [shape=box, label="f_(3.fac_zk)"];
+}
+\end{center}
+So this assignment is invalid as the assignments of $I_1$ and $W_4$ can not be obtained by executing the circuit.
+\end{example}
+\begin{example} To give a more realistic example of algebraic circuit execution and assignment, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example XXX again. We already know from the way this circuit is constructed that any valid assignment with $I_1=x$, $I_2=y$ and $I_3=0$ will ensure that the pair $(x,y)$ is a point on the tiny jubjub curve XXX in its Edwards representation. 
+
+From example XXX we know that the pair $(11,6)$ is a point on the tiny-jubjub Edwards curve so we execute the circuit with $I_1=11$ and $I_2=6$. Executing the circuit we get:
+\begin{center}
+% https://www.graphviz.org/pdf/dotguide.pdf
+\digraph[scale=0.4]{G2C}{
+	forcelabels=true;
+	//center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1=11" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n5 [label="I_2=6" /*, color=lightgray */];
+	n2 -> n5 /*[ color=lightgray ]*/ ;
+	n3 -> n8 /*[ color=lightgray ]*/ ;
+	n4 -> n8 [taillabel="W_1=4  " /*, color=lightgray */];
+	n4 -> n10 [taillabel="W_1=4", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [xlabel="W_2=10 " /*, color=lightgray */];
+	n5 -> n13 [headlabel="W_2=10", labeldistance="4" /*, color=lightgray */];
+	n6 -> n13 /*[ color=lightgray ]*/ ;
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n11 [headlabel="[10*4=1]    "];
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n12 [taillabel="W_3=1  " /*, color=lightgray */];
+	n11 -> n14 [headlabel="[1+1=2]    "];
+	n12 -> n14 [label="  [8*1=8]"];	
+	n13 -> n15 [headlabel="    [10*12=3]"];
+	n14 -> n15 [taillabel="   [2+8=10]"];
+	n15 -> n16 [label="  I_3=0", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*" /*, color=lightgray */];
+	n5 [label="*" /*, color=lightgray */];
+	n6 [shape=box, label="12" /*, color=lightgray */];
+	n7 [shape=box, label="1" /*, color=lightgray */];
+	n8 [label="*" /*, color=lightgray */];
+	n9 [shape=box, label="8" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="+" /*, color=lightgray */];
+	n12 [label="*" /*, color=lightgray */];	
+	n13 [label="*" /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+" /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+
+\begin{comment}
+\begingroup
+    \fontsize{8pt}{10pt}\selectfont
+\[
+\xymatrix{
+ & &  & &
+x\ar^{I_1=11}@/^/[d]\ar_{I_1=11}@/_/[d]  &  & & 
+y\ar^{I_2=6}@/^/[d]\ar_{I_3=6}@/_/[d]\\
+ & 10 \ar[dr]& & &
+\cdot \ar^{W_1=4}[drr] \ar_{W_1=4}[dll]&  & &
+\cdot \ar_{W_2=10}[dl] \ar^{W_2=10}[ddr] &  &
+12 \ar[ddl] \\
+1 \ar[dr] & &  
+ \cdot \ar^{[10\cdot 4 = 1]}[dl] & & 
+ 8 \ar[dr] & &
+ \cdot \ar_{W_3=1}[dl] & & 
+ \\
+ & 
+ + \ar^{[1+1=2]}[drr] & & & &
+ \cdot \ar^{[8\cdot 1 = 1]}[dll] & & &
+ \cdot \ar^{[10\cdot 12=3]}[ddlll]\\
+ & & & 
+ + \ar^{[2+8=10]}[drr]& & & 
+ \\
+ & & & & & 
+ + \ar_{I_3=0}[d]\\
+ & & & & & 
+ f_{tiny-jj}(x,y)
+}
+\]
+\endgroup
+\end{comment}
+Executing the circuit we indeed compute $I_3=0$ as expected, which proofs that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by 
+$$
+S_{tiny-jj} = \{I_1, I_2, I_3; W_1, W_2, W_3\} = \{11, 6, 0; 4, 10, 1\}
+$$
+\end{example}
+
+\paragraph{Circuit Satisfyability} To understand how algebraic circuits give rise to formal languages, oberserve that every given algebraic circuit $C_{\F}$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\begin{equation}
+R_{R1CS} : \F^* \times \F^* \to \{TRUE, FALSE\}\;;\;
+(I;W) \mapsto
+\begin{cases}
+TRUE & (I;W) \text{ is a valid assignment}\\
+FALSE & else
+\end{cases}
+\end{equation}
+We write $L_{Circuit-SAT}$ for the associated language and call it \textbf{algebraic circuit satisfyability}. The grammar of this language is exapressed by the structure of the circuit and words in this language are valid circuit assignments. 
+
+Now since every algebraic circuit gives rise to a formal language, a \textbf{statement} for a given circuit, is a knowledge claim "Given instance $I$, there is a witness $W$, such that $(I;W)$ can be optained by executing the circuit". One way to proof such a claim is therefore to actually execute the circuit. A proof for proper execution of the computation. In the context of zero knowledge proofing systems, executing circuits is also often called \textbf{witness generation}, since in prectise the instance part is usually public, while its the task of a proofer to compute the witness part.
+\begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from example XXX again. We call the associated language $L_{3.fac\_circ}$.
+
+To give an intuition of how a naive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement "There exist a witness $W$, such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$" a proofer therefore has to provide proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Those values can be computed by circuit execution and we therefore know from example that $(2,3,4,6)$ is a proper proof.
+\end{example}
+\paragraph{Circuit to R1CS compilers} As we have seen in XXX, R1CS provide a compact way to represent statements in terms of a system of quadratic equations over finite fields. As we will see in XXX they are particulary useful in the context of pairing based zero knowledge proofing systems. However R1CS provide no practical way for proofer to actually \textit{compute} a proof. They are just a system of \textit{checking} any given proof against a set of constraints.
+
+On the other hand algebraic circuits have a notation of execution and executing any such circuit provides a way to compute valid assignments and proof for statements in associated languages. 
+
+The question therefore remains, if we can combine the both approaches to have a representation, suteable for pairing based zero knowledge proofing systems that can also be used to compute proofs efficiently.
+
+Fortunately it is straight forward to transform any algebraic circuit into a rank-1 constraint systems. To see how this is done, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with edge labeling $(I_1,\ldots,I_n;W_1,\ldots,W_m)$. The task is to compute a R1CS $S$ over $\F$ from $C(\F)$.  
+
+Every multiplication gate in $C(\F)$ that has a label on its outgoing edges, defines a new quadratic constraint in $S$. If $L_j\in\{I_j,W_j\}$ is the label of the outgoing edge, then the constraint is given by
+\begin{equation}
+(\text{left input})\cdot (\text{right input}) = L_j
+\end{equation}  
+where $(\text{left input})$ respectively $(\text{right input})$ is the output from the execution of the subgraph that consists of the left respectively right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other gates.
+
+Every addition gate that has a label on its output, defines a new quadratic constraint in $S$. If $L_j\in\{I_j,W_j\}$ is the label of the outgoing edge, then the constraint is given by
+\begin{equation}
+(\text{left input} + \text{right input})\cdot 1 = L_j
+\end{equation}  
+where $(\text{left input})$ respctively $(\text{right input})$ is the computation of all previous constant inputs or labels that result in the left respectively right input to this addition gate.  
+
+It can be shown, that a tupel $(I_1,\ldots, I_n;W_1,\ldots,W_m)$ is a solution to the synthesized R1CS if and only if the same tupel is a valid assignment to the associated circuit.
+
+As addition gates only add constraints if their result is an output, addition is \textit{essentially for free} in R1CS.
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example XXX and the associated circuit $C_{3.fac}(\F_{13})$ again:
+ 
+\[
+\xymatrix{x_1\ar^{W_1}[dr] &  & x_2\ar_{W_2}[dl]\\
+ & \cdot \ar^{W_4}[drr] &   & & x_3\ar_{W_3}[dl]\\
+  &  &  & \cdot\ar_{I_1}[d]\\
+  &  &  & f(x_1,x_2,x_3)
+}
+\]
+Out task is to transform this circuit into an equivalent rank-1 constraint system. Since the circuit consists of two multiplication gates that have labels on their outgoing edges, the resulting R1CS will consist of two quadratic constraints. 
+
+To find those constraints, we begin at the up-left gate. Since its outgoing edge is labeled as $W_4$ and all imcoming edges have labels themself we get the following constraint
+\begin{align*}
+(\text{left input})\cdot (\text{right input})  &= L_j & \Leftrightarrow\\
+W_1\cdot W_2  &= W_4
+\end{align*}
+Then we consider the second multiplication gate. Since its outgoing edge is labeled as $I_1$ and all imcoming edges have labels themself we get the following constraint
+\begin{align*}
+(\text{left input})\cdot (\text{right input})  &= L_j & \Leftrightarrow\\
+W_4\cdot W_3  &= I_1
+\end{align*}
+Since there are no more gates with labeled outgoing adges, we are done deriving the constraints. Combining all constraints together, we get the associated R1CS as
+\begin{align*}
+ W_1\cdot W_2 & = W_4\\
+ W_4\cdot W_3 & = I_1
+\end{align*}
+which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same thing.
+\end{example}
+\begin{example} To consider a more general transformation, lets consider the tiny-jubjub circuit from example XXX  again. A proper circuit is given by
+\begin{comment}
+\begingroup
+    \fontsize{8pt}{10pt}\selectfont
+\[
+\xymatrix{
+ & &  & &
+x\ar^{I_1}@/^/[d]\ar_{I_1}@/_/[d]  &  & & 
+y\ar^{I_2}@/^/[d]\ar_{I_2}@/_/[d]\\
+ & 10 \ar[dr]& & &
+\cdot \ar^{W_1}[ddr] \ar_{W_1}[dll]&  
+8 \ar[dr]& &
+\cdot \ar_{W_2}[dl] \ar^{W_2}[ddr] &  &
+12 \ar[ddl] \\
+1 \ar[dr] & &  
+ \cdot \ar[dl] & & & &
+ \cdot \ar[dl] & & 
+ \\
+ & 
+ + \ar[drr] & & & &
+ \cdot \ar_{W_3}[dll] & & &
+ \cdot \ar[ddlll]\\
+ & & & 
+ + \ar[drr]& & & 
+ \\
+ & & & & & 
+ + \ar_{I_3}[d]\\
+ & & & & & 
+ f_{tiny-jj}(x,y)
+}
+\]
+\endgroup
+\end{comment}
+\begin{center}
+\digraph[scale=0.4]{G2D}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+        n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /*[ color=lightgray ]*/ ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n12 /*[ color=lightgray ]*/ ;
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n13 /*[ color=lightgray ]*/ ; 
+	n11 -> n15 /*[ color=lightgray ]*/ ;
+	n12 -> n14 /*[ color=lightgray ]*/ ;	
+	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y" /*, color=lightgray */];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*", style=filled /*, color=lightgray */];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="*" /*, color=lightgray */];	
+	n12 [label="+" /*, color=lightgray */];	
+	n13 [label="*", style=filled /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+", style=filled /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+To compute the number of constraints, observe that we have $3$ multiplication gates, that have labeles on their outgoing edges and $1$ addition gate that has a label on its outgoing edge. We therefore have to cmpute $4$ quadratic constraints.
+Looking at the multiplication gate
+\begin{center}
+\digraph[scale=0.4]{G2E}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4" /*, color=lightgray */];
+    n1 -> n4 /*[ color=lightgray ]*/
+	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [ color=lightgray ] ;
+	n3 -> n9 [ color=lightgray ] ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 [ color=lightgray ] ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4", color=lightgray];
+	n6 -> n11 [taillabel="W_2", labeldistance="4", color=lightgray];
+	n7 -> n11 [ color=lightgray ] ;
+	n8 -> n12 [ color=lightgray ] ;
+	n9 -> n12 [ color=lightgray ] ;
+	n10 -> n13 [ color=lightgray ] ; 
+	n11 -> n15 [ color=lightgray ] ;
+	n12 -> n14 [ color=lightgray ] ;	
+	n13 -> n14 [xlabel="W_3  ", color=lightgray];
+	n14 -> n15 [ color=lightgray ] ;
+	n15 -> n16 [label="  I_3", labeldistance="2", color=lightgray];
+	n1 [shape=box, label="x" /*, color=lightgray */];
+	n2 [shape=box, label="y", color=lightgray];
+	n3 [shape=box, label="10", color=lightgray ];
+	n4 [label="*", style=filled /*, color=lightgray */];
+	n5 [shape=box, label="8", color=lightgray];
+	n6 [label="*", style=filled, color=lightgray];
+	n7 [shape=box, label="12", color=lightgray];
+	n8 [shape=box, label="1", color=lightgray];
+	n9 [label="*", color=lightgray];
+	n10 [label="*", color=lightgray];
+	n11 [label="*", color=lightgray];	
+	n12 [label="+", color=lightgray];	
+	n13 [label="*", style=filled, color=lightgray];
+	n14 [label="+", color=lightgray];
+	n15 [label="+", style=filled, color=lightgray];
+	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
+}
+\end{center}
+we see that both the left input to this gate as well as the right input to this gate are given by the label $I_1$. Since the label of the outgoing adges is $W_1$, the associated constraint is given by
+$$
+I_1 \cdot I_1 = W_1
+$$
+We can look at the subgraph of the second multiplication gate in a similar way. We get 
+\begin{center}
+\digraph[scale=0.4]{G2F}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" labeldistance="4", color=lightgray];
+        n1 -> n4 [ color=lightgray ]
+	n2 -> n6 [label="I_2" /*, color=lightgray */];
+	n2 -> n6 /* [ color=lightgray ] */ ;
+	n3 -> n9 [ color=lightgray ] ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2", color=lightgray];
+	n4 -> n13 [taillabel="W_1", labeldistance="4", color=lightgray];
+	n5 -> n10 [ color=lightgray ] ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n11 [ color=lightgray ] ;
+	n8 -> n12 [ color=lightgray ] ;
+	n9 -> n12 [ color=lightgray ] ;
+	n10 -> n13 [ color=lightgray ] ; 
+	n11 -> n15 [ color=lightgray ] ;
+	n12 -> n14 [ color=lightgray ] ;	
+	n13 -> n14 [xlabel="W_3  ", color=lightgray];
+	n14 -> n15 [ color=lightgray ] ;
+	n15 -> n16 [label="  I_3", labeldistance="2", color=lightgray];
+	n1 [shape=box, label="x", color=lightgray];
+	n2 [shape=box, label="y", /* color=lightgray */];
+	n3 [shape=box, label="10", color=lightgray];
+	n4 [label="*", style=filled, color=lightgray];
+	n5 [shape=box, label="8", color=lightgray];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12", color=lightgray];
+	n8 [shape=box, label="1", color=lightgray];
+	n9 [label="*", color=lightgray];
+	n10 [label="*", color=lightgray];
+	n11 [label="*", color=lightgray];	
+	n12 [label="+", color=lightgray];	
+	n13 [label="*", style=filled, color=lightgray];
+	n14 [label="+", color=lightgray];
+	n15 [label="+", style=filled, color=lightgray];
+	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
+}
+\end{center}
+We see that both the left input to this gate as well as the right input to this gate are given by the label $I_2$. Since the label of the outgoing adges is $W_2$, the associated constraint is given by
+$$
+I_2 \cdot I_2 = W_2
+$$
+The next multiplication gate that has a label on its outgoing edge is more interesting. To compute the associated constraint, we have to construct the associated subgraph first. The subgraph consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get  
+\begin{center}
+\digraph[scale=0.4]{G2G}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" labeldistance="4", color=lightgray];
+        n1 -> n4 [ color=lightgray ]
+	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [ color=lightgray ] ;
+	n3 -> n9 [ color=lightgray ] ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2", color=lightgray];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" /*, color=lightgray */];
+	n5 -> n10 /*[ color=lightgray ]*/ ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n6 -> n11 [taillabel="W_2", labeldistance="4", color=lightgray ];
+	n7 -> n11 [ color=lightgray ] ;
+	n8 -> n12 [ color=lightgray ] ;
+	n9 -> n12 [ color=lightgray ] ;
+	n10 -> n13 /*[ color=lightgray ]*/ ; 
+	n11 -> n15 [ color=lightgray ] ;
+	n12 -> n14 [ color=lightgray ] ;	
+	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n14 -> n15 [ color=lightgray ] ;
+	n15 -> n16 [label="  I_3", labeldistance="2" , color=lightgray ];
+	n1 [shape=box, label="x", color=lightgray];
+	n2 [shape=box, label="y", color=lightgray];
+	n3 [shape=box, label="10", color=lightgray];
+	n4 [label="*", style=filled /*, color=lightgray*/];
+	n5 [shape=box, label="8" /*, color=lightgray */];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12", color=lightgray];
+	n8 [shape=box, label="1", color=lightgray];
+	n9 [label="*", color=lightgray];
+	n10 [label="*" /*, color=lightgray */];
+	n11 [label="*", color=lightgray];	
+	n12 [label="+", color=lightgray];	
+	n13 [label="*", style=filled /*, color=lightgray */];
+	n14 [label="+", color=lightgray];
+	n15 [label="+", style=filled, color=lightgray];
+	n16 [shape=box, label="f_tiny-jj", color=lightgray];		
+}
+\end{center}
+The left input to is given by the labeled edge $W_1$. However the right input is not a labeled edge. To comput the right factor in the quadratic constraint, we therefore have to compute the output of the subgraph associated to the right edge, which is $8\cdot W_2$. Combining this we get
+$$
+W_1\cdot 8\cdot W_2 = W_3
+$$ 
+To compute the $4$th constraint, observe the associated gate is an addition gate.  To compute the associated constraint, we have to construct the associated subgraph. The subgraph consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get
+\begin{center}
+\digraph[scale=0.4]{G2H}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [label="I_1" /* comment*/ labeldistance="4", color=lightgray];
+    n1 -> n4 [ color=lightgray ]
+	n2 -> n6 [label="I_2", color=lightgray];
+	n2 -> n6 [ color=lightgray ] ;
+	n3 -> n9 /*[ color=lightgray ]*/ ;
+	n4 -> n9 [taillabel="W_1", labeldistance="2" /*, color=lightgray */];
+	n4 -> n13 [taillabel="W_1", labeldistance="4" , color=lightgray ];
+	n5 -> n10 [ color=lightgray ] ;
+	n6 -> n10 [headlabel="W_2", labeldistance="4" , color=lightgray ];
+	n6 -> n11 [taillabel="W_2", labeldistance="4" /*, color=lightgray */];
+	n7 -> n11 /*[ color=lightgray ]*/ ;
+	n8 -> n12 /*[ color=lightgray ]*/ ;
+	n9 -> n12 /*[ color=lightgray ]*/ ;
+	n10 -> n13 [ color=lightgray ] ; 
+	n11 -> n15 /*[ color=lightgray ]*/ ;
+	n12 -> n14 /*[ color=lightgray ]*/ ;	
+	n13 -> n14 [xlabel="W_3  "  /*, color=lightgray */];
+	n14 -> n15 /*[ color=lightgray ]*/ ;
+	n15 -> n16 [label="  I_3", labeldistance="2" /*, color=lightgray */];
+	n1 [shape=box, label="x", color=lightgray];
+	n2 [shape=box, label="y", color=lightgray];
+	n3 [shape=box, label="10" /*, color=lightgray */];
+	n4 [label="*", style=filled /*, color=lightgray */];
+	n5 [shape=box, label="8", color=lightgray];
+	n6 [label="*", style=filled /*, color=lightgray */];
+	n7 [shape=box, label="12" /*, color=lightgray */];
+	n8 [shape=box, label="1" /*, color=lightgray */];
+	n9 [label="*" /*, color=lightgray */];
+	n10 [label="*" , color=lightgray];
+	n11 [label="*" /*, color=lightgray */];	
+	n12 [label="+" /*, color=lightgray */];	
+	n13 [label="*", style=filled /*, color=lightgray */];
+	n14 [label="+" /*, color=lightgray */];
+	n15 [label="+", style=filled /*, color=lightgray */];
+	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
+}
+\end{center}
+Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in subcircuit. We get
+$$
+(1 + 10\cdot W_1 + W_3 + W_2\cdot 12)\cdot 1 = I_3
+$$
+Since there are no more gates with labeled outgoing adges, we are done deriving the constraints. Combining all constraints together, we get the associated R1CS as
+\begin{align*}
+ I_1 \cdot I_1 &= W_1\\
+ I_2 \cdot I_2 &= W_2\\
+ 8\cdot W_1\cdot W_2 &= W_3\\
+ (1 + 10\cdot W_1 + W_3 + 12\cdot W_2)\cdot 1 &= I_3
+\end{align*}
+which is equivalent to the R1CS we derived in example XXX. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same thing.
+\end{example}
+\section{Statement Compilers} It is possible to verify the the correct execution of arbitrary bounded computation in terms of rank-$1$ contraints systems and it is possible to encode such computations in terms of algebraic circuits. However writing actual computer programs as circuits and the associated verification in terms of rank-1 constraint systems is as least as troublesome as writing any other low level language like assembler code. 
+
+From a practical point of view it is therefore necessary to have some kind of compiler framework at hand, capable to transform some high level language into arithmetic circuits or rank-1 constraint systems. 
+
+TEXT about hardware description languages, attapts for RAM model compilers etct.
+
+As we have seen in XXX as well as XXX and XXX, both arithmetic circuits and rank-1 constraint systems have a modularity property by which it is possible to synthezise  complex circuits and constraint systems from simpler ones. A basic approach taken by circuit/R1CS compilers like (LIST) is therefore to provide a library of atomic and simple circuits and then define a way to combine them into arbitrary complex systems. 
+
+In this section we will therefore provide an introduction to atomic types like booleans and uInts and define the fundamental control flow primitives like the ternery operator or the bounded loop. We will also look at basic functionality primitives like elliptic curve cryptography and cryptographic hash functions. Primitives like those are often called \textbf{gadgets} in the literature. We also give a very shallow introduction to how compilers for complex circuit design might be constructed, also we only scratch the surface. In particular we focus on a kind of typed hardware description language style of compilers and will only look into more elaborate approaches like RAM-model compilers in future versions of the book.
+\subsection{Atomic Types} 
+% https://zeroknowledge.fm/172-2/ reference for all the languages
+Since both algebraic circuits and their associated rank-1 constraint systems are defined over finite fields, the natural underlying informational units are elements from those fields. In a sense field elements $x\in \F$ are for algebraic circuits what bits are for NORMAL computers. However most computer programs are optimized for machine words, which are arrays of bits. To compile computer programs into R1CS it is therefore often necessary to simulate atomic types like booleans and uInts inside algebraic circuits.
+\subsubsection{The Basefield type} 
+TECHNO:
+
+It should be noted that subtraction gates can be simulated in a two step process by first multiplying the subtrahend with $-1$ and then use an addition gate. Also division gates can be simulated for example by using Fermat's little theorem, which states that the multiplicative inverse of a field element $x\in\F$ is given by the power $x^{p-2}$ and powers are nothing but repeated multiplication. However simulating division this way might be inefficient.
+
+
+The most basic type of an algebraic circuit or its associated R1CS is the type $\F$ of the field that underlays the circuit. In a sense elements $x\in\F$ are for algebraic circuits what binary machine words are for computers. They are the fundamental computational units that everything else needs to be expressed in. 
+
+As this type is the basis for everything else, no circuit or constraint is needed to represent this type. The properties of this type are inherited from $\F$, that is we a notion of \textit{addition}, \textit{subtraction}, \textit{multiplication} and \textit{division}. 
+
+A commonn strategy from the perspective of circuit/r1cs compiler design, is that allocating variables of the base field type in expressions like
+\begin{lstlisting}
+input (public) x : F ; 
+input (private) y : F ; 
+const c : F = value ; 
+\end{lstlisting} 
+are compiled into input nodes of the circuit the compiler generates. Public and private inputes are compiled into source nodes decorated with input variables and constants are compiled into source nodes decorated with the allocated constant. In out notation, outgoing edges of public inputs are labeled with instance variables $I_j$ and outgoing edges of private inputs are labeled with witness variables $W_j$.
+\begin{example} To give an intuition of how a simple hardware description language like circuit compiler might work, lets consider the following VERILOG like pseudo-code:
+\begin{lstlisting}
+input (public) x : F ; 
+input (private) y : F ; 
+const c : F = 1 ; 
+
+begin
+	x * y == c ;
+end ;
+\end{lstlisting}
+A very simple compiler would then allocate two input nodes for the variables $x$ and $y$, a multiplication gate for the single multiplication gate and another node for the field constant $c=1$. The outgoing edges of $x$ are public edges and the outgoing edges of $y$ are private edges. If the compiler assumes the rule that all edges not explicitly declared as public are private, it could generate the following circuit: 
+\begin{center}
+\digraph[scale=0.4]{SIMPLEMUL}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n4 [xlabel="I_1"] ;
+	n2 -> n4 [xlabel="W_2"] ;
+	n4 -> n3 [xlabel="W_3=1"];
+	n1 [shape=box, label="x"];
+	n2 [shape=box, label="y"];
+	n3 [shape=box, label="1"];
+	n4 [label="*"];
+}
+\end{center} 
+And using the general process of deriving an associated rank-1 constraint system to this circuit, the compiler might produce:
+$$
+I_1 \cdot W_2 =1
+$$
+\end{example} 
+\paragraph{The Subtraction Constraints System}Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field subtraction, despite field division being a native single op in every field. Algebraic circuits therefore need another way to deal with subtraction. To see how this can be achieved, recall that subtraction is defined as addition with the multipilcative inverse in the field and the additive inverse can be computed efficiently by multiplication with the additive inverse of $-1$, which is a field conatant that only needs to be computed once during setup time. An associated circuit could the look like:
+\begin{center}
+\digraph[scale=0.4]{BTSUB}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n5 [xlabel="E_1    "];
+	n2 -> n4 [xlabel="E_2    "];
+	n3 -> n4 ;
+	n4 -> n5 ;
+	n5 -> n6 [xlabel="E_3    "];
+	n1 [shape=box, label="x"];
+	n2 [shape=box, label="y"];
+	n3 [shape=box, label="-1"];
+	n4 [label="*"];	
+	n5 [label="+"];
+	n6 [shape=box, label="SUB(x,y)"]
+}
+\end{center}
+Any valid assignment $\{E_1,E_2, E_3\}$ to this circuit enforces that $E_3$ is the difference $E_1- E_2$.
+
+Using the mothod from XXX, we transform this circuit in the following rank-1 constraint system:
+\begin{equation}
+\left(E_1 + (-1)\cdot E_2\right)\cdot 1 = E_3
+\end{equation}
+
+\paragraph{The Inversion Constraint System} Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field inversion, despite field inversion being a native single op in every field. Algebraic circuits therefore need another way to deal with field inversion. 
+
+If the underlying field is a prime field, one approach would be to use Fermat's little theorem XXX to compute the multiplicative inverse inside the circuit. To see how this works let $\F_p$ be the prime field. Then the multiplicative inverse of a field elemen $x\in\F$ with $x\neq 0$ is given by $x^{-1}= x^{p-2}$. We therefore need to compute $x^{p-2}$ in the circuit. For large prime numbers $p$ as they are used in cryptographically relevent prime fields, $p-2$ repeaded multiplication gates to compute $x\cdot\ldots \cdot x$ is infeasible and a double andcmultiply approach as in XXX is needed to compute $x^{p-2}$ in roughly $log_2(p)$ steps. This is possible but adds a lot of constraints to the circuit, ignoring that inversion is a field native operation.
+
+A more constraints friendly approach is to allow inversion outside of the circuit and then only enforce correctness of the inversion in the circuit. To understand what this means, observe that by defintion, a field element $y\in \F$ is the mutiplicative inverse of a field element $x\in \F$, if and only if $x\cdot y =1$ in $\F$. We can therefore define a circuit, that takes not only $x$ as input but another input $y$ and design it, such that a valid assignment enforces $y$ to be the multiplicative inverse of $x$. The following cicuit represents the equation $x\cdot y =1$ and therefore does the trick:
+\begin{center}
+\digraph[scale=0.4]{BTINV}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n3 [xlabel="E_1  "];
+	n2 -> n3 [xlabel="E_2  "];
+	n3 -> n4 [xlabel="E_3 =1  "];
+	n1 [shape=box, label="x"];
+	n2 [shape=box, label="x_INV"];
+	n3 [label="*"];	
+	n4 [shape=box, label="1"];	
+}
+\end{center}
+Any valid assignment $\{E_1,E_2\}$ to this circuit enforces that $E_2$ is the multiplicative inverse of $E_1$ and since there is no field element $E_2$, such that $0\cdot E_2=1$, it also handles the fact, that the mltiplicative inverse of $0$ is not defined in any field.
+
+Using the mothod from XXX, we transform this circuit in the following rank-1 constraint system, enforcing that input $y$ is the multiplicative :
+\begin{equation}
+E_1 \cdot E_2 = 1
+\end{equation}
+\paragraph{The Division Constraint System} Since algebraic circuits, by definition only contain addition and multiplication gates, there is no single gate for field division, despite field division being a native single op in every field. Algebraic circuits therefore need another way to deal with division.
+
+Since by definition, division is nothing but multiplication with the multiplicative inverse, we can define divsion in circuits using the inversion circuit and constraint system from the prvious paragraph XXX, executing the expensive inversion part outside of the circuit. We get 
+\begin{center}
+\digraph[scale=0.4]{BTDIV}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	n1 -> n6 [xlabel="E_1  "];
+	n2 -> n4 [xlabel="E_2  "];
+	n3 -> n6 [xlabel="E_3  "];
+	n3 -> n4 [xlabel="E_3  "];
+	n4 -> n5 [xlabel="E_4  "];
+	n6 -> n7 [xlabel="E_5  "];
+	n1 [shape=box, label="x"];
+	n2 [shape=box, label="y"];
+	n3 [shape=box, label="y_INV"];
+	n4 [label="*"];	
+	n5 [shape=box, label="1"];
+	n6 [label="*"];	
+	n7 [shape=box, label="DIV(x,y)"];	
+}
+\end{center} 
+Any valid assignment $\{E_1,E_2,E_3,E_4,E_5\}$ to this circuit enforces that $E_5$ is the output of the field divsion of $E_1$ by $E_2$. It handles the fact, that division by $0$ is not defined, by not having any valid assignment in case $E_2=0$.
+
+Using the mothod from XXX, we transform this circuit in the following rank-1 constraint system, enforcing that input $y$ is the multiplicative :
+\begin{align*}
+E_2 \cdot E_3 &= 1\\
+E_1 \cdot E_3 &= E_5
+\end{align*}
+\paragraph{Modularity} Implementing bounded computation in algebraic circuits it is often necessary to deal with complex expressions of the field type. As we have seen in XXX and XXX, both algebraic circuits and R1CS have a modularity property, which enables a compiler to derive algebraic circuit implementations for arbitrary circuits. 
+\begin{comment}
+\begin{example} Consider the prime field $\F_{13}$. In this example, we want to derive an algebraic circuit and associated R1CS that enforces a pair $(x,y)\in \F_{13}^2$ to be the sum of two tiny jubjub curve points $(x_1,y_1)$ and $(x_2,y_2)$. We assume that we already know that $(x_1,x_2)$ as well as $(x_2,y_2)$ are tiny jubjub points, that is we assume that they are the inputs to valid assignments of circuit XXX. 
+
+To synthezise the associated circuit, we start with the twisted Edwards addition law XXX of the tiny jubjub curve:
+$$
+(x,y) = \left(\frac{x_1y_2+y_1x_2}{1+8x_1y_1x_2y_2}, \frac{y_1y_2-3x_1x_2}{1-8x_1y_1x_2y_2} \right)
+$$ 
+To transformation this expression into a circuit we rewrite it in terms of the binary operators $ADD$, $SUB$, $MUL$, $DIV$ that represent the four fundamental field operations in $\F_{13}$. We get
+\begin{align*}
+(x,y) & = (\\
+  & \scriptstyle DIV(ADD(MUL(x_1,y_2),MUL(y_1,x_2)),
+         ADD(1,MUL(8,MUL(MUL(x_1,y_1),MUL(x_2,y_2))))), \\   
+  & \scriptstyle DIV(ADD(MUL(y_1,y_2),MUL(MUL(3,x_1),x_2)),
+         ADD(1,MUL(8,MUL(MUL(x_1,y_1),MUL(x_2,y_2)))))\\
+  & )
+\end{align*}
+We then proceed inductively choosing circuits for the outer most operators, which in this case are two division circuits. We don't expand their inputs into circuits yet, but only represent the inputs symbolically. For better readability we use the symbols of the next operator only, because otherwise the circuit becomes unreadable. We get:
+\begin{center}
+\digraph[scale=0.4]{TEA}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+	// x-value
+	nx1 -> nx6 [xlabel="Ex_1  "];
+	nx2 -> nx4 [xlabel="Ex_2  "];
+	nx3 -> nx6 [xlabel="Ex_3  "];
+	nx3 -> nx4 [xlabel="Ex_3  "];
+	nx4 -> nx5 [xlabel="Ex_4  "];
+	nx6 -> nx7 [xlabel="Ex_5  "];
+	nx1 [shape=box, label="ADD(.,.)"];
+	nx2 [shape=box, label="ADD(.,.)"];
+	nx3 [shape=box, label="ADD(.,.)_INV"];
+	nx4 [label="*"];	
+	nx5 [shape=box, label="1"];
+	nx6 [label="*"];	
+	nx7 [shape=box, label="DIV(ADD(.,.),ADD(.,.))"];
+	// y-value
+	ny1 -> ny6 [xlabel="Ey_1  "];
+	ny2 -> ny4 [xlabel="Ey_2  "];
+	ny3 -> ny6 [xlabel="Ey_3  "];
+	ny3 -> ny4 [xlabel="Ey_3  "];
+	ny4 -> ny5 [xlabel="Ey_4  "];
+	ny6 -> ny7 [xlabel="Ey_5  "];
+	ny1 [shape=box, label="ADD(.,.)"];
+	ny2 [shape=box, label="ADD(.,.)"];
+	ny3 [shape=box, label="ADD(.,.)_INV"];
+	ny4 [label="*"];	
+	ny5 [shape=box, label="1"];
+	ny6 [label="*"];	
+	ny7 [shape=box, label="DIV(ADD(.,.),ADD(.,.))"];	
+}
+\end{center}
+
+\end{example}
+\end{comment}
+
+\subsubsection{The Boolean Type} 
+% implementations can be found here: https://github.com/filecoin-project/zexe/tree/master/snark-gadgets/src/bits
+
+It is often necessary to assume that a statement contains expressions of boolean variables. However by definition the alphabet of a statement is a finite field, which is usually the scalar field of a large prime order cyclic group. So developers need a way to simulate boolean algebra inside finite fields.
+
+The most common way to do this in algebraic circuits and their associated rank-1 constraint systems, is to interpret the additive and multiplicate neutral element $\{0,1\}\subset \F$ as boolean values, such that $0$ represents $false$ and $1$ represents $true$. Boolean functions like $and$, $or$, $xor$ and so on are the expressable in terms of computations inside $\F$. 
+
+Representing booleans this way is convinient because the elements $0$ and $1$ are defined in any field. The representation is therefore independent of the actual field in consideration. 
+
+To fix Boolean algebra notation in what follows, we often write $0$ to represent $false$ and $1$ to represent $true$. We also write $\wedge$ to represent the boolean AND as well as $\vee$ to represent the boolean OR operator. The boolean NOT operator is written as $\lnot$. 
+\paragraph{The Boolean Constraint System}
+If boolean variables appear as part of a statement, a constraint is required to actually enforces the variable to be either $1$ or $0$. In fact many of the following constraints for boolean functions, are only correct under the assumption that their input variables are boolean constraint. Not constraining boolean variables is a common issue in circuit design.
+
+In order to constrain an arbitrary field element $x\in \F$ to be $1$ or $0$, the key observatio is that the equation $x \cdot (1-x) =0$ has only two solutions $0$ and $1$.
+\begin{center}
+\digraph[scale=0.4]{BOOLCONS}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  nCONS1 -> nCONS4 [xlabel="E_1"] ;
+  nCONS1 -> nCONS6 [xlabel="E_1  "] ;
+  nCONS2 -> nCONS5 ;
+  nCONS3 -> nCONS4 ;
+  nCONS4 -> nCONS5 ;
+  nCONS5 -> nCONS6 ;
+  nCONS6 -> nCONS7 [xlabel="E_2  "] ;
+  nCONS1 [shape=box, label="x"] ;
+  nCONS2 [shape=box, label="1"] ;
+  nCONS3 [shape=box, label="-1"] ;
+  nCONS4 [label="*"] ;
+  nCONS5 [label="+"] ;
+  nCONS6 [label="*"] ;
+  nCONS7 [shape=box, label="0"] ;
+}
+\end{center}
+To enfore a field element to be boolean constraint the following R1CS is therefore enough
+\begin{equation}
+W_1 \cdot (1-W_1) =0
+\end{equation}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{BOOLMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="BOOL"] ;
+  n2 [shape=none, label="  "] ;
+  n2 -> n1 ;
+}
+\end{center}
+indicating that the boolean constraint circuit takes one input, has no outputs and constraints the input to be either $0$ or $1$.
+\paragraph{The AND operator constraint system} Given two field elements $x$ and $y$ from $\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the logical \textit{and} operator $AND(x,y)$ as well as its associated R1CS, that enforces $x$, $y$, $AND(x,y)$ to satisfy the constraint system if and only if $x\; \&\& \; y =AND(x,y)$ holds true. 
+
+Assuming that three variables $x$, $y$ and $z$ are boolean constraint, the equation $x\cdot y = z$ is satisfied in $\F$ if and only if the equation $x\text{ AND }y = z$ is satisfied in boolean algebra. The logical operator AND is therefore implementable in $\F$ as multiplication of its arguments. 
+
+The following circuit computes the AND operator in $\F$, assuming all inputs are restricted to be $0$ or $1$:
+\begin{center}
+\digraph[scale=0.4]{BOOLAND}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  nAND1 -> nAND3 [xlabel="E_1  "] ;
+  nAND2 -> nAND3 [xlabel="E_2"] ;
+  nAND3 -> nAND4 [xlabel="E_3  "] ;
+
+  nAND1 [shape=box, label="x"] ;
+  nAND2 [shape=box, label="y"] ;
+  nAND3 [label="*"] ;
+  nAND4 [shape=box, label="AnANDD(x,y)"] ;
+}
+\end{center}
+The associated rank-1 constraint system can be deduced from the general process XXX and consists of the following constraint
+\begin{equation}
+ W_1 \cdot W_2 = W_3
+\end{equation}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{ANDMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="AND"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n1 -> n4 ;
+}
+\end{center}
+indicating that the AND circuit takes two input, has one outputs and constraints the output to be the logical AND of the inputs, providing the inputs are boolean constraint.
+\paragraph{The OR operator constraint system} Given two field elements $x$ and $y$ from $\F$ that are constrained to represent boolean variables, we want to find a circuit that computes the logical \textit{or} operator $OR(x,y)$ as well as its associated R1CS, that enforces $x$, $y$, $OR(x,y)$ to satisfy the constraint system if and only if $x\; || \; y =OR(x,y)$ holds true. 
+
+Assuming that three variables $x$, $y$ and $z$ are boolean constraint, the equation $1-(1-x)\cdot(1-y) = z$ is satisfied in $\F$ if and only if the equation $x\text{ OR }y = z$ is satisfied in boolean algebra. The logical operator OR is therefore implementable in $\F$ by the following circuit, assuming all inputs are restricted to be $0$ or $1$:
+\begin{center}
+\digraph[scale=0.4]{BOOLOR}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+   nOR1 -> nOR5 [xlabel="E_1  "] ;
+  nOR2 -> nOR7 [xlabel="E_2  "] ;
+  nOR3 -> {nOR5, nOR7, nOR10} ;
+  nOR4 -> {nOR6, nOR8, nOR11} ;
+  nOR5 -> nOR6; 
+  nOR6 -> nOR9 ;
+  nOR7 -> nOR8 ;
+  nOR8 -> nOR9 ;
+  nOR9 -> nOR10 [xlabel="E_3  "] ;
+  nOR10 -> nOR11 ;
+  nOR11 -> nOR12 [xlabel="E_4  "] ;
+
+  nOR1 [shape=box, label="x"] ;
+  nOR2 [shape=box, label="y"] ;
+  nOR3 [shape=box, label="-1"] ;
+  nOR4 [shape=box, label="1"] ;
+  nOR5 [label="*"] ;
+  nOR6 [label="+"] ;
+  nOR7 [label="*"] ;
+  nOR8 [label="+"] ;
+  nOR9 [label="*"] ;
+  nOR10 [label="*"] ;
+  nOR11 [label="+"] ;
+  nOR12 [shape=box, label="OR(x,y)"] ;
+}
+\end{center}
+The associated rank-1 constraint system can be deduced from the general process XXX and consists of the following constrainst
+\begin{align*}
+ (1- W_1) \cdot (1-W_2) & = W_3\\
+  (1-W_3)\cdot 1 &= W_4
+\end{align*}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{ORMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="OR"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n1 -> n4 ;
+}
+\end{center}
+indicating that the OR circuit takes two input, has one outputs and constraints the output to be the logical OR of the inputs, providing the inputs are boolean constraint.
+\begin{exercise} Let $\F$ be a finite field and let $b_1$ as well as $b_2$ two boolean constraint variables from $\F$. Show that the equation 
+$OR(b_1,b_2) = b_1 + b_2 - b_1\cdot b_2$ holds true.
+
+Use this equation to derive an algebraic circuit with ingoing variables $b_1$ and $b_2$ and outgoing variable $OR(b_1,b_2)$, such that $b_1$ and $b_2$ are boolean constraint and the circuit has a valid assignment, if and only if $OR(b_1,b_2) = b_1 \vee b_2$.  
+
+Use the technique from XXX to transform this circuit into a rank-1 constraint system and find its full solution set. 
+\end{exercise}
+\paragraph{The NOT operator constraint system} Given a field element $x$ from $\F$ that is constrained to represent a boolean variable, we want to find a circuit that computes the logical \textit{NOT} operator $NOT(x)$ as well as its associated R1CS, that enforces $x$, $NOT(x)$ to satisfy the constraint system if and only if $\lnot x = NOT(x)$ holds true. 
+
+Assuming that two variables $x$ and $y$ are boolean constraint, the equation $(1-x) = y$ is satisfied in $\F$ if and only if the equation $\lnot x = y$ is satisfied in boolean algebra. The logical operator NOT is therefore implementable in $\F$ by the following circuit, assuming all inputs are restricted to be $0$ or $1$:
+\begin{center}
+\digraph[scale=0.4]{BOOLNOT}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  nNOT1 -> nNOT4 [xlabel="E_1  "] ;
+  nNOT2 -> nNOT4 ;
+  nNOT3 -> nNOT5 ;
+  nNOT4 -> nNOT5 ;
+  nNOT5 -> nNOT6 [xlabel="E_2  "] ;
+
+  nNOT1 [shape=box, label="x"] ;
+  nNOT2 [shape=box, label="-1"] ;
+  nNOT3 [shape=box, label="1"] ;
+  nNOT4 [label="*"] ;
+  nNOT5 [label="+"] ;
+  nNOT6 [shape=box, label="nNOT(x)"] ;
+}
+\end{center}
+The associated rank-1 constraint system can be deduced from the general process XXX and consists of the following constrainst
+\begin{align*}
+  (1-W_1)\cdot 1 &= W_2
+\end{align*}
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{NOTMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  n1 [shape=box, label="NOT"] ;
+  n2 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n1 -> n4 ;
+}
+\end{center}
+indicating that the NOT circuit takes one input, has one outputs and constraints the output to be the logical NOT of the input, providing the input is boolean constraint.
+\begin{exercise}
+Let $\F$ be a finite field. Derive the algebraic circuit and associated rank-1 constraint system for the following operators: OR, XOR, NAND, EQU.
+\end{exercise}
+\paragraph{Modularity} Implementing bounded computation in algebraic circuits it is often necessary to deal with complex boolean expressions. As we have seen in XXX and XXX, both algebraic circuits and R1CS have a modularity property, which enables a compiler to derive algebraic circuit implementations for arbitrary boolean circuits. 
+
+This is quite remarkable property, because it shows that the expressiveness of algebraic circuits and therefore rank-1 constraint systems is as general as the expressiveness of boolen circuits.  
+\begin{example} To give an intuitive example of how a very simple compiler might construct complex boolean circuit representations in algebraic circuits and how to derive associated rank-1 constraint systems, lets look at the following VERILOG like pseudo code:
+\begin{lstlisting}
+module boolean_circuit (
+	input (public) b_1 : BOOL ; 
+	input (public) b_2 : BOOL ;
+	input (public) b_3 : BOOL ; 
+	input (public) b_4 : BOOL ; 
+	output (public) b_5 : BOOL ; 
+
+	begin
+		b_5 <= (b_1 or b_2) and (b_3 and not b_4 ) ;
+	end ;
+)
+\end{lstlisting}
+The code describes a circuit, that takes four public inputs $b_1$, $b_2$, $b_3$ and $b_4$ of boolean type and computes a public output $b_5$, such that the following boolean expression holds true:
+$$
+\left( b_1 \vee b_2 \right) \wedge (b_3 \wedge \lnot b_4) = b_5
+$$
+In order to understand a possible way to transform this hardware description language style expression into a circuit, we first rewrite the actual computation of the boolean expression into operator notation. We get
+$$
+b_5 \leftarrow AND(OR(b_1,b_2),AND(b_3,NOT(b_4))
+$$
+Using the boolean operator notion, makes it conceptually more clear to derive the circuit. To see how the circuit is computed we start at the outer most operator and  write down its defining circuit as well as it associated R1CS using placeholder names for its arguments. We then inductively substitute every placeholder by its defining circuit and add the associated constraint, to the constrain system. We get
+\begin{center}
+\digraph[scale=0.4]{BOOLCOMPLEX}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+
+  subgraph clusterORb1b2 {
+    nOR1 -> nOR5 [xlabel="E_1  "] ;
+    nOR2 -> nOR7 [xlabel="E_2  "] ;
+    nOR3 -> {nOR5, nOR7, nOR10} ;
+    nOR4 -> {nOR6, nOR8, nOR11} ;
+    nOR5 -> nOR6; 
+    nOR6 -> nOR9 ;
+    nOR7 -> nOR8 ;
+    nOR8 -> nOR9 ;
+    nOR9 -> nOR10 [xlabel="E_3  "] ;
+    nOR10 -> nOR11 ;
+    nOR11 -> nOR12 [xlabel="E_4  "] ;
+    nOR1 [shape=box, label="b_1"] ;
+    nOR2 [shape=box, label="b_2"] ;
+    nOR3 [shape=box, label="-1"] ;
+    nOR4 [shape=box, label="1"] ;
+    nOR5 [label="*"] ;
+    nOR6 [label="+"] ;
+    nOR7 [label="*"] ;
+    nOR8 [label="+"] ;
+    nOR9 [label="*"] ;
+    nOR10 [label="*"] ;
+    nOR11 [label="+"] ;
+    nOR12 [shape=box, label="OR( b1 , b2 )", color=lightgray] ;
+    label = "OR( b1 , b2 )";
+    color=lightgray;
+    label="Circuit_2 -- OR-Circuit"
+  }
+
+  subgraph clusterANDb3NOTb4 {
+    nAND21 -> nAND23 [xlabel="E_1  "] ;
+    nAND22 -> nAND23 [xlabel="E_2"] ;
+    nAND23 -> nAND24 [xlabel="E_3  "] ;
+
+    nAND21 [shape=box, label="b3"] ;
+    nAND22 [shape=box, label="NOT( b4 )", color=lightgray ] ;
+    nAND23 [label="*"] ;
+    nAND24 [shape=box, label="AND( b3 , NOT( b4 ) )", color=lightgray] ;
+    color=lightgray;
+    label="Circuit_3 -- AND-Circuit"
+  }
+
+  subgraph clusterNOTb4 {
+    nNOT1 -> nNOT4 [xlabel="E_1  "] ;
+    nNOT2 -> nNOT4 ;
+    nNOT3 -> nNOT5 ;
+    nNOT4 -> nNOT5 ;
+    nNOT5 -> nNOT6 [xlabel="E_2  "] ;
+
+    nNOT1 [shape=box, label="b4"] ;
+    nNOT2 [shape=box, label="-1"] ;
+    nNOT3 [shape=box, label="1"] ;
+    nNOT4 [label="*"] ;
+    nNOT5 [label="+"] ;
+    nNOT6 [shape=box, label="NOT( b4 )", color=lightgray ] ;
+    color=lightgray;
+    label="Circuit_4 -- NOT-Circuit"
+  }
+
+  subgraph clusterAND1 {
+    nAND1_1 -> nAND1_3 [headlabel="E_1    ."] ;
+    nAND1_2 -> nAND1_3 [xlabel="E_2  "] ;
+    nAND1_3 -> nAND1_4 [xlabel="E_3  "] ;
+    nAND1_1 [shape=box, label="OR( b1 , b2 )", color=lightgray ] ;
+    nAND1_2 [shape=box, label="AND( b3 , NOT( b4 ) )", color=lightgray] ;
+    nAND1_3 [label="*"] ;
+    nAND1_4 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"] ;
+    color=lightgray;
+    label="Circuit_1 -- AND-Circuit"
+  }
+
+  // outer circuit
+    nNOT6 -> nAND22 [style=dashed, color=grey] ;
+    nOR12 -> nAND1_1 [style=dashed, color=grey] ;
+    nAND24 -> nAND1_2 [style=dashed, color=grey] ;
+}
+\end{center}
+For better readability, this circuit does not boolean constraint the four input variables $b_1$, $b_2$, $b_3$ and $b_4$. After adding the boolean constraints, relabeling the edges and optimizing the constants, using graphviz, the following circuit represents the boolean expression:
+\begin{center}
+\digraph[scale=0.5]{BOOLCOMPLEXOPTI}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+
+  one -> nCONSb15 ;
+  minusone -> nCONSb14 ;
+  nCONSb14 -> nCONSb15 ;
+  nCONSb15 -> nCONSb16 ;
+  nCONSb16 -> zero [taillabel="  W_1"] ;
+  nCONSb14 [label="*"] ;
+  nCONSb15 [label="+"] ;
+  nCONSb16 [label="*"] ;
+
+  one -> nCONSb25 ;
+  minusone -> nCONSb24 ;
+  nCONSb24 -> nCONSb25 ;
+  nCONSb25 -> nCONSb26 ;
+  nCONSb26 -> zero [taillabel="W_2 "] ;
+  nCONSb24 [label="*"] ;
+  nCONSb25 [label="+"] ;
+  nCONSb26 [label="*"] ;
+
+  one -> nCONSb35 ;
+  minusone -> nCONSb34 ;
+  nCONSb34 -> nCONSb35 ;
+  nCONSb35 -> nCONSb36 ;
+  nCONSb36 -> zero [xlabel="W_3"] ;
+  nCONSb34 [label="*"] ;
+  nCONSb35 [label="+"] ;
+  nCONSb36 [label="*"] ;
+
+  one -> nCONSb45 ;
+  minusone -> nCONSb44 ;
+  nCONSb44 -> nCONSb45 ;
+  nCONSb45 -> nCONSb46 ;
+  nCONSb46 -> zero [xlabel="W_4"] ;
+  nCONSb44 [label="*"] ;
+  nCONSb45 [label="+"] ;
+  nCONSb46 [label="*"] ;
+
+  minusone -> {nOR5, nOR7, nOR10} ;
+  one -> {nOR6, nOR8, nOR11} ;
+  nOR5 -> nOR6; 
+  nOR6 -> nOR9 ;
+  nOR7 -> nOR8 ;
+  nOR8 -> nOR9 ;
+  nOR9 -> nOR10 [headlabel="W_5  "] ;
+  nOR10 -> nOR11 ;
+  nOR5 [label="*"] ;
+  nOR6 [label="+"] ;
+  nOR7 [label="*"] ;
+  nOR8 [label="+"] ;
+  nOR9 [label="*"] ;
+  nOR10 [label="*"] ;
+  nOR11 [label="+"] ;
+
+  nAND23 [label="*"] ;
+  minusone -> nNOT4 ;
+  one -> nNOT5 ;
+  nNOT4 -> nNOT5 ;
+  nNOT4 [label="*"] ;
+  nNOT5 [label="+"] ;
+
+  nOR11 -> nAND1_3;
+  nAND23 -> nAND1_3 [xlabel="W_6  "] ;
+  nAND1_3 -> nAND1_4 [xlabel="I_5  "] ;
+  nAND1_3 [label="*"] ;
+  nAND1_4 [shape=box, label="AND( OR( b1 , b2 ) , AND( b3 , NOT( b4 ) )"] ;
+
+  // outer circuit
+    nNOT5 -> nAND23 ;
+    b1 -> {nOR5, nCONSb14, nCONSb16} [taillabel="I1 "] ;
+    b2 -> {nOR7, nCONSb24, nCONSb26} [taillabel=" I2"] ;
+    b3 -> {nAND23, nCONSb34, nCONSb36} [taillabel="I3 "] ;
+    b4 -> {nNOT4, nCONSb44, nCONSb46} [taillabel="I4"] ;
+    b1 [shape=box, label="b1"] ;
+    b2 [shape=box, label="b2"] ;
+    b3 [shape=box, label="b3"] ;
+    b4 [shape=box, label="b4"] ;
+    minusone [shape=box, label="-1"] ;
+    one [shape=box, label="1"] ;
+    zero [shape=box, label="0"] ;
+}
+\end{center}
+Valid assignments to this circuits consists of public inputs $I_1$, $I_2$, $I_3$, $I_4$ and $I_5$ from $\F_{13}$, such that the equation $I_5 = \left( I_1 \vee I_2 \right) \wedge (I_3 \wedge \lnot I_4)$ has to hold true. In addition a valid assignment also has to contain private inputs $W_1$, $W_2$, $W_3$, $W_4$, $W_4$ and $W_6$, which can be derived from circuit execution. The inputs $W_1$, $\ldots$, $W_4$ ensure that the first four public inputs are either $0$ or $1$ but not any other field element and the others enforce the boolean expression.  
+
+To compute the associated R1CS we can use the general method from XXX and look at every labeled outgoing edge not coming from a source node. Declaring the edges coming from input nodes as well as the edge going to the single output node as public and every other edge as private input. In this case we get:
+\begin{align*}
+W_1:\;\; & I_1 \cdot (1- I_1) = 0  & \text{boolean constraints}\\
+W_2:\;\; & I_2 \cdot (1- I_2) = 0 \\
+W_3:\;\; & I_3 \cdot (1- I_3) = 0 \\
+W_4:\;\; & I_4 \cdot (1- I_4) = 0 \\
+W_5:\;\; & (1- I_1)\cdot (1-I_2) = W_5 & \text{OR-operator constraint}\\
+W_6:\;\; & I_3 \cdot (1-I_4) = W_6 & \text{AND(.,NOT(.))-operator constraints}\\
+I_5:\;\; & (1-W_5) \cdot W_6 = I_5 & \text{AND-operator constraints}\\
+\end{align*}
+The reason why this R1CS only contains a single contraint for the OR-operator, while the general definition XXX requires two, is that the second constraint in XXX only appears since the final addition gate is connected to a sink node. In this example however the addition gate is sub-circuit and internal addition gates do not lead to new constraints. The same holds true for the negation circuit. 
+\end{example}
+\subsubsection{The Unsigned Integer Type} In computer science, an unsigned integer of size $N$, where $N$ is usually a power of two, is an atomic type that represents counting numbers in the range $0\ldots 2^N-1$ together with addition, subtraction and multiplication laws that are somewhat similar to the (semi) ring laws of natural numbers except for overflow and underflow effects. The associated type is usually written as $uN$ or $uIntN$.
+
+On compuer hardware elements of the unsigned integer type $uIntN$ are commonly represented as $N$-tuples of bits, that is if $x : uIntN$ is of $uIntN$ type it is represented as
+$$
+x = (b_0,b_1,\ldots, b_{N-1})
+$$
+For suteable $N$ like $N=32$ or $N=64$, addition, subtraction and multiplication is realized in hardware by appropriate digital circuits like the binary adder oder the binary multiplier. 
+
+To understand how unsigned integer types can be represented as algebraic circuits, basically two different approaches can be taken.
+
+To understand the first approach, recall that addition and multiplication in a prime field $\F_p$ is equal to addition and multiplication of integers, as long as the sum or the product does not exceed the modulus $p$. It is therefore possible to represent the $uIntN$ type inside the basefield type, whenever $N$ is small enough. However care has to be taken to never overflow the modulus. It is also important to make sure that in subtraction the subtrahend is never larger then the minuent.
+
+An advantage of this approach is that it is very efficient to represent elements of the uIntN type in this way, as they can be storred in a single element of the base field type. The diadvantage is that care must be taken to constrain the elements and to enforce that no overflow or underflow situations occure.
+
+The second approach in conceptually cleaner but requires more space and constraints for addition and multiplication. Much like machines represents uInt's as binary tuples, this approach represents elements of uIntN types as $N$-typles $(b_0,b_1,\ldots, b_{N-1})$ of elements from the base field $\F$, such that each $b_j$ itself is of boolean type. All operations, like addition, multiplication, bit-shifts and so on, are then realized by addoptations of the digital circuits that implement these operations in hardware.
+
+An advantage of this representation is that the number $N$ is independend of the modulus of the underlying prime field and the representation moreover works over arbitrary fields. It can therefore abstract over the field.
+
+
+In what follows we will describe the second approach in more detail.
+
+
+\paragraph{The uIntN Constraint System} In the approach we are taking in this section, elements of uIntN type are represented by $N$-tuples of field elements that are themself binary constraint. Declaring an element of uIntN type therefore means to declare $N$ elements of boolean type. We write this as 
+\begin{center}
+\digraph[scale=0.6]{UINTN}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  n1 [shape=box, label="UINT_N"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n5 [shape=none, label="  "] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n4 -> n1 [style=dashed, color=lightgrey] ;
+  n5 -> n1 ;
+}
+\end{center}
+To enfore an $N$-tuple of field elements $(b_0,\ldots,b_{N_1})$ to represent an element of UintN type we therefore need $N$ constraints 
+\begin{align*}
+E_0 \cdot (1-E_0) & = 0\\
+E_1 \cdot (1-E_1) & = 0\\
+\cdots &\\
+E_{N-1} \cdot (1-E_{N-1}) & = 0\\
+\end{align*}
+\begin{example}
+Consider the Uint4 type over the prime field $\F_{17}$. Since $2^4=16$, Uint4 can represent the numbers $0,\ldots, 15$ and it would be possible to interpret them as elements in $\F_{17}$. However addition 
+\end{example} 
+\paragraph{UintN Addition} Since we representat the unsigned integer type as an $N$-tuple of field elements that are boolean constraint, we can define addition in the same way as hardeare does. The way this is usually done is by first defining the \textit{full adder} circuit and then combining $N$ of this these circuits into a circuit that add to elements from the UintN type.
+
+To understand the algebraic circuit for the $1$-bit full, recall that we already defined circuits for boolean algebra in the previous section. Abstracting over those circuits, a full adder circuit can then be defined as:
+\begin{center}
+\digraph[scale=0.4]{ONEBFULLADD}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  nodesep= 2.0;
+  
+  subgraph clusterin {
+    nADD01 [shape=box, label="bx_j"] ;
+    nADD02 [shape=box, label="by_j"] ;
+    nADD03 [shape=box, label="c_(j-1)"] ;
+    color = white ;
+  }
+  
+  subgraph clustermid {
+    nADD04 [shape=box, label="XOR"] ;
+    nADD05 [shape=box, label="XOR"] ;
+    nADD06 [shape=box, label="AND"] ;
+    nADD07 [shape=box, label="AND"] ;
+    nADD08 [shape=box, label="OR"] ;
+    
+    nADD04 -> {nADD05, nADD06} ;
+    nADD06 -> nADD08 ;
+    nADD07 -> nADD08 ;
+    
+    color = white ;
+  }
+  
+  subgraph clusterout {
+    nADD09 [shape=box, label="bz_j"] ;
+    nADD010 [shape=box, label="c_j"] ;
+    color = white ;
+  }
+  
+  nADD01 -> {nADD04, nADD07} ;
+  nADD02 -> {nADD04, nADD07} ;
+  nADD03 -> {nADD05, nADD06} ;
+  nADD05 -> nADD09 ;
+  nADD08 -> nADD010 ; 
+}
+\end{center}
+In this circuit the output $bz_j$ is the result of the binary input $bx_j$ and $by_j$, where $bx_j$ is the $j$-th bit of the binary representation of the first summand and $by_j$ is the $j$-th bit of the binary representation of the second summand. The output $c_j$ is the carry bit of the addition and the input $c_{j-1}$ is is the carry bit which is supposed to be either $0$ for $j=0$ or the carry bit output of the previous full adder circiut. Abstacting the $1$-bit adder, we write:
+\begin{center}
+\digraph[scale=0.6]{BADDMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  n1 [shape=box, label="FULLADD"] ;
+  n2 [shape=none, label="bx_j"] ;
+  n3 [shape=none, label="by_j"] ;
+  n4 [shape=none, label="c_(j-1)"] ;
+  n5 [shape=none, label="bz_j"] ;
+  n6 [shape=none, label="c_j"] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n4 -> n1 ;
+  n1 -> {n5, n6} ;
+}
+\end{center}
+With a circuit definition of the $1$-bit full adder at hand, addition of two uIntN type elements can then be defined as
+\begin{center}
+\digraph[scale=0.4]{UINTADD}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  
+  subgraph clusterin0 {
+    nADD01 [shape=box, label="FULLADD"] ;
+    nADD02 [shape=none, label="bx_0"] ;
+    nADD03 [shape=none, label="by_0"] ;
+    nADD05 [shape=none, label="bz_0"] ;
+    nADD02 -> nADD01 ;
+    nADD03 -> nADD01 ;
+    nADD01 -> nADD05 ;
+    color = white ;
+  }
+  
+  subgraph clusterin1 {
+    nADD11 [shape=box, label="FULLADD"] ;
+    nADD12 [shape=none, label="bx_1"] ;
+    nADD13 [shape=none, label="by_1"] ;
+    //nADD14 [shape=none, label="c_0"] ;
+    nADD15 [shape=none, label="bz_1"] ;
+    nADD12 -> nADD11 ;
+    nADD13 -> nADD11 ;
+    //nADD14 -> nADD11 ;
+    nADD11 -> nADD15 ;
+    color = white ;
+  }
+
+  subgraph clusterin2 {
+    nADD21 [shape=box, label="FULLADD", color=lightgray] ;
+    nADD22 [shape=none, label="bx_j", color=lightgray] ;
+    nADD23 [shape=none, label="by_j", color=lightgray] ;
+    //nADD24 [shape=none, label="c_(j-1)", color=lightgray] ;
+    nADD25 [shape=none, label="bz_j", color=lightgray] ;
+    nADD22 -> nADD21 [color=lightgray];
+    nADD23 -> nADD21 [color=lightgray];
+    //nADD24 -> nADD21 ;
+    nADD21 -> nADD25 [color=lightgray] ;
+    color = white ;
+  }
+  
+  subgraph clusterinN {
+    nADDN1 [shape=box, label="FULLADD"] ;
+    nADDN2 [shape=none, label="bx_(N-1)"] ;
+    nADDN3 [shape=none, label="by_(N-1)"] ;
+    //nADDN4 [shape=none, label="c_(N-2)"] ;
+    nADDN5 [shape=none, label="bz_(N-1)"] ;
+    nADDN2 -> nADDN1 ;
+    nADDN3 -> nADDN1 ;
+    //nADDN4 -> nADDN1 ;
+    nADDN1 -> nADDN5
+    color = white ;
+  }
+  
+  nADD04 [shape=none, label="0"] ;
+  nADD04 -> nADD01 ;
+  nADD01 -> nADD11 ;
+  nADD11 -> nADD21 [style=dashed, color=lightgrey] ;
+  nADD21 -> nADDN1  [style=dashed, color=lightgrey] ;
+  nADDN6 [shape=none, label="c_out"] ;
+  nADDN1 -> nADDN6 ;
+  
+}
+\end{center}
+Depending on how the output carry bit is handled we get different definition of addition in this type. One way would be to enforce it to be zero. This way addition in the circuit is only possible if the sum does not exceed $2^N-1$. On the other hand if the carry bit is unconstraint, then the resulting addition is equivalent to modulo $2^N$ arithmetics. Good  compilers should therefore always describe explicitly how exactly their implementation of the uintN type behaves, such that users don't build their system on false assumptions. 
+
+The associated constraint system consists of XXX constraints, including the boolean constraints of the representing bits
+\paragraph{The Boolean Operators} In implementations it is often necesarry to execute boolean operations like $ans$, $or$, or $xor$ on elements of the uInt type. Fortunately this easily done by simply applying those operatons to every bit seperately as shown in XXX.  
+\begin{exercise}
+Let $k$ be a counting number with $k<N$. Define circuits and associated R1CS for the left and righr bishift operators $x<<k$ as well as $x>>k$ for the uint type. 
+\end{exercise}
+\begin{exercise}
+Define the multiplication circuits for the uintN type.
+\end{exercise}
+\begin{exercise} Let $N=4$ be fixed and consider the finite field $\F_{13}$ from example XXX. The following pseudo code describes a high level circuit description in a VERILOG like style. Transform the pseudo code into a circuit and then derive the associated R1CS. 
+\begin{lstlisting}
+module mask_merge(N) (
+	input (public) a : Uint_N ;
+	input (public) b : Uint_N ;
+	input (public) mask : Uint_N ;
+	output (public) r : Uint_N ;
+
+	begin
+		r == a xor ((a xor b) & mask) ;
+	end ;
+)
+\end{lstlisting}
+Let $L_{mask\_merge}$ be the language defined by the R1CS of the circuit. Provide a knowledge proof in $L_{mask\_merge}$ for the instance $I=(I_a, I_b, I_{mask}, I_r) = (14, 5, 10, 4)$. Also show that there is no knowledge proof in $L_{mask\_merge}$ for the instance $(11, 6, 10, 7)$.
+\end{exercise}
+\subsection{Control Flow}
+\subsubsection{The Conditional Assignment} Implementing complex control flow in circuits, it is often necessary to have a way for conditional assignment of values or computational output to variables.
+
+One way to realize this in more common programming languages is by the conditional ternary operator $?:$, that branches the control flow of a program according to some condition and then assigns the output of the computational branch to some variable. A common way to write this is as
+\begin{lstlisting}
+	variable = condition ? value_if_true : value_if_false  
+\end{lstlisting}
+where \textsc{condition} is a boolean expression and \textsc{value\_if\_true} as well as \textsc{value\_if\_false} are expressions that evaluate to the same type as \textsc{variable}.
+
+In programming languages like Rust another way to write the conditional assignment operator that is more familiar to many programmers is given by 
+\begin{lstlisting}
+	variable = if condition { value_if_true } else { value_if_false } 
+\end{lstlisting}
+One particular property of this operator is that the expression \textsc{value\_if\_true} is only evaluated if \textsc{condition} evaluates to true and the expression \textsc{value\_if\_false} is only evaluated if \textsc{condition} evaluates to false. In fact computer programs would soon become very inefficient if the operator would evaluate both expressions regardless of the value of \textsc{condition}.
+
+If drop the requirement that only one branch of the conditional operator is executed, we can implement it in a simple way as a circuit. To see that observe that if $b$, $c$ and $d$ are values from a finite field, such that $b$ is boolean constraint (XXX), we can use the following equation to enforce a field element $x$ to be the result of the conditional assignment operator: 
+\begin{equation}
+x = b\cdot c + (1-b)\cdot d
+\end{equation}
+Flattening this equation into an algebraic circuit gives
+\begin{center}
+\digraph[scale=0.4]{CONDASSIGN}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+
+  n1 [shape=box, label="b"]
+  n2 [shape=box, label="c"]
+  n3 [shape=box, label="d"]
+  n4 [shape=box, label="b ? c : d"]
+  n5 [shape=box, label="-1"]
+  n6 [shape=box, label="1"]
+  n7 [shape=box, label="*"]
+  n8 [shape=box, label="*"]
+  n9 [shape=box, label="*"]
+  n10 [shape=box, label="+"]
+  n11 [shape=box, label="+"]
+ 
+  n1 -> n7 [taillabel= "E_1  "] ;
+  n1 -> n8 [taillabel= "E_1 "] ;
+  n2 -> n7 [xlabel= "E_2"] ;
+  n3 -> n9 [xlabel= "E_4"] ;
+  n5 -> n8 ;
+  n6 -> n10 ;
+  n7 -> n11 [xlabel= "E_3  "] ;
+  n8 -> n10 ;
+  n9 -> n11 [xlabel= "E_5"] ;
+  n10 -> n9 ;
+  n11 -> n4 [xlabel= "E_6  "] ;
+}
+\end{center}
+Note that in order to compute a valid assignment to this circuit, both values for $W_?$ and $W_?$ are necessary. If the inputs to thoses edges are circuits themself, both circuits needs valid assignments. As a consequence this implementation of the conditional assigment opperator has to execute alll branches of all circuits, which is very different from the execution of common computer programs. 
+
+Starting at this circuit we can use the general tenchnique from XXX to derive its associated rank-1 constraint system. We get
+\begin{align*}
+E_1 \cdot E_2 & = E_3 \\
+(1 - E_1) \cdot E_4 & = E_5 \\
+(E_3 + E_5)\cdot 1 &= E_6
+\end{align*}
+\begin{example} Let $N=4$ be fixed.
+\begin{lstlisting}
+module conditional_bit_set(N) (
+	input (public) c : BOOL ;
+	input (public) mask : Uint_N ;
+	input (public) w : Uint_N ;
+	output (public) r : Uint_N ;
+
+	begin
+		r == if c { w or mask } else { w and not mask } ;
+	end ;
+)
+\end{lstlisting}
+\end{example}
+
+% NOTE: ZK-Podcast with Alex Özdemir for the proper branching thing in version 2 of the book.
+
+\subsubsection{Loops} Circuits and R1CS are not general enough to express arbitrary computations, but bounded computations only. As a consequence it is not possible to represent unbounded loops like $while TRUE do {}$ in algebraic circuits or rank-1 constraints systems. This can be easily seen since circuits are acyclic graphs and hence unbounded loops would require circuits of unbounded sizes. However bounded loops are expressible, simply by enrolling the loop. 
+
+\begin{example}
+\begin{lstlisting}
+module counting_bits(N) (
+for (c = 0; v; v >>= 1)
+{
+  c += v & 1;
+}
+
+	begin
+		r == a xor ((a xor b) & mask) ;
+	end ;
+)
+\end{lstlisting}
+\end{example}
+
+\subsection{Gadgets}
+\subsubsection{Binary representations}
+If the underlying field has a modulus $p$, such that $2^N-1 < p$, then there is a standard way to transform field elements $x\in \F_p$ of size $x<2^N$ into a UIntN bit representation and vice versa.
+
+To make the UintN type more human readable, compilers might introduce some synthactic suggar and outside of the circuit converging back and forth between the base $2$ and base $10$ representation of the UintN type. A standard way to do it is as follows: 
+
+Consider a base $10$ representation $x$ of a UintN type. Then its binary representation 
+$(b_0,\ldots,b_{N-1})$ can be computed by 
+\begin{lstlisting}
+input x : UINT_N ; 
+output b[N] : BOOL ; 
+var lc1=0;
+var e2=1;
+for (var i = 0; i < N; i++) {
+    b[i] <-- (in >> i) & 1;
+    lc1 += b[i] * e2;
+    e2 = e2+e2;
+}
+\end{lstlisting}
+This computation is of course done outside of the circuit as a high level inteface for human friendly input. On the other hand if the internal representation $(b_1,\ldots, b_{N-1})$ is given, then the human readable base $10$ representation is given by:
+\begin{lstlisting}
+input b[N] : BOOL ; 
+output x : UINT_N ; 
+var lc1=0;
+var e2=1;
+for (var i = 0; i < N; i++) {
+    b[i] <-- (in >> i) & 1;
+    lc1 += b[i] * e2;
+    e2 = e2+e2;
+}
+\end{lstlisting}
+
+
+
+In computations like scalar multiplication of elliptic curve points its is often necessary to use a binary representation of elements from the base field type. It is therefore necesaary to have a way to transform field elements into their binary representation and vice versa in circuits.
+
+To derive such a circuit over a prime field $\F_p$, let $m=|p_{base_2}|$ be the smallest number of bits necessary to represent the prime modulus $p$ itself. Then a bitstring $(b_0,\ldots,b_{m-1})\in \{0,1\}^m$ is a binary representation of a field element $x\in\F_p$, if and only if
+$$
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^{m-1}
+$$ 
+In this expression, addition and exponentiation is considered to be executed in $\F_p$, which is well defined, since all terms $2^j$ for $0\leq j \leq m$ are elements of $\F_p$. Note however that in contrast to the binary representation of counting numbers $n\in\N$, this representation is not unique in prime fields for odd prime numbers. 
+\begin{example} Considering the prime field $\F_{13}$. To compute binary representations of elements from that field, we start with the binary representation of prime modulus $13$, which is $13_{base_2} = (1,0,1,1)$ since 
+$13= 1\cdot 2^0 + 0\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3$. So $m=4$ and we need up to $4$ bits to represent any element $x\in\F_{13}$.
+
+To see that binary representations are not unique in general, consider the element $2\in \F_{13}$. It has the binary representations $2_{base_2}=(0,1,0,0)$ as well as $2_{base_2}=(1,1,1,1)$, since in $\F_{13}$ we have
+$$
+2 = \begin{cases}
+0\cdot 2^0 + 1\cdot 2^1 + 0\cdot 2^2 + 0\cdot 2^3\\
+1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 1\cdot 2^3
+\end{cases}
+$$
+\end{example}
+Considering that the underlying prime field is fixed and the most significant bit of the prime modulus is $m$, the following circuit flattens equation XXX, assuming all inputs $b_1$, $\ldots$, $b_m$ are restricted to be either $0$ or $1$:
+\begin{center}
+\digraph[scale=0.3]{BINARYREP}{
+	forcelabels=true;
+	center=true;
+	splines=ortho;
+	nodesep= 2.0;
+
+  subgraph cluster0 {
+    n1 [shape=box, label="b_0"] ;
+    n2 [shape=box, label="2^0"] ;
+    n3 [label="*"] ;
+
+    n1 -> n3 ;
+    n2 -> n3  [xlabel="I_0"] ;
+    color=white ;
+  }
+
+  subgraph cluster1 {
+    n4 [shape=box, label="b_1"] ;
+    n5 [shape=box, label="2^1"] ;
+    n6 [label="*"] ;
+
+    n4 -> n6 ;
+    n5 -> n6  [xlabel="I_1  "] ;
+    color=white ;
+  }
+
+  subgraph cluster2 {
+    n7 [shape=box, label="b_2"] ;
+    n8 [shape=box, label="2^2"] ;
+    n9 [label="*"] ;
+
+    n7 -> n9 ;
+    n8 -> n9 [xlabel="I_2  "];
+    color=white ;
+  }
+
+  subgraph cluster3 {
+    n10 [shape=box, label="...", color=lightgrey] ;
+    color=white ;
+  }
+
+  subgraph cluster4 {
+    n11 [shape=box, label="b_(m-1)"] ;
+    n12 [shape=box, label="2^(m-1)"] ;
+    n13 [label="*"] ;
+
+    n11 -> n13 ;
+    n12 -> n13  [xlabel="I_(m-1)  "] ;
+    color=white ;
+  }
+
+  subgraph cluster5 {
+    n18 [shape=box, label="x"] ;
+    n19 [shape=box, label="-1"] ;
+    n20 [label="*"] ;
+
+    n18 -> n20  [xlabel="I_m"] ;
+    n19 -> n20 ;
+    color=white ;
+  }
+
+  n14 [label="+"] ;
+  n15 [label="+"] ;
+  n16 [label="+", color=lightgrey] ;
+  n17 [label="+"] ;
+  n21 [label="+"] ;
+  n22 [shape=0, label="0"] ;
+  n3 -> n14 ;
+  n6 -> n14 ; 
+  n14 -> n15 ;
+  n9 -> n15 ;
+  n10 -> n16 [style=dashed, color=lightgrey] ;
+  n15 -> n16 [style=dashed, color=lightgrey] ;
+  n13 -> n17 ;
+  n16 -> n17 [style=dashed, color=lightgrey] ;
+  n20 -> n21 ;
+  n17 -> n21 ;
+  n21 -> n22  [xlabel="W_1=0  "] ;
+}
+\end{center}
+Applying the general transformation rule into rank-1 constraint systems, we see that we actually only need a single constraint to enforce a binary representation of any field element. We get 
+$$
+(b_0\cdot 2^0 + b_1\cdot 2^1 + b_2\cdot 2^2 + \ldots + b_{m-1}\cdot 2^{m-1} -x)\cdot 1 = 0
+$$
+In designing more complex circuits from simple ones it is often conceptually as well as visually useful to collaps circuits into simple representative description. To do so, we write 
+\begin{center}
+\digraph[scale=0.6]{BINREPMETA}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //<nodesep= 2.0;
+  n1 [shape=box, label="BASE2"] ;
+  n2 [shape=none, label="  "] ;
+  n3 [shape=none, label="  "] ;
+  n4 [shape=none, label="  "] ;
+  n5 [shape=none, label="  "] ;
+  n6 [shape=none, label="x"] ;
+  n2 -> n1 ;
+  n3 -> n1 ;
+  n4 -> n1 [style=dashed];
+  n5 -> n1 ;
+  n6 -> n1 ;
+}
+\end{center}
+indicating that the BASE2 circuit takes $m$ input, has no output and constraints the $x$ input to be the BLABLABLA
+\begin{example} Considering the prime field $\F_{13}$, we want to enforce the binary representation of $7\in \F_{13}$. We know $m=4$ from example XX and we have to enforce a $4$-bit representation for $7$, which is $(1,1,1,0)$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$.
+
+A valid circuit assignment is therefore given by $(I_0,I_1,I_2,I_3,I_4)=(1,1,1,0,7)$ and indeed we satify the required 5 constraints including the $4$ boolean constraints for $I_0$, $\ldots$, $I_3$ as 
+\begin{align*}
+1\cdot (1-1) &= 0 & \text{// boolean constraints}\\
+1\cdot (1-1) &= 0 \\
+1\cdot (1-1) &= 0 \\
+0\cdot (1-0) &= 0  \\
+(1 + 2 + 4 + 0 -7)\cdot 1 &= 0  & \text{// binary rep. constraint}
+\end{align*}
+\end{example}
+
+\subsubsection{Range Proofs}
+$x>5$...
+
+
+\subsection{Cryptographic Primitives}
+\subsubsection{Twisted Edwards curves}
+Sometimes it required to do elliptic curve cryptography "inside of a circuit". This means that we have to implement the algebraic operations (addition, scalar multiplication) of an elliptic curve as a R1CS. To do this efficiently the curve that we want to implement must be defined over the same base field as the field that is used in the R1CS. 
+
+% implmentations https://github.com/iden3/circomlib/blob/master/circuits/babyjub.circom
+
+\begin{example}
+So for example when we consider an R1CS over the field $\F_{13}$ as we did in example XXX, then we need a curve that is also defined over $\F_{13}$. Moreover it is advantegous to use a (twisted) Edwards curve inside a circuit, as the addition law contains no branching (See XXX). As we have seen in XXX our Baby-Jubjub curve is an Edwards curve defined over $\F_{13}$. So it is well suited for elliptic curve cryptography in our pend and paper examples
+\end{example}
+
+\paragraph{Twisted Edwards curves constraints} As we have seen in XXX, an Edwards curve over a finite field $F$ is the set of all pairs of points $(x,y)\in \F\times \F$, such that $x$ and $y$ satisfy the equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$. 
+
+We can interpret this equation as a constraint on $x$ and $y$ and rewrite it as a R1CS by applying the flattenin technique from XXX.
+$$
+\begin{array}{lcr}
+x \cdot x &=& x\_sq\\
+y \cdot y &=& y\_sq\\
+x\_sq \cdot y\_sq &=& xy\_sq\\
+(a\cdot x\_sq+y\_sq)\cdot 1 &=& 1+d\cdot xy\_sq
+\end{array}
+$$
+So we have the statement $w=(1,x,y,x\_sq, y\_sq, xy\_sq)$ and we need 4 constraints to enforce that $x$ and $y$ are points on the Edwards curve $x^2+y^2= 1+d\cdot x^2y^2$. Writing the constraint system in matrix form, we get:
+\begingroup
+    \fontsize{9pt}{9pt}\selectfont
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & a & 1 & 0 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix}\odot
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+1 & 0 & 0 & 0 & 0 & 0 
+\end{pmatrix}  \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 \\
+1 & 0 & 0 & 0 & 0 & d 
+\end{pmatrix} \begin{pmatrix} 1 \\ x \\ y \\ x\_sq \\ y\_sq \\ xy\_sq \end{pmatrix}
+$$
+\endgroup
+EXERCISE: WRITE THE R1CS FOR WEIERSTRASS CURVE POINTS 
+\begin{example}[Baby-JubJub]
+Considering our pen and paper Baby JubJub curve over from XXX, we know that the curve is defined over $\F_{13}$ and that $(11,9)$ is a curve point, while $(2,3)$ is not a curve point. 
+
+Starting with $(11,9)$, we can compute the statement $w=(1,11,9,4,3,12)$. Substituting this into the constraints we get
+$$
+\begin{array}{lcr}
+11 \cdot 11 &=& 4\\
+9 \cdot 9 &=& 3\\
+4 \cdot 3 &=& 12\\
+(1\cdot 4+3)\cdot 1 &=& 1+7\cdot 12
+\end{array}
+$$
+which is true in $\F_{13}$. So our statement is indeed a valid assignment to the twisted Edwards curve constraining system.
+
+Now considering the non valid point $(2,3)$, we can still come up with some kind of statement $w$ that will satisfy some of the constraints. But fixing $x=2$ and $y=3$, we can never satisfy all constraints. For example $w=(1,2,3,4,9,10)$ will satisfy the first three constraints, but the last constrain can not be satisfied. Or $w=(1,2,3,4,3,12)$ will satisfy the first and the last constrain, but not the others.
+\end{example}
+\paragraph{Twisted Edwards curves addition} As we have seen in XXX one the major advantages of working with (twisted) Edwards curves is the existence of an addition law, that contains no branching and is valid for all curve points. Moreover the neutral element is not "at infinity" but the actual curve poin $(0,1)$.
+
+As we know from XXX, give two points $(x_1,y_1)$ and $(x_2,y_2)$ on a twisted Edwards curve their sum is given by
+$$
+(x_3,y_3) = \left(\frac{x_1y_2+y_1x_2}{1+d\cdot x_1x_2y_1y_2}, \frac{y_1y_2-a\cdot x_1x_2}{1-d\cdot x_1x_2y_1y_2}\right)
+$$
+% https://z.cash/technology/jubjub/
+We can use the division circuit from XXX to flatten this equation into an algeraic circuit. Inputs to the circuit are then the two curve points $(x_1,y_1)$ abd $(x_2,y_2)$ as well as the the two denominators $denum_1 = 1+d\cdot x_1x_2y_1y_2$ as well as $denum_2= 1-d\cdot x_1x_2y_1y_2$. We get
+\begin{center}
+\digraph[scale=0.6]{EDWARDSADD}{
+  forcelabels=true;
+  center=true;
+  splines=ortho;
+  //nodesep= 2.0;
+  
+  subgraph clusterin {
+    n1 [shape=box, label="x_1"] ;
+    n2 [shape=box, label="x_2"] ;
+    n3 [shape=box, label="y_1"] ;
+    n4 [shape=box, label="y_2"] ;
+      
+    n22 [shape=box, label="denom_1"] ;
+    n23 [shape=box, label="denom_2"] ;
+  
+    color=white ;
+  }
+  
+  subgraph clusterout {
+    n29 [shape=box, label="x_3"] ;
+    n30 [shape=box, label="y_3"] ;
+  
+    color=white ;
+  }
+
+    n5 [shape=box, label="a"] ;
+    n6 [shape=box, label="d"] ;
+    n7 [shape=box, label="1"] ;
+    n8 [shape=box, label="-1"] ;
+    
+    n9 [label="*"] ; // x_1*y_2
+    n10 [label="*"] ; // x_1*x_2
+    n11 [label="*"] ; // y_1*x_2
+    n12 [label="*"] ; // y_1*y_2
+    n13 [label="*"] ; // a*(x_1*x_2)
+    n14 [label="*"] ; // -a*(x_1*x_2)
+    n15 [label="+"] ; // x_1*y_2 + y_1*x_2
+    n16 [label="+"] ; // y_1*y_2 - a*x_1*x_2
+    n17 [label="*"] ; // (x_1*x_2)*(y_1*y_2)
+    n18 [label="*"] ; // d*(x_1*x_2)*(y_1*y_2)
+    n19 [label="*"] ; // -d*(x_1*x_2)*(y_1*y_2)
+    n20 [label="+"] ; // 1 + d*(x_1*x_2)*(y_1*y_2)
+    n21 [label="+"] ; // 1 - d*(x_1*x_2)*(y_1*y_2)
+    
+    n24 [label="*"] ; // (1 + d*(x_1*x_2)*(y_1*y_2))*denom_1 =1 
+    n25 [label="*"] ; // (1 - d*(x_1*x_2)*(y_1*y_2))*denom_2 =1 
+    n26 [shape=box, label="1"] ;
+    n27 [label="*"] ; // denom_1*(x_1*y_2 + y_1*x_2) 
+    n28 [label="*"] ; // denom_2*(y_1*y_2 - a*x_1*x_2) 
+    
+    n1 -> n9 [headlabel=" E_1"];
+    n1 -> n10 [taillabel="E_1"];
+    n2 -> {n10, n11} [taillabel="E_2"];
+    n3 -> n11 [headlabel=" E_3"];
+    n3 -> n12 [taillabel="E_3"];
+    n4 -> n9 [taillabel="E_4"];
+    n4 -> n12 [headlabel="  E_4"];
+    n5 -> n13 ;
+    n6 -> n18 ;
+    n7 -> {n20, n21}
+    n8 -> {n14, n19} ;
+    n9 -> n15 [headlabel=" E_7"] ;
+    n10 -> n13 [xlabel="E_8"] ;
+    n10 -> n17 [xlabel="E_8"] ;
+    n11 -> n15 [xlabel="E_9"] ;
+    n12 -> n16 [taillabel="E_10 "] ;  
+    n12 -> n17 [xlabel="  E_10"] ;   
+    n13 -> n14 ;
+    n14 -> n16 ;
+    n15 -> n27 ;
+    n16 -> n28 ; 
+    n17 -> n18 [xlabel="E_11"] ;
+    n18 -> {n19, n20} ;
+    n19 -> n21 ;
+    n20 -> n24 ;
+    n21 -> n25 ;
+    n22 -> {n24, n27} [xlabel="E_5"] ;
+    n23 -> {n25, n28}  [xlabel="E_6"] ;
+    n24 -> n26 [xlabel="E_12=1"] ;
+    n25 -> n26 [xlabel="E_13=1"] ;
+    
+    n27 -> n29 [xlabel="E_14"] ;
+    n28 -> n30 [xlabel="E_15"] ;
+    
+}
+\end{center}
+Using the general technique from XXX to derive the associated rank-1 constraint system, we get the following result:
+\begin{align*}
+E_1 \cdot E_4 & = E_7 \\
+E_1 \cdot E_2 & = E_8 \\
+E_2 \cdot E_3 & = E_9 \\
+E_3 \cdot E_4 & = E_{10} \\
+E_8 \cdot E_{10} & = E_{11} \\
+E_5 \cdot (1+ d\cdot E_{11}) & = 1 \\
+E_6 \cdot (1 - d\cdot E_{11}) & = 1 \\
+E_5 \cdot (E_9 + E_7) & = E_{14} \\
+E_6 \cdot (E_{10} - a\cdot E_8) & = E_{15}
+\end{align*}
+
+So we have the statement $w=(1,x_1,y_1,x_2,y_2,x_3,y_3,x_{12},y_{12},xy_{12},yx_{12},xy_{1212})$ and we need 7 constraints to enforce that $(x_1,y_1)+(x_2,y_2)=(x_3,y_3)$ 
+\begin{example}[Baby-JubJub]
+Considering our pen and paper Baby JubJub curve over from XXX. We recall from XXX that $(11,9)$ is a generator for the large prime order subgroup. We therefor already know from XXX that
+$(11,9) + (7,8) = (11,9) + [3](11,9) = [4](11,9) = (2,9)$. So we compute a valid statement as 
+$w=(1,11,9,7,8,2,9,12,7,10,11,6)$. Indeed
+$$
+\begin{array}{lcl}
+11\cdot 7 &=& 12\\
+9\cdot 8 &=& 7\\
+11\cdot 8 &=& 10\\
+9\cdot 7 &=& 11\\
+10\cdot 11 &=& 6\\
+2\cdot (1+7\cdot 6) &=& 10 + 11\\
+9\cdot (1-7\cdot 6) &=& 7 -1\cdot 12
+\end{array}
+$$
+\end{example}
+There are optimizations for this using only 6 constraints, available:
+% https://github.com/filecoin-project/zexe/blob/master/snark-gadgets/src/groups/curves/twisted_edwards/mod.rs#L129
+
+\paragraph{Twisted Edwards curves inversion} Similar to elliptic curves in Weierstrass form, inversion is cheap on Edwards curve as the negative of a curve point $-(x,y)$ is given by $(-x,y)$. So a curve point $(x_2,y_2)$ is the additive inverse of another curve point $(x_1,y_1)$ precisely if the equation $(x_1,y_1) = (-x_2,y_2)$ holds. We can write this as
+$$
+\begin{array}{lcl}
+x_1 \cdot 1 &=& -x_2 \\
+y_1 \cdot 1 &=& y_2
+\end{array}
+$$
+We therefor have a statement of the form $w=(1,x_1,y_1,x_2,y_2)$ and can write the constraints into a matrix equation as
+$$
+\begin{pmatrix}
+0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}\odot
+\begin{pmatrix}
+1 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0 & 0
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix} =
+\begin{pmatrix}
+0 & 0 & 0 & -1 & 0\\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} \begin{pmatrix} 1 \\ x_1 \\ y_1 \\ x_2 \\ y_2 \end{pmatrix}
+$$
+
+In addition we need the following constraints:
+$$
+\begin{array}{lcl}
+x_1 \cdot 1 &=& -x_2 \\
+y_1 \cdot 1 &=& y_2
+\end{array}
+$$
+
+\paragraph{Twisted Edwards curves scalar multiplication} 
+% original circuit is here https://iden3-docs.readthedocs.io/en/latest/_downloads/33717d75ab84e11313cc0d8a090b636f/Baby-Jubjub.pdf
+
+Although there are highly optimzed R1CS implementations for scal multiplication on elliptic curves, the basic idea is somewhat simple: Given an elliptic curve $E/\F_r$, a scalar $x\in \F_r$ with binary representation $(b_0,\ldots,b_m)$ and a curve point $P\in E/\F_r$, the scalar multiplication $[x]P$ can be written as
+$$
+[x]P = [b_0]P + [b_1]([2]P) + [b_2]([4]P) + \ldots + [b_m]([2^m] P)
+$$
+and since $b_j$ is either $0$ or $1$, $[b_j](kP)$ is either the neutral element of the curve or $[2^j]P$. However $[2^j]P$ can be computed inductively by curve point doubling, since $[2^j]P= [2]([2^{j-1}]P)$.
+
+So scalar multiplication can be reduced to a loop of length $m$, where the original curve point is repeadedly douled and added to the result, whenever the appropriate bit in the scalar is equal to one.
+
+So to enforce that a curve point $(x_2,y_2)$ is the scalar product $[k](x_1,y_1)$ of a scalar $x\in F_r$ and a curve point $(x_1,y_1)$, we need an R1CS the defines point doubling on the curve (XXX) and an R1CS that enforces the binary representation of $x$ (XXX). 
+
+In case of twisted Edwards curve, we can use ordinary addition for doubling, as the constraints works for both cases (doublin is addition, where both arguments are equal). Moreover $[b](x,y)=(b\cdot x, b\cdot y)$ for boolean $b$. Hence flattening equation XXX gives
+$$
+\begin{array}{lclr}
+b_0\cdot x_1 &=& x_{0,1} & // [b_0]P\\
+b_0\cdot y_1 &=& y_{0,1}\\
+
+\end{array}
+$$
+In addition we need to constrain $(b_0,\ldots, b_N)$ to be the binary representation of $x$ and we need to constrain each $b_j$ to be boolean.
+
+As we can see a R1CS for scalar multiplication utilizes many R1CS that we have introduced before. For efficiency and readability it is therefore useful to apply the concept of a gadget (XXX). A pseudocode method to derive the associated R1CS could look like this:
+
+%\begin{algorithmic}
+%\Require $m$ Bitlength of modulus
+%\Statement $w \gets [x,b[m],mid[m]]$
+%\State $tmp \gets 0$
+%\For{$j\gets 1,\ldots, m$}
+%	\State \textbf{Constrain:} $b[j]\cdot (1-b[j]) == 0$
+%	\State \textbf{Constrain:} $b[j] \cdot 2^j == mid[j]$
+%	\State $tmp = tmp + mid[j]$
+%\EndFor
+%\State \textbf{Constrain:} $tmp \cdot 1 == x$
+%\end{algorithmic}
+
+%\begin{codebox}
+%\Procname{$\proc{Insertion-Sort}(A)$}
+%\li \For $j \gets 2$ \To $\id{length}[A]$
+%\li     \Do$\id{key} \gets A[j]$
+%\li         \Comment Insert $A[j]$ into the sorted sequence $A[1 \twodots j-1]$.
+%\li         $i \gets j-1$\li         \While $i > 0$ and $A[i] > \id{key}$
+%\li             \Do$A[i+1] \gets A[i]$
+%\li                 $i \gets i-1$\End
+%\li         $A[i+1] \gets \id{key}$\End
+%\end{codebox}
+
+\subsubsection{A Simple Pen and Paper Compiler Example}
+% Set membership proof?
+
+
+\subsection{Outlook on Real World Implementations}
+many circuits can be found here:
+% https://github.com/iden3/circomlib
+
+Use the description of Özdemir in Ana's podcast. 
+

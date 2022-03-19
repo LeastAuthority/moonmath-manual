@@ -296,12 +296,13 @@ that maps binary strings of arbitrary length onto binary strings of length $256$
 $$
 SHA256('')= e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 $$
-For better human readability it is common practise to represent the digest of a string, not in its binary form but in a hexadecimal representation. We can use sage to compute $SHA256$ and freely transit between binary, hexadecimal and decimal representations. To do so we have to import for example hashlib's implementation of sha256:
+For better human readability it is common practise to represent the digest of a string, not in its binary form but in a hexadecimal representation. We can use sage to compute $SHA256$ and freely transit between binary, hexadecimal and decimal representations. To do so we have to import PyCrypto and then load $SHA\_256$:
 \begin{sagecommandline}
-sage: import hashlib
+sage: import Crypto
+sage: from Crypto.Hash import SHA256
 sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-sage: hasher = hashlib.sha256(b'')
-sage: str = hasher.hexdigest()
+sage: d = SHA256.new('')
+sage: str = d.hexdigest()
 sage: type(str)
 sage: d = ZZ('0x'+ str) # conversion to integer type
 sage: d.str(16) == str
@@ -367,18 +368,19 @@ SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_4\cdot 2^4
 $$
 Since $k=16.nbits()=5$ and $16-2^{k-1}=0$ this hash maps uniformly onto $\Z_{16}$. We can invoke sage to implement it e.g. like this:
 \begin{sagecommandline}
-sage: import hashlib 
+sage: import Crypto 
+sage: from Crypto.Hash import SHA256
 sage: def Hash5(x):
-....:     hasher = hashlib.sha256(x)
-....:     digest = hasher.hexdigest()
-....:     d = ZZ(digest, base=16)
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
 ....:     d = d.str(2)[-4:]
-....:     return ZZ(d,base=2)
-sage: Hash5(b'')
+....:     return ZZ(d, base=2)
+sage: Hash5('')
 \end{sagecommandline}
 We can then use sage to apply this function to a large set of input values in order to plot a visualization of the distribution over the set $\{0,\ldots,15\}$. Executing over $500$ input values gives:
 \begin{sagesilent}
-H1 = list_plot([Hash5(ZZ(k).str(2).encode('utf-8')) for k in range(500)])
+H1 = list_plot([Hash5(ZZ(i).str(2)) for i in range(500)])
 \end{sagesilent}
 \begin{center} 
 \sageplot[scale=.5]{H1} 
@@ -388,7 +390,7 @@ To get an intuition of uniformity, we can count the number of times the hash fun
 arr = []
 arr = [0 for i in range(16)]
 for i in range(100000):
-    arr[Hash5(ZZ(i).str(2).encode('utf-8'))] +=1
+    arr[Hash5(ZZ(i).str(2))] +=1
 H2 = list_plot(arr, ymin=0,ymax=10000)
 \end{sagesilent}
 \begin{center} 
@@ -399,7 +401,7 @@ The uniformity of the distribution problem becomes apparent if we want to constr
 arr = []
 arr = [0 for i in range(31)]
 for i in range(100000):
-    arr[Hash5(ZZ(i).str(2).encode('utf-8'))] +=1
+    arr[Hash5(ZZ(i).str(2))] +=1
 H3 = list_plot(arr, ymin=0,ymax=10000)
 \end{sagesilent}
 \begin{center} 
@@ -424,12 +426,13 @@ s\mapsto
 \end{multline*}
 We want to use various instantiations of $k_2$, to visualize the impact of truncation lenth on the distrubution of the hashes in $\Z_{23}$. We can invoke sage to implement it e.g. like this:
 \begin{sagecommandline}
-sage: import hashlib 
+sage: import Crypto 
+sage: from Crypto.Hash import SHA256
 sage: Z23 = Integers(23)
 sage: def Hash_mod23(x, k2):
-....:     hasher = hashlib.sha256(x.encode('utf-8'))
-....:     digest = hasher.hexdigest()
-....:     d = ZZ(digest, base=16)
+....:     h = SHA256.new(x)
+....:     d = h.hexdigest()
+....:     d = ZZ(d, base=16)
 ....:     d = d.str(2)[-k2:]
 ....:     d = ZZ(d, base=2)
 ....:     return Z23(d)
