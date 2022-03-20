@@ -28,7 +28,7 @@ E(\F) = \{(x,y)\in \F\times \F\;|\; y^2=x^3+a\cdot x+b \} \bigcup \{\Oinf\}
 \end{equation}
 of all pairs of field elements $(x,y)\in \F\times \F$, that satisfy the short Weierstraß cubic equation $y^2=x^3+a\cdot x+b$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
 \begin{notation}
-of all pairs of field elements $(x,y)\in \F\times \F$, that satisfy the short Weierstraß cubic equation $y^2=x^3+a\cdot x+b$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
+In the literature, the set $E(\F)$, which includs the sybol $\mathcal{O}$ is often called the set of \term{rational points} of the elliptic curve, in which case the curve itself is usually written as $E/\F$. However, in what follows we will frequently identify an elliptic curve with its set of rational points and therefore use the symbol $E(\F)$ instead. This is possible in our case, since we only really care about the group structure of the curve in consideration.
 \end{notation}
 The term "curve" appears, because in the ordinary 2 dimensional plane $\R^2$,
 the set of all points $(x,y)$ that satisfy $y^2 = x^3 +a\cdot x +b$ looks like a curve. We should note however, that visualizing elliptic curves over finite fields as "curves" has its limitations and we will therefore not stress the geometric picture too much, but focus on the computational properties instead. To understand the visual difference, consider the following two elliptic curves: 
@@ -89,7 +89,7 @@ C1 = E1.plot()
 \end{center}
 % sage: AffinePoints = [P.xy() for P in E1.points() if P.order > 1]
 \end{example}
-In the development of SNARKS it is sometimes necessary to do elliptic curve cryptograph "in a circuit", which basically means that the elliptic curves needs to be implemented in a certain SNARK-friendly way. We will look at what this means in XXX\sme{add reference}. To be able to do this efficiently it is desirable to have curves with special properties. The following example is a pen-and-paper version of such a curve, that parallels the definition of a cryptographically secure curve called \term{Baby-\comms{jubjub}}, which is extensively used in real world SNARKs. The interested reader is advised to read this example carefully as we will use it and build on it in various places throughout the book.
+In the development of SNARKS it is sometimes necessary to do elliptic curve cryptography "in a circuit", which basically means that the elliptic curves needs to be implemented in a certain SNARK-friendly way. We will look at what this means in XXX\sme{add reference}. To be able to do this efficiently it is desirable to have curves with special properties. The following example is a pen-and-paper version of such a curve, that parallels the definition of a cryptographically secure curve called \term{Baby-\comms{jubjub}}, which is extensively used in real world SNARKs. The interested reader is advised to read this example carefully as we will use it and build on it in various places throughout the book.
 \begin{example}[Pen-JubJub] Consider the prime field $\F_{13}$ from exercise XXX. If we choose $a=8$ and $b=8$ then $\kongru{4a^3+ 27b^2}{6}{13}$ and the corresponding elliptic curve is given by all pairs $(x,y)$ from $\F_13$ such that $y^2=x^3+8x+8$ holds. We write $\mathit{PJJ\_13}$ for this curve and call it the \textit{Pen-JubJub} curve.
 
 Now, since the set $\F_{13}\times \F_{13}$ of all pairs $(x,y)$ from $\F_{13}$ contains only $13\cdot 13=169$ pairs, we can compute the curve, by just inserting every possible pair $(x,y)$ into the short Weierstraß equation $y^2 = x^3 +8x +8$.  We get 
@@ -125,7 +125,8 @@ $$
 r = \scriptstyle 11579208923731619542357098500868790785283756427907490438260516
 3141518161494337
 $$
-many elements, were $r$ is a prime number that also has a binary representation of $256$ bits. Cryptographically secure elliptic curves are therefore not useful in pen-and-paper computations. Fortunately Sage handles large curve efficiently:\begin{sagecommandline}
+many elements, were $r$ is a prime number that also has a binary representation of $256$ bits. Cryptographically secure elliptic curves are therefore not useful in pen-and-paper computations. Fortunately Sage handles large curve efficiently:
+\begin{sagecommandline}
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: # Hexadecimal representation
 sage: p.str(16)
@@ -1049,7 +1050,7 @@ which is a 256-bit number. So the embedding degree is huge, which implies that t
 \Oinf &\mapsto & \Oinf
 \end{array} 
 \end{equation}
-of an alliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$. It can be shown that $\pi$ maps curve points to curve points. The first thing to note is that in case that $\F$ is a prime field, the Frobenius endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields, due to Fermat's little theorem XX. So the Frobenius map is more interesting over prime field extensions.
+of an elliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$. It can be shown that $\pi$ maps curve points to curve points. The first thing to note is that in case that $\F$ is a prime field, the Frobenius endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields, due to Fermat's little theorem XX. So the Frobenius map is more interesting over prime field extensions.
 
 With the Frobenius map at hand, we can now characterize two important subgroups of the full $n$-torsion. The first subgroup is the $n$-torsion group that already exists in the curve over the base field. In pairing based cryptography this group is usually written as $\G_1$, assuming that the prime factor '$n$' in the definition is implicitly given. Since we know that the Frobenius map, acts trivially on curve over the prime field we can define $\G_1$ as:
 \begin{equation}
@@ -1714,7 +1715,7 @@ which we might call secp256k1. As we have seen the complex multiplication method
 
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
-In this paragraph we to summarize our understanding of elliptic curves to derive our main pen \& paper example for the rest of the book. To do so, we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
+In this paragraph we summarize our understanding of elliptic curves to derive our main pen \& paper example for the rest of the book. To do so, we want to use the complex multiplication method, to derive a pairing friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen\&{}paper examples, which mostly means that the curve should contain only a few points, such that we are able to derive exhaustive addition and pairing tables.
 
 A well-understood family of pairing-friendly curves is the the group of BLS curves (STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION), which are derived in [XXX\sme{add reference}]. BLS curves are particular useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. Of course the smallest embedding degree $k$ that satisfies this congruency, is $k=6$ and we therefore aim for a BLS6 curve as our main pen\&{}paper example. 
 
@@ -1851,7 +1852,7 @@ which generates the group in logarithmic order. So for example we have $[1]_{(13
                       & = [4](13,15)\\
                       & = (35,28)\\
 \end{align*}
-Now that we have constructed a "large" cyclic prime order subgroup of $BLS6\_6$ suitable for many pen-and-paper computations in elliptic curve cryptography, we have to look at how to do pairings in this context. We know that $BLS6\_6$ is a pairing friendly curve by design, since it has a small embedding degree $k=6$. It is therefore possible to compute Weil pairings efficiently. However, in order to do so, we have to decides the groups $\G_1$ and $\G_2$ as explained in XXX\sme{add reference}. 
+So XXX\sme{add reference} is really all we need to do computations in $BLS6\_6[13]$ in this book efficiently. However, out of convinience, the following picture lists the entire addition table of that group. It might be useful in pen-and-paper computations:
 \begingroup
     \fontsize{5pt}{5pt}\selectfont
 $$
