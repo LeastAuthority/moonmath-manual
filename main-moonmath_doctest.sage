@@ -7,7 +7,7 @@ doctest this file with "sage -t main-moonmath_doctest.sage".
 It is always safe to delete this file; it is not used in typesetting your
 document.
 
-Sage commandline, line 312::
+Sage commandline, line 315::
 
 sage: import hashlib
 sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -21,7 +21,7 @@ sage: d.str(16)
 sage: d.str(2)
 sage: d.str(10)
 
-Sage commandline, line 383::
+Sage commandline, line 388::
 
 sage: import hashlib
 sage: def Hash5(x):
@@ -32,7 +32,7 @@ sage: def Hash5(x):
 ....:     return ZZ(d,base=2)
 sage: Hash5(b'')
 
-Sage commandline, line 440::
+Sage commandline, line 445::
 
 sage: import hashlib
 sage: Z23 = Integers(23)
@@ -44,20 +44,20 @@ sage: def Hash_mod23(x, k2):
 ....:     d = ZZ(d, base=2)
 ....:     return Z23(d)
 
-Sage commandline, line 669::
+Sage commandline, line 687::
 
 sage: QQ
 sage: QQ(1/5) # Get an element from the field of rational numbers
 sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 693::
+Sage commandline, line 711::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 958::
+Sage commandline, line 976::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
