@@ -2,36 +2,39 @@
 
 \sme{TODO: Elliptic Curve asymmetric cryptography examples. Private key, generator, public key.} 
 %references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
-Generally speaking, elliptic curves are ``curves'' defined in geometric planes like the Euclidean or the projective plane over some given field. One of the key features of elliptic curves over finite fields from the point of view of cryptography is their set of points has a group law, such that the resulting group is finite and cyclic and it is believed that the discrete logarithm problem on these groups is hard. 
+Generally speaking, elliptic curves are ``curves'' defined in geometric planes like the Euclidean or the projective plane over some given field. One of the key features of elliptic curves over finite fields from the point of view of cryptography is that their set of points has a group law such that the resulting group is finite and cyclic, and it is believed that the discrete logarithm problem on these groups is hard. 
 
-A special class of elliptic curves are so called \term{pairing friendly curve}, which have a notation of a group pairing as defined in XXX\sme{add reference}. This pairing has cryptographicall nice prperties. Those curve are useful in the development of SNAKS, since they allow to compute so called R1CS-satisfiability "in the exponent" \smelong{MIRCO: (THIS HAS TO BE REWRITTEN WITH WAY MORE DETAIL)}
+A special class of elliptic curves are so-called \term{pairing-friendly curves}, which have a notation of a group pairing as defined in XXX\sme{add reference}. This pairing has cryptographically advantageous properties. Those curve are useful in the development of SNARKs, since they allow to compute so-called R1CS-satisfiability ``in the exponent'' \smelong{MIRCO: (THIS HAS TO BE REWRITTEN WITH WAY MORE DETAIL)}
 
-In this chapter we introduce epileptic curves as they are used in pairing based approaches to the construction of SNARKs. The elliptic curves we consider are all defined over prime fields or prime field extensions and the reader should be familiar with the contend of the previous section on those fields.
+In this chapter, we introduce epileptic curves as they are used in pairing-based approaches to the construction of SNARKs. The elliptic curves we consider are all defined over prime fields or prime field extensions and the reader should be familiar with the contend of the previous section on those fields.
 
-In its most generality elliptic curves are defined as a smooth projective curve of genus 1 defined over some field $\F$ with a distinguished $\F$-rational point, but this definition is not very useful for the introductory character of this book. We will therefore look at $3$ more practical definitions in the following sections, by introducing Weierstraß, Montgomery and Edwards curves. All of them are useful in cryptography and necessary to understand for the continuation of the book.
+\smelong{In its most generality elliptic curves are defined as a smooth projective curve of genus 1 defined over some field $\F$ with a distinguished $\F$-rational point, but this definition is not very useful for the introductory character of this book.}\sme{maybe remove this sentence?} We will therefore look at $3$ more practical definitions in the following sections, by introducing Weierstraß, Montgomery and Edwards curves. All of them are widely used in cryptography, and understanding them is crucial to being able to follow the rest of this book.
 
 \section{Elliptic Curve Arithmetics}
 
 \subsection{Short Weierstraß Curves}
-In this section we introduce the so called short Weierstraß curves, which are the most general types of curves over finite fields of characteristic greater then $3$. 
+In this section, we introduce \term{short Weierstraß }curves, which are the most general types of curves over finite fields of characteristic greater than $3$. 
 
-We start with their representation in affine space. This representation has the advantage that affine points are just pairs of numbers which is more convenient to work with for the beginner. However, it has the disadvantage that a special "point at infinity" that is not a point on the curve, is necessary to describe the group structure. We introduce the elliptic curve group law and describe elliptic curve scalar multiplication, which is nothing but an instantiation of the exponential map from general cyclic groups.
+We start with their representation in \uterm{affine space}. This representation has the advantage that affine points correspond to pairs of numbers, which makes it more accessible for beginners. However, it has the disadvantage that a special ``point at infinity'' that is not a point on the curve, is necessary to describe the group structure. We introduce the elliptic curve group law and describe elliptic curve scalar multiplication, which is an instantiation of the exponential map from general cyclic groups.
 
-Then we look at the projective representation of short Weierstraß curves. It has the advantage that no special symbol is necessary to represent the point at infinity but comes with the drawback that projective points are classes of numbers, which might be a bit unusual for a beginner.
+Then we look at the projective representation of short Weierstraß curves. This has the advantage that no special symbol is necessary to represent the point at infinity but comes with the drawback that projective points are classes of numbers, which might be a bit unusual for a beginner.
 
-We finish this section with an explicit equivalence that transforms affine representations into projective once and vice versa.
+We finish this section with an explicit equivalence that transforms affine representations into projective ones and vice versa.
 
-\paragraph{Affine short Weierstraß form} Probably the least abstract and most straight forward way to introduce elliptic curves for non-mathematicians and beginners is the so called affine representation of a short Weierstraß curve. To see what this is, let $\F$ be a finite field of order $q$ and $a,b\in \F$ two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$. Then a \term{short Weierstraß elliptic curve} $E(\F)$ over $\F$ in its affine representation is the set
+\paragraph{Affine short Weierstraß form} Probably the least abstract and most straight-forward way to introduce elliptic curves for non-mathematicians and beginners is the so-called affine representation of a short Weierstraß curve. To see what this is, let $\F$ be a finite field of order $q$ and $a,b\in \F$ two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$. Then a \term{short Weierstraß elliptic curve} $E(\F)$ over $\F$ in its affine representation is the set of all pairs of field elements $(x,y)\in \F\times \F$, that satisfy the short Weierstraß cubic equation $y^2=x^3+a\cdot x+b$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}:
+
 \begin{equation}
 \label{def_short_weierstrass_curve}
 E(\F) = \{(x,y)\in \F\times \F\;|\; y^2=x^3+a\cdot x+b \} \bigcup \{\Oinf\}
 \end{equation}
-of all pairs of field elements $(x,y)\in \F\times \F$, that satisfy the short Weierstraß cubic equation $y^2=x^3+a\cdot x+b$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
 \begin{notation}
-In the literature, the set $E(\F)$, which includs the sybol $\mathcal{O}$ is often called the set of \term{rational points} of the elliptic curve, in which case the curve itself is usually written as $E/\F$. However, in what follows we will frequently identify an elliptic curve with its set of rational points and therefore use the symbol $E(\F)$ instead. This is possible in our case, since we only really care about the group structure of the curve in consideration.
+In the literature, the set $E(\F)$, which includes the symbol $\mathcal{O}$, is often called the set of \term{rational points} of the elliptic curve, in which case the curve itself is usually written as $E/\F$. However, in what follows, we will frequently identify an elliptic curve with its set of rational points and therefore use the notation $E(\F)$ instead. This is possible in our case, since we only the group structure of the curve in consideration is relevant for us.
 \end{notation}
-The term "curve" appears, because in the ordinary 2 dimensional plane $\R^2$,
-the set of all points $(x,y)$ that satisfy $y^2 = x^3 +a\cdot x +b$ looks like a curve. We should note however, that visualizing elliptic curves over finite fields as "curves" has its limitations and we will therefore not stress the geometric picture too much, but focus on the computational properties instead. To understand the visual difference, consider the following two elliptic curves: 
+The term ``curve'' is used here because, in the ordinary 2 dimensional plane $\R^2$,
+the set of all points $(x,y)$ that satisfy $y^2 = x^3 +a\cdot x +b$ looks like a curve. We should note however, that visualizing elliptic curves over finite fields as ``curves'' has its limitations, and we will therefore not stress the geometric picture too much, but focus on the computational properties instead. To understand the visual difference, consider the following two elliptic curves: 
+
+\medskip
+
 % let Sage draw some elliptic curve in R^2, but show only the picture
 \begin{sagesilent}
 E1 = EllipticCurve([-2,1])
@@ -40,16 +43,20 @@ F = GF(9973)
 E2 = EllipticCurve(F, [-2,1])
 C2 = E2.plot()
 \end{sagesilent}
-\begin{center} 
-\sageplot[scale=.5]{C1} 
+\begin{minipage}{0.48\textwidth}
+\sageplot[scale=.48]{C1} 
+\end{minipage}
+%
+\begin{minipage}{0.48\textwidth}
 \sageplot[scale=.5]{C2}
-\end{center}
+\end{minipage}
+
 % TODO: PLOT BOTH CURVES ON THE SAME LINE NOT BELOW EACH OTHER
-Both elliptic curves are defined by the same short Weierstraß equation $y^2 = x^3-2x+1$, but the first curve is define in the real affine plane $\mathbb{R}^2$, that is the pair $(x,y)$ contains real numbers, while the second one is defined in the affine plane $\F_{9973}^2$, which means that both $x$ and $y$ are from the prime field $\F_{9973}$. Every blue dot represents a pair $(x,y)$ that is solution to $y^2 = x^3-2x+1$ and as we can see the second curve hardly looks like a geometric structure one would naturally call a curve. So the geometric intuitions from $\R^2$ is kind of obfuscated in curves over finite fields.
+Both elliptic curves are defined by the same short Weierstraß equation $y^2 = x^3-2x+1$, but the first curve is defined in the real affine plane $\mathbb{R}^2$, that is, the pair $(x,y)$ contains real numbers, while the second one is defined in the affine plane $\F_{9973}^2$, which means that both $x$ and $y$ are from the prime field $\F_{9973}$. Every blue dot represents a pair $(x,y)$ that is a solution to $y^2 = x^3-2x+1$. As we can see, the second curve hardly looks like a geometric structure one would naturally call a curve. This shows that our geometric intuitions from $\R^2$ are obfuscated in curves over finite fields.
 
-The identity $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$ ensures that the curve is  non-singular, which basically means that the curve has no cusps or self-intersections.
+The identity $\Zmod{6\cdot(4a^3+ 27b^2)}{q}\neq 0$ ensures that the curve is  non-singular, which basically means that the curve has no \uterm{cusps} or \uterm{self-intersections}.
 
-When dealing with elliptic curves, computations can quickly become cumbersome and tedious. So, on the one hand, the reader is advised to do as many computations in a pen-and-paper style as possible. This helps a lot to get a deeper understanding for the details. On the other hand side however, computations are sometimes simply too large to be done by hand and one might get lost in the details. Fortunately Sage is very helpful in dealing with elliptic curves. It is there a goal of this book to introduce the reader to the great elliptic curve capabilities of Sage. \smelong{One we to define elliptic curves and work is them goes like this}\sme{rephrase}:
+Throughout this book, the reader is advised to do as many computations in a pen-and-paper fashion as possible, as this is helps getting a deeper understanding of the details. However, when dealing with elliptic curves, computations can quickly become cumbersome and tedious, and one might get lost in the details. Fortunately, Sage is very helpful in dealing with elliptic curves. This book to introduces the reader to the great elliptic curve capabilities of Sage. \smelong{One we to define elliptic curves and work is them goes like this}\sme{rephrase}:
 \begin{sagecommandline}
 sage: F5 = GF(5) # define the base field
 sage: a = F5(2) # parameter a
@@ -67,18 +74,18 @@ sage: try: 	# point at infinity has no affine coordinates
 ....:     pass
 sage: P = E.plot() # create a plotted version 
 \end{sagecommandline}
-The following three examples will give a more practical understanding of what an elliptic curve is and how we can compute them. The reader is advised to read them carefully and ideally to parallel the computation themselfs. We will repeatedly build on these example in this chapter and use the second example at various places in this book.
-\begin{example}To provide the reader with a small example of an elliptic curve, where all computation can e done in a pen-and-paper style, consider the prime field $\F_5$ from example (XXX\sme{add reference}). The reader who had worked through the examples and exercises in the previous section knows this prime field well.
+The following three examples give a more practical understanding of what an elliptic curve is and how we can compute it. The reader is advised to read them carefully, and ideally, to also carry out the computation themselfs. We will repeatedly build on these examples in this chapter, and use the second example throughout this book.
+\begin{example}To provide the reader with an example of a small elliptic curve where all computation can be done with pen and paper, consider the prime field $\F_5$ from example \ref{prime-field-F5}\sme{check reference} (page \pageref{prime-field-F5}).  quite familiar  to readers who had worked through the examples and exercises in the previous chapter.
 
-To define an elliptic curve over $\F_5$, we have to choose to numbers $a$ and $b$ from that field. Assuming we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5}$ from which follows that the corresponding elliptic curve $E_1(\F_5)$ is given by the set of all pairs $(x,y)$ from $\F_5$ that satisfy the equation $y^2=x^3+x+1$, together with the special symbol $\Oinf$, which represents the "point at infinity". 
+To define an elliptic curve over $\F_5$, we have to choose to numbers $a$ and $b$ from that field. Assuming we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5}$ from which follows that the corresponding elliptic curve $E_1(\F_5)$ is given by the set of all pairs $(x,y)$ from $\F_5$ that satisfy the equation $y^2=x^3+x+1$, together with the special symbol $\Oinf$, which represents the ``point at infinity''. 
 
-To get a better understand of that curve, obersever that if we choose arbitrarily the pair $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence $(1,1)$ is not an element of the curve $E_1(\F_5)$. On the other hand chosing for exmple $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is an element of $E_1(\F_5)$ (Remember that all computations are done in modulo $5$ arithmetics).
+To get a better understand of that curve, observer that if we choose arbitrarily the pair $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence $(1,1)$ is not an element of the curve $E_1(\F_5)$. On the other hand choosing for example $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is an element of $E_1(\F_5)$ (Remember that all computations are done in modulo $5$ arithmetics).
 
-Now since the set $\F_5\times \F_5$ of all pairs $(x,y)$ from $\F_5$ contains only $5\cdot 5=25$ pairs, we can compute the curve, by just inserting every possible pair $(x,y)$ into the short Weierstraß equation $y^2 = x^3 + x +1$. If the equation holds, the pair is a curve point, if not that means that the point is not on the curve. Combining the result of this computation with the point at infinity gives the curve as:
+Now since the set $\F_5\times \F_5$ of all pairs $(x,y)$ from $\F_5$ contains only $5\cdot 5=25$ pairs, we can compute the curve, by just inserting every possible pair $(x,y)$ into the short Weierstraß equation $y^2 = x^3 + x +1$. If the equation holds, the pair is a curve point, if not that means that the point is not on the curve. Combining the result of this computation with the point at infinity gives the curve as follows:
 $$
 E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
-So our elliptic curve is a set of $9$ elements. $8$ of which are pairs of numbers and one special symbol $\Oinf$. Visualizing $E1$ gives:
+This means that our elliptic curve is a set of $9$ elements, $8$ of which are pairs of numbers and one special symbol $\Oinf$. Visualizing $E1$ gives the following plot:
 \begin{sagesilent}
 F5 = GF(5)
 E1 = EllipticCurve(F5, [1,1])
@@ -89,7 +96,7 @@ C1 = E1.plot()
 \end{center}
 % sage: AffinePoints = [P.xy() for P in E1.points() if P.order > 1]
 \end{example}
-In the development of SNARKS it is sometimes necessary to do elliptic curve cryptography "in a circuit", which basically means that the elliptic curves needs to be implemented in a certain SNARK-friendly way. We will look at what this means in XXX\sme{add reference}. To be able to do this efficiently it is desirable to have curves with special properties. The following example is a pen-and-paper version of such a curve, that parallels the definition of a cryptographically secure curve called \term{Baby-\comms{jubjub}}, which is extensively used in real world SNARKs. The interested reader is advised to read this example carefully as we will use it and build on it in various places throughout the book.
+In the development of SNARKs, it is sometimes necessary to do elliptic curve cryptography ``in a circuit", which basically means that the elliptic curves need to be implemented in a certain SNARK-friendly way. We will look at what this means in chapter \ref{chap:circuit-compilers}\sme{check reference}. To be able to do this efficiently, it is desirable to have curves with special properties. The following example is a pen-and-paper version of such a curve, called \term{Baby-\comms{jubjub}}, which parallels the definition of a cryptographically secure curve extensively used in real-world SNARKs. The interested reader is advised to read this example carefully, as we will use it and build on it in various places throughout the book. \commslong{I feel like a lot of people won't get the Lewis Carroll reference unless we make it more explicit}
 \begin{example}[Pen-JubJub] Consider the prime field $\F_{13}$ from exercise XXX. If we choose $a=8$ and $b=8$ then $\kongru{4a^3+ 27b^2}{6}{13}$ and the corresponding elliptic curve is given by all pairs $(x,y)$ from $\F_13$ such that $y^2=x^3+8x+8$ holds. We write $\mathit{PJJ\_13}$ for this curve and call it the \textit{Pen-JubJub} curve.
 
 Now, since the set $\F_{13}\times \F_{13}$ of all pairs $(x,y)$ from $\F_{13}$ contains only $13\cdot 13=169$ pairs, we can compute the curve, by just inserting every possible pair $(x,y)$ into the short Weierstraß equation $y^2 = x^3 +8x +8$.  We get 
@@ -110,7 +117,7 @@ CPJJ_13 = PJJ_13.plot()
 As we will see in what follows this curve is kind of special as it is possible to represent it in two alternative forms, called the Montgomery and the twisted Edwards form (See XXX\sme{add reference} and XXX\sme{add reference}).
 \end{example}
 Now that we have seen two pen-and-paper friendly elliptic curves, let us look at a curve that is used in actual cryptography. Cryptographically secure elliptic curve are not qualitatively different from the curves we looked at so far. The only difference is that the prime number modulus of the prime field is much larger. Typical examples use prime numbers, which have binary representations in the size of more than double the size of the desired security level. So if for example a security of $128$ bit is desired, a prime modules of binary size $\geq 256$ is chosen. The following example provides such a curve. 
-\begin{example}[Bitcoin's Secp256k1 curve]To give an example of a real world, cryptographically secure curve, let us look at curve Secp256k1, which is famous for being used in the public key cryptography of Bitcoin. The prime field $\F_p$ of Secp256k1 if defined by the prime number
+\begin{example}[Bitcoin's Secp256k1 curve]To give an example of a real-world, cryptographically secure curve, let us look at curve Secp256k1, which is famous for being used in the public key cryptography of Bitcoin. The prime field $\F_p$ of Secp256k1 if defined by the prime number
 $$
 p = \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663
 $$
@@ -160,7 +167,7 @@ Using the technique of point compression, we can replace the $y$-coordinate in e
 \begin{multline*}
 \mathit{PJJ\_13} = \{\Oinf, (1, 0), (1, 1), (4, 0), (5, 0), (5, 1), (6, 0), (6, 1), (7,0), (7, 1), \\ (8, 0), (8, 1), (9, 0), (9, 1), (10, 0), (10,1), (11, 0), (11, 1), (12, 0), (12, 1)\}
 \end{multline*} 
-Note that the numbers $7,\ldots, 12$ are the negatives (additive inverses) of the numbers $1,\ldots, 6$ in modular $13$ arithmetics and that $-0=0$. Calling the compression bit a "sign bit" therefore makes sense.
+Note that the numbers $7,\ldots, 12$ are the negatives (additive inverses) of the numbers $1,\ldots, 6$ in modular $13$ arithmetics and that $-0=0$. Calling the compression bit a ``sign bit'' therefore makes sense.
 
 To recover the uncompressed point of say $(5,1)$, we insert the $x$-coordinate $5$ into the Weierstraß equation and get $y^2 = 5^3 + 8\cdot 5 +8 = 4$. As expected $4$ is a quadratic residue in $\F_{13}$ with roots $\sqrt{4}= \{2,11\}$. Now since the sign bit of the point is $1$, we have to choose the root closer to the modulus $13$ which is $11$. The uncompressed point is therefore $(5,11)$. 
 \end{example}
@@ -348,7 +355,7 @@ One useful property of the exponential map in regard to the examples in this boo
 \begin{equation}
 \G = \{[1]g\to [2]g \to [3]g\to\cdots\to [r-1]g\to \Oinf\}
 \end{equation} 
-using cofactor clearing, which implies that $[r]g=\Oinf$. "Logarithmic ordering" like this greatly simplifies complicated elliptic curve addition to the much simpler case of modular $r$ addition. So in order to add two curve points $P$ and $Q$, we only have to look up their discrete log relations with the generator, say $P=[n]g$ and $Q=[m]g$ and compute the sum as $P\oplus Q = [n+m]g$. This is, of course, only possible for small groups which we can organize as in XXX\sme{add reference}.
+using cofactor clearing, which implies that $[r]g=\Oinf$. ``Logarithmic ordering'' like this greatly simplifies complicated elliptic curve addition to the much simpler case of modular $r$ addition. So in order to add two curve points $P$ and $Q$, we only have to look up their discrete log relations with the generator, say $P=[n]g$ and $Q=[m]g$ and compute the sum as $P\oplus Q = [n+m]g$. This is, of course, only possible for small groups which we can organize as in XXX\sme{add reference}.
 
 In the following example we will look at some implications of the fact that elliptic curves are finite cyclic groups. We will apply the fundamental theorem of finite cyclic groups and look how it reflects on the curves in consideration.
 \begin{example}Consider the elliptic curve group $E_1(\F_5)$ from example XXX\sme{add reference}. Since it is a finite cyclic group of order $9$ and the prime factorization of $9$ is $3\cdot 3$, we can use the fundamental theorem of finite cyclic groups to reason about all its subgroups. In fact since the only prime factor of $9$ is $3$, we know that $E_1(\F_5)$ has the following subgroups:
@@ -401,7 +408,7 @@ To give another example, we can immediately see that $(3,4)\oplus (4,3) = (4,2)$
 Finally we can use $E_1(\F_5)$ as an example to understand the concept of cofactor clearing from XXX\sme{add reference}. Since the order of $E_1(\F_5)$ is $9$ we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_1(\F_5)$ onto its prime factor group $\G_2$ by scalar multiplication with $3$. For example taking the element $(3,4)$ which is not in $\G_2$ and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $\G_2$ as expected.
 \end{example}
 In the following example we will look at the subgroups of our pen-jubjub curve, define generators and compute the logarithmic order for pen-and-paper computations. Then we have another look at the principle of cofactor clearing.
-\begin{example} Consider the pen-jubjub curve $\mathit{PJJ\_13}$ from example XXX\sme{add reference} again. Since the order of $\mathit{PJJ\_13}$ is $20$ and the prime factorization of $20$ is $2^2\cdot 5$, we know that the $\mathit{PJJ\_13}$ contains a "large" prime order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
+\begin{example} Consider the pen-jubjub curve $\mathit{PJJ\_13}$ from example XXX\sme{add reference} again. Since the order of $\mathit{PJJ\_13}$ is $20$ and the prime factorization of $20$ is $2^2\cdot 5$, we know that the $\mathit{PJJ\_13}$ contains a ``large'' prime order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
 
 To compute those groups, we can apply the technique of cofactor clearing in a try and repeat loop. We start the loop by arbitrarily choose an element $P\in \mathit{PJJ\_13}$. Then we multiply that element with the cofactor of the group, we want to compute. If the result is $\Oinf$, we try a different element and repeat the process until the result is different from the point at infinity.  
 
@@ -420,7 +427,7 @@ sage: Q = PJJ(9,4)
 sage: R = PJJ(4,0)
 sage: 10*Q == R
 \end{sagecommandline}
-We can apply the same reasoning to the "large" prime order subgroup $(\mathit{PJJ\_13})_5$, which contains $5$ elements. To compute a generator for this group, first observe that the associated cofactor is $4$, since $20=5\cdot 4$. We choose the curve point $(9,4)\in \mathit{PJJ\_13}$ again and compute $[4](9,4)=(7,11)$ and we can deduce that $(7,11)$ is a generator of $(\mathit{PJJ\_13})_5$. Using the generator $(7,11)$, we compute the exponential map $[\cdot](7,11): \F_5 \to \mathit{PJJ\_13}$ and get
+We can apply the same reasoning to the ``large'' prime order subgroup $(\mathit{PJJ\_13})_5$, which contains $5$ elements. To compute a generator for this group, first observe that the associated cofactor is $4$, since $20=5\cdot 4$. We choose the curve point $(9,4)\in \mathit{PJJ\_13}$ again and compute $[4](9,4)=(7,11)$ and we can deduce that $(7,11)$ is a generator of $(\mathit{PJJ\_13})_5$. Using the generator $(7,11)$, we compute the exponential map $[\cdot](7,11): \F_5 \to \mathit{PJJ\_13}$ and get
 \begin{align*}
 [0](7,11) &= \Oinf\\
 [1](7,11) &= (7,11)\\
@@ -441,7 +448,7 @@ SEKTP BICOIN. DISCRET LOG HARDNESS PROHIBITS ADDITION IN THE FIELD...
 \end{example}
 \paragraph{Projective short Weierstraß form}
 % https://www.cosic.esat.kuleuven.be/bcrypt/lecture%20slides/wouter.pdf
-As we have seen in the previous section, describing elliptic curves as pairs of points that satisfy a certain equation is relatively straight forward. However, in order to define a group structure on the set of points, we had to add a special point at infinity to act as the neutral element. 
+As we have seen in the previous section, describing elliptic curves as pairs of points that satisfy a certain equation is relatively straight-forward. However, in order to define a group structure on the set of points, we had to add a special point at infinity to act as the neutral element. 
 
 Recalling from the definition of projective planes XXX\sme{add reference} we know, that points at infinity are handled as ordinary points in projective geometry. It make therefore sense to look at the definition of a short Weierstraß curve in projective geometry.
 
@@ -500,7 +507,7 @@ If we compare this with the affine representation we see that there is a 1:1 cor
 Compute the projective representation of the pen-jubjub curve and the logarithmic order of its large prime order subgroup with respect to the generator $(7,11)$.
 \end{exercise}
 \paragraph{Projective Group law}
-As we have seen in XXX\sme{add reference}, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its rational points, described geometrically by the chord and tangent rule. This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appered whenever the chord or the tangent did not have a third intersection point with the curve.
+As we have seen in XXX\sme{add reference}, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its rational points, described geometrically by the chord and tangent rule. This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appeared whenever the chord or the tangent did not have a third intersection point with the curve.
 
 One of the key features of projective coordinates is now, that in projective space it is guaranteed that any chord will always intersect the curve in three points and any tangent will intersect in two points including the tangent point. So the geometric picture simplifies as we don't need to consider external symbols and associated cases.
 
@@ -670,7 +677,7 @@ sage: MPJJ = Set(L_MPJJ)
 sage: # does not compute the point at infinity
 \end{sagecommandline}
 \end{example}
-\paragraph{Affine Montgomery coordinate transformation} Comparing the Montogomery representation of the previous example with the Weierstraß representation of the same curve, we see that there is a 1:1 correspondence between the curve points in both examples. This is no accident. In fact if $M_{A,B}$ is a Montgomery curve and $E_{a,b}$ a Weierstraß curve with $a = \frac{3-A^2}{3B^2}$ and $b= \frac{2A^2 -9A}{27B^3}$ then the function
+\paragraph{Affine Montgomery coordinate transformation} Comparing the Montgomery representation of the previous example with the Weierstraß representation of the same curve, we see that there is a 1:1 correspondence between the curve points in both examples. This is no accident. In fact if $M_{A,B}$ is a Montgomery curve and $E_{a,b}$ a Weierstraß curve with $a = \frac{3-A^2}{3B^2}$ and $b= \frac{2A^2 -9A}{27B^3}$ then the function
 \begin{equation}
 \Phi: M_{A,B} \to E_{a,b}\; : \; (x,y) \mapsto \left(\frac{3x + A}{3B}, \frac{y}{B}\right)
 \end{equation}
@@ -864,7 +871,7 @@ So adding a curve point to its inverse gives the neutral element, as expected. A
 
 %Now having seen that every Edwards curve has point of order $4$, we can deduce that the order of every Edwards curve must contain $4$ as a factor. This is restrictive and in fact Edwards curves are rare. 
 %\end{example}
-\section{Elliptic Curves Pairings} As we have seen in XXX\sme{add reference} some groups comes with the notation of a so called pairing map, which is a non-degenerate bilinear map, from two groups into another group.
+\section{Elliptic Curves Pairings} As we have seen in XXX\sme{add reference} some groups comes with the notation of a so-called pairing map, which is a non-degenerate bilinear map, from two groups into another group.
 
 In this section, we discuss \term{pairings on elliptic curves}, which form the basis of several zk-SNARKs and other zero knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant-sized proof sizes, which is crucial to blockchains. 
 
@@ -872,7 +879,7 @@ We start out by defining elliptic curve pairings and discussing a simple applica
 
 Elliptic curves have a few structures, like the Weil or the Tate map, that qualifies as pairing.   
 
-\paragraph{Embedding Degrees}As we will see in what follows, every elliptic curve gives rise to a pairing map. However, as we will see in example XXX\sme{add reference}, not every such pairing is efficiently computable. So in order to distinguish curves with efficiently computable pairings from the rest, we need to start with an introduction to the so called \term{embedding degree} of a curve. 
+\paragraph{Embedding Degrees}As we will see in what follows, every elliptic curve gives rise to a pairing map. However, as we will see in example XXX\sme{add reference}, not every such pairing is efficiently computable. So in order to distinguish curves with efficiently computable pairings from the rest, we need to start with an introduction to the so-called \term{embedding degree} of a curve. 
 
 To understand this term, let $\F$ be a finite field, $E(\F)$ an elliptic curve over $\F$, and $n$ a prime number that divides the order of $E(\F)$. The embedding degree of $E(\F)$ with respect to $n$ is then the smallest integer $k$ such that $n$ divides $q^k-1$. 
 
@@ -887,7 +894,7 @@ k=2 &\text{: } 5^2-1 = 24 & \text{ divisible by } 3
 \end{align*} 
 So we know that the embedding degree of $E_1(\F_5)$ is $2$ relative to the the prime factor $3$.
 \end{example}
-\begin{example} Lets consider the tiny jubjub curve $\mathit{TJJ\_13}$ from example XXX\sme{add reference}. We know from XXX\sme{add reference} that the order of $\mathit{TJJ\_13}$ is $20$ and that the order therefore has two prime factors. A "large" prime factor $5$ and a small prime factor $2$. 
+\begin{example} Lets consider the tiny jubjub curve $\mathit{TJJ\_13}$ from example XXX\sme{add reference}. We know from XXX\sme{add reference} that the order of $\mathit{TJJ\_13}$ is $20$ and that the order therefore has two prime factors. A ``large'' prime factor $5$ and a small prime factor $2$. 
 
 We start by computing the ebedding degree of $\mathit{TJJ\_13}$ with respect to the large prime factor $5$. To find that embedding degree we have to find the smallest integer $k$, such that $5$ divides $q^k-1= 13^k-1$. We try and increment until we find a proper $k$. 
 \begin{align*}
@@ -899,7 +906,7 @@ k=4 &\text{: } 13^4-1 = 28560 & \text{ divisible by } 5
 So we know that the embedding degree of $\mathit{TJJ\_13}$ is $4$ relative to the the prime factor $5$.
 
 
-In real world applications, like on pairing friendly elliptic curves as for example BLS\_12-381, usually only the embedding degree of the large prime factor are relevant, which in case of out tiny-jubjub curve, is represented by $5$. It should however, be noted that every prime factor of a curves order has its own notation of embedding degree despite the fact that this is mostly irrelevant in applications.
+In real-world applications, like on pairing friendly elliptic curves as for example BLS\_12-381, usually only the embedding degree of the large prime factor are relevant, which in case of out tiny-jubjub curve, is represented by $5$. It should however, be noted that every prime factor of a curves order has its own notation of embedding degree despite the fact that this is mostly irrelevant in applications.
 
 To find the embedding degree of the small prime factor $2$ we have to find the smallest integer $k$, such that $2$ divides $q^k-1= 13^k-1$. We try and increment until we find a proper $k$. 
 \begin{align*}
@@ -947,7 +954,7 @@ So while we did not change the defining parameters, we consider curve points fro
 $$
 E_1(\F_{5^2}) = \{ (x,y)\in \F\times \F \;|\; y^2 = x^3 + x +1 \}
 $$
-Since $\F_{5^2}$ contains $25$ points, in order to compute the set $E_1(\F_{5^2})$, we have to try $25\cdot 25 = 625$ pairs, which is probably a bit to much for the average motivated reader. Instead, we involve Sage to compute the curve for us. To do so choose the representation of $\F_{5^2}$ from XXX\sme{add reference}. We get:
+Since $\F_{5^2}$ contains $25$ points, in order to compute the set $E_1(\F_{5^2})$, we have to try $25\cdot 25 = 625$ pairs, which is probably a bit too much for the average motivated reader. Instead, we involve Sage to compute the curve for us. To do so choose the representation of $\F_{5^2}$ from XXX\sme{add reference}. We get:
 \begin{sagecommandline}
 sage: F5= GF(5)
 sage: F5t.<t> = F5[] 
@@ -1042,7 +1049,7 @@ k = \scriptstyle 192986815395526992372618308347813175472927379845817397100860523
 $$
 which is a 256-bit number. So the embedding degree is huge, which implies that the fiel extension $\F_{p^k}$ is huge too. To understand how big $\F_{p^k}$ is, recall that an element of $\F_{p^m}$ can be represented as a string $[x_0,\ldots,x_m]$ of $m$ elements, each containing a number from the prime field $\F_p$. Now in the case of Secp256k1, such a representation has $k$-many entries, each of $256$ bits in size. So without any optimizations, representing such an element would need $k\cdot 256$ bits, which is too much to be represented in the observable universe.
 \end{example}
-\paragraph{Torsion-Subgroups}As we have stated above, any full $n$-torsion group contains $n+1$ cyclic subgroups, two of which are of particular interest in pairing based elliptic curve cryptography. To characterize these groups we need to consider the so called \term{Frobenius} endomorphism
+\paragraph{Torsion-Subgroups}As we have stated above, any full $n$-torsion group contains $n+1$ cyclic subgroups, two of which are of particular interest in pairing-based elliptic curve cryptography. To characterize these groups we need to consider the so-called \term{Frobenius} endomorphism
 \begin{equation}
 \pi : E(\F) \to E(\F): \;\; 
 \begin{array}{lcl}
@@ -1052,13 +1059,13 @@ which is a 256-bit number. So the embedding degree is huge, which implies that t
 \end{equation}
 of an elliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$. It can be shown that $\pi$ maps curve points to curve points. The first thing to note is that in case that $\F$ is a prime field, the Frobenius endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields, due to Fermat's little theorem XX. So the Frobenius map is more interesting over prime field extensions.
 
-With the Frobenius map at hand, we can now characterize two important subgroups of the full $n$-torsion. The first subgroup is the $n$-torsion group that already exists in the curve over the base field. In pairing based cryptography this group is usually written as $\G_1$, assuming that the prime factor '$n$' in the definition is implicitly given. Since we know that the Frobenius map, acts trivially on curve over the prime field we can define $\G_1$ as:
+With the Frobenius map at hand, we can now characterize two important subgroups of the full $n$-torsion. The first subgroup is the $n$-torsion group that already exists in the curve over the base field. In pairing-based cryptography this group is usually written as $\G_1$, assuming that the prime factor '$n$' in the definition is implicitly given. Since we know that the Frobenius map, acts trivially on curve over the prime field we can define $\G_1$ as:
 \begin{equation}
 \G_1[n] := \{(x,y)\in E[n]\;| \pi(x,y) = (x,y)\;\}
 \end{equation}
 In more mathematical terms this definition means, that $\G_1$ is the \term{Eigenspace} of the Frobenius map with respect to the \term{Eigenvalue} $1$.
 
-Now it can be shown, that there is another subgroup of the full $n$-torsion group that can be characterized by the Frobenius map. In the context of so called type $3$ pairing based cryptography this subgroup is usually called $\G_2$ and it defined as 
+Now it can be shown, that there is another subgroup of the full $n$-torsion group that can be characterized by the Frobenius map. In the context of so-called type $3$ pairing-based cryptography this subgroup is usually called $\G_2$ and it defined as 
 \begin{equation}
 \G_2[n] := \{(x,y)\in E[n]\;| \pi(x,y) = [p](x,y)\;\}
 \end{equation}
@@ -1067,7 +1074,7 @@ So in mathematical terms $\G_2$ is the \term{Eigenspace} of the Frobenius map wi
 If the prime factor $n$ of the curves order is clear from the context, we sometimes simply write $\G_1$ and $\G_2$ to mean $\G_1[n]$ and $\G_2[n]$, respectively.
 \end{notation}
 
-It should be noted, however, that sometimes other definitions of $\G_2$ appear in the literature, however, in the context of pairing based cryptography, this is the most common one. It is particularly useful, as we can define hash functions that map into $\G_2$, which is not possible for all subgroups of the full $n$-torsion.
+It should be noted, however, that sometimes other definitions of $\G_2$ appear in the literature, however, in the context of pairing-based cryptography, this is the most common one. It is particularly useful, as we can define hash functions that map into $\G_2$, which is not possible for all subgroups of the full $n$-torsion.
 \begin{example} Consider the curve $E_1(\F_5)$ from example XXX again. As we have seen this curve has embedding degree $k=2$ and a full $3$-torsion group is given by
 $$
 E_1[3] = \{\Oinf,(2,1),(2,4), (1,t), (1,4t),(2t + 1,t + 1),
@@ -1227,11 +1234,11 @@ x_{T+P} & = m^2 -x_T -x_P\\
 % http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf
 % p. 396ff
 
-\section{Hashing to Curves} Elliptic curve cryptography frequently requires the ability to hash data onto elliptic curves. If the order of the curve is not a prime number hashing to prime number subgroups is also of importance. In the context of pairing friendly curves it is also sometimes necessary to hash specifically onto the group $\G_1$ or $\G_2$.
+\section{Hashing to Curves} Elliptic curve cryptography frequently requires the ability to hash data onto elliptic curves. If the order of the curve is not a prime number hashing to prime number subgroups is also of importance. In the context of pairing-friendly curves it is also sometimes necessary to hash specifically onto the group $\G_1$ or $\G_2$.
 
 As we have seen in XXX\sme{add reference}, many general methods are known to hash into groups in general and finite cyclic groups in particular. As elliptic groups are cyclic those method can be utilized in this case, too. However, in what follows we want to describe some methods special to elliptic curves, that are frequently used in applications. 
 \paragraph{Try and increment hash functions}
-One of the most straight forward ways to hash a bitstring onto an elliptic curve point, in a  secure way, is to use a cryptographic hash function together with one of the methods we described in XXX\sme{add reference} to hash to the modular arithmetics base field of the curve. Ideally the hash function generates an image that is at least one bit longer than the bit representation of the base field modulus.
+One of the most straight-forward ways to hash a bitstring onto an elliptic curve point, in a  secure way, is to use a cryptographic hash function together with one of the methods we described in XXX\sme{add reference} to hash to the modular arithmetics base field of the curve. Ideally the hash function generates an image that is at least one bit longer than the bit representation of the base field modulus.
 
 The image in the base field can then be interpreted as the $x$-coordinate of the curve point and the two possible $y$-coordinates are then derived from the curve equation, while one of the bits that exceeded the modulus determines which of the two $y$-coordinates to choose.
 
@@ -1239,7 +1246,7 @@ Such an approach would be easy to implement and deterministic and it will conser
 % https://www.cs.umd.edu/users/gasarch/TOPICS/res/burgess.pdf
 on a prime field, only half of the field elements are quadratic residues and hence assuming an even distribution of the hash values in the field, this method would fail to generate a curve point in about half of the attempts. 
 
-One way to account for this problem is the so called \term{try and increment} method. Its basic assumption is, that hashing different values, the result will eventually lead to a valid curve point. 
+One way to account for this problem is the so-called \term{try and increment} method. Its basic assumption is, that hashing different values, the result will eventually lead to a valid curve point. 
 
 Therefore instead of simply hashing a string $s$ to the field the concatenation of $s$ with additional bytes is hashed to the field instead, that is a try and increment hash as described in XXX\sme{add reference} is used. If the first \term{try} of hashing to the field does not result in a valid curve point, the counter is \term{incremented} and the hashing is repeated again. This is done until a valid curve point is found eventually.
 
@@ -1273,7 +1280,7 @@ This method has the advantageous that is relatively easy to implement in code an
 
 %Conidering certain subgroups of the elliptic curve, the usefulness of this methods depends highly on the actual situation. For example if a hash to the $n$-torsion subgroup $\mathbb{G}_1$ is desired, there are two possibilities: 
 
-If the curve is not of prime order, the result will be a general curve point that might not be in the "large" prime order subgroup. A so called \term{cofactor clearing} step is then necessary to project the curve point onto the subgroup. This is done by scalar multiplication with the cofactor of prime order with respect to the curves order.
+If the curve is not of prime order, the result will be a general curve point that might not be in the ``large'' prime order subgroup. A so-called \term{cofactor clearing} step is then necessary to project the curve point onto the subgroup. This is done by scalar multiplication with the cofactor of prime order with respect to the curves order.
 \begin{example} Consider the tiny jubjub curve from example XXX\sme{add reference}. We want to construct a try and increment hash function, that hashes a binary string $s$ of arbitrary length onto the large prime order subgroup of size $5$. 
 
 Since the curve as well as our targeted subgroup are defined over the field $\F_{13}$ and the binary representation of $13$ is $13.bits()=1101$, we apply SHA256 from Sage's crypto library on the concatenation $s||c$ for some binary counter string and use the first $4$ bits of the image to try to hash into $\F_{13}$. In case we are able to hash to a value $z$, such that $z^3 +8\cdot z + 8$ is a quadratic residue in $\F_{13}$, we use the $5$-th bit to decide which of the two possible roots of $z^3 + 8\cdot z + 8$ we will choose as the $y$-coordinate. The result is then a curve point different from the point at infinity. To project it to a point of $\G_1$, we multiply it with the cofactor $4$. If the result is still not the point at infinity, it is the result of the hash.
@@ -1306,7 +1313,7 @@ Since $6^3 + 8\cdot 6 + 8 = 12$ and we have $\sqrt{12}\in\{5, 8\}$, we finally f
 $$
 H('10011001111010110100000111') = (6,8)
 $$
-which is a valid curve point point on the tiny jubjub curve. Now in order to project it onto the "large" prime order subgroup we have to do cofactor clearing, that is we have to multiply the point with the cofactor $4$. We get
+which is a valid curve point point on the tiny jubjub curve. Now in order to project it onto the ``large'' prime order subgroup we have to do cofactor clearing, that is we have to multiply the point with the cofactor $4$. We get
 $$
 [4](6,8) = \Oinf
 $$ 
@@ -1319,7 +1326,7 @@ Since $12^3 + 8\cdot 12 + 8 = 12$ and we have $\sqrt{12}\in\{5, 8\}$, we found a
 $$
 H('10011001111010110100000111') = (12,5)
 $$
-which is a valid curve point point on the tiny jubjub curve and in order to project it onto the "large" prime order subgroup we have to do cofactor clearing, that is we have to multiply the point with the cofactor $4$. We get
+which is a valid curve point point on the tiny jubjub curve and in order to project it onto the ``large'' prime order subgroup we have to do cofactor clearing, that is we have to multiply the point with the cofactor $4$. We get
 $$
 [4](12,5) = (8,5)
 $$
@@ -1328,14 +1335,14 @@ So hashing the binary string $'10011001111010110100000111'$ onto $\G_1$ gives th
 
 \section{Constructing elliptic curves} Cryptographically secure elliptic curves like Secp256k1 from example XXX\sme{add reference} are known for quite some time. In the latest advancements of cryptography, it is however, often necessary to design and instantiate elliptic curves from scratch, that satisfy certain very specific properties. 
 
-For example, in the context of SNARK development it was necessary to design a curve that can be efficiently implemented incide of a so called circuit, in order to enable primitives like elliptic curve signature schemes in a zero knowledge proof. Such a curve is give by the Baby-jubjub curve [XXX\sme{add reference}] and we have paralleled its definition by introducing the tiny-jubjub curve from example XX. As we have seen those curves are instances of so-called twisted Edwards curves and as such have easy to implement addition laws that work without branching. However, we introduced the tiny-jubjub curve out of thin air, as we just gave the curve parameters without explaining how we came up with them.
+For example, in the context of SNARK development it was necessary to design a curve that can be efficiently implemented incide of a so-called circuit, in order to enable primitives like elliptic curve signature schemes in a zero knowledge proof. Such a curve is give by the Baby-jubjub curve [XXX\sme{add reference}] and we have paralleled its definition by introducing the tiny-jubjub curve from example XX. As we have seen those curves are instances of so-called twisted Edwards curves and as such have easy to implement addition laws that work without branching. However, we introduced the tiny-jubjub curve out of thin air, as we just gave the curve parameters without explaining how we came up with them.
 
-Another requirement in the context of many so called pairing based zero knowledge proofing systems is the existing of a suitable, pairing friendly curve with a specified security level and a low embedding degree as defined in XXX\sme{add reference}. Famous examples are the BLS\_12 or the NMT curves.
+Another requirement in the context of many so-called pairing-based zero knowledge proofing systems is the existing of a suitable, pairing-friendly curve with a specified security level and a low embedding degree as defined in XXX\sme{add reference}. Famous examples are the BLS\_12 or the NMT curves.
 
-The major goal of this section is to explain the most important method to design elliptic curves with predefined properties from scratch, called the \term{complex multiplication method}. We will apply this method in section to synthesize a particular BLS\_6 curve, the most insecure BLS\_6 curve, which will serve as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a "large" prime factor subgroup of order $13$, which implies, that we can use our tiny-jubjub curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
+The major goal of this section is to explain the most important method to design elliptic curves with predefined properties from scratch, called the \term{complex multiplication method}. We will apply this method in section to synthesize a particular BLS\_6 curve, the most insecure BLS\_6 curve, which will serve as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies, that we can use our tiny-jubjub curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
  
 Before we introduce the complex multiplication method, we have to explain a few properties of elliptic curves that are of key importance in understanding the complex multiplication method. 
-\paragraph{The Trace of Frobenius} To understand the complex multiplication method of elliptic curve, we have to define the so called \term{trace} of an elliptic curve first.
+\paragraph{The Trace of Frobenius} To understand the complex multiplication method of elliptic curve, we have to define the so-called \term{trace} of an elliptic curve first.
 
 We know from XXX\sme{add reference} that elliptic curves over finite fields are cyclic groups of finite order. An interesting question therefore is, if it is possible to estimate the number of elements that curve contains. Since an affine short Weierstraß curve consists of pairs $(x,y)$ of elements from a finite field $\F_q$ plus the point at infinity and the field $\F_q$ contains $q$ elements, the number of curve points can not be arbitrarily large, since it can contain at most $q^2+1$ many elements. 
 
@@ -1378,7 +1385,7 @@ sage: abs(RR(t)) <= 2*sqrt(RR(p))
 \end{example} 
 \paragraph{The $j$-invariant} As we have seen in XXX\sme{add reference} two elliptic curve $E_1(\F)$ defined by $y^2 = x^3 + ax +b$ and $E_2(\F)$ defined by $y^2 + a'x + b'$ are strictly isomorphic, if and only if there is a quadratic residue $d\in \F$, such that $a' = a d^2$ and $b' = b d^3$. 
 
-There is however, a more general way to classify elliptic curves over finite fields $\F_q$, based on the so called $j$-invariant of an elliptic curve:
+There is however, a more general way to classify elliptic curves over finite fields $\F_q$, based on the so-called $j$-invariant of an elliptic curve:
 \begin{equation}
 j(E(\F_q)) = \left(\Zmod{1728}{q}\right) \frac{4\cdot a^3}{4\cdot a^3+ (\Zmod{27}{q})\cdot b^2}
 \end{equation}
@@ -1413,7 +1420,7 @@ sage: j == F(0)
 \end{sagecommandline}
 \end{example} 
 \paragraph{The Complex Multiplication Method}
-As we have seen in the previous sections, elliptic curves have various defining properties, like their order and their prime factors, the embedding degree, or the cardinality of the base field. The so called \term{complex multiplication} (CM) gives a practical method for constructing elliptic curves with pre-defined restrictions on the order and the base field.
+As we have seen in the previous sections, elliptic curves have various defining properties, like their order and their prime factors, the embedding degree, or the cardinality of the base field. The so-called \term{complex multiplication} (CM) gives a practical method for constructing elliptic curves with pre-defined restrictions on the order and the base field.
 
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
 % http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf
@@ -1438,7 +1445,7 @@ It is the content of the complex multiplication method to actually construct suc
 
 Finding solutions to equation XXX\sme{add reference}, can be achieved in different ways, which we will not look much into. In general it can be said, that there are well known constraints for elliptic curve families like the BLS (ECT) families, that provides families of solutions. In what follows we will look at one type curves the BLS-family, which gives an entire range of solutions.
 
-Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so called \term{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
+Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so-called \term{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
 \begin{multline*}
 ICG(D)=\{(A,B,C)\;|\; A,B,C\in\Z, D = B^2-4AC, gcd(A,B,C)=1, \\
 |B|\leq A \leq \sqrt{\frac{|D|}{3}}, A\leq C, 
@@ -1446,7 +1453,7 @@ ICG(D)=\{(A,B,C)\;|\; A,B,C\in\Z, D = B^2-4AC, gcd(A,B,C)=1, \\
 \end{multline*} 
 One way to compute this set, is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $A$ in the range $[0,\ldots,A_{max}]$ as well as through all the integers $B$ in the range $[-A_{max},\ldots,A_{max}]$ and to see if there is an integer $C$, that satisfies $D = B^2-4AC$ and the rest of the requirements in XXX\sme{add reference}.
 
-To compute the Hilbert class polynomial, the so called \term{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as
+To compute the Hilbert class polynomial, the so-called \term{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as
 \begin{equation}
 j: \mathbb{H} \to \mathbb{C}
 \end{equation}
@@ -1553,7 +1560,7 @@ c_1=\frac{2}{1728-2}
 $$
 in modular $5$ arithmetics. Since $\Zmod{1728}{5}=3$, we get $c_1=2$. Then we have to check if the curve $E(\F_5)$ defined by the Weierstraß  $y^2 = x^3 + 3\cdot 2 x + 2\cdot 2$ has the correct order. We invoke Sage and find that the order is indeed $9$, so it is a curve with the required parameters and we are done.
 
-Note however, that in real world applications, it might be useful to choose parameters $a$ and $b$ that have certain properties, e.g. to be a small as possible. As we know from XXX\sme{add reference}, choosing any quadratic residue $d\in \F_5$ gives a curve of the same order defined by $y^2 = x^2 + a k^2 x + bk^3$. Since $4$ is a quadratic residue in $\F_4$, we can transform the curve defined by 
+Note however, that in real-world applications, it might be useful to choose parameters $a$ and $b$ that have certain properties, e.g. to be a small as possible. As we know from XXX\sme{add reference}, choosing any quadratic residue $d\in \F_5$ gives a curve of the same order defined by $y^2 = x^2 + a k^2 x + bk^3$. Since $4$ is a quadratic residue in $\F_4$, we can transform the curve defined by 
 $y^2 = x^3 +x+4$ into the curve $y^2 = x^3 + 4^2 + 4\cdot 4^3$ which gives 
 $$
 y^2 = x^3 + x +1
@@ -1622,7 +1629,7 @@ which is the tiny jubjub curve, that we used extensively throughout this book. S
 p &= \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663\\
 r &= \scriptstyle 115792089237316195423570985008687907852837564279074904382605163141518161494337
 \end{align*}
-which, according to example XXX gives the trace of Frobeniois
+which, according to example XXX, gives the trace of Frobenius
 $t = \scriptstyle 432420386565659656852420866390673177327$. We also decided that we want a curve of the form $y^2 = x^3 + b$, that is we want the parameter $a$ to be zero. This implies, the $j$-invariant of our curve must be zero.
 
 In a first step we have to find a CM-discriminant $D$ and some integer $v$, such that the equation 
@@ -1746,7 +1753,7 @@ Since $q(1)=1$ is not a prime number, the first $x$ that gives a proper curve is
 
 Since the prime field $\F_{43}$ has $43$ elements and $43$'s binary representation is $43_2= 101011$, which are $6$ digits, the name of our pen\&{}paper curve should be $BLS6\_6$, since its is common behaviour to name a BLS curve by its embedding degree and the bit-length of the modulus in the base field. We call $BLS6\_6$ the \term{moon-math-curve}.
 
-Recalling from XXX\sme{add reference}, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a "large" prime factor group of size $13$ as expected and a small cofactor group of size $3$. Fortunately a subgroup of order $13$ is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen-and-paper style. 
+Recalling from XXX\sme{add reference}, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a ``large'' prime factor group of size $13$ as expected and a small cofactor group of size $3$. Fortunately a subgroup of order $13$ is well suited for our purposes as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen-and-paper style. 
 
 We can check that the embedding degree is indeed $6$ as expected, since $k = 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
 \begin{sagecommandline}
@@ -1798,7 +1805,7 @@ sage: BLS66 = EllipticCurve(F43,[0,c3^(-2)*c2^3])
 sage: BLS66.order() == 39
 sage: BLS6 = BLS63 # our BLS6 curve in the book
 \end{sagecommandline}
-So as expeced we found an elliptic curve of the correct order $39$ over a prime field of size $43$, defined by the equation
+So, as expected we found an elliptic curve of the correct order $39$ over a prime field of size $43$, defined by the equation
 \begin{equation}
 BLS6\_6 := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43}\}
 \end{equation}
@@ -1811,11 +1818,11 @@ BLS63p = BLS63.plot()
 \end{center}
 As we can see our curve is somewhat nice, as it does not contain self inverse points that is points with $y=0$. It follows that the addition law can be optimized, since the branch for those cases can be eliminated. 
 
-Summarizing the previous procedure, we have used the method of Barreto, Lynn and Scott to construct a pairing friendly elliptic curve of embedding degree $6$. However, in order to do elliptic curve cryptography on this curve note that since the order of $BLS6\_6$ is $39$ its group of rational points is not a finite cyclic group of prime order. We therefore have to find a suitable subgroup as our main target and since $39=13\cdot 3$, we know that the curve must contain a "large" prime order group of size $13$ and a small cofactor group of order $3$. 
+Summarizing the previous procedure, we have used the method of Barreto, Lynn and Scott to construct a pairing friendly elliptic curve of embedding degree $6$. However, in order to do elliptic curve cryptography on this curve note that since the order of $BLS6\_6$ is $39$ its group of rational points is not a finite cyclic group of prime order. We therefore have to find a suitable subgroup as our main target and since $39=13\cdot 3$, we know that the curve must contain a ``large'' prime order group of size $13$ and a small cofactor group of order $3$. 
 
-It is the content of the following step to construct this group. One way to do so is to find a generator. We can achieve this by choosing an abitrary element of the group that is not the point at infinity and then multiply that point with the cofactor of the groups order. If the result is not the point at infinity, the result will be a generator and if it is the point at infinity we have to choose a different element. 
+It is the content of the following step to construct this group. One way to do so is to find a generator. We can achieve this by choosing an arbitrary element of the group that is not the point at infinity and then multiply that point with the cofactor of the groups order. If the result is not the point at infinity, the result will be a generator and if it is the point at infinity we have to choose a different element. 
 
-So in order to find a generator for the large order subgroup of size $13$, we first notice that the cofactor of $13$ is $3$, since $39=3\cdot 13$. We then need to construct an arbitray element from $BLS6\_6$. To do so in a pen-and-paper style, we can choose some $arbitrary x\in\F_{43}$ and see if there is some ssolution $y\in\F_{43}$ that satisfies the defining Weierstraß equation $y^2 = x^3 + 6$. We choose $x=9$. Then $y=2$ is a proper solution, since
+So in order to find a generator for the large order subgroup of size $13$, we first notice that the cofactor of $13$ is $3$, since $39=3\cdot 13$. We then need to construct an arbitrary element from $BLS6\_6$. To do so in a pen-and-paper style, we can choose some $arbitrary x\in\F_{43}$ and see if there is some ssolution $y\in\F_{43}$ that satisfies the defining Weierstraß equation $y^2 = x^3 + 6$. We choose $x=9$. Then $y=2$ is a proper solution, since
 \begin{align*}
 y^2 & = x^3 + 6 & \Rightarrow \\
 2^2 & = 9^3 + 6 & \Leftrightarrow \\
@@ -1825,7 +1832,7 @@ and this implies that $P=(9,2)$ is therefore a point on $BLS6\_6$. To see if we 
 \begin{equation}
 g_{BLS6\_6[13]} = (13,15)
 \end{equation}
-as we will need this generator in pairing computations all over the book. Since $g_{BLS6\_6[13]}$ is a generator, we can use it to construct the subgoup $BLS6\_6[13]$, by repeately addding the generator to itself. We use Sage and get
+as we will need this generator in pairing computations all over the book. Since $g_{BLS6\_6[13]}$ is a generator, we can use it to construct the subgoup $BLS6\_6[13]$, by repeatedly adding the generator to itself. We use Sage and get
 \begin{sagecommandline}
 sage: P = BLS6(9,2)
 sage: Q = 3*P
@@ -1852,7 +1859,7 @@ which generates the group in logarithmic order. So for example we have $[1]_{(13
                       & = [4](13,15)\\
                       & = (35,28)\\
 \end{align*}
-So XXX\sme{add reference} is really all we need to do computations in $BLS6\_6[13]$ in this book efficiently. However, out of convinience, the following picture lists the entire addition table of that group. It might be useful in pen-and-paper computations:
+So XXX\sme{add reference} is really all we need to do computations in $BLS6\_6[13]$ in this book efficiently. However, out of convenience, the following picture lists the entire addition table of that group. It might be useful in pen-and-paper computations:
 \begingroup
     \fontsize{5pt}{5pt}\selectfont
 $$
@@ -1892,7 +1899,7 @@ $$
 %$$BLS6\_6[3]=\{\mathcal{O},(0,7),(0,36)\}$$
 %Now that we ha
 
-Now that we have constructed a "large" cyclic prime order subgroup of $BLS6\_6$ sutable for many pen and paper computations in elliptic curve cryptography, we have to look at how to do pairings in this context. We know that $BLS6\_6$ is a pairing friendly curve by design, since it has a small embedding degree $k=6$. It is therefore possible to compute Weil pairings efficiently. However in order to do so, we have to decides the groups $\G_1$ and $\G_2$ as explained in XXX. 
+Now that we have constructed a ``large'' cyclic prime order subgroup of $BLS6\_6$ sutable for many pen and paper computations in elliptic curve cryptography, we have to look at how to do pairings in this context. We know that $BLS6\_6$ is a pairing-friendly curve by design, since it has a small embedding degree $k=6$. It is therefore possible to compute Weil pairings efficiently. However in order to do so, we have to decides the groups $\G_1$ and $\G_2$ as explained in XXX. 
 
 Since $BLS6\_6$ has two non-trivial subgroups, it would be possible to use any of them as the $n$-torsion group. However, in cryptography, the only secure choice is to use the large prime order subgroup, which in our case is $BLS6\_6[13]$. we therefore decide to consider the $13$-torsion and define 
 \begin{multline*}
@@ -1994,7 +2001,7 @@ We start with $\mathbb{G}_1$. Our goal is to define an $12$-bit bounded hash fun
 $$
 H_{1}: \{0,1\}^{12} \to \mathbb{G}_1 
 $$
-Since $12= 3\cdot 4$ we "randomly" select $4$ uniformly distributed generators $\{(38, 15), (35,28),\\ (27, 34), (38, 28)\}$ from $\mathbb{G}_1$ and use the pseudo-random function from XXX\sme{add reference}. 
+Since $12= 3\cdot 4$ we ``randomly'' select $4$ uniformly distributed generators $\{(38, 15), (35,28),\\ (27, 34), (38, 28)\}$ from $\mathbb{G}_1$ and use the pseudo-random function from XXX\sme{add reference}. 
 For every generator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
 $$
 \begin{array}{lcl}
@@ -2039,7 +2046,7 @@ We can use the same technique to define a $12$-bit bounded hash function in $\ma
 $$
 H_{2}: \{0,1\}^{12} \to \mathbb{G}_2 
 $$
-Again we "randomly" select $4$ uniformly distributed generators $\{(7v^2 , 16v^3 ), (42v^2 , 16v^3 ), \\(17v^2 , 15v^3 ), (10v^2 , 15v^3 )\}$ from $\mathbb{G}_2$ and use the pseudo-random function from XXX\sme{add reference}. For every genrator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
+Again we ``randomly'' select $4$ uniformly distributed generators $\{(7v^2 , 16v^3 ), (42v^2 , 16v^3 ), \\(17v^2 , 15v^3 ), (10v^2 , 15v^3 )\}$ from $\mathbb{G}_2$ and use the pseudo-random function from XXX\sme{add reference}. For every genrator we therefore have to choose a set of $4$ randomly generated invertible elements from $\F_{13}$. We choose
 $$
 \begin{array}{lcl}
 (7v^2 , 16v^3 ) &:& \{8,4,5,7\}\\
@@ -2056,7 +2063,7 @@ H_1(x_{11},x_{10},\ldots, x_{0})=
 [2\cdot 3^{x_5}\cdot 9^{x_4}\cdot 11^{x_3}](17v^2 , 15v^3 ) +
 [3\cdot 6^{x_2}\cdot 9^{x_{1}}\cdot 10^{x_{0}}](10v^2 , 15v^3 )
 \end{multline*}
-We extend this to a hash function that maps unbounded bitstring to $\mathbb{G}_2$ by precomposing with an actual haah function like $MD5$ and feet the first 12 bits of its outcome into our previously defined hash function. 
+We extend this to a hash function that maps unbounded bitstring to $\mathbb{G}_2$ by precomposing with an actual hash function like $MD5$ and feet the first 12 bits of its outcome into our previously defined hash function. 
 $$
 TinyMD5_{\mathbb{G}_2}: \{0,1\}^* \to \mathbb{G}_2
 $$
