@@ -7,6 +7,218 @@ doctest this file with "sage -t main-moonmath_doctest.sage".
 It is always safe to delete this file; it is not used in typesetting your
 document.
 
+Sage commandline, line 87::
+
+sage: ZZ # A sage notation for the integer type
+sage: NN # A sage notation for the counting number type
+sage: ZZ(5) # Get an element from the Ring of integers
+sage: ZZ(5) + ZZ(3)
+sage: ZZ(5) * NN(3)
+sage: ZZ.random_element(10**50)
+sage: ZZ(27713).str(2) # Binary string representation
+sage: NN(27713).str(2) # Binary string representation
+sage: ZZ(27713).str(16) # Hexadecimal string representation
+
+Sage commandline, line 116::
+
+sage: n = NN(19214758032624000)
+sage: factor(n)
+
+Sage commandline, line 187::
+
+sage: ZZ(-17) // ZZ(4) # Integer quotient
+sage: ZZ(-17) % ZZ(4) # remainder
+sage: ZZ(4).divides(ZZ(-17)) # self divides other
+sage: ZZ(4).divides(ZZ(12))
+
+Sage commandline, line 205::
+
+sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
+sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
+
+Sage commandline, line 265::
+
+sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
+
+Sage commandline, line 340::
+
+sage: ZZ(137).gcd(ZZ(64))
+sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
+sage: ZZ(64)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
+sage: ZZ(1918).gcd(ZZ(137))
+sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
+sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
+
+Sage commandline, line 376::
+
+sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
+sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
+
+Sage commandline, line 443::
+
+sage: CRT_list([4,1,3,0], [7,3,5,11])
+
+Sage commandline, line 519::
+
+sage: Z6 = Integers(6)
+sage: Z6(2) + Z6(5)
+sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
+
+Sage commandline, line 591::
+
+sage: ZZ(6).xgcd(ZZ(5))
+
+Sage commandline, line 639::
+
+sage: Z5 = Integers(5)
+sage: Z5(3)**(5-2)
+sage: Z5(3)**(-1)
+sage: Z5(3)**(5-2) == Z5(3)**(-1)
+
+Sage commandline, line 708::
+
+sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
+sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
+sage: Zx
+sage: Zt
+sage: p1 = Zx([17,-4,2])
+sage: p1
+sage: p1.degree()
+sage: p1.leading_coefficient()
+sage: p2 = Zt(t^23)
+sage: p2
+sage: p6 = Zx([0])
+sage: p6.degree()
+
+Sage commandline, line 742::
+
+sage: Z6 = Integers(6)
+sage: Z6x = Z6['x']
+sage: Z6x
+sage: p1 = Z6x([5,-4,2])
+sage: p1
+sage: p1 = Z6x([17,-4,2])
+sage: p1
+sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
+
+Sage commandline, line 771::
+
+sage: Zx = ZZ['x']
+sage: p1 = Zx([17,-4,2])
+sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
+sage: p1(ZZ(2))
+sage: p7(ZZ(-6)) == ZZ(-264)
+
+Sage commandline, line 788::
+
+sage: Z6 = Integers(6)
+sage: Z6x = Z6['x']
+sage: p1 = Z6x([5,-4,2])
+sage: p1(Z6(2)) == Z6(5)
+
+Sage commandline, line 825::
+
+sage: Zx = ZZ['x']
+sage: P = Zx([2,-4,5])
+sage: Q = Zx([5,0,-2,1])
+sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
+sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
+
+Sage commandline, line 844::
+
+sage: Z6x = Integers(6)['x']
+sage: P = Z6x([2,-4,5])
+sage: Q = Z6x([5,0,-2,1])
+sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
+sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
+
+Sage commandline, line 902::
+
+sage: Zx = ZZ['x']
+sage: A = Zx([-9,0,0,2,0,1])
+sage: B = Zx([-1,4,1])
+sage: M = Zx([-80,19,-4,1])
+sage: R = Zx([-89,339])
+sage: A == M*B + R
+
+Sage commandline, line 934::
+
+sage: Zx = ZZ['x']
+sage: p = Zx(x^2-3)
+sage: p.roots()
+sage: p.factor()
+
+Sage commandline, line 959::
+
+sage: Zx = ZZ['x']
+sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
+sage: p.roots()
+sage: p.factor()
+
+Sage commandline, line 300::
+
+sage: import hashlib
+sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+sage: hasher = hashlib.sha256(b'')
+sage: str = hasher.hexdigest()
+sage: type(str)
+sage: d = ZZ('0x'+ str) # conversion to integer type
+sage: d.str(16) == str
+sage: d.str(16) == test
+sage: d.str(16)
+sage: d.str(2)
+sage: d.str(10)
+
+Sage commandline, line 371::
+
+sage: import hashlib
+sage: def Hash5(x):
+....:     hasher = hashlib.sha256(x)
+....:     digest = hasher.hexdigest()
+....:     d = ZZ(digest, base=16)
+....:     d = d.str(2)[-4:]
+....:     return ZZ(d,base=2)
+sage: Hash5(b'')
+
+Sage commandline, line 428::
+
+sage: import hashlib
+sage: Z23 = Integers(23)
+sage: def Hash_mod23(x, k2):
+....:     hasher = hashlib.sha256(x.encode('utf-8'))
+....:     digest = hasher.hexdigest()
+....:     d = ZZ(digest, base=16)
+....:     d = d.str(2)[-k2:]
+....:     d = ZZ(d, base=2)
+....:     return Z23(d)
+
+Sage commandline, line 657::
+
+sage: QQ
+sage: QQ(1/5) # Get an element from the field of rational numbers
+sage: QQ(1/5) / QQ(3) # Division
+
+Sage commandline, line 681::
+
+sage: F2 = GF(2)
+sage: F2(1) # Get an element from GF(2)
+sage: F2(1) + F2(1) # Addition
+sage: F2(1) / F2(1) # Division
+
+Sage commandline, line 946::
+
+sage: Z3 = GF(3) # prime field
+sage: Z3t.<t> = Z3[] # polynomials over Z3
+sage: P = Z3t(t^2+1)
+sage: P.is_irreducible()
+sage: F3_2.<t> = GF(3^2, name='t', modulus=P)
+sage: F3_2
+sage: F3_2(t+2)*F3_2(2*t+2) == F3_2(2)
+sage: F3_2(2*t+2)^(-1) # multiplicative inverse
+sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
+sage: F3_2(t+1)*(F3_2(t)**2 + F3_2(2*t+2)) == F3_2(2)
+sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
+
 Sage commandline, line 61::
 
 sage: F5 = GF(5) # define the base field
@@ -466,5 +678,34 @@ Sage commandline, line 2143::
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
+
+Sage commandline, line 1252::
+
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: T = F13t((t-5)*(t-7))
+sage: A2 = F13t.lagrange_polynomial([(5,1),(7,0)])
+sage: A5 = F13t.lagrange_polynomial([(5,0),(7,1)])
+sage: T == F13t(t^2 + t + 9)
+sage: A2 == F13t(6*t + 10)
+sage: A5 == F13t(7*t + 4)
+
+Sage commandline, line 1313::
+
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: T = F13t(t^2 + t + 9)
+sage: P = F13t((2*(6*t+10)+6*(7*t+4))*(3*(6*t+10)+4*(7*t +4))-(11*(7*t+4)+6*(6*t+10)))
+sage: P == T
+sage: P % T # remainder
+
+Sage commandline, line 1334::
+
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: T = F13t(t^2 + t + 9)
+sage: P = F13t((2*(6*t+10)+8*(7*t+4))*(3*(6*t+10)+4*(7*t+4))-(8*(6*t+10)+11*(7*t+4)))
+sage: P == F13t(8*t^2 + 6)
+sage: P % T # remainder
 
 """
