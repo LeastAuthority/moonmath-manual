@@ -1,4 +1,4 @@
-\chapter{Statements}
+\chapter{Statements}\label{sec:statements}
 % Update the circuit / r1cs examples to describe their languages and how naive proofs look
 
 % https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
@@ -727,7 +727,7 @@ Valid assignments can be interpreted as \term{proofs for proper circuit executio
 
 To understand how this circuit is executed, consider the variables $x_1=2$, $x_2=3$ as well as $x_3=4$. Following all edges in the graph, we get the assignments $W_1=2$, $W_2=3$ and $W_3=4$. Then the assignments of $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
 
-A valid assignment to the 3-factorization circuit $C_{3.fac}(\F_{13})$ is therefore given by the following set 
+A valid assignment to the 3-factorization circuit $C_{3.fac}(\F_{13})$ is therefore given by the following set:
 
 \begin{equation}\label{C3fac}
 S_{valid}:=\{11;2,3,4,6\}
@@ -853,11 +853,12 @@ To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks
 
 Example XXX\sme{add reference} implies that $(2,3,4,6)$ is a proper constructive proof and in order to verify the proof a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
 \end{example}
-\paragraph{Associated Constraint Systems} As we have seen in XXX\sme{add reference}, rank-1 constraint systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a proofer to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
+\paragraph{Associated Constraint Systems} As we have seen in \ref{R1CS}\sme{check reference}, rank-1 constraint systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a proofer to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
 
 In this paragraph, we show how to transform any algebraic circuit into a rank-1 constraint system such that valid circuit assignments are in 1:1 correspondence with solutions to the associated R1CS. 
 
 To see this, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with a set of edge labels $\{S_1,S_2,\ldots, S_n\}$. Then one of the following steps is executed for every edge label $S_j$ from that set:
+\begin{definition}\label{algebraic-gates}
 \begin{itemize}
 \item If the edge label $S_j$ is an outgoing edge of a multiplication gate, the R1CS gets a new quadratic constraint
 \begin{equation}
@@ -871,10 +872,11 @@ where $(\text{left input})$ respectively $(\text{right input})$ is the output fr
 where $(\text{left input})$ respectively $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the left respectively right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
 \item No other edge label adds a constraint to the system.
 \end{itemize}
-The result of this method is a rank-1 constraint system, and in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a tuple of field elements $(S_1,S_2,\ldots, S_n)$ is a valid assignment to a circuit if and only if the same tuple is a solution to the associated R1CS. Circuit executions therefore compute solutions to rank-1 constraints systems efficiently. 
+\end{definition}
+The result of this method is a rank-1 constraint system, and, in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a tuple of field elements $(S_1,S_2,\ldots, S_n)$ is a valid assignment to a circuit if and only if the same tuple is a solution to the associated R1CS. Circuit executions therefore compute solutions to rank-1 constraints systems efficiently. 
 
-To understand the contribution of algebraic gates to the number of constraints, note that
-by definition multiplication gates have labels on their outgoing edges if and only if
+To understand the contribution of algebraic gates to the number of constraints, note that,
+by definition, multiplication gates have labels on their outgoing edges if and only if
 there is at least one labeled edge in both input paths, or if the outgoing edge is an input to a sink node. This implies that multiplication with a constant is essentially free in the sense that it doesn't add a new constraint to the system, as long as that multiplication gate is not am input to an output node. 
 
 Moreover, addition gates have labels on their outgoing edges if and only if they are inputs to sink nodes. This implies that addition is essentially free in the sense that it doesn't add a new constraint to the system, as long as that addition gate is not an input to an output node. 
