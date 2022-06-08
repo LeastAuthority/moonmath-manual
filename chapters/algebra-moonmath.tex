@@ -14,7 +14,7 @@ In this chapter, we therefore provide a short introduction to these concepts.
 \section{Groups}\label{sec:groups}
  Groups are abstractions that capture the essence of mathematical phenomena, like addition and subtraction, multiplication and division, permutations, or symmetries.
 
-To understand groups, let us think back to when we learned about the addition and subtraction of integers (also called whole numbers) in school. We have learned that, whenever we add two integers, the result is guaranteed to be an integer as well. We have also learned that adding zero to any integer means that ``nothing happens'', that is, the result of the addition is the same integer we started with. Furthermore, we have learned that the order in which we add two (or more) integers does not matter, that operations within brackets should be computed before operations outside brackets, and that, for every integer, there is always another integer (the negative) such that we get zero when we add them together.
+To understand groups, let us think back to when we learned about the addition and subtraction of integers (also called whole numbers) in school. We have learned that, whenever we add two integers, the result is guaranteed to be an integer as well. We have also learned that adding zero to any integer means that ``nothing happens'', that is, the result of the addition is the same integer we started with. Furthermore, we have learned that the order in which we add two (or more) integers does not matter, that brackets have no influence on the result of addition, and that, for every integer, there is always another integer (the negative) such that we get zero when we add them together.
 
 These conditions are the defining properties of a group, and mathematicians have recognized that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to give a formal definition of what a group should be, detached from any concrete examples. This lets us handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond.
 
@@ -82,7 +82,7 @@ To the see that $e(\cdot,\cdot)$ is non-degenrate, assume that $e(a,b)=0$. Then 
 \end{example}
 
 \begin{exercise}\label{fstar} Consider example \sme{check reference}\ref{primfield_z_5}
- again and let $\F_5^*$ be the set of all remainder classes from $\F_5$ without the class $0$. Then $\F_5^*=\{1,2,3,4\}$. Show that $(\F_5^*,\cdot)$ is a commutative group.
+ again and let $\Z_5^*$ be the set of all remainder classes from $\Z_5$ without the class $0$. Then $\Z_5^*=\{1,2,3,4\}$. Show that $(\Z_5^*,\cdot)$ is a commutative group.
 \end{exercise}
 \begin{exercise}\label{ex:Zn*} Generalizing the previous exercise, consider the general modulus $n$, and let $\Z_n^*$ be the set of all remainder classes from $\Z_n$ without the class $0$. Then $\Z_n^*=\{1,2,\ldots,n-1\}$. Provide a counter-example to show that $(\Z^*_n,\cdot)$ is not a group in general.
 
@@ -99,7 +99,7 @@ is bilinear. Why is it not a pairing in general and what condition must be impos
 Let $\mathbb{G}$ be a finite group. We write $ord(\mathbb{G})$ or  $|\mathbb{G}|$ for the order of $\mathbb{G}$.
 \end{notation}
 \begin{example}\label{Zn}
-Consider the remainder class groups $(\Z_6,+)$ from example \ref{def_residue_ring_z_6}\sme{check references to previous examples} and $(\F_5,+)$  from example \ref{primfield_z_5}, and the group $(\F_5^*,\cdot)$ from exercise \ref{fstar}. We can easily see that the order of $(\Z_6,+)$ is $6$, the order of $(\F_5,+)$ is 5 and the order of $(\F_5^*,\cdot)$ is $4$.
+Consider the remainder class groups $(\Z_6,+)$ from example \ref{def_residue_ring_z_6}\sme{check references to previous examples} and $(\Z_5,+)$  from example \ref{primfield_z_5}, and the group $(\Z_5^*,\cdot)$ from exercise \ref{fstar}. We can easily see that the order of $(\Z_6,+)$ is $6$, the order of $(\Z_5,+)$ is 5 and the order of $(\Z_5^*,\cdot)$ is $4$.
 
 To be more general, considering arbitrary moduli $n$, we know from Euclidean division that the order of the remainder class group $(\Z_n,+)$ is $n$.
 \end{example}
@@ -127,9 +127,9 @@ In the map above,  $g^x$ means ``multiply $g$ $x$-times by itself'' and $g^0=e_{
 To see this, first observe that, since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$, and, since $g^{x+y}=g^x\cdot g^y$, the map respects the group law.
 
 Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. This is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
-\begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\F_{5}^*,\cdot)$ from example \ref{fstar}\sme{check reference}. We know that $\F_{5}^*$ is a cyclic group of order $4$, and that every element is a generator. If we choose $3\in\F_5^*$, we then know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\F_5^*$:
+\begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\F_{5}^*,\cdot)$ from example \ref{fstar}\sme{check reference}. We know that $\F_{5}^*$ is a cyclic group of order $4$, and that every element is a generator. If we choose $3\in\Z_5^*$, we then know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
 $$
-3^{(\cdot)}: \Z_4 \to \F_5^* \; x \mapsto 3^x
+3^{(\cdot)}: \Z_4 \to \Z_5^* \; x \mapsto 3^x
 $$
 
 Let us now perform a computation in the exponent:
@@ -647,7 +647,7 @@ Hence, to evaluate $p$ at some point $s$ in the exponent, we can insert $s$ into
 As we will see, this is a key insight to understanding many SNARK protocols like e.g. Groth16 \citep{Groth16} or XXX\sme{add more examples protocols of SNARK}.
 \begin{example} To give an example of the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map from example \ref{ex:in-the-exponent}\sme{check reference}:
 $$
-3^{(\cdot)}: \Z_4 \to \F_5^* \; x \mapsto 3^x
+3^{(\cdot)}: \Z_4 \to \Z_5^* \; x \mapsto 3^x
 $$
  Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we can evaluate the polynomial at say $x=2$ in the exponent of $3$ in two different ways. On the one hand, we can evaluate $p$ at $2$ and then write the result into the exponent as follows:
 \begin{align*}
@@ -719,8 +719,9 @@ sage: F2(1) / F2(1) # Division
 Both the real numbers $\mathbb{R}$ as well as the complex numbers $\mathbb{C}$ are well known examples of fields.\sme{Expand on this?}
 \end{example}
 \begin{exercise}
-Consider our remainder class ring $(\F_5,+,\cdot)$ and show that it is a field. What is the characteristic of $\F_5$?
+Consider our remainder class ring $(\Z_5,+,\cdot)$ and show that it is a field. What is the characteristic of $\Z_5$?
 \end{exercise}
+
 \paragraph{Prime fields}
 As we have seen in the various examples of the previous sections, modular arithmetics behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
 
@@ -762,7 +763,7 @@ $x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. 
     4 & 1 & 2  & $\cdot$ \\
   \end{tabular}
 \end{center}
-So the multiplicative inverse of $3$ in $\Z_5$ is $2$ and indeed if compute $3\cdot 2$ we get $1$ in $\F_5$.\sme{unify $\Z_5$ and $\F_5$ across the board?}
+So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if compute $3\cdot 2$, we get $1$ in $\F_5$.
 \end{example}
 \paragraph{Square Roots}
 In this part, we deal with square numbers, also called \term{quadratic residues} and \term{square roots} in prime fields. This is of particular importance in our studies on elliptic curves, as only square numbers can actually be points on an elliptic curve.\sme{S: are we introducing elliptic curves in section 1 or 2?}

@@ -10,7 +10,7 @@ The goal of this chapter is to enable a reader who is starting out with nothing 
 How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16}, some knowledge of mathematics is needed to be able to follow the discussion. 
 
 Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who
-has never seen or done computations on, say, a \uterm{finite field}, or an \uterm{elliptic curve}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that hard. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature code. 
+has never seen or dealt with, say, a \uterm{finite field}, or an \uterm{elliptic curve}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that hard. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature code. 
 
 This is why we dedicated this chapter to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this and the following chapters, until they are able to solve at least a few exercises in each chapter.
 
@@ -192,7 +192,7 @@ sage: ZZ(4).divides(ZZ(12))
 
 Methods to compute Euclidean division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school. (It should be noted, however that there are faster methods like \term{Newton–Raphson division}.)
 
-As long division is the standard method used for pen-\&-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it throughout this book when we do simple pen-and-paper computations. However, instead of defining the algorithm formally, we rather give some examples that will hopefully  make the process clear.
+As long division is the standard method used for pen-and-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it throughout this book when we do simple pen-and-paper computations. However, instead of defining the algorithm formally, we rather give some examples that will hopefully  make the process clear.
 
 In a nutshell, the algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the dividend. 
 
@@ -249,7 +249,7 @@ The following pseudocode shows in detail how to calculate these numbers with the
 \Ensure $ gcd (a, b) = s \cdot a + t \cdot b $
 \end{algorithmic}
 \end{algorithm}
-The algorithm is simple enough to be done effectively in pen-\&-paper examples, where it is common to write it as a table where the rows represent the while-loop and the columns represent the values of the the array $r$, $s$ and $t$ with index $k$. The following example provides a simple execution:
+The algorithm is simple enough to be done effectively in pen-and-paper examples, where it is common to write it as a table where the rows represent the while-loop and the columns represent the values of the the array $r$, $s$ and $t$ with index $k$. The following example provides a simple execution:
 \begin{example} To illustrate the algorithm, let's apply it to the numbers $a=12$ and $b=5$. Since $12,5\in \N$ as well as $12\geq 5$ all requirements are meat and we compute as follows:
 \begin{center}
   \begin{tabular}{c | c c l}
@@ -633,9 +633,9 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 \\\hline
       4 & 0 & 4 & 3 & 2 & 1 \\
   \end{tabular}
 \end{center}
-Calling the set of remainder classes in modular $5$ arithmetics with this addition and multiplication $\F_5$ (for reasons we explain in more detail in XXX\sme{add reference}), we see some subtle but important differences to the situation in $\Z_6$. In particular, we see that in the multiplication table, every remainder $r\neq 0$ has the entry $1$ in its row and therefore has a multiplicative inverse. In addition, there are no non-zero elements such that their product is zero.
+Calling the set of remainder classes in modular $5$ arithmetics with this addition and multiplication $\Z_5$, we see some subtle but important differences to the situation in $\Z_6$. In particular, we see that in the multiplication table, every remainder $r\neq 0$ has the entry $1$ in its row and therefore has a multiplicative inverse. In addition, there are no non-zero elements such that their product is zero.
 
-To use Fermat's little theorem in $\F_5$ for computing multiplicative inverses (instead of using the multiplcation table), lets consider $3\in\F_3$. We know that the multiplicative inverse is given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\F_5$.
+To use Fermat's little theorem in $\Z_5$ for computing multiplicative inverses (instead of using the multiplcation table), let's consider $3\in\Z_5$. We know that the multiplicative inverse is given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\Z_5$.
 
 We can invoke Sage to do computations in our modular $5$ arithmetics type to double-check our computations:
 \begin{sagecommandline}
@@ -646,7 +646,7 @@ sage: Z5(3)**(5-2) == Z5(3)**(-1)
 \end{sagecommandline}
 \end{example}
 \begin{example}
-To understand one of the principal differences between prime number modular arithmetics and non-prime number modular arithmetics, consider the linear equation $a\cdot x +b=0$ defined over both types $\F_5$ and $\Z_6$. Since in $\F_5$ every non zero element has a multiplicative inverse, we can always solve these types of equations in $\F_5$, which is not true in $\Z_6$. To see that, consider the equation $3x+3=0$. In $\F_5$ we have the following:
+To understand one of the principal differences between prime number modular arithmetics and non-prime number modular arithmetics, consider the linear equation $a\cdot x +b=0$ defined over both types $\Z_5$ and $\Z_6$. Since in $\Z_5$ every non-zero element has a multiplicative inverse, we can always solve these types of equations in $\Z_5$, which is not true in $\Z_6$. To see that, consider the equation $3x+3=0$. In $\Z_5$ we have the following:
 \begin{align*}
 3x+3    &= 0 & \text{\# add 2 and on both sides} \\
 3x+3+2  &= 2 & \text{\# addition-table: } 2+3 = 0 \\
@@ -666,7 +666,7 @@ So, in this case, we cannot solve the equation for $x$ by dividing by $3$. And, 
 Consider the modulus $n=24$. Which of the integers $7$, $1$, $0$, $805$, $-4255$ have multiplicative inverses in modular $24$ arithmetics? Compute the inverses, in case they exist.
 \end{exercise}
 \begin{exercise}
-Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{5}$. Then project the congruency into $\F_5$ and solve the resulting equation in $\F_5$. Compare the results. 
+Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{5}$. Then project the congruency into $\Z_5$ and solve the resulting equation in $\Z_5$. Compare the results. 
 \end{exercise}
 \begin{exercise}
 Find the set of all solutions to the congruency $\kongru{17(2x+5)-4}{2x+4}{6}$. Then project the congruency into $\Z_6$ and try to solve the resulting equation in $\Z_6$.
@@ -916,12 +916,12 @@ For example, consider the integer polynomial $P_7$ from example XXX again. As we
 \begin{enumerate}
 \item $P,Q\in \Z[x]$
 \item $P,Q\in \Z_6[x]$
-\item $P,Q\in \F_5[x]$
+\item $P,Q\in \Z_5[x]$
 \end{enumerate}
 Now consider the result in $\Z[x]$ and in $\Z_6[x]$. How can we compute the result in $\Z_6[x]$ from the result in $\Z[x]$?
 \end{exercise}
 \begin{exercise}
-Show that the polynomial $P(x)= 2x^4-3x+4\in \F_5[x]$ is a factor of the polynomial $Q(x)=x^7 + 4x^6 + 4x^5 + x^3 + 2x^2 + 2x + 3\in\F_5[x]$ thatvis show $P|Q$. What is $\Zdiv{Q}{P}$?
+Show that the polynomial $P(x)= 2x^4-3x+4\in \Z_5[x]$ is a factor of the polynomial $Q(x)=x^7 + 4x^6 + 4x^5 + x^3 + 2x^2 + 2x + 3\in\Z_5[x]$ thatvis show $P|Q$. What is $\Zdiv{Q}{P}$?
 \end{exercise}
 \paragraph{Prime Factors} Recall that the fundamental theorem of arithmetics XXX tells us that every number is the product of prime numbers. Something similar holds for polynomials, too. 
 
@@ -1015,8 +1015,8 @@ P(x)   & =  4\cdot (-\frac{1}{4}(x^2-4)) + 1\cdot \frac{1}{8}(x^2-2x) + 3\cdot \
 \end{align*}
 And, indeed, evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$.
 \end{example}
-\begin{example} To give another example more relevant to the topics of this book, let us consider the same set $S=\{(0,4),(-2,1),(2,3)\}$ as in the previous example. This time, the task is to compute a polynomial $P\in\F_5[x]$ from this data. Since we know
-that multiplicative inverses exist in $\F_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\F_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\F_5$ and get the following:
+\begin{example} To give another example more relevant to the topics of this book, let us consider the same set $S=\{(0,4),(-2,1),(2,3)\}$ as in the previous example. This time, the task is to compute a polynomial $P\in\Z_5[x]$ from this data. Since we know
+that multiplicative inverses exist in $\Z_5$, algorithm XXX applies and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables XXX for computation in $\Z_5$ and get the following:
 \begin{align*}
 l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
