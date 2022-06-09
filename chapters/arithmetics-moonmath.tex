@@ -33,13 +33,12 @@ After this practical warm up, we introduce some basic algebraic terms like group
 
 \section{Integer Arithmetics}
 \label{integer_arithmetics}
-In a sense, integer arithmetics is at the heart of large parts of modern cryptography, because it provides the most basic tools for doing computations in those systems. Fortunately, most readers will probably remember integer arithmetics from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
+In a sense, integer arithmetics is at the heart of large parts of modern cryptography. Fortunately, most readers will probably remember integer arithmetics from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetics concepts to refresh your memory and fill any knowledge gaps.
 
-In what follows, we apply standard mathematical notations, and use the symbol $\mathbb{Z}$ for the set of all \term{integers}: \smelong{S: I think it'd be useful to explain the difference between $:=$ and $=$ as well. We have a table on this in the ZKAPs whitepaper. \\
-M:Yeah maybe we use the more suggestive leftarrows aks $\gets$ ? If a table of symbols is unavoidable then ok, I find I super ugly, though\\
-S: The table below is similar to what we have in the ZKAPs whitepaper. I think it's easier to read than a wall of text explaining the same things. We can make it more visually different (e.g. typesetting it in ``dark mode", and probably move it earlier in the chapter.}
+In what follows, we use many mathematical notations, which we summerized in the following table \ref{table_of_notations}:
 
 \vbox{\renewcommand{\arraystretch}{1.2}
+\label{table_of_notations}
 	\begin{center}
 	\hilight{Notation used in this chapter}
 	\end{center}
@@ -47,12 +46,14 @@ S: The table below is similar to what we have in the ZKAPs whitepaper. I think i
 	\hline
 	Symbol 	& Meaning of Symbol 	& Example & Explanation\\\hline\hline
 	$=$ 		& equals				& $a = r$ 							& $a$ and $r$ have the same value\\\hline
-	$:=$ 		& defining a variable 		& $\Z := \{\ldots,-2,-1,0,1,2,\ldots\}$ 	& $\Z$ is the set of integers \\\hline
-	$\in$	& from the set 			& $a \in \Z$  						&  $a$ is an integer\\\hline
-
+	$:=$ 		& defining the symbol on the right 		& $M := \{a,bc\}$ 	& $M$ is a set containg $a,b,c$ \\\hline
+	$\in$	& element from a set 			& $a \in M$ &  $a$ is an element from $M$ \\\hline
+	$\Leftrightarrow$	& logical equivalence & $P \Leftrightarrow Q$ &  $P$ if and only if $Q$ \\\hline
 	\end{tabularx}
 	\renewcommand{\arraystretch}{1}
 	}%end of vbox
+
+We use the symbol $\mathbb{Z}$ as a short description for the set of all \term{integers}:
 
 \begin{equation}
 \label{integer_symbol}
@@ -70,22 +71,27 @@ If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $
 |-4|= 4 
 \end{equation}
 
-In addition, we use the symbol $\N$ for the set of all \term{counting numbers} (also called natural numbers). So whenever you see the symbol $\mathbb{N}$, think of the set of all non negative integers including the number $0$:
+We use the symbol $\N$ for the set of all \term{natural numbers} (also called counting numbers). So whenever you see the symbol $\mathbb{N}$, think of the set of all non negative integers including the number $0$:
 \begin{equation}
 \label{natural_symbol}
 \N := \{0,1,2,3,\ldots\}
 \end{equation}
 
-Any number that is smaller than 0, that is, any number that has a minus sign, is not part of $\N$''. All counting numbers are integers, but not the other way round. In other words, counting numbers are a subset of integers.
+Any number that is smaller than $0$, that is, any number that has a minus sign, is not part of $\N$. All natural numbers are integers, but not the other way round. In other words, natural numbers are a subset of integers.
 
+In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}\sme{@jan @anna double check this definition. Is it clear enough? Proper definition requires the concept of equivalance first}, which can be represented as the set of all fractions $\frac{n}{n}$, where $n$ is an integer and $m$ is a natural number, if we identify two fractions $\frac{n}{m}$ and $\frac{n'}{m'}$, whenever there is a natural number $k$, such that 
+\begin{equation}
+\frac{n}{m} = \frac{k\cdot n'}{k\cdot m'}
+\end{equation}
 
 To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
 
-Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is: \uterm{We haven't really talked about what a ring is at this point}
+Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is:
 \begin{sagecommandline}
-sage: ZZ # A sage notation for the integer type
-sage: NN # A sage notation for the counting number type
-sage: ZZ(5) # Get an element from the Ring of integers
+sage: ZZ # A sage notation for the integers
+sage: NN # A sage notation for the natural numbers
+sage: QQ # A sage notation for the rational numbers
+sage: ZZ(5) # Get an element from the integers
 sage: ZZ(5) + ZZ(3)
 sage: ZZ(5) * NN(3)
 sage: ZZ.random_element(10**50)
@@ -93,56 +99,52 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-One set of numbers that is of particular interest to us is \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} (since even numbers greater than $2$ are all divisible by $2$, they are not prime numbers). We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
+One set of numbers that is of particular interest to us is \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.
 $\Prim$ is infinite and can be ordered according to size, so that we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
 \end{equation}
-This is sequence $ A000040 $ in \href{https://oeis.org/}{OEIS}, the Online Encyclopedia of Integer Sequences. In particular, we can talk about small and large prime numbers.\sme{What's the significance of this distinction?}
-
 As the \term{fundamental theorem of arithmetics} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed. To see that, let $ n \in \N_{\geq 2} $ be any natural number. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that
 \begin{equation}
 n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
 \end{equation}
 This representation is unique for each natural number (except for the order of the factors) and is called the \term{prime factorization} of $n$.
-\begin{example}[Prime Factorization]\label{ex-prime-factorization} To see what we mean by prime factorization of a number, let's look at the number $19214758032624000\in\N$. To get its prime factors, we can successively divide it by all prime numbers in ascending order starting with $2$:
+\begin{example}[Prime Factorization]\label{ex-prime-factorization} To see what we mean by prime factorization of a number, let's look at the number $504\in\N$. To get its prime factors, we can successively divide it by all prime numbers in ascending order starting with $2$:
 \begin{equation*}
-19214758032624000 = 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2\cdot 2 \cdot 3\cdot 3\cdot 3\cdot 5\cdot 5\cdot 5\cdot 7 \cdot 11 \cdot 17\cdot 17 \cdot 23 \cdot 43\cdot 43 \cdot 47
+504 = 2\cdot 2\cdot 2\cdot 3\cdot 3\cdot 7
 \end{equation*}
 We can double check our findings invoking Sage, which provides an algorithm to factor counting numbers:
 \begin{sagecommandline}
-sage: n = NN(19214758032624000)
+sage: n = NN(504)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the \comms{reverse}, that is, computing the product of given a set of prime numbers, is fast. \commslong{MIRCO: inverse process? Its not reversing something actually, but my english doesn't resolve to this level very well}
+This computation reveals an important observation: Computing the factorization of an integer is computationally expensive, while the inverse process, that is, computing the product of given a set of prime numbers, is fast. From this, an important question arises: How fast can we compute the prime factorization of a natural number? This is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no method known that can factor integers efficiently \sme{We then add a reference to our informal definition of "efficiency" @Jan}.
 
-From this, an important question arises: How fast we can compute the prime factorization of a natural number? This is the famous \hilight{factorization problem} and, as far as we know, there is no method on a classical \uterm{Turing machine} that is able to compute this representation in \uterm{polynomial time}. The fastest algorithm known today run \uterm{sub-exponentially, with $\mathcal{O}((1+ \epsilon)^n)$ and some $ \epsilon> 0 $}.
+It follows that natural number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. 
 
-It follows that number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. \hilight{The existence of one-way functions is a basic cryptographic assumptions that the security of many crypto systems is based on}.
-
-It should be pointed out, however, hat the American mathematician Peter Williston Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factor representation of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the time complexity of the prime factor problem, are unsafe as soon as practically usable quantum computers become available. \tbds{Add text} \tbdslong{along the lines of ``this is the best we got for now'' Possibly something on when we can reasonably expect quantum computers to become accessible/usable enough}
+It should be pointed out, however, that the American mathematician Peter Williston Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factor ization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem, are unsafe as soon as practically usable quantum computers become available.
 
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
 \end{exercise}
 \begin{exercise}
-Compute the factorization of $6469693230$ and double check your results using Sage.
+Compute the factorization of $30030$ and double check your results using Sage.
 \end{exercise}
 \begin{exercise}
 Consider the following equation $4\cdot x + 21 = 5$. Compute the set of all solutions for $x$ under the following alternative assumptions: 
 \begin{enumerate}
-\item The equation is defined over the type of natural numbers. 
-\item The equation is defined over the type of integers.
+\item The equation is defined over the natural numbers. 
+\item The equation is defined over the integers.
 \end{enumerate}
 \end{exercise}
 \begin{exercise}
 Consider the following equation $2 x^3 - x^2 - 2 x = - 1$. Compute the set of all solutions $x$ under the following assumptions: 
 \begin{enumerate}
-\item The equation is defined over the type of natural numbers. 
-\item The equation is defined over the type of integers.
-\item The equation is defined over the type \uterm{$\mathbb{Q}$ of fractions}.
+\item The equation is defined over the natural numbers. 
+\item The equation is defined over the integers.
+\item The equation is defined over the rational numbers.
 \end{enumerate}
 \end{exercise}
 
@@ -168,11 +170,12 @@ Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euclide
 \Zdiv{a}{b}: = m, & & \Zmod{a}{b}: = r 
 \end{array}
 \end{equation}
+\sme{You wrote: if these should only satisfy the equation, why use definition symbols (:=) and not equality symbols (=)? But this is a definition the symbol a div b IS DEFINED to be the number b... }
 to describe the quotient and the remainder of the Euclidean division. We also say that an integer $ a $ is divisible by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ b | a $.
 \end{notation}
-So, in a nutshell Euclidean division is a process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor. It can be shown that both the quotient and the remainder always exist and are unique, as long as the dividend is different from $0$.
+So, in a nutshell Euclidean division is a process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor. It can be shown that both the quotient and the remainder always exist and are unique, as long as the dividend is different from $0$. \sme{@jan. You wrote: a and b are required to be non-zero in the definition above, so this can just be deleted. ... a can be zero and existence and uniqueness, non-zeroness are not obvious. }
 
-A special situation occurs whenever the remainder is zero, because in this case the dividend \hilight{is} divisible by the divisor. Our notation $b | a$ reflects that. 
+A special situation occurs whenever the remainder is zero, because in this case the dividend is divisible by the divisor. Our notation $b | a$ reflects that. 
 
 
 \begin{example} Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the divisor $-17$ and the dividend $4$, we get 
@@ -190,7 +193,7 @@ sage: ZZ(4).divides(ZZ(12))
 \end{sagecommandline}
 \end{example}
 
-Methods to compute Euclidean division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school. (It should be noted, however that there are faster methods like \term{Newton–Raphson division}.)
+Methods to compute Euclidean division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school.
 
 As long division is the standard method used for pen-and-paper division of multi-digit numbers expressed in decimal notation, the reader should become familiar with it as we use it throughout this book when we do simple pen-and-paper computations. However, instead of defining the algorithm formally, we rather give some examples that will hopefully  make the process clear.
 
@@ -211,14 +214,14 @@ sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 Find an $m\in\Z$ as well as an $r\in\N$ such that $a= m\cdot b +r$ holds for the following pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$ and . In which cases are your solutions unique?
 \end{exercise}$(a,b)= (0, 7)$
 \begin{exercise}[Long Division Algorithm]
-Write an algorithm in \uterm{pseudocode} that computes integer long division, handling all edge cases properly.
+Write an algorithm that computes integer long division and handling all edge cases properly.
 % https://en.wikipedia.org/wiki/Division_algorithm
 \end{exercise}
 
 \paragraph{The Extended Euclidean Algorithm}
-One of the most critical parts in this book is modular arithmetics XXX and its application in the computations in so-called \term{finite fields}, as we explain in section \ref{sec:fields}\sme{check reference}. In \uterm{modular arithmetics}, it is sometimes possible to define \uterm{actual division} and \uterm{multiplicative inverses} of numbers that is very different from inverses as we know them from other systems like \uterm{factional numbers}. 
+One of the most critical parts in this book is modular arithmetics \ref{modular_arithmetics} and its application in the computations in so-called \term{prime fields}, as we explain in \ref{prime_fields}. In \uterm{modular arithmetics}, it is sometimes possible to define \uterm{division} and \uterm{multiplicative inverses} of numbers that is very different from inverses as we know them from other systems like rational numbers. 
 
-However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero counting number $d$ such that $d$ divides both $a$ and $b$, that is, $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$.
+However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero natural number $d$ such that $d$ divides both $a$ and $b$, that is, $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$ sme{@jan. You wrote "For two things to be coprime means that they don't share any prime factors. While this is equivalent to a gcd of 1, defining it that way gets it backwards; it's not "two things are comprime if they have a gcd of 1, and hence coprime means that they have common prime factors", but the other way around." Both properties are equivalent and hence both can be the definition. There is no preference really.}.
 
 The extended Euclidean algorithm is a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the following equation holds:
 \begin{equation}
@@ -269,6 +272,7 @@ sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 Find integers $s,t\in\Z$ such that $gcd(a,b)= s\cdot a +t\cdot b$ holds for the following pairs $(a,b) = (45,10)$, $(a,b)=(13,11)$, $(a,b)=(13,12)$. What pairs $(a,b)$ are coprime?
 \end{exercise}
 \begin{exercise}[Towards Prime fields]
+\label{exercise_towards_counting_numbers}
 Let $n\in \N$ be a counting number and $p$ a prime number, such that $n<p$. What is the greatest common divisor $gcd(p,n)$?
 \end{exercise}
 \begin{exercise}
@@ -278,14 +282,15 @@ Find all numbers $k\in\N$ with $0\leq k \leq 100$ such that $gcd(100,k) = 5$.
 Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
 \end{exercise}
 \section{Modular arithmetic}
+\label{modular_arithmetics}
 In mathematics, \term{modular arithmetic} is a system of arithmetic for integers, where numbers ``wrap around'' when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$. For example, if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The number $31$ has no meaning on a normal clock that shows hours. 
 
-The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute. In addition, we will see that it provides the foundation of what is called finite fields (\sme{See XXX}).
+The number at which the wrap occurs is called the \term{modulus}. Modular arithmetics generalizes the clock example to arbitrary moduli and studies equations and phenomena that arize in this new kind of arithmetics. It is of central importance for understanding most modern crypto systems, in large parts because the \uterm{exponentiation function} has an inverse with respect to certain moduli that is hard to compute \sme{@jan you wrote: "This is backwards. The DLP is the problem of computing a logarithm in finite fields, so first and foremost you can use mod to get finite fields, and within that system, computing the inverse to an exponentiation is hard. I think it may make sense to tease the existence of a hard problem here, but I don't think it makes sense to spell it out before finite fields are properly defined." I don't understand what backwards means. }. In addition, we will see that it provides the foundation of what is called finite fields (\sme{See XXX}).
 
 Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage the interested reader to work through the example and to discover that, once they get used to the idea that this is a new kind of calculations, it will seem much less daunting.
 
-\paragraph{Congurency}
-In what follows, let $n\in\N$ with $n\geq 2$ be a fixed counting number that we will call the \term{modulus} of our modular arithmetics system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euclidean division \ref{Euclidean_division} by $n$ will give the same remainder. We then say that two numbers are \term{congruent} whenever they are in the same class.
+\paragraph{Congruency}
+In what follows, let $n\in\N$ with $n\geq 2$ be a fixed natural number that we will call the \term{modulus} of our modular arithmetics system. With such an $n$ given, we can then group integers into classes, by saying that two integers are in the same class, whenever their Euclidean division \ref{Euclidean_division} by $n$ will give the same remainder. We then say that two numbers are \term{congruent} whenever they are in the same class.
 
 \begin{example}
 If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we perform Euclidean division on them by $12$. In the picture of an analog $12$-hour clock, starting at $5$ o'clock, when we add $12$ hours we are again at $5$ o'clock, representing the number $17$. On the other hand, when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$. 
@@ -298,7 +303,7 @@ Then $ a $ and $ b $ are said to be \term{congruent with respect to the modulus}
 
 If, on the other hand, two numbers are not congruent with respect to a given modulus $n$, we call them \term{incongruent} w.r.t. $n$. 
 
-A \term{congruency} is then nothing but an equation ``up to congruency", which means that the equation only needs to hold if we take the modulus on both sides. In which case we write 
+A \term{congruency} is then nothing but an equation "up to congruency", which means that the equation only needs to hold if we take the modulus on both sides. In which case we write 
 \begin{equation}
 \kongru{a}{b}{n} 
 \end{equation}
@@ -312,21 +317,17 @@ Find all integers $x$, such that the congruency $\kongru{x}{4}{6}$ is satisfied.
 \paragraph{Modular Arithmetics}
 One particulary useful thing about congruencies is that we can do calculations (arithmetics), much like we can with integer equations. That is, we can add or multiply numbers on both sides. The main difference is probably that the congruency $\kongru{a}{b}{n}$ is only equivalent to the congruency $\kongru{k\cdot a}{k\cdot b}{n}$ for some non zero integer $k\in \Z$, whenever $k$ and the modulus $n$ are coprime. The following list gives a set of useful rules:
 
-Suppose that the congurencies $\kongru{a_1}{b_1}{n}$ as well as $\kongru{a_2}{b_2}{n}$ are satisfied for integers $a_1,a_2,b_1,b_2\in\Z$ and that $k\in\Z$ is another integer. Then:
+Suppose that integers $a_1,a_2,b_1,b_2, k\in\Z$ are given Then the following arithmetic rules hold for congruencies:
 \begin{itemize}
-\item $\kongru{a_1+k}{b_1+k}{n}$ (compatibility with \href{https://en.wikipedia.org/wiki/Translation_(geometry)}{translation})
-\item $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ (compatibility with scaling)
-\item $\kongru{a_1+a_2}{b_1+b_2}{n}$ (compatibility with addition)
-\item $\kongru{a_1\cdot a_2}{b_1\cdot b_2}{n}$ (compatibility with multiplication)
+\item $\kongru{a_1}{b_1}{n}\Leftrightarrow \kongru{a_1+k}{b_1+k}{n}$ (compatibility with translation)
+\item $\kongru{a_1}{b_1}{n}\Rightarrow\kongru{k\cdot a_1}{k\cdot b_1}{n}$ (compatibility with scaling)
+\item $ggt(k,n)=1 \text{ and } \kongru{k\cdot a_1}{k\cdot b_1}{n}\Rightarrow \kongru{a_1}{b_1}{n}$
+\item $\kongru{k\cdot a_1}{k\cdot b_1}{k\cdot n}\Rightarrow\kongru{a_1}{b_1}{n}$
+\item $\kongru{a_1}{b_1}{n}\text{ and } \kongru{a_2}{b_2}{n}\Rightarrow \kongru{a_1+a_2}{b_1+b_2}{n}$ (compatibility with addition)
+\item $\kongru{a_1}{b_1}{n}\text{ and } \kongru{a_2}{b_2}{n}\Rightarrow\kongru{a_1\cdot a_2}{b_1\cdot b_2}{n}$ (compatibility with multiplication)
 \end{itemize}
 Other rules, such as compatibility with subtraction and exponentiation, follow from the rules above. For example, compatibility with subtraction follows from compatibility with scaling by $k=-1$ and compatibility with addition.
 
-Note that the previous rules are implications, not equivalences, which means that you can not necessarily reverse those rules. The following rules makes this precise:
-\begin{itemize}
-\item If $\kongru{a_1+k}{b_1+k}{n}$, then $\kongru{a_1}{b_1}{n}$
-\item If $\kongru{k\cdot a_1}{k\cdot b_1}{n}$ and $k$ is coprime with $n$, then $\kongru{a_1}{b_1}{n}$
-\item If $\kongru{k\cdot a_1}{k\cdot b_1}{k\cdot n}$ , then $\kongru{a_1}{b_1}{n}$
-\end{itemize}
 Another property of congruencies, not known in the traditional arithmetics of integers is the  \term{Fermat's Little Theorem}\label{fermats-little-theorem}. In simple words, it states that, in modular arithmetics, every number raised to the power of a prime number modulus is congruent to the number itself. Or, to be more precise, if $ p \in \Prim $ is a prime number and $ k \in \mathbb{Z} $ is an integer, then:
 \begin{equation}
 \kongru{k ^ p}{k}{p} \;,
@@ -336,7 +337,7 @@ If $k$ is coprime to $p$, then we can divide both sides of this congruency by $k
 \label{eq_fermat_lt_2}
 \kongru{k ^{p-1}}{1}{p}
 \end{equation} 
-We can use Sage to compute examples for both $k$ being coprime and not coprime to $p$:\sme{This Sage snippet should be described in more detail.}
+The following sage code computes example effects of Fermat's little theorem and highlights the effects of the exponent $k$ being coprime and not coprime to $p$:
 \begin{sagecommandline}
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -349,7 +350,7 @@ Now, since for the sake of readers who have never encountered modular arithmetic
    
 \begin{example}
 \label{example_first_congruency}
-Assume that we choose the modulus $6$ and that our task is to solve the following congruency for $x\in \Z$
+Assume that we choose the modulus $6$ and that our task is to solve the following congruency for $x\in \Z$\sme{I dissagre on Jan's comment here. Its important for a newbe to understand computation is similar to "normal" numbers}
 $$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
 As many rules for congruencies are more or less same as for integers, we can proceed in a  similar way as we would if we had an equation to solve. 
 Since both sides of a congruency contain ordinary integers, we can rewrite the left side as follows: $7\cdot(2x+21) + 11 = 14x + 147 = 14x +158$. We can therefore rewrite the congruency into the equivalent form
@@ -378,12 +379,20 @@ sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % 
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 \end{sagecommandline}
 \end{example}
-Readers who had not been familiar with modular arithmetics until now and who might be discouraged by how complicated modular arithmetics seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetics is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of \uterm{prime fields} (and more general \uterm{residue class rings}) takes a different view on modular arithmetics with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
-\begin{exercise}Choose the modulus $13$ and find all solutions $x\in \Z$ to the following congruency $\kongru{5x+4}{28+2x}{13}$
+Readers who had not been familiar with modular arithmetics until now and who might be discouraged by how complicated modular arithmetics seems at this point, should keep two things in mind. First, computing congruencies in modular arithmetics is not really more complicated than computations in more familiar number systems (e.g. fractional numbers), it is just a matter of getting used to it. Second, the theory of prime fields\ref{prime_fields} takes a different view on modular arithmetics with the attempt to simplify matters. In other words, once we understand prime field arithmetics, things become conceptually cleaner and more easy to compute.
+\begin{exercise}
+\label{exercise_congruency_in_F13}
+Choose the modulus $13$ and find all solutions $x\in \Z$ to the following congruency $\kongru{5x+4}{28+2x}{13}$
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{5}{23}$
 \end{exercise}
 \begin{exercise}Choose the modulus $23$ and find all solutions $x\in \Z$ to the following congruency $\kongru{69x}{46}{23}$
+\end{exercise}
+\begin{exercise}
+Let $a,b,k$ be integers, such that $\kongru{a}{b}{n}$ holds. Show $\kongru{a^k}{b^k}{n}$.
+\end{exercise}
+\begin{exercise}
+Let $a,n$ be integers, such that $a$ and $n$ are not coprime. For which $b\in\Z$ does the congruency $\kongru{a\cdot x}{b}{n}$ have a solution $x$ and how does the solution set look in that case?
 \end{exercise}
 \paragraph{The Chinese Remainder Theorem} We have seen how to solve congruencies in modular arithmetic. However, one question that remains is how to solve systems of congruencies with different moduli? The answer is given by the \term{Chinese reimainder theorem}, which states that for any $ k \in \N $ and coprime natural numbers $ n_1, \ldots n_k \in \N $ as well as integers $ a_1, \ldots a_k \in \Z $, the so-called \term{simultaneous congruency}
 \begin{equation}
@@ -400,8 +409,8 @@ the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chi
 \begin{algorithm}\caption{Chinese Remainder Theorem}
 \label{chinese-remainder-theorem}
 \begin{algorithmic}[0]
-\Require $n_0,\ldots,n_{k-1} \in \N$ coprime
-\Procedure{Congruency-Systems-Solver}{$k,a_{0,\ldots,k-1},n_{0,\ldots,k-1}$}
+\Require , $k\in \Z$, $j\in \N$ and $n_0,\ldots,n_{k-1} \in \N$ coprime
+\Procedure{Congruency-Systems-Solver}{$a_{0},\ldots,a_{k-1}$}
 \State $N\gets n_0\cdot \ldots \cdot n_{k-1}$
 \While{$j< k $}
 \State $N_j\gets N/n_j$
@@ -439,14 +448,16 @@ $$
 so we have
 $x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
 as one solution. Because $ \Zmod{2398}{1155} = 88 $ the set of all solutions is
-$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. In particular, there are infinitely many different solutions. We can invoke Sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
+$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. We can invoke Sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
 \begin{sagecommandline}
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 \end{sagecommandline}
 \end{example}
+
+\paragraph{Remainder Classes}
 As we have seen in various examples before, computing congruencies can be cumbersome and solution sets are large in general. It is therefore advantaegous to find some kind of simplification for modular arithmetic. 
 
-Fortunately, this is possible and relatively straightforward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. Then we can go a step further, and identify each set of numbers with equal remainder with that remainder and call it a \term{remainder class} or \term{residue class} in modulo $n$ arithmetics. 
+Fortunately, this is possible and relatively straightforward once we consider all integers that have the same remainder with respect to a given modulus $n$ in Euclidean division to be equivalent. With such a definition of equivalence in mind we then identify each set of numbers with equal remainder with that remainder and call it a \term{remainder class} or \term{residue class} in modulo $n$ arithmetics \sme{@jan: does this satisfies your comment?}. 
 
 It then follows from the properties of Euclidean division that there are exactly $ n $ different remainder classes for every modulus $n$ and that integer addition and multiplication can be projected to a new kind of addition and multiplication on those classes. 
 
@@ -525,16 +536,13 @@ sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 \end{sagecommandline}
 \end{example}
 
-\begin{jargon}[$k$-bit modulus] In cryptographic papers, we can sometimes read phrases like``$[\ldots]$ using a 4096-bit modulus''. This means that the underlying modulus $n$ of the modular arithmetic used in the system has a binary representation with a length of $4096$ bits. In contrast, the number $6$ has the binary representation $110$ and hence our example \ref{def_residue_ring_z_6}
+\begin{jargon}[$k$-bit modulus] In cryptographic papers, we sometimes read phrases like``$[\ldots]$ using a 4096-bit modulus''. This means that the underlying modulus $n$ of the modular arithmetic used in the system has a binary representation with a length of $4096$ bits. In contrast, the number $6$ has the binary representation $110$ and hence our example \ref{def_residue_ring_z_6}
  describes a $3$-bit modulus arithmetics system.   
 \end{jargon}
 \begin{exercise}
-Let $a,b,k$ be integers, such that $\kongru{a}{b}{n}$ holds. Show $\kongru{a^k}{b^k}{n}$.
+Define $\Z_{13}$ as the the arithmetics modulo $13$ analog to example \ref{def_residue_ring_z_6}. Then consider the congruency from exercise \ref{exercise_congruency_in_F13} and rewrite it into an equation in $\Z_{13}$
 \end{exercise}
-\begin{exercise}
-Let $a,n$ be integers, such that $a$ and $n$ are not coprime. For which $b\in\Z$ does the 
-congruency $\kongru{a\cdot x}{b}{n}$ have a solution $x$ and how does the solution set look in that case?
-\end{exercise}
+
 \paragraph{Modular Inverses} 
 As we know, integers can be added, subtracted and multiplied so that the result is also an integer, but this is not true for the division of integers in general: for example, $3/2$ is not an integer anymore. To see why this is, from a more theoretical perspective, let us consider the definition of a multiplicative inverse first. When we have a set that has some kind of multiplication defined on it and we have a distinguished element of that set that behaves neutrally with respect to that multiplication (doesn't change anything when multiplied with any other element), then we can define \term{multiplicative inverses} in the following way:
 
@@ -555,7 +563,7 @@ For example, the multiplicative inverse of $3$ is $\frac{1}{3}$, since $3\cdot \
 \end{example}
 \begin{example}Looking at  the set $\Z$ of integers, we see that with respect to multiplication the neutral element is the number $1$ and we notice that no integer $a\neq 1$ has a multiplicative inverse, since the equation $a\cdot x =1$ has no integer solutions for $a\neq 1$. 
 
-The definition of multiplicative inverse works verabtim for addition as well. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exist and is given by the negative number $-a$, since $a+(-1)=0$.  \sme{(-1) should be (-a)?}
+The definition of multiplicative inverse works verbatim for addition as well. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exist and is given by the negative number $-a$, since $a+(-a)=0$.
 \end{example}
 \begin{example} Looking at the set $\Z_6$ of residual classes modulo $6$ from example \ref{def_residue_ring_z_6}, we can use the multiplication table to find multiplicative inverses. To do so, we look at the row of the element and then find the entry equal to $1$. If such an entry exists, the element of that column is the multiplicative inverse. If, on the other hand, the row has no entry equal to $1$, we know that the element has no multiplicative inverse.
 
@@ -568,7 +576,7 @@ $$
 \end{example}
 From the last example, we can make the interesting observation that while $5$ has no multiplicative inverse as an integer, it has a multiplicative inverse in modular $6$ arithmetics. 
 
-The remaining question is to understand which elements have multiplicative inverses in modular arithmetics. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $ggt(n,r)=1$ in that case, we know from the extended Euclidean algorithm that there are numbers $s$ and $t$, such that 
+The remaining question is to understand which elements have multiplicative inverses in modular arithmetics. The answer is that, in modular $n$ arithmetics, a residue class $r$ has a multiplicative inverse, if and only if $n$ and $r$ are coprime. Since $gcd(n,r)=1$ in that case, we know from the extended Euclidean algorithm that there are numbers $s$ and $t$, such that 
 \begin{equation}
 \label{eq_compute_multiplicative_inverse}
 1 = s\cdot n + t\cdot r
@@ -594,7 +602,7 @@ We get $s=1$ as well as $t=-1$ and have $1 = 1\cdot 6 -1\cdot 5$. From this, it 
 sage: ZZ(6).xgcd(ZZ(5))
 \end{sagecommandline}
 \end{example}
-At this point, the attentive reader might notice that the situation where the modulus is a prime number is of particular interest, because we know from exercise XXX that in these cases all remainder classes must have modular inverses, since $ggt(r,n)=1$ for prime $n$ and $r<n$. In fact, Fermat's little theorem provides a way to compute multiplicative inverses in this situation, since in case of a prime modulus $p$ and $r<p$, we get the following:
+At this point, the attentive reader might notice that the situation where the modulus is a prime number is of particular interest, because we know from exercise \ref{exercise_towards_counting_numbers} that in these cases all remainder classes must have modular inverses, since $gcd(r,n)=1$ for prime $n$ and $r<n$. In fact, Fermat's little theorem provides a way to compute multiplicative inverses in this situation, since in case of a prime modulus $p$ and $r<p$, we get the following:
 \begin{align*}
 \kongru{r^p}{r}{p} & \Leftrightarrow \\
 \kongru{r^{p-1}}{1}{p} & \Leftrightarrow \\
@@ -603,7 +611,7 @@ At this point, the attentive reader might notice that the situation where the mo
 This tells us that the multiplicative inverse of a residue class $r$ in modular $p$ arithmetic is precisely $r^{p-2}$.
 \begin{example} [Modular $5$ arithmetics] 
 \label{primfield_z_5}
-To see the unique properties of modular arithmetics whenever the modulus is a prime number, we will replicate our findings from example \ref{def_residue_ring_z_6}, but this time for the prime modulus $5$.
+To see the unique properties of modular arithmetics when the modulus is a prime number, we will replicate our findings from example \ref{def_residue_ring_z_6}, but this time for the prime modulus $5$.
 For $ n = 5 $ we have five equivalence classes of integers which are congruent modulo $ 5 $. We write this as follows:
 $$
 \begin{array}{ccc}
@@ -635,7 +643,7 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 \\\hline
 \end{center}
 Calling the set of remainder classes in modular $5$ arithmetics with this addition and multiplication $\Z_5$, we see some subtle but important differences to the situation in $\Z_6$. In particular, we see that in the multiplication table, every remainder $r\neq 0$ has the entry $1$ in its row and therefore has a multiplicative inverse. In addition, there are no non-zero elements such that their product is zero.
 
-To use Fermat's little theorem in $\Z_5$ for computing multiplicative inverses (instead of using the multiplcation table), let's consider $3\in\Z_5$. We know that the multiplicative inverse is given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\Z_5$.
+To use Fermat's little theorem in $\Z_5$ for computing multiplicative inverses (instead of using the multiplication table), let's consider $3\in\Z_5$. We know that the multiplicative inverse is given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\Z_5$.
 
 We can invoke Sage to do computations in our modular $5$ arithmetics type to double-check our computations:
 \begin{sagecommandline}
