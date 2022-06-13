@@ -7,7 +7,7 @@ doctest this file with "sage -t main-moonmath_doctest.sage".
 It is always safe to delete this file; it is not used in typesetting your
 document.
 
-Sage commandline, line 90::
+Sage commandline, line 94::
 
 sage: ZZ # A sage notation for the integers
 sage: NN # A sage notation for the natural numbers
@@ -20,28 +20,28 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 
-Sage commandline, line 119::
+Sage commandline, line 122::
 
 sage: n = NN(504)
 sage: factor(n)
 
-Sage commandline, line 189::
+Sage commandline, line 192::
 
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
 sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 
-Sage commandline, line 208::
+Sage commandline, line 211::
 
 sage: ZZ(143785).quo_rem(ZZ(17)) # Euclidean Division
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
-Sage commandline, line 268::
+Sage commandline, line 271::
 
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 342::
+Sage commandline, line 345::
 
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)** ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -50,33 +50,33 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)** ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)** ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 378::
+Sage commandline, line 381::
 
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 453::
+Sage commandline, line 456::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 533::
+Sage commandline, line 536::
 
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
 sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 
-Sage commandline, line 602::
+Sage commandline, line 605::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 650::
+Sage commandline, line 653::
 
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
 sage: Z5(3)**(-1)
 sage: Z5(3)**(5-2) == Z5(3)**(-1)
 
-Sage commandline, line 718::
+Sage commandline, line 721::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -91,7 +91,7 @@ sage: p2
 sage: p6 = Zx([0])
 sage: p6.degree()
 
-Sage commandline, line 753::
+Sage commandline, line 756::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -102,7 +102,7 @@ sage: p1 = Z6x([17,-4,2])
 sage: p1
 sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
-Sage commandline, line 782::
+Sage commandline, line 785::
 
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -110,14 +110,14 @@ sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
 sage: p1(ZZ(2))
 sage: p7(ZZ(-6)) == ZZ(-264)
 
-Sage commandline, line 799::
+Sage commandline, line 802::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
 sage: p1 = Z6x([5,-4,2])
 sage: p1(Z6(2)) == Z6(5)
 
-Sage commandline, line 838::
+Sage commandline, line 841::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -125,7 +125,7 @@ sage: Q = Zx([5,0,-2,1])
 sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 858::
+Sage commandline, line 861::
 
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -133,7 +133,7 @@ sage: Q = Z6x([5,0,-2,1])
 sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
 sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 917::
+Sage commandline, line 920::
 
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -142,26 +142,26 @@ sage: Q = Zx([-80,19,-4,1])
 sage: P = Zx([-89,339])
 sage: A == Q*B + P
 
-Sage commandline, line 952::
+Sage commandline, line 955::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
 sage: p.factor()
 
-Sage commandline, line 976::
+Sage commandline, line 979::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 1040::
+Sage commandline, line 1043::
 
 sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 
-Sage commandline, line 1069::
+Sage commandline, line 1072::
 
 sage: F5 = GF(5)
 sage: F5x = F5['x']
