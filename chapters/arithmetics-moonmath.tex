@@ -4,7 +4,7 @@
 \section{Introduction}
 
 \subsection{Aims and target audience}
-\tbds{Sylvia: This subsection should be in the introduction of the book as it applies to the entire math part}
+\tbds{Sylvia: This subsection should be in the introduction of the book as it applies to the entire math part \label{intro-shift_1}}
 
 How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16} and to understand the internals of snark implementations, some knowledge of mathematics is needed to be able to follow the discussion. 
 
@@ -17,6 +17,8 @@ This is why we dedicated this chapter to explaining the mathematical foundations
 If, on the other hand, you are already skilled in elliptic curve cryptography, feel free to skip this chapter and only come back to it for reference and comparison. Maybe the most interesting parts are XXX \sme{add references}.
 
 We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like high school integer arithmetics. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and mathematical structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar, as we will see in various examples below in this chapter.
+
+To make it easier to memorize new concepts and symbols, we might frequently link to definitions in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
 
 We want to stress, however that this introduction is informal, incomplete and optimized to enable the reader to understand zero-knowledge concepts as efficiently as possible. Our focus and design choices are to include as little theory as necessary, focusing on a wealth of numerical examples. We believe that such an informal, example-driven approach to learning mathematics may make it easier for beginners to digest the material in the initial stages. 
 
@@ -40,6 +42,7 @@ In a sense, integer arithmetics is at the heart of large parts of modern cryptog
 
 In what follows, we use many mathematical notations, which we summerized in the following table \ref{table_of_notations}:
 
+\tbds{Sylvia: We should put this table into the same introduction as \ref{intro-shift_1}}
 \vbox{\renewcommand{\arraystretch}{1.2}
 \label{table_of_notations}
 	\begin{center}
@@ -57,7 +60,7 @@ In what follows, we use many mathematical notations, which we summerized in the 
 	\renewcommand{\arraystretch}{1}
 	}%end of vbox
 
-We use the symbol $\mathbb{Z}$ as a short description for the set of all \term{integers}:
+In this book, we use the symbol $\mathbb{Z}$ as a short description for the set of all \term{integers}, that is we write:
 
 \begin{equation}
 \label{integer_symbol}
@@ -66,7 +69,7 @@ We use the symbol $\mathbb{Z}$ as a short description for the set of all \term{i
 
 Integers are also known as \term{whole numbers}, that is, numbers that can be written without fractional parts. Examples of numbers that are \hilight{not} integers are $\frac{2}{3}$, $1.2$ and $-1280.006$.
 
-If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
+If $a\in \Z$ is an integer, then we write $|a|$ for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
 
 \begin{equation}
 |4|= 4 
@@ -75,22 +78,18 @@ If $a\in \Z$ is an integer, then $|a|$ stands for the \term{absolute value} of $
 |-4|= 4 
 \end{equation}
 
-We use the symbol $\N$ for the set of all \term{natural numbers} (also called counting numbers). So whenever you see the symbol $\mathbb{N}$, think of the set of all non-negative integers including the number $0$:
-\begin{equation}
+We use the symbol $\N$ for the set of all positive integers, usually called the set of \term{natural numbers} and $\NN$ for the set of all non negative integers. So whenever you see the symbol $\mathbb{N}$, think of the set of all positive integers excluding the number $0$:
+\begin{align*}
 \label{natural_symbol}
-\N := \{0,1,2,3,\ldots\}
-\end{equation}
+\N := \{1,2,3,\ldots\} & & \NN := \{0,1,2,3,\ldots\}
+\end{align*}
 
-Any number that is smaller than $0$, that is, any number that has a minus sign, is not part of $\N$. All natural numbers are integers, but not the other way round. In other words, natural numbers are a subset of integers.
-
-In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}\sme{@jan @anna double check this definition. Is it clear enough? Proper definition requires the concept of equivalance first}, which can be represented as the set of all fractions $\frac{n}{n}$, where $n$ is an integer and $m$ is a natural number, if we identify two fractions $\frac{n}{m}$ and $\frac{n'}{m'}$, whenever there is a natural number $k$, such that 
+In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}\sme{@jan @anna double check this definition. Is it clear enough? Proper definition requires the concept of equivalance or coprimeness first}, which can be represented as the set of all fractions $\frac{n}{m}$, where $n\in \Z$ is an integer and $m\in \N$ is a natural number, such that there is no other fraction $\frac{n'}{m'}$ and natural number $k\in \N$ with $k\neq 1$ and
 \begin{equation}
 \frac{n}{m} = \frac{k\cdot n'}{k\cdot m'}
 \end{equation}
 
-To make it easier to memorize new concepts and symbols, we might frequently link to definitions (See \ref{integer_symbol} for a definition of $\Z$) in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
-
-Both sets $\N$ and $\Z$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations. One way to invoke the integer type in Sage is:
+The sets $\N$, $\Z$ and $\Q$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations (We define rings and fields later in this book):
 \begin{sagecommandline}
 sage: ZZ # A sage notation for the integers
 sage: NN # A sage notation for the natural numbers
@@ -103,7 +102,7 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-One set of numbers that is of particular interest to us is \term{prime numbers}, which are counting numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $ 1 $. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers. The set of prime numbers$\Prim$ is infinite and can be ordered according to size, which means that for any prime number $p\in\Prim$ one can always find another prime number $p'\in\Prim$ with $p<p'$. Hence there is no largest prime number. Since prime numbers can be ordered by size, we can write them as follows:
+One set of numbers that is of particular interest to us is the set of \term{prime numbers}, which are natural numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $1$. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers. The set of prime numbers $\Prim$ is an infinite set and can be ordered according to size, which means that for any prime number $p\in\Prim$ one can always find another prime number $p'\in\Prim$ with $p<p'$. It follows thar there is no largest prime number. Since prime numbers can be ordered by size, we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
@@ -118,17 +117,17 @@ This representation is unique for each natural number (except for the order of t
 \begin{equation*}
 504 = 2\cdot 2\cdot 2\cdot 3\cdot 3\cdot 7
 \end{equation*}
-We can double check our findings invoking Sage, which provides an algorithm to factor counting numbers:
+We can double check our findings invoking Sage, which provides an algorithm to factor natural numbers:
 \begin{sagecommandline}
 sage: n = NN(504)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-The computation from the previous example reveals an important observation: Computing the factorization of an integer is computationally expensive, because we have to divide the number repeadly by all prime numbers smaller then the number itself until all factors are prime numbers themself. However the inverse process, that is, computing the product of a given set of prime numbers, is fast. We simply multiply all the numbers. From this, an important question arises: How fast can we compute the prime factorization of a natural number? This is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no method known that can factor integers efficiently \sme{We then add a reference to our informal definition of "efficiency" @Jan}.
+The computation from the previous example reveals an important observation: Computing the factorization of an integer is computationally expensive, because we have to divide repeadly by all prime numbers smaller then the number itself until all factors are prime numbers themself. From this, an important question arises: How fast can we compute the prime factorization of a natural number? This question is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no method known that can factor integers much faster then the naive approach that just divides the given number by all prime numbers in ascending order.
 
-It follows that natural number factorization $\Leftrightarrow$ prime number multiplication is an example of a so-called  \term{one-way function}: Something that is easy to compute in one direction, but hard to compute in the other direction. 
+On the other hand computing the product of a given set of prime numbers, is fast (just multiply all factors) and this simple observation implies that the two processes "prime number multiplication" on the one side and its inverse process "natural number factorization" have very different computational costs. The factorization problem is therefore an example of a so-called \term{one-way function}: An invertible function that is easy to compute in one direction, but hard to compute in the other direction. 
 
-It should be pointed out, however, that the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factor ization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem, are unsafe as soon as practically usable quantum computers become available.
+It should be pointed out, however, that the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factor ization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem, are unsafe as soon as practically usable quantum computers become available \sme{Do we even need this quantum computing excurse? }.
 
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
@@ -155,16 +154,16 @@ Consider the following equation $2 x^3 - x^2 - 2 x = - 1$. Compute the set of al
 \paragraph{Euclidean Division}
 \label{Euclidean_division}
 As we know from high school mathematics, integers can be added, subtracted and multiplied and the result is guranteed to always be an integer again.
-On the contrary division in the commonly understood sense is not defined for integers, as, for example, $7$ divided by $3$ will not be an integer again. However as we will see in this section, it is always possible to divide any two integers with a remainder. So for example $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
+On the contrary division in the commonly understood sense is not defined for integers, as, for example, $7$ divided by $3$ will not be an integer again. However it is always possible to divide any two integers if we consider division with remainder. So for example $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
 
-Doing integer division like this is probably something many of us remember from school. It is usually called \term{Euclidean division}, or \term{division with remainder}, and it is an essential technique to understand many concepts in this book. The precise definition is as follows:
+It is the content of this section to introduced division with remainder for integers which is usually called \term{Euclidean division}. It is an essential technique underlying many concepts in this book. The precise definition is as follows:
 
-Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a counting number $ r \in \N $, with $ 0 \leq r <|b| $ such that
+Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a natural number $ r \in \N $, with $ 0 \leq r <|b| $ such that
 \begin{equation}
 \label{eq_euclidean_division}
 a = m \cdot b + r
 \end{equation}
-This decomposition of $a$ given $b$ is called \term{Euclidean division}, where $ a $ is called the \term{dividend}, $ b $ is called the \term{divisor}, $m$ is called the \term{quotient} and $r$ is called the \term{remainder}. It can be shown that both the quotient and the remainder always exist and are unique, as long as the dividend is different from $0$. \sme{@jan. You wrote: a and b are required to be non-zero in the definition above, so this can just be deleted. ... a can be zero and existence and uniqueness, non-zeroness are not obvious. }
+This decomposition of $a$ given $b$ is called \term{Euclidean division}, where $ a $ is called the \term{dividend}, $ b $ is called the \term{divisor}, $m$ is called the \term{quotient} and $r$ is called the \term{remainder}. It can be shown that both the quotient and the remainder always exist and are unique, as long as the divisor is different from $0$. \sme{@jan. You wrote: a and b are required to be non-zero in the definition above, so this can just be deleted. ... a can be zero and existence and uniqueness, non-zeroness are not obvious. }
 \begin{notation}
 \label{eq_euclidean_division_notation}
 Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euclidean_division}). Then we often write 
@@ -182,7 +181,9 @@ So, in a nutshell Euclidean division is a process of dividing one integer by ano
 A special situation occurs whenever the remainder is zero, because in this case the dividend is divisible by the divisor. Our notation $b | a$ reflects that. 
 
 
-\begin{example} Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the dividend $-17$ and the divisor $4$, we get 
+\begin{example}
+\label{example:euclidean_division_1}
+ Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the dividend $-17$ and the divisor $4$, we get 
 \begin{equation*}
 \begin{array}{lcr}
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
@@ -196,6 +197,21 @@ sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 \end{sagecommandline}
 \end{example}
+\begin{remark} In \ref{def_integer_division_and_modulus} we defined the notation of  $\Zdiv{a}{b}$ and $\Zmod{a}{b}$, in terms of Euclidean division. It should be noted however that many programing languages like Phyton and Sage, implement both the operator $(/)$ as well as the operator $(\%)$ differently. Programers should be aware of this, as the discrepancy between the mathematical notation and the implementation in programing languages might become the source of subtle bugs in implementations of cryptographic primitives.   
+
+To give an example consider the the dividend $-17$ and the divisor $-4$. Note that in contrast to the previous example \ref{example:euclidean_division_1}, we have a negative divisor. According to our definition we have
+\begin{equation*}
+\begin{array}{lcr}
+\Zdiv{-17}{-4} = 5, & & \Zmod{-17}{-4} = 3
+\end{array}
+\end{equation*}
+because $ -17 = 5 \cdot (-4) + 3 $  is the Euclidean division of $-17$ and $-4$ (the remainder is, by definition, a non-negative number). However using the operators $(/)$ and $(\%)$ in Sage we get
+\begin{sagecommandline}
+sage: ZZ(-17) // ZZ(-4) # Integer quotient 
+sage: ZZ(-17) % ZZ(-4) # remainder
+sage: ZZ(-17).quo_rem(ZZ(-4)) # not Euclidean division 
+\end{sagecommandline}
+\end{remark}
 
 Methods to compute Euclidean division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school.
 
@@ -215,19 +231,19 @@ sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
 \end{example}
 \begin{exercise}[Integer Long Division]
-Find an $m\in\Z$ as well as an $r\in\N$ such that $a= m\cdot b +r$ holds for the following pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$ and . In which cases are your solutions unique?
-\end{exercise}$(a,b)= (0, 7)$
+Find an $m\in\Z$ as well as an $r\in\N$ with $0\leq r< b$ such that $a= m\cdot b +r$ holds for the following pairs $(a,b) = (27,5)$, $(a,b)=(27,-5)$, $(a,b)=(127,0)$, $(a,b)= (-1687, 11)$ and $(a,b)= (0, 7)$. In which cases are your solutions unique?
+\end{exercise}
 \begin{exercise}[Long Division Algorithm]
 Write an algorithm that computes integer long division and handling all edge cases properly.
 % https://en.wikipedia.org/wiki/Division_algorithm
 \end{exercise}
 
 \paragraph{The Extended Euclidean Algorithm}
-One of the most critical parts in this book is modular arithmetics \ref{modular_arithmetics} and its application in the computations in so-called \term{prime fields}, as we explain in \ref{prime_fields}. In \uterm{modular arithmetics}, it is sometimes possible to define \uterm{division} and \uterm{multiplicative inverses} of numbers that is very different from inverses as we know them from other systems like rational numbers. 
+One of the most critical parts in this book is modular arithmetics as defined in \ref{modular_arithmetics} and its application in the computations of so-called \term{prime fields}, as we explain in \ref{prime_fields}. In modular arithmetics, it is sometimes possible to define \uterm{multiplicative inverses} of numbers that is very different from inverses as we know them from other systems like rational numbers. 
 
-However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero natural number $d$ such that $d$ divides both $a$ and $b$, that is, $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two counting numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$ \sme{@jan. You wrote "For two things to be coprime means that they don't share any prime factors. While this is equivalent to a gcd of 1, defining it that way gets it backwards; it's not "two things are comprime if they have a gcd of 1, and hence coprime means that they have common prime factors", but the other way around." Both properties are equivalent and hence both can be the definition. There is no preference really.}.
+However, to actually compute those inverses, we have to get familiar with the so-called \term{extended Euclidean algorithm}. A few more terms are necessary to explain the concept: The \term{greatest common divisor} (GCD) of two nonzero integers $a$ and $b$ is the greatest non-zero natural number $d$ such that $d$ divides both $a$ and $b$, that is, $d|a$ as well as $d|b$. We write $ gcd (a, b):=d $ for this number. In addition, two natural numbers are called \term{relative primes} or \term{coprimes}, if their greatest common divisor is $1$ \sme{@jan. You wrote "For two things to be coprime means that they don't share any prime factors. While this is equivalent to a gcd of 1, defining it that way gets it backwards; it's not "two things are comprime if they have a gcd of 1, and hence coprime means that they have common prime factors", but the other way around." Both properties are equivalent and hence both can be the definition. There is no preference really.}.
 
-The Extended Euclidean algorithm is a method to calculate the greatest common divisor of two counting numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the following equation holds:
+The Extended Euclidean algorithm is a method to calculate the greatest common divisor of two natural numbers $ a $ and $ b \in \N $, as well as two additional integers $ s, t \in \Z $, such that the following equation holds:
 \begin{equation}
 \label{eq: erw_Eukl_algo}
 gcd (a, b) = s \cdot a + t \cdot b
@@ -277,7 +293,7 @@ Find integers $s,t\in\Z$ such that $gcd(a,b)= s\cdot a +t\cdot b$ holds for the 
 \end{exercise}
 \begin{exercise}[Towards Prime fields]
 \label{exercise_towards_counting_numbers}
-Let $n\in \N$ be a counting number and $p$ a prime number, such that $n<p$. What is the greatest common divisor $gcd(p,n)$?
+Let $n\in \N$ be a natural number and $p$ a prime number, such that $n<p$. What is the greatest common divisor $gcd(p,n)$?
 \end{exercise}
 \begin{exercise}
 Find all numbers $k\in\N$ with $0\leq k \leq 100$ such that $gcd(100,k) = 5$.
