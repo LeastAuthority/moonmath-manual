@@ -11,110 +11,103 @@ We know many examples of sets that fall under those categories, such as natural 
 Papers on cryptography (and mathematical papers in general) frequently contain such terms, and it is necessary to get at least some understanding of these terms to be able to follow these papers.
 In this chapter, we therefore provide a short introduction to these concepts.
 
-\section{Groups}\label{sec:groups}
- Groups are abstractions that capture the essence of mathematical phenomena, like addition and subtraction, multiplication and division, permutations, or symmetries.
+\section{Commutative Groups}\label{sec:groups}
+Commutative groups are abstractions that capture the essence of mathematical phenomena, like addition and subtraction, or multiplication and division.
 
-To understand groups, let us think back to when we learned about the addition and subtraction of integers (also called whole numbers) in school. We have learned that, whenever we add two integers, the result is guaranteed to be an integer as well. We have also learned that adding zero to any integer means that ``nothing happens'', that is, the result of the addition is the same integer we started with. Furthermore, we have learned that the order in which we add two (or more) integers does not matter, that brackets have no influence on the result of addition, and that, for every integer, there is always another integer (the negative) such that we get zero when we add them together.
+To understand commutative groups, let us think back to when we learned about the addition and subtraction of integers in school. We have learned that, whenever we add two integers, the result is guaranteed to be an integer as well. We have also learned that adding zero to any integer means that ``nothing happens'', that is, the result of the addition is the same integer we started with. Furthermore, we have learned that the order in which we add two (or more) integers does not matter, that brackets have no influence on the result of addition, and that, for every integer, there is always another integer (the negative) such that we get zero when we add them together.
 
-These conditions are the defining properties of a group, and mathematicians have recognized that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to give a formal definition of what a group should be, detached from any concrete examples. This lets us handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond.
+These conditions are the defining properties of a commutative group, and mathematicians have realized that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to give a formal definition of what a group should be, detached from any concrete examples. This lets us handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond.
 
-Distilling these rules to the smallest independent list of properties and making them abstract, we arrive at the definition of a group:
+Distilling these rules to the smallest independent list of properties and making them abstract, we arrive at the definition of a commutative group:
 
 \begin{definition}
-A \term{group} $(\G,\cdot) $ is a set $ \G$, together with a \term{map} $ \cdot$. The map, also denoted as $\G \times \G \to \G $ and called the \term{group law}, combines two elements of the set $ \G$ into a third one such that the following properties hold:
+A \term{commutative group} $(\G,\cdot) $ is a set $ \G$, together with a \term{map} $ \cdot$. The map, also denoted as $\cdot:\G \times \G \to \G $ and called the \term{group law}, combines two elements of the set $ \G$ into a third one such that the following properties hold:
 \begin{itemize}
-\item \hilight{Existence of a neutral element}: There is a $e\in\G$ for all $g\in\G$, such that $e\cdot g=g$ as well as $g\cdot e = g$.
-\item \hilight{Existence of an inverse}: For every $g\in\G$ there is a $g^{-1}\in\G$, such that $g\cdot g^{-1}=e$ as well as $g^{-1}\cdot g = e$.
+\item \hilight{Commutativity}: For all $g_1,g_2\in\G$, the equation $g_1\cdot g_2=g_2\cdot g_1$ holds.
 \item \hilight{Associativity}: For every $g_1,g_2,g_3\in\G$ the equation
 $g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
+\item \hilight{Existence of a neutral element}: There is a $e\in\G$ for all $g\in\G$, such that $e\cdot g=g$.
+\item \hilight{Existence of an inverse}: For every $g\in\G$ there is a $g^{-1}\in\G$, such that $g\cdot g^{-1}=e$.
 \end{itemize}
+If $(\G,\cdot)$ is a group and $\G'$ is a subset of $\G$, such that the restriction $\cdot: \G'\times \G' \to \G'$ is a group law on $\G'$, then $(\G',\cdot)$ is called a \term{subgroup} of $(\G,\cdot)$.
 \end{definition}
 
 Rephrasing the abstract definition in layman's terms, a group is something where we can do computations in a way that resembles the behavior of the addition of integers. Specifically, this means we can combine some element with another element into a new element in a way that is reversible and where the order of combining elements doesn't matter.
-\begin{notation}
-Let $(\mathbb{G}\cdot)$ be a finite group. If there is no risk of ambiguity (about what the group law of that group is), we frequently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as the notation for the group, keeping the group law implicit.
+\begin{notation}Since we are exclusively concerned with commutative groups in this book, we often just call them groups, keeping the notation of commutativity implicit.
+A set $\G$ with a map $\cdot$ that satisfies all previously mentioned rules, except for the commutativity law is called a non-commutative group. 
+
+Let $(\mathbb{G},\cdot)$ be a group. If there is no risk of ambiguity (about what the group law of that group is), we frequently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as notation for the group, keeping the group law implicit. In this case we also say that $\G$ is of group type, indicating that $\G$ has more structute then a set.
+
+For commutative groups $(\G,\cdot)$, we sometimes use the so-called \term{additive notation} $(\G,+)$, that is, we write $+$ instead of $\cdot$ for the group law, $0$ for the neutral element and $-g:=g^{-1}$ for the inverse of an element $g\in\G$.
 \end{notation}
-As we will see in XXX\sme{add reference}, groups are heavily used in cryptography and in SNARKs. But let us look at some more familiar examples fist:
+As we will see in the following chapters, groups are heavily used in cryptography and in SNARKs. But let us look at some more familiar examples fist:
 \begin{example}[Integer Addition and Subtraction]
-The set $(\Z,+)$ of integers with integer addition is the archetypical example of a group, where the group law is traditionally written as $+$ (instead of $\cdot$). To compare integer addition against the abstract axioms of a group, we first see that the neutral element $e$ is the number $0$, since $a+0=a$ for all integers $a\in \Z$. Furthermore, the inverse of a number is its negative counterpart, since $a+(-a)=0$, for all $a\in\Z$. In addition, we know that $(a+b)+c=a+(b+c)$, so integers with addition are indeed a group in the abstract sense.
+\label{example:group_of_integers}
+The set $(\Z,+)$ of integers with integer addition is the archetypical example of a commutative group, where the group law is traditionally written as $+$ (instead of $\cdot$). To compare integer addition against the abstract axioms of a group, we first see that integer addition is commutative and associative, since $a+b = b+a$ as well as $(a+b)+c=a+(b+c)$ for all integers $a,b,c\in \Z$. The neutral element $e$ is the number $0$, since $a+0=a$ for all integers $a\in \Z$. Furthermore, the inverse of a number is its negative counterpart, since $a+(-a)=0$, for all $a\in\Z$. This implies that integers with addition are indeed a commutative group in the abstract sense.
+
+To given an example of a subgroup for the group of integers, consider the set $\Z_{even}:=\{\ldots,-4,-2,0,2,4,\ldots\}$ of even numbers, including $0$. We can see that this set is a subgroup of $(\Z,+)$, since the sum of two even numbers is always an even number again, since the neutral element $0$ is a member of $\Z_{even}$ and sice the negative of an even number is itself an even number. 
 \end{example}
 \begin{example}[The trivial group]
-The most basic example of a group is group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=\bullet$. \sme{Add real-life example of 0?}
-\end{example}
-%\begin{example}[Rotations]
-%To give an example of a group that has effects in the real world, consider a dice. Then our group is the set of all possible ways to rotate the dice by 90 degrees along an imagined axis through two opposite faces. The group law is composition of rotations. So say hold the dice with two fingers at $1$ and $6$. $1$ is the face that points towards you and $5$ is the top face. Then you first rotate the dice along the $1$-$6$ axis by 90 degrees clockwise, such that now $3$ is the top face. Then you hold the dice at $5$ and
-%\end{example}
-\paragraph{Commutative Groups} When we look at the general definition of a group, we see that it is somewhat different from what we know from integers. We know that the order in which we add two integers doesn't matter, as, for example, $4+2$ is the same as $2+4$. However, we also know from example XXX\sme{add reference} that this is not the case for all groups.
+The most basic example of a group is group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=\bullet$.
 
-This means that groups where the order in which the group law is executed doesn't matter are a special subcase of groups called \term{commutative group}s. To be more precise, a group is called commutative if  $g_1\cdot g_2 = g_2 \cdot g_1$ holds for all $g_1,g_2\in\G$.
-\begin{notation}
-For commutative groups $(\G,\cdot)$, we frequently use the so-called \term{additive notation} $(\G,+)$, that is, we write $+$ instead of $\cdot$ for the group law, and $-g:=g^{-1}$ for the inverse of an element $g\in\G$.
-\end{notation}
-\begin{example} Consider the group of integers with integer addition again.
-Since $a+b=b+a$ for all integers, this group is the archetypical example of a commutative group. Since there are infinitely many integers, $(\Z,+)$ is not a finite group.
+The trivial group is a subgroup of any group. To see that let $(\G,\cdot)$ be a group with neutral element $e\in\G$. Then $e\cdot e = e$ as well as $e^{-1}=e$. It follows that the set $\{e\}$ is a subgroup of $\G$. In particular $\{0\}$ is a subgroup of $(\Z,+)$ from example \ref{example:group_of_integers} since $0+0=0$.
 \end{example}
+
 \begin{example} Consider our definition of modulo $6$ residue classes $(\Z_6,+)$ as defined in the addition table from example \ref{def_residue_ring_z_6}. As we can see, the residue class $0$ is the neutral element in modulo $6$ arithmetics, and the inverse of a residue class $r$ is given by $6-r$, since $r+(6-r)=6$, which is congruent to $0$, since $\Zmod{6}{6}=0$. Moreover, $(r_1+r_2)+r_3=r_1+(r_2+r_3)$ is inherited from integer arithmetic.
 
 We therefore see that $(\Z_6,+)$ is a group, and, since the addition table in example \ref{def_residue_ring_z_6} is symmetrical, we see $r_1+r_2 = r_2+r_1$, which shows that $(\Z_6,+)$ is commutative.
 \end{example}
 The previous example of a commutative group is a very important one for this book. Abstracting from this example and considering residue classes $(\Z_n,+)$ for arbitrary moduli $n$, it can be shown that $(\Z,+)$ is a commutative group with the neutral element $0$ and the additive inverse $n-r$ for any element $r\in\Z_n$. We call such a group the \term{remainder class group} of modulus $n$.
-
-Of particular importance for pairing-based cryptography in general and SNARKs in particular are so-called \term{pairing maps} on commutative groups. To be more precise let $\G_1$, $\G_2$ and $\G_3$ be three commutative groups. For historical reasons, we write the group law on $\G_1$ and $\G_2$ in additive notation and the group law on $\G_3$ in multiplicative notation. Then a \textbf{pairing map} is a function
-\begin{equation}\label{pairing-map}
-e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3
-\end{equation}
-This function takes pairs $(g_1,g_2)$ (products) of elements from $\G_1$ and $\G_2$, and maps them to elements from $\G_3$, such that the \term{bilinearity} property holds:
-
-\begin{definition}{\deftitle{Bilinearity}}\\
-For all $g_1,g_1'\in \G_1$ and $g_2\in \G_2$ we have $e(g_1+ g_1',g_2)= e(g_1,g_2)\cdot e(g_1',g_2)$ and for all $g_1\in \G_1$ and $g_2, g_2'\in \G_2$ we have $e(g_1,g_2+ g_2')= e(g_1,g_2)\cdot e(g_1,g_2')$.
-\end{definition}
-
-A pairing map is called \term{non-degenerate} if, whenever the result of the pairing is the neutral element in $\G_3$, one of the input values is the neutral element of $\G_1$ or $\G_2$. To be more precise, $e(g_1,g_2)=e_{\G_3}$ implies $g_1=e_{\G_1}$ or $g_2=e_{\G_2}$.
-
-Informally speaking, bilinearity means that it doesn't matter if we first execute the group law on one side and then apply the bilinear map, or if we first apply the bilinear map and then apply the group law. Moreover, non-degeneracy means that the result of the pairing is zero if and only if at least one of the input values is zero.
-\begin{example}One of the most basic examples of a non-degenerate pairing involves $\G_1$, $\G_2$ and $\G_3$ all to be the groups of integers with addition $(\Z,+)$. Then the following map defines a non-degenerate pairing:
-$$
-e(\cdot,\cdot): \Z \times \Z \to \Z \; (a,b)\mapsto a\cdot b
-$$
-Note that bilinearity follows from the distributive law of integers, since for $a,b,c\in \Z$, we have $e(a+b,c)=(a+b)\cdot c = a\cdot c + b\cdot c = e(a,c)+ e(b,c)$ and the same reasoning is true for the second argument.
-
-To the see that $e(\cdot,\cdot)$ is non-degenrate, assume that $e(a,b)=0$. Then a$\cdot b =0$ implies that $a$ or $b$ must be zero.
-\end{example}
-
-\begin{exercise}\label{fstar} Consider example \sme{check reference}\ref{primfield_z_5}
- again and let $\Z_5^*$ be the set of all remainder classes from $\Z_5$ without the class $0$. Then $\Z_5^*=\{1,2,3,4\}$. Show that $(\Z_5^*,\cdot)$ is a commutative group.
+\begin{exercise}\label{fstar} Consider example \ref{primfield_z_5} again and let $\Z_5^*$ be the set of all remainder classes from $\Z_5$ without the class $0$. Then $\Z_5^*=\{1,2,3,4\}$. Show that $(\Z_5^*,\cdot)$ is a commutative group.
 \end{exercise}
 \begin{exercise}\label{ex:Zn*} Generalizing the previous exercise, consider the general modulus $n$, and let $\Z_n^*$ be the set of all remainder classes from $\Z_n$ without the class $0$. Then $\Z_n^*=\{1,2,\ldots,n-1\}$. Provide a counter-example to show that $(\Z^*_n,\cdot)$ is not a group in general.
 
 Find a condition such that $(\Z^*_n,\cdot)$ is a commutative group, compute the neutral element, give a closed form for the inverse of any element and prove the commutative group axioms.
-\end{exercise}
-\begin{exercise} Consider the remainder class groups $(\Z_n,+)$ for some modulus $n$. Show that the map
-$$
-e(\cdot,\cdot): \Z_n \times \Z_n \to \Z_n \; (a,b)\mapsto a\cdot b
-$$
-is bilinear. Why is it not a pairing in general and what condition must be imposed on $n$, such that the map will be a pairing?
 \end{exercise}
 \paragraph{Finite groups} As we have seen in the previous examples, groups can either contain infinitely many elements (such as integers) or finitely many elements (as for example the remainder class groups $(\Z_n,+)$). To capture this distinction, a group is called a \term{finite group} if the underlying set of elements is finite. In that case, the number of elements of that group is called its \term{order}.
 \begin{notation}
 Let $\mathbb{G}$ be a finite group. We write $ord(\mathbb{G})$ or  $|\mathbb{G}|$ for the order of $\mathbb{G}$.
 \end{notation}
 \begin{example}\label{Zn}
-Consider the remainder class groups $(\Z_6,+)$ from example \ref{def_residue_ring_z_6}\sme{check references to previous examples} and $(\Z_5,+)$  from example \ref{primfield_z_5}, and the group $(\Z_5^*,\cdot)$ from exercise \ref{fstar}. We can easily see that the order of $(\Z_6,+)$ is $6$, the order of $(\Z_5,+)$ is 5 and the order of $(\Z_5^*,\cdot)$ is $4$.
-
-To be more general, considering arbitrary moduli $n$, we know from Euclidean division that the order of the remainder class group $(\Z_n,+)$ is $n$.
+Consider the remainder class groups $(\Z_6,+)$ from example \ref{def_residue_ring_z_6}, the group $(\Z_5,+)$ from example \ref{primfield_z_5}, and the group $(\Z_5^*,\cdot)$ from exercise \ref{fstar}. We can easily see that the order of $(\Z_6,+)$ is $6$, the order of $(\Z_5,+)$ is 5 and the order of $(\Z_5^*,\cdot)$ is $4$.
 \end{example}
-\begin{exercise}The \uterm{RSA crypto system} is based on a modulus $n$ that is typically the product of two prime numbers of \uterm{size $2048$-bits}. What is the approximate order of the remainder class group $(\Z_n,+)$ in this case?
+\begin{exercise}
+\label{Zn} Let $n\in\N$ with $g\geq 2$ be some modulus. What is the order of the remainder class group $(\Z_n,+)$.
 \end{exercise}
 \paragraph{Generators}\label{generators} These are sets of elements that can be used to generate the entire group by applying the group law repeatedly to these elements or their inverses only. Generators are of particular interest when working with groups.
 
-Of course, every group $\G$ has a trivial set of generators, when we just consider every element of the group to be in the generator set. The more interesting question is to find the smallest possible set of generators for a given group. Of particular interest in this regard are groups that have a single generator, that is, there exists an element $g\in\G$ such that every other element from $\G$ can be computed by the repeated combination of $g$ and its inverse $g^{-1}$ only. Groups with a single generator are called \term{cyclic groups}.\label{cyclic-groups}
-\begin{example} The most basic example of a cyclic group is the group of integers $(\Z,+)$ with integer addition. $1$ is a single generator of $\Z$, since every integer can be obtained by repeatedly adding either $1$ or its inverse $-1$ to itself. For example
-$-4$ is generated by $-1$, since $-4=-1+(-1)+(-1)+(-1)$.
+Of course, every group $\G$ has a trivial set of generators, when we just consider every element of the group to be in the generator set. The more interesting question is to find smallest possible sets of generators for a given group. Of particular interest in this regard are groups that have a single generator, that is, there exists a (not necessarily unique) element $g\in\G$ such that every other element from $\G$ can be computed by the repeated combination of $g$ and its inverse $g^{-1}$ only. Groups with single, not necessarily unique, generators are called \term{cyclic groups}.\label{cyclic-groups}
+
+\begin{example}
+\label{example:cyclic_group_of_integers} The most basic example of a cyclic group is the group of integers $(\Z,+)$ with integer addition. $1$ is a single generator of $\Z$, since every integer can be obtained by repeatedly adding either $1$ or its inverse $-1$ to itself. For example $-4$ is generated by $-1$, since $-4=-1+(-1)+(-1)+(-1)$. Another generator of $\Z$ is the number $-1$.
 \end{example}
-\begin{example} Consider a modulus $n$ and the remainder class groups $(\Z_n,+)$ from example \sme{check reference}\ref{Zn}. These groups are cyclic, with a generator $1$, since every other element of that group can be constructed by repeatedly adding the remainder class $1$ to itself. Since $\Z_n$ is also finite, we know that $(\Z_n,+)$ is a finite cyclic group of order $n$.
+\begin{example}
+\label{example:cyclic_group_F5*} Consider the group $(\F_5^*,\cdot)$ from example \ref{fstar}. Since $2^1=2$, $2^2=4$, $2^3=3$ and $2^4=1$, the element $2$ is a generator of $(\F_5^*,\cdot)$. Moreover since $3^1=3$, $3^2=4$, $3^3=2$ and $3^4=1$, the element $3$ is another generator of $(\F_5^*,\cdot)$. Cyclic groups can therefore have more then one generator. However since $4^1=4$, $4^2=1$, $4^3=4$ and in general $4^k=4$ for $k$ odd and $4^k=1$ for $k$ even the element $4$ is not a generator of $(\F_5^*,\cdot)$. If follows that in general not every element of a finite cyclic group is a generator.
 \end{example}
-\begin{example}\label{ex:modulus-prime-group} Let $p\in\mathbb{P}$ be prime number and $(\F_p^*,\cdot)$ the finite group from exercise XXX\sme{add reference: \ref{ex:Zn*}?}. Then $(\F_p^*,\cdot)$ is cyclic and every element $g\in\F_q^*$ is a generator.
+\begin{example} Consider a modulus $n$ and the remainder class groups $(\Z_n,+)$ from example \ref{Zn}. These groups are cyclic, with generator $1$, since every other element of that group can be constructed by repeatedly adding the remainder class $1$ to itself. Since $\Z_n$ is also finite, we know that $(\Z_n,+)$ is a finite cyclic group of order $n$.
 \end{example}
+\begin{exercise}
+\label{example:cyclic_group_F6}
+Consider the group $(\Z_6,+)$ of modular 6 addition from example \ref{def_residue_ring_z_6}. Show that $5\in \Z_6$ is a generator and then show that $2\in \Z_6$ is not a generator.
+\end{exercise}
+\begin{exercise}\label{ex:modulus-prime-group} Let $p\in\mathbb{P}$ be prime number and $(\F_p^*,\cdot)$ the finite group from exercise \ref{ex:Zn*}. Show that $(\F_p^*,\cdot)$ is cyclic.
+\end{exercise}
+
+\paragraph{Factor Groups}
+As we know from the fundamental theorem of arithmetics \ref{def:fundamental_theorem_arithmetic}, every natural number $n$ is a product of prime numbers and this reflects into subgroups of a finite cyclic group in an interesting way: If $\G$, is a finite cyclic group of order $n$, then every subgroup $\G'$ of $\G$, is finite and cyclic and the order of $\G'$, is a factor of $n$. Moreover for each factor $k$ of $n$, $\G$ has exactly one subgroup of order $k$. This is known as the \term{fundamental theorem of finite cyclic groups}\label{def:fundamental_theorem_arithmetic}.
+\begin{notation}If $\G$ is a finite cyclic group of order $n$ and $k$ is a factor of $n$, then we write $\G[k]$ for the unique finite cyclic group, which is the order $k$ subgroup of $\G$.
+\end{notation}
+TODO: DEF COFACTOR AND COFACTOR CLEARING
+
+\begin{example} Consider the finite cyclic group $(\F_5^*,\cdot)$ from example \ref{example:cyclic_group_F5*}. Since the order of $\F^*_5$ is $4$ and $4$ has the factors $1$, $2$ and $4$, it follows from the fundamental theorem of finite cyclic groups, that $\F^*_5$ has $3$ unique subgroups. In fact the unique subgroup $\F^*_5[1]$ of order $1$ is given by the trivial group $\{1\}$ that contains only the multiplicative neutral element $1$ and the unique subgroup $\F^*_5[4]$ of order $4$ is $\F^*_5$ itself, since by definition every group is trivially a subgroup of itself. The unique subgroup $\F^*_5[2]$ of order $2$ is more interesting and is given by the set $\F^*_5[2]=\{1,4\}$.
+\end{example}
+\begin{exercise}
+Consider the finite cyclic group $(\Z_6,+)$ of modular 6 addition from example \ref{example:cyclic_group_F6}. Describe all subgroups of $(\Z_6,+)$ and define a generator for each subgroup.
+\end{exercise}
+\begin{exercise}Let $(\F_p^*,\cdot)$ be the cyclic group from exercise \ref{ex:modulus-prime-group}. Show that for $p\geq 5$, not every element $x\in \F_p^*$ is a generator of $\F_p^*$.
+\end{exercise}
+\begin{exercise}Let $\G$ be a finite cyclic group of prime order. Show that the only subgroups of $\G$ are the trivial group and $\G$ itself.
+\end{exercise}
 \paragraph{The discrete Logarithm problem}
 Observe that, when
 $\G$ is a cyclic group of order $n$ and $g\in \G$ is a generator of $\G$, then there is a map with respect to the generator $g$ with the following properties:
@@ -127,18 +120,18 @@ In the map above,  $g^x$ means ``multiply $g$ $x$-times by itself'' and $g^0=e_{
 To see this, first observe that, since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$, and, since $g^{x+y}=g^x\cdot g^y$, the map respects the group law.
 
 Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. This is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
-\begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\F_{5}^*,\cdot)$ from example \ref{fstar}\sme{check reference}. We know that $\F_{5}^*$ is a cyclic group of order $4$, and that every element is a generator. If we choose $3\in\Z_5^*$, we then know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
+\begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\F_{5}^*,\cdot)$ from exercise \ref{fstar}. We know from \ref{ex:modulus-prime-group} that $\F_{5}^*$ is a cyclic group of order $4$, and that every element is a generator. If we choose $3\in\Z_5^*$, we then know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
 $$
 3^{(\cdot)}: \Z_4 \to \Z_5^* \; x \mapsto 3^x
 $$
 
-Let us now perform a computation in the exponent:
+To see what doing computations "in the exponent" means in this example, let us now perform some computation in the exponent of the generator $3$:
 \begin{align*}
 3^{2+3-2} &=3^{3}\\
           & = 2
 \end{align*}
 
-This gives the same result as doing the same computation in $\F*_5$:
+This gives the same result as doing the same computation in $\F^*_5$ first and then put the result into the exponent of the generator $3$:
 
 \begin{align*}
 3^{2+3-2} &= 3^2 \cdot 3^3 \cdot 3^{-2}\\
@@ -153,8 +146,7 @@ Since the exponential map is a one-to-one correspondence that respects the group
 \begin{equation}
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
-Discrete logarithms are highly important in cryptography, because there are groups such that the exponential map and its inverse, the discrete logarithm, which are believed to be one-way functions, that is, while it is possible to compute the exponential map in \uterm{polynomial time}, computing the discrete log takes (sub)-\uterm{exponential time}. We have discussed this briefly following example \ref{eq: primenumber_sequence} in the previous chapter, and will look at this and similar problems in more detail in the next section.
-
+Discrete logarithms are highly important in cryptography, because there are finite cyclic groups where the exponential map and its inverse, the discrete logarithm map, are believed to be one-way functions, which informally means that computing the exponential map is fast, while computing the logarithm map is slow (We will look into a more precise definition in \ref{crypto_groups}).
 
 \sme{TODO: Fundamental theorem of finite cyclic groups}
 % Cofactor clearing starts with aritrary group element and generates generators
@@ -162,7 +154,45 @@ Discrete logarithms are highly important in cryptography, because there are grou
 %Since $BLS6-6(13)$ is a subgroup on our curve, it is not possible to leave the subgroup using the curves algebraic laws like scalar multiplication or addition. However in applications it often happens that random elements of the curve are generated, while what we really want are points in the subgroup. To get those points we can use cofactor clearing.
 %\end{definition}
 
-\subsection{Cryptographic Groups} In this section, we will look at families of groups that are believed to satisfy certain \term{computational hardness assumptions}, namely that a particular problem cannot be solved efficiently (where efficiently typically means ``in polynomial time of a given security parameter") in the groups under consideration.
+\paragraph{Pairings}
+Of particular importance for the development of SNARKs are so-called pairing maps on commutative groups. To see the definition, let $\G_1$, $\G_2$ and $\G_3$ be three commutative groups. Then a \textbf{pairing map} is a function
+\begin{equation}\label{pairing-map}
+e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3
+\end{equation}
+This function takes pairs $(g_1,g_2)$ of elements from $\G_1$ and $\G_2$, and maps them to elements from $\G_3$, such that the \term{bilinearity} property holds, which means that for all $g_1,g_1'\in \G_1$ and $g_2, g_2'\in \G_2$ the following two identities are satisfied:
+\begin{equation}
+\begin{array}{lcr}
+e(g_1 \cdot g_1',g_2)= e(g_1,g_2)\cdot e(g_1',g_2) &\text{and}&
+e(g_1,g_2 \cdot g_2')= e(g_1,g_2)\cdot e(g_1,g_2')\\
+\end{array}
+\end{equation}
+Informally speaking, bilinearity means that it doesn't matter if we first execute the group law on one side and then apply the bilinear map, or if we first apply the bilinear map and then apply the group law. 
+
+A pairing map is called \term{non-degenerate} if, whenever the result of the pairing is the neutral element in $\G_3$, one of the input values is the neutral element of $\G_1$ or $\G_2$. To be more precise, $e(g_1,g_2)=e_{\G_3}$ implies $g_1=e_{\G_1}$ or $g_2=e_{\G_2}$.
+\begin{example}
+\label{example:integer_addition_pairing}
+One of the most basic examples of a non-degenerate pairing involves $\G_1$, $\G_2$ and $\G_3$ all to be the group of integers with addition $(\Z,+)$. Then the following map defines a non-degenerate pairing:
+$$
+e(\cdot,\cdot): \Z \times \Z \to \Z \; (a,b)\mapsto a\cdot b
+$$
+Note that bilinearity follows from the distributive law of integers, since for $a,b,c\in \Z$, we have $e(a+b,c)=(a+b)\cdot c = a\cdot c + b\cdot c = e(a,c)+ e(b,c)$ and the same reasoning is true for the second argument.
+
+To see that $e(\cdot,\cdot)$ is non-degenrate, assume that $e(a,b)=0$. Then $a\cdot b =0$ implies that $a$ or $b$ must be zero.
+\end{example}
+\begin{exercise}[Arithmetic laws for pairing maps] Let $\G_1$, $\G_2$ as well as $\G_3$ be finite cyclic groups of the same order $n$ and let $e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3$ be a pairing map. Show that for given $g_1\in \G_1$ and $g_2\in \G_2$ and all $a,b\in \Z_n$ the following identity holds:
+\begin{equation}
+e(g_1^a, g_2^b) = e(g_1,g_2)^{a\cdot b}
+\end{equation}
+\end{exercise}
+\begin{exercise} Consider the remainder class groups $(\Z_n,+)$ for some modulus $n$. Show that the map
+$$
+e(\cdot,\cdot): \Z_n \times \Z_n \to \Z_n \; (a,b)\mapsto a\cdot b
+$$
+is a pairing map. Why is the pairing not non-degenrate in general and what condition must be imposed on $n$, such that the pairing will be non-degenerate?
+\end{exercise}
+
+\subsection{Cryptographic Groups}
+\label{crypto_groups} In this section, we will look at families of groups that are believed to satisfy certain \term{computational hardness assumptions}, namely that a particular problem cannot be solved efficiently (where efficiently typically means ``in polynomial time of a given security parameter") in the groups under consideration.
 \begin{example}
 To highlight the concept of the computational hardness assumption, consider the group of integers $\Z$ from example \sme{check reference}\ref{eq: primenumber_sequence}. One of the best known and most researched examples of computational hardness is the assumption that the factorization of integers into prime numbers cannot be solved by any algorithm in polynomial time with respect to the bit-length of the integer.
 
@@ -520,7 +550,7 @@ From an implementation perspective, it is important to derive the set of generat
 To see how Pedersen hashes can be used to define an actual hash-to-group function according to our definition, we can use any of the hash-to-$\Z_r$ functions as we have derived them in equation \ref{eq:hash-Zr}\sme{check reference}.
 %\begin{example} In this example, let $\G$ be a finite cyclic group of order $r$ and $\{g_1,\ldots,g_j\}$ a set of uniformly and randomly sampled set of generators of $\G$. To instantiate a Pedersen hash in combination with a hash-to-group function $H_{mod_r}$ as defined in XXX, let $k$ be the bit-length of the group order $r$ and $H:\{0,1\}^*\to \{0,1\}^{j\cdot k}$ some general hash function.
 
-\paragraph{MimC Hashes}\sme{add text on this}
+\paragraph{MimC Hashes}
 % https://eprint.iacr.org/2016/492
 \citep{cryptoeprint:2016:492}
 \paragraph{Pseudorandom Functions in DDH-A groups}
@@ -722,7 +752,7 @@ Both the real numbers $\mathbb{R}$ as well as the complex numbers $\mathbb{C}$ a
 Consider our remainder class ring $(\Z_5,+,\cdot)$ and show that it is a field. What is the characteristic of $\Z_5$?
 \end{exercise}
 
-\paragraph{Prime fields}
+\subsection{Prime fields}
 \label{prime_fields}
 As we have seen in the various examples of the previous sections, modular arithmetics behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
 
@@ -859,11 +889,20 @@ $$
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
 \paragraph{Exponentiation} TO APPEAR...\sme{write paragraph on exponentiation}
-\paragraph{Hashing into prime fields}\label{hashing-prime-fields}
+\subsubsection{Hashing into prime fields}\label{hashing-prime-fields}
 An important problem in SNARK development is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX,\sme{add reference} those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
 
 On pages \pageref{hashing-start}--\pageref{hashing-end}\sme{check reference}, we looked at a few methods of hashing into the residue class rings $\Z_n$ for arbitrary $n>1$. As prime fields are just special instances of those rings, all methods for hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
-\paragraph{Extension Fields}\label{field-extension}
+\paragraph{MiMC Hash functions} As we will see in XXX, 
+
+To define a MiMC hash function, let $\F_p$ be a prime field with prime modulus $p\in\Prim$, let $n$ be the smallest natural number, such that  $gcd(n, p-1) = 1$. Let $r$ be the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and let $C=\{c_i\in \F_p \;|\; 0\leq i \leq r\}$ be a set of randomly generated field elements. The definition of the MiMC hash function then starts with an invertible map
+\begin{equation}
+E(\cdot) : \F_p \to \F_p\; x \mapsto F_{r-1}(\cdots F_1(F_0(x))\ldots)
+\end{equation}
+where $F_i(x)= (x+c_i)^n$
+
+
+\subsection{Extension Fields}\label{field-extension}
 % references https://blog.plover.com/math/se/finite-fields.html
 Prime fields, defined in the previous section, are the basic building blocks for cryptography in general and SNARKs in particular.
 
