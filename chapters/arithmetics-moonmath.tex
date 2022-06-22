@@ -1,66 +1,20 @@
-\chapter{arithmetic}\label{chap:arithmetic}
+\chapter{Arithmetics}\label{chap:arithmetic}\label{chap:arithmetics}
 % Reason why we need a math-chapter in a book like this:
+\sme{Pluralize chapter title}\smelong{S: This chapter talks about different types of arithmetic, so I suggest using "Arithmetics" as the chapter title.}
 
 \section{Introduction}
 
 \subsection{Aims and target audience}
-\tbds{Sylvia: This subsection should be in the introduction of the book as it applies to the entire math part \label{intro-shift_1}}
 
-How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16} and to understand the internals of snark implementations, some knowledge of mathematics is needed to be able to follow the discussion. 
-
-The goal of this chapter is therefore to enable a reader who is starting out with nothing more than basic high school algebra to be able to solve simple tasks in the mathematics underlying most zero knowledge proofs without the need of a computer.
-
-Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who has never seen or dealt with, say, a prime field \ref{prime_fields}, or an elliptic curve \ref{chap:elliptic-curves}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, but rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that complicted. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature and unsecure code. 
-
-This is why we dedicated this chapter to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this and the following chapters, until they are able to solve at least a few exercises in each chapter.
-
-If, on the other hand, you are already skilled in elliptic curve cryptography, feel free to skip this chapter and only come back to it for reference and comparison. Maybe the most interesting parts are XXX \sme{add references}.
-
-We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like high school integer arithmetic. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and mathematical structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar, as we will see in various examples below in this chapter.
-
-To make it easier to memorize new concepts and symbols, we might frequently link to definitions in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
-
-We want to stress, however that this introduction is informal, incomplete and optimized to enable the reader to understand zero-knowledge concepts as efficiently as possible. Our focus and design choices are to include as little theory as necessary, focusing on a wealth of numerical examples. We believe that such an informal, example-driven approach to learning mathematics may make it easier for beginners to digest the material in the initial stages. 
-
-For instance, as a beginner, you would probably find it more beneficial to first compute a simple toy \term{snark} with pen and paper all the way through, before actually developing real-world production-ready systems. In addition, it's useful to have a few simple examples in your head before getting started with reading actual academic papers.
-
-However, in order to be able to derive these toy examples, some mathematical groundwork is needed. This chapter therefore will help the inexperienced reader to focus on what we believe is important, accompanied by exercises that you are encouraged to recompute yourself. Every section usually ends with a list of additional exercises in increasing order of difficulty, to help the reader memorize and apply the concepts. 
-
-
-\subsection{The structure of this chapter}
-\tbds{Sylvia: This subsection should be in the introduction of the book as it applies to the entire math part}
-
-We start with a brief recapitulation of basic integer arithmetic like long division, the greatest common divisor and Euclid's algorithm. After that, we introduce modular arithmetic as \hilight{the most important skill}  to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetic and introduce the important concept of Lagrange interpolation.
-
-After this practical warm up, we introduce some basic algebraic terms like groups and fields, because those terms are used very frequently in academic papers relating to zero-knowledge proofs. The beginner is advised to memorize those terms and think about them: Why are they defined the way they are? Can you come up with a better definition? How and why is every rule important and what happens if that rule is dropped? 
-
-We define these terms in the general abstract way of mathematics, hoping that the non mathematical trained reader will gradually learn to become comfortable with this style. We then give basic examples and do basic computations with these examples to get familiar with the concepts. 
+The goal of this chapter is to bring a reader who is starting out with nothing more than basic school-level algebra up to speed in in arithmetics. We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclidean division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
 
 \section{Integer arithmetic}
 \label{integer_arithmetic}
 In a sense, integer arithmetic is at the heart of large parts of modern cryptography. Fortunately, most readers will probably remember integer arithmetic from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetic concepts to refresh your memory and fill any knowledge gaps.
 
-In what follows, we use many mathematical notations, which we summerized in the following table \ref{table_of_notations}:
+Even though the terms and concepts in this chapter might not appear in literature on zero-knowledge proofs directly, understanding them is necessary to follow subsequent chapters introducing terms like \term{groups} or \term{fields}, which crop up very frequently in academic papers on the topic.
 
-\tbds{Sylvia: We should put this table into the same introduction as \ref{intro-shift_1}}
-\vbox{\renewcommand{\arraystretch}{1.2}
-\label{table_of_notations}
-	\begin{center}
-	\hilight{Notation used in this chapter}
-	\end{center}
-	\begin{tabularx}{\textwidth}{|c|l|l|X|}
-	\hline
-	Symbol 	& Meaning of Symbol 	& Example & Explanation\\\hline\hline
-	$=$ 		& equals				& $a = r$ 							& $a$ and $r$ have the same value\\\hline
-	$:=$ 		& defining the symbol on the right 		& $M := \{a,b,c\}$ 	& $M$ is a set containg $a,b,c$ \\\hline
-	$\in$	& element from a set 			& $a \in M$ &  $a$ is an element from $M$ \\\hline
-	$\Leftrightarrow$	& logical equivalence & $P \Leftrightarrow Q$ &  $P$ if and only if $Q$ \\\hline
-		$\sum_{j=n}^k a_j$	& summation & $\sum_{j=0}^1 a_j=a_0 + a_1$ & sum of $a_0$ and $a_1$\\\hline
-	\end{tabularx}
-	\renewcommand{\arraystretch}{1}
-	}%end of vbox
-
-In this book, we use the symbol $\mathbb{Z}$ as a short description for the set of all \term{integers}, that is we write:
+In this book, we use the symbol $\mathbb{Z}$ as a short description for the set of all \term{integers}, that is, we write:
 
 \begin{equation}
 \label{integer_symbol}
@@ -219,7 +173,7 @@ As long division is the standard method used for pen-and-paper division of multi
 
 In a nutshell, the algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage; the multiples then become the digits of the quotient, and the remainder is the first digit of the dividend. 
 
-\begin{example}[Integer Long Division] To give an example of integer long division algorithm, lets divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euclidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute as follows:
+\begin{example}[Integer Long Division] To give an example of integer long division algorithm, let's divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euclidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in Commonwealth countries, we compute as follows:
 \begin{equation}
 \intlongdivision{143785}{17}
 \end{equation}
@@ -536,7 +490,7 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
 \end{center}
 This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. We call it \term{modular 6 arithmetic} and write the associated type as $\Z_6$.
 
-To see why such an identification of a remainder class with its remainder is useful and actually simplifies congruence computations a lot, lets go back to the congruence from example \ref{example_first_congruence} again:
+To see why such an identification of a remainder class with its remainder is useful and actually simplifies congruence computations a lot, let's go back to the congruence from example \ref{example_first_congruence} again:
 \begin{equation}
 \label{example_congruence_two_1}
 \kongru{7\cdot(2x+21) + 11}{x-102}{6}
@@ -573,7 +527,7 @@ sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
  describes a $3$-bit modulus arithmetic system.   
 \end{remark}
 \begin{exercise}
-Define $\Z_{13}$ as the the arithmetic modulo $13$ analog to example \ref{def_residue_ring_z_6}. Then consider the congruence from exercise \ref{exercise_congruence_in_F13} and rewrite it into an equation in $\Z_{13}$
+Define $\Z_{13}$ as the the arithmetic modulo $13$ analog to example \ref{def_residue_ring_z_6}. Then consider the congruence from exercise \ref{exercise_congruence_in_F13} and rewrite it into an equation in $\Z_{13}$.
 \end{exercise}
 
 \paragraph{Modular Inverses} 
@@ -837,7 +791,7 @@ sage: p1(Z6(2)) == Z6(5)
 
 \end{example}
 \begin{exercise}
-Compare both expansions of $P_7$ from $\Z[x]$ and from $\Z_6[x]$ in example \ref{example:integer_polynomials} and example \ref{example:integer_mod_6_polynomials} ,and consider the definition of $\Z_6$ as given in example \ref{def_residue_ring_z_6}. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?
+Compare both expansions of $P_7$ from $\Z[x]$ and from $\Z_6[x]$ in example \ref{example:integer_polynomials} and example \ref{example:integer_mod_6_polynomials} , and consider the definition of $\Z_6$ as given in example \ref{def_residue_ring_z_6}. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?
 \end{exercise}
 \paragraph{Polynomial arithmetic}
 Polynomials behave like integers in many ways. In particular, they can be added, subtracted and multiplied. In addition, they have their own notion of Euclidean division. Informally speaking, we can add two polynomials  by simply adding the coefficients of the same index, and we can multiply them by applying the distributive property, that is, by multiplying every term of the left factor with every term of the right factor and adding the results together.
