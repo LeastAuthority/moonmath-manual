@@ -28,8 +28,7 @@ If $(\G,\cdot)$ is a group and $\G'\subset\G$ is a subset of $\G$, such that the
 \end{definition}
 
 Rephrasing the abstract definition in layman's terms, a group is something where we can do computations in a way that resembles the behavior of the addition of integers. Specifically, this means we can combine some element with another element into a new element in a way that is reversible and where the order of combining elements doesn't matter.
-\begin{notation}Since we are exclusively concerned with commutative groups in this book, we often just call them groups, keeping the notation of commutativity implicit.
-A set $\G$ with a map $\cdot$ that satisfies all previously mentioned rules, except for the commutativity law is called a non-commutative group. 
+\begin{notation}Since we are exclusively concerned with commutative groups in this book, we often just call them groups, keeping the notation of commutativity implicit. Commutative groups are also called \term{Abelian groups}. A set $\G$ with a map $\cdot$ that satisfies all previously mentioned rules, except for the commutativity law is called a non-commutative group. 
 
 If there is no risk of ambiguity (about what the group law of that group is), we frequently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as notation for the group, keeping the group law implicit. In this case we also say that $\G$ is of group type, indicating that $\G$ is not simply a set but a set together with a group law.
 
@@ -624,7 +623,10 @@ A set $R$ with two maps $+$ and $\cdot$ that satisfies all previously mentioned 
 
 If there is no risk of ambiguity (about what the addition and multiplication maps  of a ring are), we frequently drop the symbols $+$ and $\cdot$ and simply write $R$ as notation for the ring, keeping those maps implicit. In this case we also say that $R$ is of ring type, indicating that $R$ is not simply a set but a set together with an addition and a multiplication map.
 \end{notation}
-\begin{example}[The ring of integers] The set $\Z$ of integers with the usual addition and multiplication is the archetypical example of a commutative ring with unit $1$.
+\begin{example}[The ring of integers] The set $\Z$ of integers with the usual addition and multiplication is the archetypical example of a commutative ring with unit $1$. 
+\begin{sagecommandline}
+sage: ZZ
+\end{sagecommandline}
 \end{example}
 \begin{example}[Underlying commutative group of a ring] Every commutative ring with unit $(R,+,\cdot,1)$ gives rise to a group, if we disregard multiplication.
 \end{example}
@@ -651,7 +653,7 @@ Find $x\in S$ such that
 $$
 \otimes \circ (x \cup \odot ) = \star
 $$
-To see how such a ``moonmath equation'' can be solved, we have to keep in mind that rings behaves mostly like normal numbers when it comes to bracketing and computation rules. The only differences are the symbols, and the actual way to add and multiply them. With this in mind, we solve the equation for $x$ in the``usual way'' \footnote{Note that there are more efficient ways to solve this equation. The point of our computation is to show have the axioms of a ring can be used to solve the equation}:
+To see how such a ``moonmath equation'' can be solved, we have to keep in mind that rings behaves mostly like normal numbers when it comes to bracketing and computation rules. The only differences are the symbols, and the actual way to add and multiply them. With this in mind, we solve the equation for $x$ in the``usual way'' \footnote{Note that there are more efficient ways to solve this equation. The point of our computation is to show how the axioms of a ring can be used to solve the equation}:
 \begin{align*}
 \otimes \circ (x \cup \odot ) &= \star & \text{ \# apply the distributive law}\\
 \otimes \circ x \cup \otimes \circ \odot  &= \star &\# \otimes \circ \odot = \odot\\
@@ -687,53 +689,63 @@ Having no solution or two solutions is certainly not something to expect from ty
 \begin{example}[Ring of Polynomials] Considering the definition of polynomials from \ref{sec:polynomial_arithmetics} again, we notice that what we have informally called the type $R$ of the coefficients must in fact be a commutative ring with a unit, since we need addition, multiplication, commutativity and the existence of a unit for $R[x]$ to have the properties we expect.
 
 In fact if we consider $R$ to be a ring and we define addition and multiplication of polynomials as in \ref{def:polynomial_arithmetic}, the set $R[x]$ is a commutative ring with a unit, where the polynomial $1$ is the multiplicative unit. We call this ring the \term{ring of polynomials with coefficients in} $R$.
+\begin{sagecommandline}
+sage: ZZ['x']
+\end{sagecommandline}
 \end{example}
-\begin{example}[Rings of modular arithmetics] Let $n$ be a modulus and $(\Z_n,+,\cdot)$ the set of all remainder classes of integers modulo $n$, with the projection of integer addition and multiplication as defined in \ref{def:remainder_class_representation}. It can be shown that $(\Z_n,+,\cdot)$ is a commutative ring with unit $1$.
+\begin{example}[Ring of modular $n$ arithmetic]
+\label{def:ring_of_mod_n_arithmetics}
+ Let $n$ be a modulus and $(\Z_n,+,\cdot)$ the set of all remainder classes of integers modulo $n$, with the projection of integer addition and multiplication as defined in \ref{def:remainder_class_representation}. Then $(\Z_n,+,\cdot)$ is a commutative ring with unit $1$.
+\begin{sagecommandline}
+sage: Integers(6)
+\end{sagecommandline}
 \end{example}
 
-\paragraph{Polynom evaluation in the exponent of group generators}
-Considering the exponential map from page \pageref{exponentialmap} \sme{check reference} again, let $\G$ be a finite cyclic group of order $n$ with generator $g\in\G$. Then the ring structure of $(\Z_n,+,\cdot)$ corresponds to the group structure of $\G$ in the following way:
-\begin{align*}
-g^{x+y} &= g^x\cdot g^y & \text{for all } x,y\in\Z_n\\
+\begin{example}[Polynomial evaluation in the exponent of group generators] As we show in \ref{sec:QAP}, a key insights in many zero knowlege protocols is the ability to encode computations as polynomials and then to hide the information of that computation by evaluating the polynomial "in the exponent" of certain cryptographic groups \ref{sec:gorth_16}.
+
+To understand the underlying principle of this idea, consider the exponential map \pageref{exponentialmap} again. If $\G$ is a finite cyclic group of order $n$ with generator $g\in\G$, then the ring structure of $(\Z_n,+,\cdot)$ corresponds to the group structure of $\G$ in the following way:
+\begin{align}
+\label{def:ring_exponential_laws}
+g^{x+y} &= g^x\cdot g^y & 
 g^{x\cdot y} &= \left( g^x\right)^y & \text{for all } x,y\in\Z_n
-\end{align*}
-This is of particular interest in cryptography, as it allows polynomials with coefficients in $\Z_n$ to be evaluated ``in the exponent'' of a group generator. To be more precise, let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$. Then the previously defined exponential laws (example \ref{ex:in-the-exponent})\sme{check reference} imply the following:
-\begin{align*}
-g^{p(x)} & = g^{a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0}\\
-         & = \left(g^{x^m}\right)^{a_m}\cdot \left(g^{x^{m-1}}\right)^{a_{m-1}}\cdot \ldots\cdot \left(g^{x}\right)^{a_1}\cdot g^{a_0}
-\end{align*}
+\end{align}
+This correspondense allows polynomials with coefficients in $\Z_n$ to be evaluated ``in the exponent'' of a group generator. To see what this means, let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$ and let $s\in\Z_n$ be an evaluation point. Then the previously defined exponential laws \ref{def:ring_exponential_laws} imply the following identity:
+\begin{align}
+\label{def:polynomial_ring_exponential_laws}
+g^{p(s)} & = g^{a_m\cdot s^m+a_{m-1}s^{m-1}+\ldots + a_1s +a_0}\\
+         & = \left(g^{s^m}\right)^{a_m}\cdot \left(g^{s^{m-1}}\right)^{a_{m-1}}\cdot \ldots\cdot \left(g^{s}\right)^{a_1}\cdot g^{a_0}\notag
+\end{align}
+Utilizing these identities, it is possible to evaluate any polynomial $p$ of degree $deg(p)\leq m$ at a "secret" evaluation point $s$ in the exponent of $g$ without any knowledge about $s$, assuming that $\G$ is a DL-group. To see this assume that the set $\{g,g^s, g^{s^2},\ldots, g^{s^m}\}$ is given, but $s$ is unknown. Then 
+$g^{p(s)}$ can be computed using \ref{def:polynomial_ring_exponential_laws}, however it is not feasible to compute $s$.   
+\end{example}
 
-Hence, to evaluate $p$ at some point $s$ in the exponent, we can insert $s$ into the right-hand side of the last equation and evaluate the product.
-
-As we will see, this is a key insight to understanding many SNARK protocols like e.g. Groth16 \citep{Groth16} or XXX\sme{add more examples protocols of SNARK}.
-\begin{example} To give an example of the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map from example \ref{ex:in-the-exponent}\sme{check reference}:
+\begin{example} To give an example of the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map from example \ref{ex:in-the-exponent}:
 $$
 3^{(\cdot)}: \Z_4 \to \Z_5^* \; x \mapsto 3^x
 $$
- Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we can evaluate the polynomial at say $x=2$ in the exponent of $3$ in two different ways. On the one hand, we can evaluate $p$ at $2$ and then write the result into the exponent as follows:
+Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we first evaluate the polynomial at the point $s=2$ and then write the result into the exponent $3$ as follows:
 \begin{align*}
 3^{p(2)} &=3^{2\cdot 2^2+3\cdot 2 +1}\\
           & = 3^{2\cdot 0 +2 +1}\\
           & = 3^{3}\\
           & = 2
 \end{align*}
-On the other hand, we can use the right-hand side of the equation to evaluate $p$ at $2$ in the exponent of $3$ as follows:
+This was possible, because we had access to the evaluation point $2$. On the other hand, if we only had access to the set $\{3, 4, 1\}$ and we knew that this set represents the set $\{3,3^s, 3^{s^2}\}$ for some secret value $s$, we could evaluate
+$p$ at the point $s$ in the exponent of $3$ as
 \begin{align*}
-3^{p(2)} &= \left(3^{2^2}\right)^2 \cdot \left(3^{2}\right)^3\cdot 3^1\\
-         &= \left(3^{0}\right)^2 \cdot 3^3\cdot 3\\
-         &= 1^2 \cdot 2 \cdot 3\\
-         &= 2 \cdot 3\\
+3^{p(s)} &= 1^2 \cdot 4^3\cdot 3^1\\
+         &= 1\cdot 4\cdot 3\\
          &= 2
 \end{align*}
+Both computations agree, since the secret point $s$ was equal to $2$ in this example. However the second evaluation was possible without any knowledge about $s$.
 \end{example}
 \paragraph{Hashing to Commutative Rings} As we have seen in XXX\sme{add reference}, various constructions for hashing-to-groups are known and used in applications. As commutative rings are \uterm{Abelian groups}, when we disregard the multiplicative structure, hash-to-group constructions can be applied for hashing into commutative rings, too. This is possible in general, as the \uterm{codomain} of a general hash function $\{0,1\}^*$ is just the set of binary strings of arbitrary but finite length, which has no algebraic structure that the hash function must respect.
 
 \section{Fields}\label{sec:fields}
 We started this chapter with the definition of a group (section \ref{sec:groups}), which we then expanded into the definition of a commutative ring with a unit (section \ref{sec:rings}). Such rings generalize the behavior of integers. In this section, we will look at those special cases of commutative rings where every element other than the neutral element of addition has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$. Rational numbers are, in a sense, an extension of the ring of integers, that is, they are constructed by including newly defined multiplicative inverses (fractions) to the integers.
 
-Now, considering the definition of a ring (\ref{def:comm-ring-unit}) again, we define a \term{field} $ (\F, +, \cdot) $ to be a set $ \F$, together with two maps $ +: \F \cdot \F \to \F $ and $ \cdot: \F \cdot \F \to \F $, called \textit{addition} and \textit{multiplication}, such that the following conditions hold:
-
-\begin{definition}{\deftitle{Field}}\label{def:field}
+\begin{definition}[Field ]\label{def:field}
+A \term{field} $ (\F, +, \cdot, 1) $ is a set $\F$ provided with two maps $ +: \F \times \F \to \F $ and $ \cdot: \F \times \F \to \F $, called \term{addition} and \term{multiplication}, such that the following conditions hold:
 \begin{itemize}
 \item $ \left (\F, + \right) $ is a commutative group, where the neutral element is denoted by $ 0 $.
 \item $ \left (\F \setminus \left \{0 \right \}, \cdot \right) $ is a commutative group, where the neutral element is denoted by $ 1 $.
@@ -741,17 +753,19 @@ Now, considering the definition of a ring (\ref{def:comm-ring-unit}) again, we d
 $g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
 \end{definition}
-If a field is given and the definition of its addition and multiplication is not ambiguous, we will often simply write $\F$ instead of $(\F,+,\cdot)$ to denote the field. Moreover, we use $\F^*$ to describe the multiplicative group of the field, that is, the set of elements with multiplication as the group law, excluding the neutral element of addition.
+
+\begin{notation} If there is no risk of ambiguity (about what the addition and multiplication maps  of a ring are), we frequently drop the symbols $+$ and $\cdot$ and simply write $\F$ as notation for the field, keeping those maps implicit. In this case we also say that $\F$ is of field type, indicating that $\F$ is not simply a set but a set together with an addition and a multiplication map.
+
+Moreover, we use the symbol $\F^*$ to describe the multiplicative group of the field, that is, the set of elements with multiplication as the group law, excluding the neutral element of addition.
+\end{notation}
 
 The \term{characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is also said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
-\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no natural number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the set of rational numbers, the characteristic $char(\mathbb{Q})$ of the field $\mathbb{Q}$ is zero. In Sage, rational numbers are called as follows:
+\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no natural number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the set of rational numbers, the characteristic of the field $\mathbb{Q}$ is given by $char(\mathbb{Q})=0$. 
 \begin{sagecommandline}
 sage: QQ
-sage: QQ(1/5) # Get an element from the field of rational numbers
-sage: QQ(1/5) / QQ(3) # Division
 \end{sagecommandline}
 \end{example}
-\begin{example}[Field with two elements]\label{ex:field-2-elements} It can be shown that, in any field, the neutral element $0$ of addition must be different from the neutral element $1$ of multiplication, that is, $0\neq 1$ always holds in a field. From this, it follows that the smallest field must contain at least two elements. As the following addition and multiplication tables show, there is indeed a field with two elements, which is usually called $\F_2$:
+\begin{example}[Field with two elements]\label{ex:field-2-elements} It can be shown that, in any field, the neutral element of addition $0$ must be different from the neutral element of multiplication $1$, that is, $0\neq 1$ always holds in a field. From this, it follows that the smallest field must contain at least two elements. As the following addition and multiplication tables show, there is indeed a field with two elements, which is usually called $\F_2$:
 
 Let $\F_2:=\{0,1 \}$ be a set that contains two elements and let addition and multiplication on $\F_2$ be defined as follows:
 \begin{center}
@@ -766,9 +780,7 @@ $\cdot$ & 0 & 1 \\\hline
       1 & 0 & 1 \\
   \end{tabular}
 \end{center}
-Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ is there, that is, we have $char(\F_2)=0$.
-
-For reasons we will understand better in XXX\sme{add reference}, Sage defines this field as a so-called Galois field with 2 elements. You can call it in Sage as follows:
+Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ given by $char(\F_2)=2$.
 \begin{sagecommandline}
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
@@ -780,22 +792,24 @@ sage: F2(1) / F2(1) # Division
 Both the real numbers $\mathbb{R}$ as well as the complex numbers $\mathbb{C}$ are well known examples of fields.\sme{Expand on this?}
 \end{example}
 \begin{exercise}
-Consider our remainder class ring $(\Z_5,+,\cdot)$ and show that it is a field. What is the characteristic of $\Z_5$?
+Consider the ring of modular $5$ arithmetics $(\Z_5,+,\cdot)$ from example \ref{primfield_z_5}. Show that $(\Z_5,+,\cdot)$ is a field. What is the characteristic of $\Z_5$? Proof that the equation $a\cdot x = b$ has only a single solution $x\in \Z_5$  for any given $a,b\in \Z_5^*$. 
+\end{exercise}
+\begin{exercise}
+Consider the ring of modular $6$ arithmetics $(\Z_6,+,\cdot)$ from example \ref{def_residue_ring_z_6}. Show that $(\Z_6,+,\cdot)$ is not a field.
 \end{exercise}
 
 \subsection{Prime fields}
 \label{prime_fields}
-As we have seen in the various examples of the previous sections, modular arithmetics behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units.
+As we have seen in the various examples of the previous sections, modular arithmetics behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units \ref{def:ring_of_mod_n_arithmetics}.
 
-However, we have also seen in \ref{ex:modulus-prime-group}\sme{check reference} that, whenever the modulus is a prime number, every remainder class other than the zero class has a modular multiplicative inverse. This is an important observation, since it immediately implies that, in case of a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \term{field}. Moreover, since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have the finite characteristic $n$.
+However, we have also seen in \ref{ex:modulus-prime-group}\sme{check reference} that, whenever the modulus is a prime number, every remainder class other than the zero class has a modular multiplicative inverse. This is an important observation, since it immediately implies that, in case the modulus is a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \term{field}. Moreover, since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have the finite characteristic $n$.
 
 To distinguish this important case from arbitrary remainder class rings, we write  $ (\F_p, +, \cdot) $ for the field of all remainder classes for a prime number modulus $p \in \Prim$ and call it the \term{prime field} of characteristic $p$.
 
-Prime fields are the foundation for many of the contemporary algebra-based cryptographic systems, as they have many desirable properties. One of them is that, since these sets are finite and a prime field of characteristic, $p$ can be represented on a computer in roughly $log_2(p)$ amount of space without precision problems that are unavoidable for computer representations of infinite sets such as rational numbers or integers.
+Prime fields are the foundation for many of the contemporary algebra-based cryptographic systems, as they have many desirable properties. One of them is that any prime field of characteristic $p$ contain exactly $p$ elements which can be represented on a computer with not more then $log_2(p)$ many bits. On the other hand fields like the rational numbers, require a potentially unbounded amount of bits for any full-precision representation.
 
-Since prime fields are special cases of remainder class rings, all computations remain the same. Addition and multiplication can be computed by first doing normal integer addition and multiplication, and then taking the remainder modulus $p$. Subtraction and division can be computed by adding or multiplying with the additive or the multiplicative inverse, respectively. The additive inverse $-x$ of a field element $x\in\F_p$ is given by $p-x$, and the multiplicative inverse of $x\neq 0$ is given by $x^{p-2}$, or can be computed using the Extended Euclidean Algorithm.
+Since prime fields are special cases of modular arithmetic rings, addition and multiplication can be computed by first doing normal integer addition and multiplication, and then considering the remainder in Eucliden division by $p$ as the result. For any prime field element $x\in \F_p$, its additive inverse (the negative) is given by $-x=\Zmod{p-x}{p}$. For $x\neq 0$ the multiplicative inverse always exists and is given by $x^{-1}=x^{p-2}$. Division is then defined by multiplication with the multiplicative inverse as explained in \ref{sec:modular_inverses}. Alternative the multiplicative inverse can be computed using the Extended Euclidean Algorithm as explained in \ref{eq_compute_multiplicative_inverse}.
 
-Note that these computations might not be the fastest to implement on a computer. They are, however, useful in this book, as they are easy to compute for small prime numbers.
 \begin{example}
 The smallest field is the field $\F_2$ of characteristic $2$ as we have seen in example \ref{ex:field-2-elements}. It is the prime field of the prime number $2$.
 \end{example}
@@ -814,10 +828,10 @@ A first thing to note is that since $\F_5$ is a field, all rules are identical t
  &= 4
 \end{align*}
 In this computation, we computed the multiplicative inverse of $3$ using the identity
-$x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean Algorithm (see \ref{eq: erw_Eukl_algo} on page \pageref{eq: erw_Eukl_algo}).  To refresh our memory, the task is to compute $x^{-1}\cdot 3 + t \cdot 5 =1$, but $t$ is actually irrelevant. We get
+$x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean Algorithm (see \ref{eq: erw_Eukl_algo}).  To refresh our memory, the algorithm solves the equation $x^{-1}\cdot 3 + t \cdot 5 =1$, for $x^{-1}$, even though in this case $t$ is irrelevant. We get:
 \begin{center}
   \begin{tabular}{c | c c l}
-    k & $ r_k $ & $ x^{-1}_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
+    k & $ r_k $ & $ x^{-1}_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot 3)}{5} $ \\\hline
     0 & 3 & 1 & $\cdot$\ \\
     1 & 5 & 0 & $\cdot$ \\
     2 & 3 & 1 & $\cdot$ \\

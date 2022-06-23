@@ -71,18 +71,18 @@ sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
 sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 
-Sage commandline, line 634::
+Sage commandline, line 635::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 682::
+Sage commandline, line 683::
 
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
 sage: Z5(3)**(-1)
 sage: Z5(3)**(5-2) == Z5(3)**(-1)
 
-Sage commandline, line 751::
+Sage commandline, line 752::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -97,7 +97,7 @@ sage: p2
 sage: p6 = Zx([0])
 sage: p6.degree()
 
-Sage commandline, line 786::
+Sage commandline, line 787::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -108,7 +108,7 @@ sage: p1 = Z6x([17,-4,2])
 sage: p1
 sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
-Sage commandline, line 815::
+Sage commandline, line 816::
 
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -116,14 +116,14 @@ sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
 sage: p1(ZZ(2))
 sage: p7(ZZ(-6)) == ZZ(-264)
 
-Sage commandline, line 832::
+Sage commandline, line 833::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
 sage: p1 = Z6x([5,-4,2])
 sage: p1(Z6(2)) == Z6(5)
 
-Sage commandline, line 872::
+Sage commandline, line 873::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -131,7 +131,7 @@ sage: Q = Zx([5,0,-2,1])
 sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 892::
+Sage commandline, line 893::
 
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -139,7 +139,7 @@ sage: Q = Z6x([5,0,-2,1])
 sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
 sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 951::
+Sage commandline, line 952::
 
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -148,33 +148,33 @@ sage: Q = Zx([-80,19,-4,1])
 sage: P = Zx([-89,339])
 sage: A == Q*B + P
 
-Sage commandline, line 986::
+Sage commandline, line 987::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
 sage: p.factor()
 
-Sage commandline, line 1010::
+Sage commandline, line 1011::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 1074::
+Sage commandline, line 1075::
 
 sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 
-Sage commandline, line 1103::
+Sage commandline, line 1104::
 
 sage: F5 = GF(5)
 sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
 
-Sage commandline, line 371::
+Sage commandline, line 370::
 
 sage: import hashlib
 sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -188,7 +188,7 @@ sage: d.str(16)
 sage: d.str(2)
 sage: d.str(10)
 
-Sage commandline, line 444::
+Sage commandline, line 443::
 
 sage: import hashlib
 sage: def Hash5(x):
@@ -199,7 +199,7 @@ sage: def Hash5(x):
 ....:     return ZZ(d,base=2)
 sage: Hash5(b'')
 
-Sage commandline, line 501::
+Sage commandline, line 500::
 
 sage: import hashlib
 sage: Z23 = Integers(23)
@@ -211,20 +211,30 @@ sage: def Hash_mod23(x, k2):
 ....:     d = ZZ(d, base=2)
 ....:     return Z23(d)
 
-Sage commandline, line 747::
+Sage commandline, line 627::
+
+sage: ZZ
+
+Sage commandline, line 692::
+
+sage: ZZ['x']
+
+Sage commandline, line 699::
+
+sage: Integers(6)
+
+Sage commandline, line 764::
 
 sage: QQ
-sage: QQ(1/5) # Get an element from the field of rational numbers
-sage: QQ(1/5) / QQ(3) # Division
 
-Sage commandline, line 771::
+Sage commandline, line 784::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 1047::
+Sage commandline, line 1062::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
@@ -698,7 +708,7 @@ sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1269::
+Sage commandline, line 1271::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -709,7 +719,7 @@ sage: T == F13t(t^2 + t + 9)
 sage: A2 == F13t(6*t + 10)
 sage: A5 == F13t(7*t + 4)
 
-Sage commandline, line 1334::
+Sage commandline, line 1336::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -718,7 +728,7 @@ sage: P = F13t((2*(6*t+10)+6*(7*t+4))*(3*(6*t+10)+4*(7*t +4))-(11*(7*t+4)+6*(6*t
 sage: P == T
 sage: P % T # remainder
 
-Sage commandline, line 1355::
+Sage commandline, line 1357::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
