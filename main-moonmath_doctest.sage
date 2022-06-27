@@ -7,7 +7,7 @@ doctest this file with "sage -t main-moonmath_doctest.sage".
 It is always safe to delete this file; it is not used in typesetting your
 document.
 
-Sage commandline, line 93::
+Sage commandline, line 102::
 
 sage: ZZ # A sage notation for the integers
 sage: NN # A sage notation for the natural numbers
@@ -20,34 +20,34 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 
-Sage commandline, line 121::
+Sage commandline, line 130::
 
 sage: n = NN(504)
 sage: factor(n)
 
-Sage commandline, line 193::
+Sage commandline, line 202::
 
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
 sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 
-Sage commandline, line 209::
+Sage commandline, line 218::
 
 sage: ZZ(-17) // ZZ(-4) # Integer quotient
 sage: ZZ(-17) % ZZ(-4) # remainder
 sage: ZZ(-17).quo_rem(ZZ(-4)) # not Euclidean division
 
-Sage commandline, line 227::
+Sage commandline, line 236::
 
 sage: ZZ(143785).quo_rem(ZZ(17))
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
-Sage commandline, line 290::
+Sage commandline, line 302::
 
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 374::
+Sage commandline, line 386::
 
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)^ ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -56,33 +56,33 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)^ ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)^ ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 410::
+Sage commandline, line 422::
 
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 485::
+Sage commandline, line 497::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 565::
+Sage commandline, line 577::
 
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
 sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 
-Sage commandline, line 635::
+Sage commandline, line 647::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 683::
+Sage commandline, line 695::
 
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
 sage: Z5(3)**(-1)
 sage: Z5(3)**(5-2) == Z5(3)**(-1)
 
-Sage commandline, line 752::
+Sage commandline, line 764::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -97,7 +97,7 @@ sage: p2
 sage: p6 = Zx([0])
 sage: p6.degree()
 
-Sage commandline, line 787::
+Sage commandline, line 799::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -108,7 +108,7 @@ sage: p1 = Z6x([17,-4,2])
 sage: p1
 sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
-Sage commandline, line 816::
+Sage commandline, line 828::
 
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -116,14 +116,14 @@ sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
 sage: p1(ZZ(2))
 sage: p7(ZZ(-6)) == ZZ(-264)
 
-Sage commandline, line 833::
+Sage commandline, line 845::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
 sage: p1 = Z6x([5,-4,2])
 sage: p1(Z6(2)) == Z6(5)
 
-Sage commandline, line 873::
+Sage commandline, line 886::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -131,7 +131,7 @@ sage: Q = Zx([5,0,-2,1])
 sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 893::
+Sage commandline, line 906::
 
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -139,7 +139,7 @@ sage: Q = Z6x([5,0,-2,1])
 sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
 sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 952::
+Sage commandline, line 965::
 
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -148,33 +148,33 @@ sage: Q = Zx([-80,19,-4,1])
 sage: P = Zx([-89,339])
 sage: A == Q*B + P
 
-Sage commandline, line 987::
+Sage commandline, line 1000::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
 sage: p.factor()
 
-Sage commandline, line 1011::
+Sage commandline, line 1024::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 1075::
+Sage commandline, line 1088::
 
 sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 
-Sage commandline, line 1104::
+Sage commandline, line 1117::
 
 sage: F5 = GF(5)
 sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
 
-Sage commandline, line 370::
+Sage commandline, line 399::
 
 sage: import hashlib
 sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -188,7 +188,7 @@ sage: d.str(16)
 sage: d.str(2)
 sage: d.str(10)
 
-Sage commandline, line 443::
+Sage commandline, line 472::
 
 sage: import hashlib
 sage: def Hash5(x):
@@ -199,7 +199,7 @@ sage: def Hash5(x):
 ....:     return ZZ(d,base=2)
 sage: Hash5(b'')
 
-Sage commandline, line 500::
+Sage commandline, line 529::
 
 sage: import hashlib
 sage: Z23 = Integers(23)
@@ -211,30 +211,30 @@ sage: def Hash_mod23(x, k2):
 ....:     d = ZZ(d, base=2)
 ....:     return Z23(d)
 
-Sage commandline, line 627::
+Sage commandline, line 657::
 
 sage: ZZ
 
-Sage commandline, line 692::
+Sage commandline, line 722::
 
 sage: ZZ['x']
 
-Sage commandline, line 699::
+Sage commandline, line 729::
 
 sage: Integers(6)
 
-Sage commandline, line 764::
+Sage commandline, line 798::
 
 sage: QQ
 
-Sage commandline, line 784::
+Sage commandline, line 818::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 1062::
+Sage commandline, line 1094::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
@@ -392,7 +392,7 @@ sage: L_ETJJ = []
 ....:             L_ETJJ.append((x,y))
 sage: ETJJ = Set(L_ETJJ)
 
-Sage commandline, line 981::
+Sage commandline, line 983::
 
 sage: p = 13
 sage: # large prime factor
@@ -408,7 +408,7 @@ sage: for k in range(1,2): # Fermat's little theorem
 ....:         break
 sage: k
 
-Sage commandline, line 1001::
+Sage commandline, line 1003::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: n = 115792089237316195423570985008687907852837564279074904382605163141518161494337
@@ -417,7 +417,7 @@ sage: for k in range(1,1000):
 ....:         break
 sage: k
 
-Sage commandline, line 1026::
+Sage commandline, line 1028::
 
 sage: F5= GF(5)
 sage: F5t.<t> = F5[]
@@ -427,7 +427,7 @@ sage: F5_2.<t> = GF(5^2, name='t', modulus=P)
 sage: E1F5_2 = EllipticCurve(F5_2,[1,1])
 sage: E1F5_2.order()
 
-Sage commandline, line 1059::
+Sage commandline, line 1061::
 
 sage: INF = E1F5_2(0) # Point at infinity
 sage: L_E1_3 = []
@@ -436,7 +436,7 @@ sage: for p in E1F5_2:
 ....:         L_E1_3.append(p)
 sage: E1_3 = Set(L_E1_3) # Full 3-torsion set
 
-Sage commandline, line 1078::
+Sage commandline, line 1080::
 
 sage: # define the extension field
 sage: F13= GF(13) # prime field
@@ -453,7 +453,7 @@ sage: for P in INF.division_points(5): # [5]P == INF
 sage: len(L_TJJF13_4_5)
 sage: TJJF13_4_5 = Set(L_TJJF13_4_5)
 
-Sage commandline, line 1095::
+Sage commandline, line 1097::
 
 sage: # define the extension field
 sage: P = F13t(t^3+2) # irreducible polynomial of degree 3
@@ -468,7 +468,7 @@ sage: for P in INF.division_points(5): # [5]P == INF
 sage: len(L_TJJF13_3_5)
 sage: TJJF13_3_5 = Set(L_TJJF13_3_5) # full $5$-torsion
 
-Sage commandline, line 1162::
+Sage commandline, line 1164::
 
 sage: L_G1 = []
 sage: for P in E1_3:
@@ -477,7 +477,7 @@ sage: for P in E1_3:
 ....:         L_G1.append(P)
 sage: G1 = Set(L_G1)
 
-Sage commandline, line 1171::
+Sage commandline, line 1173::
 
 sage: L_G2 = []
 sage: for P in E1_3:
@@ -487,7 +487,7 @@ sage: for P in E1_3:
 ....:         L_G2.append(P)
 sage: G2 = Set(L_G2)
 
-Sage commandline, line 1186::
+Sage commandline, line 1188::
 
 sage: L_TJJ_G1 = []
 sage: for P in TJJF13_4_5:
@@ -496,7 +496,7 @@ sage: for P in TJJF13_4_5:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
 
-Sage commandline, line 1195::
+Sage commandline, line 1197::
 
 sage: L_TJJ_G1 = []
 sage: for P in TJJF13_4_5:
@@ -506,7 +506,7 @@ sage: for P in TJJF13_4_5:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
 
-Sage commandline, line 1377::
+Sage commandline, line 1379::
 
 sage: import hashlib
 sage: def try_hash(s,c):
@@ -520,21 +520,21 @@ sage: def try_hash(s,c):
 ....:     return (z,sign)
 sage: try_hash('10011001111010110100000111','0000')
 
-Sage commandline, line 1392::
+Sage commandline, line 1394::
 
 sage: try_hash('10011001111010110100000111','0001')
 
-Sage commandline, line 1397::
+Sage commandline, line 1399::
 
 sage: try_hash('10011001111010110100000111','0010')
 sage: try_hash('10011001111010110100000111','0011')
 
-Sage commandline, line 1412::
+Sage commandline, line 1414::
 
 sage: try_hash('10011001111010110100000111','0100')
 sage: try_hash('10011001111010110100000111','0101')
 
-Sage commandline, line 1479::
+Sage commandline, line 1481::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: r = 115792089237316195423570985008687907852837564279074904382605163141518161494337
@@ -542,14 +542,14 @@ sage: t = p + 1 -r
 sage: t.nbits()
 sage: abs(RR(t)) <= 2*sqrt(RR(p))
 
-Sage commandline, line 1518::
+Sage commandline, line 1520::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: F = GF(p)
 sage: j = F(1728)*((F(4)*F(0)^3)/(F(4)*F(0)^3+F(27)*F(7)^2))
 sage: j == F(0)
 
-Sage commandline, line 1576::
+Sage commandline, line 1578::
 
 sage: z = ComplexField(100)(0,1)
 sage: z # (0+1i)
@@ -566,7 +566,7 @@ sage: elliptic_j(z)
 sage: elliptic_j(z).imag().round()
 sage: elliptic_j(z).real().round()
 
-Sage commandline, line 1769::
+Sage commandline, line 1771::
 
 sage: D = -3
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
@@ -579,7 +579,7 @@ sage: v.is_integer()
 sage: 4*p == t^2 + abs(D)*v^2
 sage: v
 
-Sage commandline, line 1786::
+Sage commandline, line 1788::
 
 sage: F = GF(p)
 sage: for c2 in F:
@@ -595,7 +595,7 @@ sage: for c3 in F:
 ....:         break
 sage: c3
 
-Sage commandline, line 1803::
+Sage commandline, line 1805::
 
 sage: C1 = EllipticCurve(F,[0,1])
 sage: C1.order() == r
@@ -610,7 +610,7 @@ sage: C5.order() == r
 sage: C6 = EllipticCurve(F,[0,c3^(-2)*c2^3])
 sage: C6.order() == r
 
-Sage commandline, line 1828::
+Sage commandline, line 1830::
 
 sage: b1=86844066927987146567678238756515930889952488499230423029593188005931626003754
 sage: for b2 in F:
@@ -626,14 +626,14 @@ sage: for b2 in F:
 ....:         pass
 sage: b2
 
-Sage commandline, line 1893::
+Sage commandline, line 1895::
 
 sage: for k in range(1,42): # Fermat's little theorem
 ....:     if (43^k-1)%13 == 0:
 ....:         break
 sage: k
 
-Sage commandline, line 1915::
+Sage commandline, line 1917::
 
 sage: F43 = GF(43)
 sage: c2 = F43(5)
@@ -647,7 +647,7 @@ sage: c3 =F43(36)
 ....: except ValueError:
 ....:     c3
 
-Sage commandline, line 1931::
+Sage commandline, line 1933::
 
 sage: BLS61 = EllipticCurve(F43,[0,1])
 sage: BLS61.order() == 39
@@ -663,7 +663,7 @@ sage: BLS66 = EllipticCurve(F43,[0,c3^(-2)*c2^3])
 sage: BLS66.order() == 39
 sage: BLS6 = BLS63 # our BLS6 curve in the book
 
-Sage commandline, line 1981::
+Sage commandline, line 1983::
 
 sage: P = BLS6(9,2)
 sage: Q = 3*P
@@ -673,7 +673,7 @@ sage: for x in range(0,13): # cyclic of order 13
 ....:     P = x*Q
 ....:     BLS6_13.append(P)
 
-Sage commandline, line 2066::
+Sage commandline, line 2068::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -681,7 +681,7 @@ sage: p = F43t(t^6+6)
 sage: p.is_irreducible()
 sage: F43_6.<v> = GF(43^6, name='v', modulus=p)
 
-Sage commandline, line 2080::
+Sage commandline, line 2082::
 
 sage: BLS6 = EllipticCurve (F43_6,[0 ,6]) # curve extension
 sage: INF = BLS6(0) # point at infinity
@@ -694,7 +694,7 @@ sage: for P in INF.division_points(13): # full 13-torsion
 ....:             break
 sage: P.xy()
 
-Sage commandline, line 2099::
+Sage commandline, line 2101::
 
 sage: Q = BLS6(7*v^2,16*v^3)
 sage: BLS6_13_2 = []
@@ -702,7 +702,7 @@ sage: for x in range(0,13):
 ....:     P = x*Q
 ....:     BLS6_13_2.append(P)
 
-Sage commandline, line 2145::
+Sage commandline, line 2147::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])

@@ -96,11 +96,41 @@ g^{(\cdot)}: \Z_n \to \G\; x \mapsto g^x
 In the map above,  $g^x$ means ``multiply $g$ $x$-times by itself'' and $g^0=e_{\G}$. This map, called the \textbf{exponential map}, has the remarkable property that it maps the additive group law of the remainder class group $(\Z_n,+)$ in a one-to-one correspondence to the group law of $\G$.
 
 To see this, first observe that, since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$, and, since $g^{x+y}=g^x\cdot g^y$, the map respects the group law.
+\begin{remark}[Scalar multiplication]
+\label{def:scalar_multiplication} If a group $(\G,+)$ is written in additive notation \ref{def:additive_notation}, then the exponential map is often called \term{scalar multiplication} and written as
+\begin{equation}\label{scalarmultiplication}
+(\cdot)\cdot g: \Z_n \to \G\;;\; x \mapsto x\cdot g
+\end{equation}
+In this notation the symbol $x\cdot g$  is defined as ``add the generator $g$ $x$-times to itself'' and the symbol $0\cdot g$ is defined to be the neutral element in $\G$.
+\end{remark}
+
+Cryptographic applications often utilize finite cyclic groups of very large order $n$ and computing the exponential map by repeaded multiplication of the generator with itself is infeasible, for very large remainder classes. The following so called \term{square and multiply} algorithm solves this problem as it computes the exponential map in approximately $k$ steps, where $k$ is the bit length of the exponent \ref{def:binary_representation_integer}:
+
+\begin{algorithm}\caption{Cyclic Group Exponentiation}
+\label{alg_square-and-mul}
+\begin{algorithmic}[0]
+\Require $g$ group generator of order $n$
+\Require $x \in \Z_n$ 
+\Procedure{Exponentiation}{$g,x$}
+\State Let $(b_0,\ldots,b_k)$ be a binary representation of $x$ \Comment{see example XXX}
+\State $h \gets g$
+\State $y \gets e_{\G}$
+\For{$0\leq j < k$}
+	\If{$b_j = 1$}
+		\State $y\gets y\cdot h$ \Comment{multiply}
+	\EndIf
+	\State $h \gets h\cdot h$ \Comment{square}
+\EndFor
+\State \textbf{return} $y$
+\EndProcedure
+\Ensure $ y = g^x$
+\end{algorithmic}
+\end{algorithm}
 
 Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. This is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
 \begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\Z_{5}^*,\cdot)$ from exercise \ref{fstar}. We know from \ref{ex:modulus-prime-group} that $\Z_{5}^*$ is a cyclic group of order $4$, and that the element $3\in\Z_5^*$ is a generator. We then know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
 $$
-3^{(\cdot)}: \Z_4 \to \Z_5^* \;,\; x \mapsto 3^x
+3^{(\cdot)}: \Z_4 \to \Z_5^* \;;\; x \mapsto 3^x
 $$
 
 To do an example computation "in the exponent" of $3$ , let's perform the calculation  $1+3+2$ in the exponent of the generator $3$:
@@ -142,7 +172,8 @@ log_3(1) = 0, & log_3(2) = 3, & log_3(3) = 1, & log_3(4) = 2
 $$
 Note that this computation was only possible, because we were able to write down all images of the exponential map. However, in real world applications the groups in consideration are too large to write down the images of the exponential map. 
 \end{example}
-
+\begin{exercise}[Efficient Scalar Multiplication] Let $(\G,+)$ be a finite cyclic group of order $n$. Consider algorithm \ref{alg_square-and-mul} and define it's analog for groups in additive notation.
+\end{exercise}
 \paragraph{Factor Groups}
 As we know from the fundamental theorem of arithmetics \ref{def:fundamental_theorem_arithmetic}, every natural number $n$ is a product of factors, the most basic of which are prime numbers. This reflects into subgroups of a finite cyclic group in an interesting way: If $\G$, is a finite cyclic group of order $n$, then every subgroup $\G'$ of $\G$, is finite and cyclic and the order of $\G'$, is a factor of $n$. Moreover for each factor $k$ of $n$, $\G$ has exactly one subgroup of order $k$. This is known as the \term{fundamental theorem of finite cyclic groups}\label{def:fundamental_theorem_groups}.
 \begin{notation}If $\G$ is a finite cyclic group of order $n$ and $k$ is a factor of $n$, then we write $\G[k]$ for the unique finite cyclic group, which is the order $k$ subgroup of $\G$ and call it a \term{factor group} of $\G$.
@@ -322,8 +353,6 @@ The computational Diffie--Hellman assumption is a weaker assumption than the dec
 
 Several variations and special cases of the CDH-A exist. For example, the \term{square computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^2}$. The \term{inverse computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^{-1}}$. \sme{are these going to be relevant later? yes, they are used in various snark proof systems}
 
-\paragraph{Cofactor Clearing}
-\sme{TODO: theorem: every factor of order defines a subgroup...}
 \subsection{Hashing to Groups}\label{sec:hashing-to-groups}
 % https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
 \paragraph{Hash functions} Generally speaking, a hash function is any function that can be used to map data of arbitrary size to fixed-size values. Since binary strings of arbitrary length are a general way to represent arbitrary data, we can understand a general \textbf{hash function} as the following map where $\{0,1\}^*$ represents the set of all binary strings of arbitrary but finite length and $\{0,1\}^k$ represents the set of all binary strings that have a length of exactly $k$ bits:
@@ -617,6 +646,7 @@ $g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
 \item \hilight{Distributivity}: For all $ g_1, g_2, g_3 \in R $ the distributive law
 $ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
+If $(R,+,\cdot,1)$ is a commutative ring with unit and $R'\subset R$ is a subset of $R$, such that the restriction of addition and multiplication to $R'$ define a commutative ring with addition $+: R'\times R' \to R'$, multiplication $\cdot: R'\times R' \to R'$ and unit $1$ on $R'$, then $(R',+,\cdot,1)$ is called a \term{subring} of $(R,+,\cdot,1)$.
 \end{definition}
 \begin{notation}Since we are exclusively concerned with commutative rings in this book, we often just call them rings, keeping the notation of commutativity implicit.
 A set $R$ with two maps $+$ and $\cdot$ that satisfies all previously mentioned rules, except for the commutativity law of the multiplication is called a non-commutative ring. 
@@ -700,6 +730,9 @@ sage: ZZ['x']
 sage: Integers(6)
 \end{sagecommandline}
 \end{example}
+\begin{example}[Binary Representations in Modular Arithmetic]
+TODO (Non unique)
+\end{example}
 
 \begin{example}[Polynomial evaluation in the exponent of group generators] As we show in \ref{sec:QAP}, a key insights in many zero knowlege protocols is the ability to encode computations as polynomials and then to hide the information of that computation by evaluating the polynomial "in the exponent" of certain cryptographic groups \ref{sec:gorth_16}.
 
@@ -752,6 +785,7 @@ A \term{field} $ (\F, +, \cdot, 1) $ is a set $\F$ provided with two maps $ +: \
 \item (Distributivity) For all $ g_1, g_2, g_3 \in \F $ the distributive law
 $g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
+If $(\F,+,\cdot)$ is a field and $\F'\subset \F$ is a subset of $\F$, such that the restriction of addition and multiplication to $\F'$ define a field with addition $+: \F'\times \F' \to \F'$ and multiplication $\cdot: \F'\times \F' \to \F'$ on $\F'$, then $(\F',+,\cdot)$ is called a \term{subfield} of $(\F,+,\cdot)$ and $(\F,+,\cdot)$ is called an \term{extension field} of $(\F',+,\cdot)$.
 \end{definition}
 
 \begin{notation} If there is no risk of ambiguity (about what the addition and multiplication maps  of a ring are), we frequently drop the symbols $+$ and $\cdot$ and simply write $\F$ as notation for the field, keeping those maps implicit. In this case we also say that $\F$ is of field type, indicating that $\F$ is not simply a set but a set together with an addition and a multiplication map.
@@ -788,9 +822,6 @@ sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 \end{sagecommandline}
 \end{example}
-\begin{example}
-Both the real numbers $\mathbb{R}$ as well as the complex numbers $\mathbb{C}$ are well known examples of fields.\sme{Expand on this?}
-\end{example}
 \begin{exercise}
 Consider the ring of modular $5$ arithmetics $(\Z_5,+,\cdot)$ from example \ref{primfield_z_5}. Show that $(\Z_5,+,\cdot)$ is a field. What is the characteristic of $\Z_5$? Proof that the equation $a\cdot x = b$ has only a single solution $x\in \Z_5$  for any given $a,b\in \Z_5^*$. 
 \end{exercise}
@@ -802,9 +833,12 @@ Consider the ring of modular $6$ arithmetics $(\Z_6,+,\cdot)$ from example \ref{
 \label{prime_fields}
 As we have seen in the various examples of the previous sections, modular arithmetics behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units \ref{def:ring_of_mod_n_arithmetics}.
 
-However, we have also seen in \ref{ex:modulus-prime-group}\sme{check reference} that, whenever the modulus is a prime number, every remainder class other than the zero class has a modular multiplicative inverse. This is an important observation, since it immediately implies that, in case the modulus is a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \term{field}. Moreover, since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have the finite characteristic $n$.
+However, we have also seen in \ref{ex:modulus-prime-group} that, whenever the modulus is a prime number, every remainder class other than the zero class has a modular multiplicative inverse. This is an important observation, since it immediately implies that, in case the modulus is a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \term{field}. Moreover, since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have the finite characteristic $n$.
 
-To distinguish this important case from arbitrary remainder class rings, we write  $ (\F_p, +, \cdot) $ for the field of all remainder classes for a prime number modulus $p \in \Prim$ and call it the \term{prime field} of characteristic $p$.
+\begin{notation}[Prime Fields]
+\label{def:prime_fields}
+Let $p \in \Prim$ be a prime number and $(\Z_p,+,\cdot)$ the ring of modular $p$ arithmetics \ref{def:ring_of_mod_n_arithmetics}. To distinguish prime fields from arbitrary modular arithmetic rings, we write  $ (\F_p, +, \cdot) $ for the ring of modular $p$ arithmetics and call it the \term{prime field} of characteristic $p$.
+\end{notation}
 
 Prime fields are the foundation for many of the contemporary algebra-based cryptographic systems, as they have many desirable properties. One of them is that any prime field of characteristic $p$ contain exactly $p$ elements which can be represented on a computer with not more then $log_2(p)$ many bits. On the other hand fields like the rational numbers, require a potentially unbounded amount of bits for any full-precision representation.
 
@@ -831,7 +865,7 @@ In this computation, we computed the multiplicative inverse of $3$ using the ide
 $x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean Algorithm (see \ref{eq: erw_Eukl_algo}).  To refresh our memory, the algorithm solves the equation $x^{-1}\cdot 3 + t \cdot 5 =1$, for $x^{-1}$, even though in this case $t$ is irrelevant. We get:
 \begin{center}
   \begin{tabular}{c | c c l}
-    k & $ r_k $ & $ x^{-1}_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot 3)}{5} $ \\\hline
+    k & $ r_k $ & $ x^{-1}_k $ & $ t_k $ \\\hline
     0 & 3 & 1 & $\cdot$\ \\
     1 & 5 & 0 & $\cdot$ \\
     2 & 3 & 1 & $\cdot$ \\
@@ -839,27 +873,34 @@ $x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. 
     4 & 1 & 2  & $\cdot$ \\
   \end{tabular}
 \end{center}
-So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if compute $3\cdot 2$, we get $1$ in $\F_5$.
+So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if we compute the product of $3$ with its multiplicative inverse $2$ we get the neutral element $1$ in $\F_5$.
 \end{example}
-\paragraph{Square Roots}
-In this part, we deal with square numbers, also called \term{quadratic residues} and \term{square roots} in prime fields. This is of particular importance in our studies on elliptic curves, as only square numbers can actually be points on an elliptic curve.\sme{S: are we introducing elliptic curves in section 1 or 2?}
+\begin{exercise}[Prime field $F_3$]\label{exercise:F3} Construct the addition and multiplication table of the prime field $\F_3$.
+\end{exercise}
+\begin{exercise} Consider the prime field $\F_{13}$. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
+$$
+x^2+y^2 = 1 + 7\cdot x^2\cdot y^2
+$$
+\end{exercise}
+\paragraph{Square Roots} As we know from integer arithmetics some integers like $4$ or $9$ are squares of other integers, as for example $4=2^2$ and $9=3^2$. However we also know that not all integers are squares of other integers, as for example there is no integers $x\in\Z$ such that $x^2=2$. If an integer $a$ is square of another integer $b$, then it make sense to define the square-root of $a$ to be $b$.
 
-To make the intuition of quadratic residues and roots precise, let $p \in \Prim $ be a prime number and $\F_p $ its associated prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the following equation:
+In the context of prime fields an element that is a square of another element is also called a \term{quadratic residue} and an element that is not a square of another element is called a \term{quadratic non-residue}. Those notations are of particular importance in our studies on elliptic curves in chapter \ref{chap:elliptic_curves}, as only square numbers can actually be points on an elliptic curve.
+
+To make the intuition of quadratic residues and their roots precise, let $p \in \Prim $ be a prime number and $\F_p $ its associated prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the following equation:
 \begin{equation}
 x^2 = y
 \end{equation}
-In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ a \term{quadratic non-residue}. For any $ y \in \F_p $, we denote the set of all square roots of $ y $ in the prime field $ \F_n $ as follows:
+In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ a \term{quadratic non-residue}. For any $ y \in \F_p $, we denote the set of all square roots of $ y $ in the prime field $ \F_p $ as follows:
 \begin{equation}
 \sqrt{y}: = \{x \in \F_p \; | \; x^2 = y \}
 \end{equation}
-If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $.
-
 Informally speaking, quadratic residues are numbers such that we can take the square root of them, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have square roots and others like $2$ or $3$ don't (as integers).
 
-It can be shown that, in any prime field, every non zero element has either no square root or two of them. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. This makes sense, as the larger one can always be computed as the modulus minus the smaller one, which is the definition of the negative in prime fields.
+If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. Moreover if $y\neq 0$ is a quadratic residue then it has precisely two roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quardratic residues and $(p-1)/2$ quadratic non residues.
 
-
-\begin{example} [Quadratic (Non)-Residues and roots in $ \F_5 $] Let us consider our example prime field $\F_5$ again. All square numbers can be found on the main diagonal of the multiplication table in example \ref{primfield_z_5} on page \pageref{primfield_z_5}\sme{check reference}. As you can see, in $ \F_5 $ only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots and we get $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
+\begin{example} [Quadratic residues and roots in $ \F_5 $]
+\label{example:quadratic_residue_F5}
+Let us consider the prime field $\F_5$ \ref{primfield_z_5} again. All square numbers can be found on the main diagonal of the multiplication table in example \ref{primfield_z_5}. As you can see, in $ \F_5 $ only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots and we get $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
 \end{example}
 In order to describe whether an element of a prime field is a square number  or not, the so-called \term{Legendre symbol} can sometimes be found in the literature, which is why we will summerize it here:
 
@@ -874,7 +915,7 @@ Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element from the ass
 \end{cases}
 \end{equation}
 \begin{example}
-Looking at the quadratic residues and non residues in $\F_5$ from example \ref{primfield_z_5}\sme{check reference} again, we can deduce the following Legendre symbols, from example XXX\sme{add reference}.
+Looking at the quadratic residues and non residues in $\F_5$ from example \ref{primfield_z_5} again, we can deduce the following Legendre symbols, from example \ref{example:quadratic_residue_F5}.
 
 $$
 \begin{array}{ccccc}
@@ -892,7 +933,7 @@ The Legendre symbol provides a criterion to decide whether or not an element fro
 \left (\frac{y}{p} \right) = y^{\frac{p-1}{2}} \;.
 \end{equation}
 \begin{example}
-Looking at the quadratic residues and non residues in $\F_5$ from example \ref{primfield_z_5}\sme{check reference} again, we can compute the following Legendre symbols using the Euler criterion:
+Looking at the quadratic residues and non residues in $\F_5$ from example \ref{example:quadratic_residue_F5} again, we can compute the following Legendre symbols using the Euler criterion:
 \begin{align*}
 \left (\frac{0}{5} \right) &= 0^{\frac{5-1}{2}}= 0^2=0\\
 \left (\frac{1}{5} \right) &= 1^{\frac{5-1}{2}}= 1^2=1\\
@@ -900,12 +941,8 @@ Looking at the quadratic residues and non residues in $\F_5$ from example \ref{p
 \left (\frac{3}{5} \right) &= 3^{\frac{5-1}{2}}= 3^2=4 =-1\\
 \left (\frac{4}{5} \right) &= 4^{\frac{5-1}{2}}= 4^2=1
 \end{align*}
-\end{example}\label{prime-field-F13}
-\begin{exercise} Consider the prime field $\F_{13}$. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
-$$
-x^2+y^2 = 1 + 7\cdot x^2\cdot y^2
-$$
-\end{exercise}
+\end{example}
+
 % I think this isn't needed. Will just leave it here in case this changes
 %
 %So the question remains how to actually compute square roots in prime field. The following algorithms give a solution
@@ -933,7 +970,6 @@ $$
 %\end{definition}
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
-\paragraph{Exponentiation} TO APPEAR...\sme{write paragraph on exponentiation}
 \subsubsection{Hashing into prime fields}\label{hashing-prime-fields}
 An important problem in SNARK development is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX,\sme{add reference} those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
 
@@ -947,51 +983,47 @@ E(\cdot) : \F_p \to \F_p\; x \mapsto F_{r-1}(\cdots F_1(F_0(x))\ldots)
 where $F_i(x)= (x+c_i)^n$
 
 
-\subsection{Extension Fields}\label{field-extension}
+\subsection{Prime Field Extensions}\label{field-extension}
 % references https://blog.plover.com/math/se/finite-fields.html
-Prime fields, defined in the previous section, are the basic building blocks for cryptography in general and SNARKs in particular.
+Prime fields, as defined in the previous section, are basic building blocks in cryptography. However, as we will see in chapter \ref{chapter:zk-protocols} so-called pairing-based SNARK systems are crucially dependent on certain group pairings \ref{pairing-map} defined on elliptic curves over \term{prime field extensions}. In this section we therefore introduce those extensions.
 
-However, as we will see in XXX\sme{add reference} so-called \term{pairing-based} SNARK systems are crucially dependent on \uterm{group pairings} XXX defined over the group of rational points of elliptic curves. For those pairings to be non-trivial, the elliptic curve must not only be defined over a prime field, but over a so-called \term{extension field} of a given prime field.
+Given some prime number $p\in \Prim$, a natural number $m\in\N$ and an irreducible polynomial $P\in F_p[x]$ of degree $m$ with coefficients from the prime field $\F_p$, then a prime field extension $(\F_{p^m},+,\cdot)$ is defined as follows:
 
-We therefore have to understand field extensions. First note that the field $\F'$ is called an \term{extension} of a field $\F$ if $\F$ is a subfield of $\F'$, that is, $\F$ is a subset of $\F'$ and restricting the addition and multiplication laws of $\F'$ to the subset $\F$ recovers the appropriate laws of $\F$.
-
-Now it can be shown that whenever $p\in \Prim$ is a prime and $m\in\N$ a natural number, then there is a field $\F_{p^m}$ with characteristic $p$ and $p^m$ elements such that $\F_{p^m}$ is an extension field of the prime field $\F_p$.
-
-Similarly to the way prime fields $\F_p$ are generated by starting with the ring of integers and then dividing by a prime number $p$ and keeping the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then dividing them by an irreducible polynomial of degree $m$ and keeping the remainder.
-
-To be more precise, let $P\in F_p[x]$ be an irreducible polynomial of degree $m$ with coefficients from the given prime field $\F_p$. Then the underlying set $\F_{p^m}$ of the extension field is given by the set of all polynomials with a degree less then $m$:
-\begin{equation}\label{eq:prime-extension-field}
-\F_{p^m}:=\{a_{m-1} x^{m-1}+a_{k-2}x^{k-2}+\ldots+a_1 x+a_0\;|\; a_i\in \F_p\}
-\end{equation}
-This can be shown to be the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by $P$, consequently, elements of the extension field are polynomials of degree less than $m$. This is analogous to how $\F_p$ is the set of all remainders when dividing integers by $p$.
-
-Addition is inherited from $\F_p[x]$, which means that addition on $\F_{p^m}$ is defined like normal addition of polynomials:
+The set $\F_{p^m}$ of the prime field extension is given by the set of all polynomials with a degree less then $m$:
 \begin{equation}
-+:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j
+\label{eq:prime-extension-field}
+\F_{p^m}:= \{a_{m-1} x^{m-1}+a_{k-2}x^{k-2}+\ldots+a_1 x+a_0\;|\; a_i\in \F_p\}
 \end{equation}
-We can see that the neutral element is (the polynomial) $0$, and that the additive inverse is given by the polynomial with all negative coefficients.
-
-Multiplication is inherited from $\F_p[x]$, too, but we have to divide the result by our modulus polynomial $P$ whenever the degree of the resulting polynomial is equal or greater to $m$:
+The addition law of the prime field extension $\F_{p^m}$ is given by the usual addition of polynomials as defined in \ref{def:polynomial_arithmetic}: 
 \begin{equation}
-\cdot\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; ,\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P}
++:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; , \textstyle (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j
 \end{equation}
-We can see that the neutral element is (the polynomial) $1$. It is, however, not obvious from this definition how the multiplicative inverse looks.
+The multiplication law of the prime field extension $\F_{p^m}$ is given by first multiplying the two polynomials as defined in \ref{def:polynomial_arithmetic_mul}. The result is then divided by the result by the irreducible polynomial $p$ and the remainder of that division is the result:
+\begin{equation}
+\cdot : \; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; , \textstyle\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P}
+\end{equation}
+The neutral element of the additive group $(\F_{p^m},+)$ is given by the polynomial $0$ and the additive inverse is given by the polynomial with all negative coefficients. The neutral element of the multiplicative group $(\F^*_{p^m},\cdot)$ is given by the polynomial $1$ and the multiplicative inverse can be computed by the extended Euclidean algorithm.
 
-We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field, and hence $\sum_{j=0}^p 1=0$. Moreover, $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$, and every coefficient $a_j$ can have a $p$ number of different values. In addition, we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occurs when we restrict the elements of $\F_{p}$ to polynomials of degree zero.
+We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field, and hence $\sum_{j=0}^p 1=0$. Moreover, $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$, and every coefficient $a_j$ can have $p$ many different values. In addition, we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occurs when we restrict the elements of $\F_{p^m}$ to polynomials of degree zero.
 
 One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial, and, in fact, different choices will give different multiplication tables, since the remainders from dividing a product by $P$ will be different.
 
 It can, however, be shown that the fields for different choices of $P$ are \term{isomorphic}, which means that there is a one-to-one correspondence between all of them. Consequently, from an abstract point of view, they are the same thing. From an implementations point of view, however, some choices are preferable to others because they allow for faster computations.
 
-To summarize, we have seen that when a prime field $\F_p$ is given, any field
-$\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general, a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$, if and only if $m_1$ divides $m_2$. From this, we can deduce that, for any given fixed prime number, there are nested sequences of fields whenever the power $m_j$ divides the power $m_{j+1}$, such that $\F_{p^{m_j}}$ is a subfield of $\F_{p^{m_{j+1}}}$:
+\begin{remark}
+Similar to the way prime fields $\F_p$ are generated by starting with the ring of integers and then dividing by a prime number $p$ and keeping the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then dividing them by an irreducible polynomial of degree $m$ and keeping the remainder.
+
+In fact it can be shown that $\F_{p^m}$ is the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by the reducible polynomial $P$. This is analogous to how $\F_p$ is the set of all remainders when dividing integers by $p$.
+\end{remark}
+
+Any field $\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general, a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$, if and only if $m_1$ divides $m_2$. From this, we can deduce that, for any given fixed prime number, there are nested sequences of fields whenever the power $m_j$ divides the power $m_{j+1}$, such that $\F_{p^{m_j}}$ is a subfield of $\F_{p^{m_{j+1}}}$:
 
 \begin{equation}
 \F_p \subset \F_{p^{m_1}} \subset \cdots \subset \F_{p^{m_k}}
 \end{equation}
 
 To get a more intuitive picture of this, we construct an extension field of the prime field  $\F_3$ in the following example, and we can see how $\F_3$ sits inside that extension field.
-\begin{example}[The Extension field $\F_{3^2}$]In (XXX)\sme{add reference} we have constructed the prime field $\F_3$. In this example, we apply the definition of a field extension (page \pageref{field-extension})\sme{check reference} to construct $\F_{3^2}$. We start by choosing an irreducible polynomial of degree $2$ with coefficients in $\F_3$. We try
+\begin{example}[The Extension field $\F_{3^2}$]In exercise \ref{exercise:F3} we have constructed the prime field $\F_3$. In this example, we apply the definition of a field extension \ref{eq:prime-extension-field} to construct the extension field $\F_{3^2}$. We start by choosing an irreducible polynomial of degree $2$ with coefficients in $\F_3$. We try
 $P(t)=t^2+1$. Possibly the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is ever zero. We compute as follows:
 \begin{align*}
 P(0) = 0^2+1 &= 1\\
@@ -1096,7 +1128,7 @@ Such an inclusion of infinity points makes projective planes particularly useful
 To understand the idea of constructing of projective planes, note that in
 an ordinary Euclidean plane, two lines either intersect in a single point or are parallel. In the latter case, both lines are either the same, that is, they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with additional ``point at infinity'' such that two different lines always intersect in a single point. Parallel lines intersect ``at infinity''.
 
-To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times F$ the set of all three tuples over $\F$ and $x\in \F^3$ with $x=(X,Y,Z)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given as follows:
+To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times \F$ the set of all three tuples over $\F$ and $x\in \F^3$ with $x=(X,Y,Z)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given as follows:
 \begin{equation}
 [X:Y:Z] := \{(k\cdot X,k\cdot Y, k\cdot Z)\;|\; k\in\F\}
 \end{equation}

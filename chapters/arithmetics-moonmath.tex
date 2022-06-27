@@ -84,6 +84,15 @@ We use the symbol $\N$ for the set of all positive integers, usually called the 
 \N := \{1,2,3,\ldots\} & & \NN := \{0,1,2,3,\ldots\}
 \end{align*}
 
+Let $n\in\NN$ be a non negative integer and $(b_0,b_1,\ldots b_k)$ a string of \term{bits} $b_j\in\{0,1\}\subset\NN$ for some non negative integer $k\in\N$, such that the following equation holds:
+
+\begin{equation}
+\label{def:binary_representation_integer}
+n = \sum_{j=0}^k b_j\cdot 2^j
+\end{equation}
+
+In this case, we call $(b_0,b_1,\ldots b_k)$ the \term{binary representation} of $n$, say that $n$ is a $k$-bit number and call $k$ the \term{bit length} of $n$. It can be shown, that the binary representation of any non negative integer is unique.
+
 In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}\sme{@jan @anna double check this definition. Is it clear enough? Proper definition requires the concept of equivalance or coprimeness first}, which can be represented as the set of all fractions $\frac{n}{m}$, where $n\in \Z$ is an integer and $m\in \N$ is a natural number, such that there is no other fraction $\frac{n'}{m'}$ and natural number $k\in \N$ with $k\neq 1$ and
 \begin{equation}
 \frac{n}{m} = \frac{k\cdot n'}{k\cdot m'}
@@ -237,6 +246,9 @@ Find an $m\in\Z$ as well as an $r\in\N$ with $0\leq r< |b|$ such that $a= m\cdot
 Write an algorithm that computes integer long division and handling all edge cases properly.
 % https://en.wikipedia.org/wiki/Division_algorithm
 \end{exercise}
+\begin{exercise}[Binary Representation]
+Write an algorithm that computes the binary representation \ref{def:binary_representation_integer} of any non-negative integer.
+\end{exercise}
 
 \paragraph{The Extended Euclidean Algorithm}
 One of the most critical parts in this book is the so called modular arithmetic which we will define in \ref{modular_arithmetic} and its application in the computations of \term{prime fields} as defined in \ref{prime_fields}. To be able to do computations in modular arithmetic, we have to get familiar with the so-called \term{extended Euclidean algorithm}. We therefore introduce this algorithm here.
@@ -256,18 +268,18 @@ The pseudocode in algorithm \ref{alg_ext_euclid_alg} shows in detail how to calc
 \begin{algorithmic}[0]
 \Require $a,b \in \N$ with $a\geq b$
 \Procedure{Ext-Euclid}{$a,b$}
-\State $r_0\gets a$
-\State $r_1\gets b$
-\State $s_0\gets 1$
-\State $s_1\gets 0$
-\State $k\gets 1$
-\While{$ r_{k} \neq 0 $}
-\State $ q_k\gets \Zdiv{r_{k-1}}{r_k} $
-\State $ r_{k + 1}\gets r_{k-1} -q_k \cdot r_k $
-\State $ s_{k + 1}\gets s_{k-1} -q_k \cdot s_k $
+\State $r_0\gets a$ and $r_1\gets b$
+\State $s_0\gets 1$ and $s_1\gets 0$
+\State $t_0\gets 0$ and $t_1\gets 1$
+\State $k\gets 2$
+\While{$ r_{k-1} \neq 0 $}
+\State $ q_k\gets \Zdiv{r_{k-2}}{r_{k-1}} $
+\State $ r_{k}\gets \Zmod{r_{k-2}}{r_{k-1}} $
+\State $ s_{k}\gets s_{k-2} -q_k \cdot s_{k-1} $
+\State $ t_{k}\gets t_{k-2} -q_k \cdot t_{k-1} $
 \State $ k \gets k + 1 $
 \EndWhile
-\State \textbf{return} $gcd(a,b)\gets r_{k-1}$, $s\gets s_{k-1}$ and $ t: = \Zdiv{(r_{k-1}-s_{k-1} \cdot a)}{b} $ 
+\State \textbf{return} $gcd(a,b)\gets r_{k-2}$, $s\gets s_{k-2}$ and $ t \gets t_{k-2} $ 
 \EndProcedure
 \Ensure $ gcd (a, b) = s \cdot a + t \cdot b $
 \end{algorithmic}
@@ -278,7 +290,7 @@ The algorithm is simple enough to be done effectively in pen-and-paper examples,
 To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=12$ and $b=5$. Since $12,5\in \N$ as well as $12\geq 5$ all requirements are met and we compute as follows:
 \begin{center}
   \begin{tabular}{c | c c l}
-    k & $ r_k $ & $ s_k $ & $ t_k = \Zdiv{(r_k-s_k \cdot a)}{b} $ \\\hline
+    k & $ r_k $ & $ s_k $ & $ t_k $ \\\hline
     0 & 12 & 1 & 0 \\
     1 & 5 & 0 & 1 \\
     2 & 2 & 1 & -2 \\
@@ -851,6 +863,7 @@ $ \sum _{n = 0} ^{m_2}{b} _{n}{x^n} $ be two polynomials from $ R[x]$. Then the 
 \sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} + \sum _{n = 0} ^{m_2}{b} _{n}{x } ^{n} = \sum _{n = 0} ^{max(\{m_1,m_2\})}{({a} _{n} +{b} _{n})}{x} ^{n}
 \end{equation}
 \begin{equation}
+\label{def:polynomial_arithmetic_mul}
 \bigg (\sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} \bigg) \cdot \bigg (\sum _{n = 0} ^{m_2 }{b} _{n}{x} ^{n} \bigg) = \sum _{n = 0} ^{m_1+m_2} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}
 \end{equation}
 A rule for polynomial subtraction can be deduced from these two rules by first multiplying the \href{https://www.splashlearn.com/math-vocabulary/subtraction/subtrahend}{\uterm{subtrahend}} 
