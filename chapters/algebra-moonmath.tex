@@ -248,53 +248,74 @@ is a pairing map. Why is the pairing not non-degenrate in general and what condi
 \end{exercise}
 
 \subsection{Cryptographic Groups}
-\label{crypto_groups} In this section, we will look at families of groups that are believed to satisfy certain \term{computational hardness assumptions}, namely that a particular problem cannot be solved efficiently (where efficiently typically means ``in polynomial time of a given security parameter") in the groups under consideration.
+\label{crypto_groups} In this section, we will look at classes of groups that are believed to satisfy certain \term{computational hardness assumptions}, namely that it is not feasible to solve a particular problem. 
+
 \begin{example}
-To highlight the concept of the computational hardness assumption, consider the group of integers $\Z$ from example \sme{check reference}\ref{eq: primenumber_sequence}. One of the best known and most researched examples of computational hardness is the assumption that the factorization of integers into prime numbers cannot be solved by any algorithm in polynomial time with respect to the bit-length of the integer.
 
-To be more precise, the computational hardness assumption of integer factorization assumes that, given any integer $z\in\Z$ with bit-length $b$, there is no integer $k$ and no algorithm with the \uterm{runtime complexity} of $\mathcal{O}(b^k)$ that is able to find the prime numbers $p_1, p_2,\ldots,p_j\in\Prim$, such that $z=p_1\cdot p_2\cdot \ldots\cdot p_j$.
+To give an example for a well-known computational hardness assumption, consider the problem of factorization, i.e. computing the prime factors of a composite integer. If the prime factors are very large, this is infeasible to do, and is expected to remain infeasible. We assume the problem is \term{computationally hard} or \term{infeasible}.
 
-This hardness assumption was proven to be false, since Shor's (\citeyear{shor94}) algorithm\sme{add reference} shows that integer factorization is at least \sme{S: what does ``efficiently'' mean here?}efficiently possible on a quantum computer, since the runtime complexity of this algorithm is $\mathcal{O}(b^3)$. However, no such algorithm is known on a classical computer.
-
-In the realm of classical computers, however, we still have to call the non-existence of such an algorithm an ``assumption'' because, to date, there is no proof that it is actually impossible to find one. The problem is that it is hard to reason about algorithms that we don't know.
-
-So, despite the fact that there is currently no known algorithm that can factor integers efficiently on a classical computer, we cannot exclude that such an algorithm might exist in principle, and that someone eventually will discover it in the future.
-
-However, what still makes the assumption plausible, despite the absence of any actual proof, is the fact that, after decades of extensive search, still no such algorithm has been found.
 \end{example}
-In what follows, we will describe a few \uterm{computational hardness assumptions} that arise in the context of groups in cryptography, because we will refer to them throughout the book.
-\paragraph{The discrete logarithm assumption} The so-called discrete logarithm problem is one of the most fundamental assumptions in cryptography. To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$.  We know from \ref{exponentialmap}\sme{check reference} that there is an exponential map
-$g^{(\cdot)}: \Z_r \to \G:\; x\mapsto g^x$ that maps the residue classes from modulo $r$ arithmetic onto the group in a $1:1$ correspondence. The \textbf{discrete logarithm problem} is the task of finding inverses to this map, that is, to find a solution $x\in\Z_r$ to the following equation for some given $h\in\G$:
+
+Note that in the example, we say that the problem is infeasible to solve \textit{if the prime factors are large enough}. In the cryptographic standard model we have a security parameter and we say that "there exists a security parameter, such that it is not feasible to compute a solution to the problem". In the following examples, the security parameter roughly correlates with the order of the group in consideration. In this book, we do not include the security parameter in our definitions, since we only aim to provide an intuitive understanding of the cryptographic assumptions, not teach the ability to perform rigorous analysis.
+
+Furthermore, understand that these are \textit{assumptions}. Academics have been looking for efficient prime factorization algorithms for a long time, and they have been getting better and better and computers have become faster and faster - but there always was a higher security parameter for which the problem still was infeasible.% This is also why new RSA keys are 4096 bits long, in contrast to the 1024 bits 20 years ago.
+
+In what follows, we will describe a few problems that are assumed to be infeasible that arise in the context of groups in cryptography. We will refer to them throughout the book.
+
+
+\paragraph{The discrete logarithm assumption}
+\label{def:DL-secure}
+The so-called \term{discrete logarithm problem (DLP)} is one of the most fundamental assumptions in cryptography.
+To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$.
+We know from \ref{exponentialmap} that there is an exponential map $g^{(\cdot)}: \Z_r \to \G\; ;\; x\mapsto g^x$ that maps the residue classes from modulo $r$ arithmetic onto the group in a $1:1$ correspondence.
+The \textbf{discrete logarithm problem} is the task of finding an inverse to this map, that is, to find a solution $x\in\Z_r$ to the following equation for some given $h, g \in \G$:
+
 \begin{equation}
 h = g^x
 \end{equation}
-In other words, the \term{discrete logarithm assumption (DL-A)} is the assumption that there exists no algorithm with polynomial running time  in the security parameter $log_2(r)$, that is able to compute some $x$ if only $h$, $g$ and $g^x$ are given in $\G$. If this is the case for $\G$, we call $\G$ a \term{DL-A group}.
 
-Rephrasing the previous definition, DL-A groups are believed to have the property that it is infeasible to compute some number $x$ that solves the equation $h=g^x$ for a given $h$ and $g$, assuming that the size of the group $r$ is large enough.
+There are groups in which the DLP is assumed to be infeasible to solve, and there are groups in which it isn't. We call the former group \term{DL-secure} groups.
+
+Rephrasing the previous definition, it is believed that in DL-secure groups there is a number $n$ (as that corresponds to the security parameter), such that it is infeasible to compute some number $x$ that solves the equation $h=g^x$ for a given $h$ and $g$, assuming that the order of the group $n$ is large enough.
+
 \begin{example}[Public key cryptography]
-One the most basic examples of an application for DL-A groups is in public key cryptography, where the parties publicly agree on some pair $(\G,g)$  such that $\G$ is a finite cyclic group of sufficiently large order $r$, where $\G$ is believed to be a DL-A group, and $g$ is a generator of $\G$.
 
-In this setting, a secret key is some number $sk\in \Z_r$ and the associated public key $pk$ is the group element $pk=g^{sk}$. Since discrete logarithms are assumed to be hard, it is infeasible for an attacker to compute the secret key from the public key, since it is believed to be hard to find solutions $x$ to the following equation:
+One the most basic examples of an application for DL-secure groups is in public key cryptography, where the parties publicly agree on some pair $(\G,g)$  such that $\G$ is a finite cyclic group of appropriate order $n$, where $\G$ is believed to be a DL-secure group, and $g$ is a generator of $\G$.
+
+In this setting, a secret key is some number $sk \in \Z_r$ and the associated public key $pk$ is the group element $pk=g^{sk}$. Since discrete logarithms are assumed to be hard, it is infeasible for an attacker to compute the secret key from the public key, since it is believed to be infeasible to find solutions $x$ to the following equation:
+
 \begin{equation}
 pk = g^{x}
 \end{equation}
+
 \end{example}
-As the previous example shows, identifying DL-A groups is an important practical problem. Unfortunately, it is easy to see that it does not make sense to assume the hardness of the discrete logarithm problem in all finite cyclic groups: Counterexamples are common and easy to construct.
-\begin{example}[Modular arithmetics for Fermat's primes] It is widely believed that the discrete logarithm problem is hard in multiplicative groups $\Z_p^*$ of prime number modular arithmetics. However, this is not true in general. To see that, consider any so-called Fermat's prime, which is a prime number $p\in\Prim$, such that $p=2^n+1$ for some number $n$.
+
+As the previous example shows, identifying DL-secure groups is an important practical problem. Unfortunately, it is easy to see that it does not make sense to assume the hardness of the discrete logarithm problem in all finite cyclic groups: Counterexamples are common and easy to construct.
+
+\begin{comment}
+\begin{example}[Modular arithmetics for Fermat's primes]
+
+It is widely believed that the discrete logarithm problem is hard in multiplicative groups $\Z_p^*$ of prime number modular arithmetics. However, not all such groups are DL-secure. To see that, consider any so-called Fermat's prime, which is a prime number $p\in\Prim$, such that $p=2^n+1$ for some number $n$.
 
 We know from exercise \ref{ex:Zn*}\sme{check reference} that in this case $\Z_p^* = \{1,2,\ldots, p-1\}$ is a group with respect to integer multiplication in modular $p$ arithmetics and since $p=2^n+1$, the order of $\Z_p^*$ is $2^n$, which implies that the associated security parameter is given by $log_2(2^n)=n$.
 
-We show that, in this case, $\Z_p^*$ is not a DL-A group, by constructing an algorithm, which is able compute some $x\in\Z_{2^n}$ for any given generator $g$ and arbitrary element $h$ of $\F_p^*$, such that equation \ref{eq:hgx} holds, and the runtime complexity of the constructed algorithm is $\mathcal{O}(n^2)$, which is quadratic in the security parameter $n=log_2(2^n)$.
-\begin{equation}\label{eq:hgx}
+We show that, in this case, $\Z_p^*$ is not a DL-secure group, by constructing an algorithm, which is able compute some $x\in\Z_{2^n}$ for any given generator $g$ and arbitrary element $h$ of $\F_p^*$, such that equation \ref{eq:hgx} holds, and the runtime complexity of the constructed algorithm is $\mathcal{O}(n^2)$, which is quadratic in the security parameter $n=log_2(2^n)$.
+
+\begin{equation}
 h = g^x
 \end{equation}
+
+(eq:hgx)
 
 To define such an algorithm, let us assume that the generator $g$ is a public constant and that a group element $h$ is given. Our task is to compute $x$ efficiently.
 
 The first thing to note is that, since $x$ is a number in modular $2^n$ arithmetic, we can write the binary representation of $x$ as in \ref{eq:binary-x}, with binary coefficients $c_j\in\{0,1\}$. In particular, $x$ is an $n$-bit number if interpreted as an integer.\sme{explain last sentence more}
-\begin{equation}\label{eq:binary-x}
+
+\begin{equation}
 x = c_0\cdot 2^0 + c_1\cdot 2^1 + \cdots + c_n \cdot 2^n
 \end{equation}
+
+(eq:binary-x)
 
 
 We then use this representation to construct an algorithm that computes the bits $c_j$ one after another, starting at $c_0$. To see how this can be achieved, observe that we can determine $c_0$ by raising the input $h$ to the power of $2^{n-1}$ in $\F_p^*$. We use the exponential laws and compute as follows:
@@ -319,39 +340,55 @@ Assuming that exponentiation in $\F_p^*$ can be done in logarithmic runtime comp
 $\mathcal{O}(log^2(p))=\mathcal{O}(n^2)$, since we have to execute $n$ exponentiations to determine the $n$ binary coefficients of $x$.
 
 From this, it follows that whenever $p$ is a Fermat's prime, the discrete logarithm assumption does not hold in $F_p^*$.
+
 \end{example}
+\end{comment}
+
 \paragraph{The decisional Diffie--Hellman assumption}
-Let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$. The decisional Diffie--Hellman assumption stipulates that there is no algorithm that has a polynomial runtime complexity in the security parameter $s= log(r)$ that is able to distinguish the so-called DDH- triple $(g^a,g^b, g^{ab})$ from any triple $(g^a,g^b,g^c)$ for randomly and independently  chosen parameters $a,b,c\in \Z_r$. If this is the case for $\G$, we call $\G$ a \term{DDH-A group}.
+\label{def:DDH-secure}
+Let $\G$ be a finite cyclic group of order $n$ and let $g$ be a generator of $\G$. The decisional Diffie--Hellman (DDH) problem is to distinguish $(g^a,g^b, g^{ab})$ from the triple $(g^a,g^b,g^c)$ for uniformly random values $a,b,c\in \Z_r$. If we assume the DDH problem is infeasible to solve in $\G$, we call $\G$ a \term{DDH-secure} group.
 
-DDH-A is a stronger assumption than DL-A, in the sense that the discrete logarithm assumption is necessary for the decisional  Diffie--Hellman assumption to hold, but not the other way around.
+DDH-security is a stronger assumption than DL-security \ref{def:DL-secure}, in the sense that if the DDH problem is infeasible, so is the DLP, but not necessarily the other way around.
 
-To see why this is the case, assume that the discrete logarithm assumption does not hold. In that case, given a generator $g$ and a group element $h$, it is easy to compute some residue class $x\in\Z_p$ with $h=g^x$. Then the decisional Diffie--Hellman assumption cannot hold, since given some triple ($ g^a , g^b , z )$, one could efficiently decide whether $z = g^{ab}$ is true by first computing the discrete logarithm $b$ of  $g^b$, then computing $g^{ab}= (g^a)^b$ and deciding whether or not $z=g^{ab}$.
+To see why this is the case, assume that the discrete logarithm assumption does not hold. In that case, given a generator $g$ and a group element $h$, it is easy to compute some element $x\in\Z_p$ with $h=g^x$. Then the decisional Diffie--Hellman assumption cannot hold, since given some triple $(g^a , g^b , z )$, one could efficiently decide whether $z = g^{ab}$ is true by first computing the discrete logarithm $b$ of  $g^b$, then computing $g^{ab}= (g^a)^b$ and deciding whether or not $z=g^{ab}$.
 
 On the other hand, the following example shows that there are groups where the discrete logarithm assumption holds but the decisional  Diffie--Hellman assumption does not.
-\begin{example}[Efficiently computable pairings] Let $\G$ be a finite, cyclic group of order $r$ with generator $g$, such that the discrete logarithm assumtion holds and there is a pairing map $e(\cdot,\cdot): \G \times \G \to \G_T$ for some target group $\G_T$ that is computable in polynomial time of the parameter $log(r)$.
 
-In a setting like this, it is easy to show that DDH-A cannot hold, since given some  triple ($ g^a , g^b , z )$, it is possible to decide in polynomial time w.r.t $log(r)$ whether $z=g^{ab}$ or not. To see that, check the following equation:
+\begin{example}[Efficiently computable bilinear pairings]
+
+Let $\G$ be a DL-secure, finite, cyclic group of order $r$ with generator $g$ and $\G_T$ another group, such that there is an efficiently computable pairing map $e(\cdot,\cdot): \G \times \G \to \G_T$ that is bilinear and non degenerate \ref{pairing-map}.
+
+In a setting like this, it is easy to show that solving DDH cannot be infeasible, since given some  triple $(g^a, g^b, z)$, it is possible to efficiently check whether $z = g^{ab}$ by making use of the pairing:
+
 \begin{equation}
-e(g^a,g^b)=e(g,z)
+e(g^a,g^b) \checkeq e(g,z)
 \end{equation}
 
-Since the bilinearity properties of $e(\cdot,\cdot)$ imply $e(g^a,g^b)= e(g,g)^{ab}= e(g,g^{ab})$, and $e(g,y)=e(g,y')$ implies $y=y'$ due to the non-degenerate property, the equality\sme{``equation''?} means $z=e^{ab}$.
-\end{example}
-It follows that DDH-A is indeed weaker than DL-A, and groups with efficient pairings cannot be DDH-A groups. The following example shows another important class of groups where DDH-A does not hold: multiplicative groups of prime number residue classes.
-\begin{example}Let $p$ be a prime number and $\Z_p^*=\{1,2,\ldots,p-1\}$ the multiplicative group of modular $p$ arithmetics as in exercise \ref{ex:Zn*}\sme{check reference}. As we have seen in XXX, this group is finite and cyclic of order $p-1$ and every element $g\neq 1$ is a generator.
+Since the bilinearity properties of $e(\cdot,\cdot)$ imply $e(g^a,g^b)= e(g,g)^{ab}= e(g,g^{ab})$, and $e(g,y)=e(g,y')$ implies $y=y'$ due to the non-degenerate property, the equality means $z=g^{ab}$.
 
-To see that $\F_p^*$\sme{what's the difference between $\F_p^*$ and $\Z_p^*$?} cannot be a DDH-A group, recall from XXX that the \uterm{Legendre symbol} $\left(\frac{x}{p}\right)$ of any $x\in \F_p^*$ is efficiently computable by \uterm{Euler's formular}.\sme{These are only explained later in the text, `\ref{eq: Legendre-symbol}`} But the  Legendre symbol of $g^{a}$ reveals whether $a$ is even or odd. Given $g^{a}$, $g^{b}$ and $g^{ab}$, one can thus efficiently compute and compare the least significant bit of $a$, $b$ and $a b$, respectively, which provides a probabilistic method to distinguish $g^{ab}$ from a random group element $g^c$.
 \end{example}
+
+It follows that the DDH assumption is indeed stronger than the discrete log assumption, and groups with efficient pairings cannot be DDH-secure groups. %The following example shows another important class of groups where DDH-security does not hold: multiplicative groups of prime number residue classes.
+
+\begin{comment}
+\begin{example}
+
+Let $p$ be a prime number and $\F_p^*=\{1,2,\ldots,p-1\}$ the multiplicative group of modular $p$ arithmetics as in exercise \ref{ex:Zn*}. To see that $\F_p^*$ cannot be a DDH-secure group, recall from XXX that the \uterm{Legendre symbol} $\legsym{x}{p}$ of any $x\in \F_p^*$ is efficiently computable by \uterm{Euler's formular}.\sme{These are only explained later in the text, `\ref{eq: Legendre-symbol}`} But the  Legendre symbol of $g^{a}$ reveals whether $a$ is even or odd. Given $g^{a}$, $g^{b}$ and $g^{ab}$, one can thus efficiently compute and compare the least significant bit of $a$, $b$ and $a b$, respectively, which provides a probabilistic method to distinguish $g^{ab}$ from a random group element $g^c$.
+
+\end{example}
+\end{comment}
+
 \paragraph{The computational  Diffie--Hellman assumption}
-Let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$. The computational Diffie--Hellman assumption stipulates that, given randomly and independently  chosen residue classes $a,b\in\Z_r$, it is not possible to compute $g^{ab}$ if only $g$, $g^a$ and $g^b$ (but not $a$ and $b$) are known. If this is the case for $\G$, we call $\G$ a CDH-A group.
+%
+Let $\G$ be a finite cyclic group of order $n$ and let $g$ be a generator of $\G$. The computational Diffie--Hellman assumption stipulates that, given randomly and independently  chosen elements $a,b\in\Z_r$, it is not possible to compute $g^{ab}$ if only $g$, $g^a$ and $g^b$ (but not $a$ and $b$) are known. If this is the case for $\G$, we call $\G$ a \term{CDH-secure} group.
 
-In general, we don't know if CDH-A is a stronger assumption then DL-A, or if both assumptions are equivalent. We know that DL-A is necessary for CDH-A, but the other direction is currently not well understood. In particular, there are no groups known where DL-A holds but CDH-A does not hold \citep{Fifield12theequivalence}.% https://web.stanford.edu/class/cs259c/finalpapers/dlp-cdh.pdf
+In general, we don't know if CDH-security is a stronger assumption than DL-security, or if both assumptions are equivalent. We know that DL-security is necessary for CDH-security, but the other direction is currently not well understood. In particular, there are no DL-security groups known that are not also CDH-secure %\citep{Fifield12theequivalence}.% https://web.stanford.edu/class/cs259c/finalpapers/dlp-cdh.pdf
 
-To see why the discrete logarithm assumption is necessary, assume that it does not hold. So, given a generator $g$ and a group element $h$, it is easy to compute some residue class $x\in\Z_p$ with $h=g^x$. In that case, the computational Diffie--Hellman assumption cannot hold, since, given $g$, $g^a$ and $g^b$, one can efficiently compute $b$ and hence is able to compute $g^{ab}=(g^a)^b$ from this data.
+To see why the discrete logarithm assumption is necessary, assume that it does not hold. So, given a generator $g$ and a group element $h$, it is easy to compute some element $x\in\Z_p$ with $h=g^x$. In that case, the computational Diffie--Hellman assumption cannot hold, since, given $g$, $g^a$ and $g^b$, one can efficiently compute $b$ and hence is able to compute $g^{ab}=(g^a)^b$ from this data.
 
-The computational Diffie--Hellman assumption is a weaker assumption than the decisional  Diffie--Hellman assumption, which means that there are groups where CDH-A holds and DDH-A does not hold, while there cannot be groups such that DDH-A holds but CDH-A does not hold. To see that, assume that it is efficiently possible to compute $g^{ab}$ from $g$, $g^a$ and $g^b$. Then, given $(g^a,g^b,z)$ it is easy to decide if $z=g^{ab}$ holds or not.
+The computational Diffie--Hellman assumption is a weaker assumption than the decisional  Diffie--Hellman assumption. This means that there are groups where CDH holds and DDH does not hold, while there cannot be groups in which DDH holds but CDH does not hold. To see that, assume that it is efficiently possible to compute $g^{ab}$ from $g$, $g^a$ and $g^b$. Then, given $(g^a,g^b,z)$ it is easy to decide whether $z=g^{ab}$ holds or not.
 
-Several variations and special cases of the CDH-A exist. For example, the \term{square computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^2}$. The \term{inverse computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^{-1}}$. \sme{are these going to be relevant later? yes, they are used in various snark proof systems}
+Several variations and special cases of CDH exist. For example, the \term{square computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^2}$. The \term{inverse computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^{-1}}$.
 
 \subsection{Hashing to Groups}\label{sec:hashing-to-groups}
 % https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
@@ -775,25 +812,23 @@ Both computations agree, since the secret point $s$ was equal to $2$ in this exa
 \paragraph{Hashing to Commutative Rings} As we have seen in XXX\sme{add reference}, various constructions for hashing-to-groups are known and used in applications. As commutative rings are \uterm{Abelian groups}, when we disregard the multiplicative structure, hash-to-group constructions can be applied for hashing into commutative rings, too. This is possible in general, as the \uterm{codomain} of a general hash function $\{0,1\}^*$ is just the set of binary strings of arbitrary but finite length, which has no algebraic structure that the hash function must respect.
 
 \section{Fields}\label{sec:fields}
-We started this chapter with the definition of a group (section \ref{sec:groups}), which we then expanded into the definition of a commutative ring with a unit (section \ref{sec:rings}). Such rings generalize the behavior of integers. In this section, we will look at those special cases of commutative rings where every element other than the neutral element of addition has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$. Rational numbers are, in a sense, an extension of the ring of integers, that is, they are constructed by including newly defined multiplicative inverses (fractions) to the integers.
-
-\begin{definition}[Field ]\label{def:field}
-A \term{field} $ (\F, +, \cdot, 1) $ is a set $\F$ provided with two maps $ +: \F \times \F \to \F $ and $ \cdot: \F \times \F \to \F $, called \term{addition} and \term{multiplication}, such that the following conditions hold:
+We started this chapter with the definition of a group \ref{sec:groups}, which we then expanded into the definition of a commutative ring with a unit \ref{sec:rings}. Such rings generalize the behavior of integers. In this section, we will look at those special cases of commutative rings where every element other than the neutral element of addition has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$. Rational numbers are, in a sense, an extension of the ring of integers, that is, they are constructed by including newly defined multiplicative inverses (fractions) to the integers. The following definition makes the definition of a ield precise:
+\begin{definition}[Field]\label{def:field}
+A \term{field} $ (\F, +, \cdot) $ is a set $\F$ provided with two maps $ +: \F \times \F \to \F $ and $ \cdot: \F \times \F \to \F $, called \term{addition} and \term{multiplication}, such that the following conditions hold:
 \begin{itemize}
 \item $ \left (\F, + \right) $ is a commutative group, where the neutral element is denoted by $ 0 $.
 \item $ \left (\F \setminus \left \{0 \right \}, \cdot \right) $ is a commutative group, where the neutral element is denoted by $ 1 $.
-\item (Distributivity) For all $ g_1, g_2, g_3 \in \F $ the distributive law
-$g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
+\item (Distributivity) The equation $g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$  holds for all $ g_1, g_2, g_3 \in \F $.
 \end{itemize}
 If $(\F,+,\cdot)$ is a field and $\F'\subset \F$ is a subset of $\F$, such that the restriction of addition and multiplication to $\F'$ define a field with addition $+: \F'\times \F' \to \F'$ and multiplication $\cdot: \F'\times \F' \to \F'$ on $\F'$, then $(\F',+,\cdot)$ is called a \term{subfield} of $(\F,+,\cdot)$ and $(\F,+,\cdot)$ is called an \term{extension field} of $(\F',+,\cdot)$.
 \end{definition}
 
-\begin{notation} If there is no risk of ambiguity (about what the addition and multiplication maps  of a ring are), we frequently drop the symbols $+$ and $\cdot$ and simply write $\F$ as notation for the field, keeping those maps implicit. In this case we also say that $\F$ is of field type, indicating that $\F$ is not simply a set but a set together with an addition and a multiplication map.
+\begin{notation} If there is no risk of ambiguity (about what the addition and multiplication maps  of a field are), we frequently drop the symbols $+$ and $\cdot$ and simply write $\F$ as notation for the field, keeping those maps implicit. In this case we also say that $\F$ is of field type, indicating that $\F$ is not simply a set but a set together with an addition and a multiplication map that satisfy the field axioms \ref {def:field}.
 
-Moreover, we use the symbol $\F^*$ to describe the multiplicative group of the field, that is, the set of elements with multiplication as the group law, excluding the neutral element of addition.
+We call $(\F,+)$ the \term{additive group} of the field, write $\F^*:= \F \setminus \left \{0 \right \}$ for the set of all elements excluding the neutral element of addition and call the group $(\F^*,\cdot)$ the \term{multiplicative group} of the field.
 \end{notation}
 
-The \term{characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is also said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
+The \term{characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of the multiplicative neutral element  $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is also said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
 \begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no natural number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the set of rational numbers, the characteristic of the field $\mathbb{Q}$ is given by $char(\mathbb{Q})=0$. 
 \begin{sagecommandline}
 sage: QQ
@@ -814,7 +849,7 @@ $\cdot$ & 0 & 1 \\\hline
       1 & 0 & 1 \\
   \end{tabular}
 \end{center}
-Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ given by $char(\F_2)=2$.
+Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ given by $char(\F_2)=2$ and the multiplicative subgroup $\F_2^*$ of $\F_2$ is given by the trivial group $\{1\}$.
 \begin{sagecommandline}
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
@@ -840,12 +875,15 @@ However, we have also seen in \ref{ex:modulus-prime-group} that, whenever the mo
 Let $p \in \Prim$ be a prime number and $(\Z_p,+,\cdot)$ the ring of modular $p$ arithmetics \ref{def:ring_of_mod_n_arithmetics}. To distinguish prime fields from arbitrary modular arithmetic rings, we write  $ (\F_p, +, \cdot) $ for the ring of modular $p$ arithmetics and call it the \term{prime field} of characteristic $p$.
 \end{notation}
 
-Prime fields are the foundation for many of the contemporary algebra-based cryptographic systems, as they have many desirable properties. One of them is that any prime field of characteristic $p$ contain exactly $p$ elements which can be represented on a computer with not more then $log_2(p)$ many bits. On the other hand fields like the rational numbers, require a potentially unbounded amount of bits for any full-precision representation.
+Prime fields are the foundation for many of the contemporary algebra-based cryptographic systems, as they have some desirable properties. One of them is that any prime field of characteristic $p$ contain exactly $p$ elements which can be represented on a computer with not more then $log_2(p)$ many bits. On the other hand fields like the rational numbers, require a potentially unbounded amount of bits for any full-precision representation.
 
 Since prime fields are special cases of modular arithmetic rings, addition and multiplication can be computed by first doing normal integer addition and multiplication, and then considering the remainder in Eucliden division by $p$ as the result. For any prime field element $x\in \F_p$, its additive inverse (the negative) is given by $-x=\Zmod{p-x}{p}$. For $x\neq 0$ the multiplicative inverse always exists and is given by $x^{-1}=x^{p-2}$. Division is then defined by multiplication with the multiplicative inverse as explained in \ref{sec:modular_inverses}. Alternative the multiplicative inverse can be computed using the Extended Euclidean Algorithm as explained in \ref{eq_compute_multiplicative_inverse}.
 
 \begin{example}
 The smallest field is the field $\F_2$ of characteristic $2$ as we have seen in example \ref{ex:field-2-elements}. It is the prime field of the prime number $2$.
+\end{example}
+\begin{example}
+The field $\F_5$ from example \ref{primfield_z_5} as defined by its addition and multipliction table is a prime field. 
 \end{example}
 \begin{example}\label{prime-field-F5}
 To summarize the basic aspects of computation in prime fields, let us consider the prime field $\F_5$ and simplify the following expression:
@@ -875,9 +913,11 @@ $x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. 
 \end{center}
 So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if we compute the product of $3$ with its multiplicative inverse $2$ we get the neutral element $1$ in $\F_5$.
 \end{example}
-\begin{exercise}[Prime field $F_3$]\label{exercise:F3} Construct the addition and multiplication table of the prime field $\F_3$.
+\begin{exercise}[Prime field $\F_3$]\label{exercise:F3} Construct the addition and multiplication table of the prime field $\F_3$.
 \end{exercise}
-\begin{exercise} Consider the prime field $\F_{13}$. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
+\begin{exercise}[Prime field $\F_{13}$]\label{prime_field_F13} Construct the addition and multiplication table of the prime field $\F_3$.
+\end{exercise}
+\begin{exercise} Consider the prime field $\F_{13}$ from exercise \ref{exercise:F13}. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
 $$
 x^2+y^2 = 1 + 7\cdot x^2\cdot y^2
 $$
@@ -896,7 +936,7 @@ In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y
 \end{equation}
 Informally speaking, quadratic residues are numbers such that we can take the square root of them, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have square roots and others like $2$ or $3$ don't (as integers).
 
-If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. Moreover if $y\neq 0$ is a quadratic residue then it has precisely two roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative}. If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quardratic residues and $(p-1)/2$ quadratic non residues.
+If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. Moreover if $y\neq 0$ is a quadratic residue then it has precisely two roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative} square root. If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quardratic residues and $(p-1)/2$ quadratic non residues.
 
 \begin{example} [Quadratic residues and roots in $ \F_5 $]
 \label{example:quadratic_residue_F5}
@@ -942,7 +982,9 @@ Looking at the quadratic residues and non residues in $\F_5$ from example \ref{e
 \left (\frac{4}{5} \right) &= 4^{\frac{5-1}{2}}= 4^2=1
 \end{align*}
 \end{example}
-
+\begin{exercise}
+Consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. Compute the Legendre symbol $\left(\frac{x}{13} \right)$ and the set of roots $\sqrt{x}$ for all elements $x\in \F_{13}$. 
+\end{exercise}
 % I think this isn't needed. Will just leave it here in case this changes
 %
 %So the question remains how to actually compute square roots in prime field. The following algorithms give a solution
@@ -987,7 +1029,7 @@ where $F_i(x)= (x+c_i)^n$
 % references https://blog.plover.com/math/se/finite-fields.html
 Prime fields, as defined in the previous section, are basic building blocks in cryptography. However, as we will see in chapter \ref{chapter:zk-protocols} so-called pairing-based SNARK systems are crucially dependent on certain group pairings \ref{pairing-map} defined on elliptic curves over \term{prime field extensions}. In this section we therefore introduce those extensions.
 
-Given some prime number $p\in \Prim$, a natural number $m\in\N$ and an irreducible polynomial $P\in F_p[x]$ of degree $m$ with coefficients from the prime field $\F_p$, then a prime field extension $(\F_{p^m},+,\cdot)$ is defined as follows:
+Given some prime number $p\in \Prim$, a natural number $m\in\N$ and an irreducible polynomial $P\in \F_p[x]$ of degree $m$ with coefficients from the prime field $\F_p$, then a prime field extension $(\F_{p^m},+,\cdot)$ is defined as follows:
 
 The set $\F_{p^m}$ of the prime field extension is given by the set of all polynomials with a degree less then $m$:
 \begin{equation}
@@ -998,39 +1040,41 @@ The addition law of the prime field extension $\F_{p^m}$ is given by the usual a
 \begin{equation}
 +:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; , \textstyle (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j
 \end{equation}
-The multiplication law of the prime field extension $\F_{p^m}$ is given by first multiplying the two polynomials as defined in \ref{def:polynomial_arithmetic_mul}. The result is then divided by the result by the irreducible polynomial $p$ and the remainder of that division is the result:
+The multiplication law of the prime field extension $\F_{p^m}$ is given by first multiplying the two polynomials as defined in \ref{def:polynomial_arithmetic_mul} and then divided the result by the irreducible polynomial $p$ and keep the remainder:
 \begin{equation}
 \cdot : \; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; , \textstyle\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P}
 \end{equation}
-The neutral element of the additive group $(\F_{p^m},+)$ is given by the polynomial $0$ and the additive inverse is given by the polynomial with all negative coefficients. The neutral element of the multiplicative group $(\F^*_{p^m},\cdot)$ is given by the polynomial $1$ and the multiplicative inverse can be computed by the extended Euclidean algorithm.
+The neutral element of the additive group $(\F_{p^m},+)$ is given by the zero polynomial $0$ and the additive inverse is given by the polynomial with all negative coefficients. The neutral element of the multiplicative group $(\F^*_{p^m},\cdot)$ is given by the unit polynomial $1$ and the multiplicative inverse can be computed by the extended Euclidean algorithm.
 
-We can easily see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field, and hence $\sum_{j=0}^p 1=0$. Moreover, $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$, and every coefficient $a_j$ can have $p$ many different values. In addition, we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occurs when we restrict the elements of $\F_{p^m}$ to polynomials of degree zero.
+We can see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field, and hence $\sum_{j=0}^p 1=0$. Moreover, $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$, and every coefficient $a_j$ can have $p$ many different values. In addition, we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occurs when we restrict the elements of $\F_{p^m}$ to polynomials of degree zero.
 
-One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial, and, in fact, different choices will give different multiplication tables, since the remainders from dividing a product by $P$ will be different.
+One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial, and, in fact, different choices will give different multiplication tables, since the remainders from dividing a polynomial product by those polynomials will be different.
 
 It can, however, be shown that the fields for different choices of $P$ are \term{isomorphic}, which means that there is a one-to-one correspondence between all of them. Consequently, from an abstract point of view, they are the same thing. From an implementations point of view, however, some choices are preferable to others because they allow for faster computations.
 
 \begin{remark}
 Similar to the way prime fields $\F_p$ are generated by starting with the ring of integers and then dividing by a prime number $p$ and keeping the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then dividing them by an irreducible polynomial of degree $m$ and keeping the remainder.
 
-In fact it can be shown that $\F_{p^m}$ is the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by the reducible polynomial $P$. This is analogous to how $\F_p$ is the set of all remainders when dividing integers by $p$.
+In fact it can be shown that $\F_{p^m}$ is the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by an rireducible polynomial $P$ of degree $m$. This is analogous to how $\F_p$ is the set of all remainders when dividing integers by $p$.
 \end{remark}
 
-Any field $\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general, a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$, if and only if $m_1$ divides $m_2$. From this, we can deduce that, for any given fixed prime number, there are nested sequences of fields whenever the power $m_j$ divides the power $m_{j+1}$, such that $\F_{p^{m_j}}$ is a subfield of $\F_{p^{m_{j+1}}}$:
+Any field $\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general, a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$, if and only if $m_1$ divides $m_2$. From this, we can deduce that, for any given fixed prime number, there are nested sequences of subfields whenever the power $m_j$ divides the power $m_{j+1}$:
 
 \begin{equation}
 \F_p \subset \F_{p^{m_1}} \subset \cdots \subset \F_{p^{m_k}}
 \end{equation}
 
 To get a more intuitive picture of this, we construct an extension field of the prime field  $\F_3$ in the following example, and we can see how $\F_3$ sits inside that extension field.
-\begin{example}[The Extension field $\F_{3^2}$]In exercise \ref{exercise:F3} we have constructed the prime field $\F_3$. In this example, we apply the definition of a field extension \ref{eq:prime-extension-field} to construct the extension field $\F_{3^2}$. We start by choosing an irreducible polynomial of degree $2$ with coefficients in $\F_3$. We try
+\begin{example}[The Extension field $\F_{3^2}$]
+\label{finite_field_F3_2}
+In exercise \ref{exercise:F3} we have constructed the prime field $\F_3$. In this example, we apply the definition of a field extension \ref{eq:prime-extension-field} to construct the extension field $\F_{3^2}$. We start by choosing an irreducible polynomial of degree $2$ with coefficients in $\F_3$. We try
 $P(t)=t^2+1$. Possibly the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is ever zero. We compute as follows:
 \begin{align*}
 P(0) = 0^2+1 &= 1\\
 P(1) = 1^2+1 &= 2\\
 P(2) = 2^2+1 &=  1+1  = 2
 \end{align*}
-This implies that $P$ is irreducible. The set $\F_{3^2}$ contains all polynomials of degrees lower than two, with coefficients in $\F_3$, which are precisely as listed below:
+This implies that $P$ is irreducible, since all factors must be of the form $(t-a)$ for $a$ being a root of $P$. The set $\F_{3^2}$ contains all polynomials of degrees lower than two, with coefficients in $\F_3$, which are precisely as listed below:
 $$
 \F_{3^2}=\{0,1,2,t,t+1,t+2,2t,2t+1,2t+2\}
 $$
@@ -1051,9 +1095,9 @@ As expected, our extension field contains $9$ elements. Addition is  defined as 
 \end{center}
 As we can see, the group $(\F_3,+)$ is a subgroup of the group $(\F_{3^2},+)$, obtained by only considering the first three rows and columns of this table.
 
-As it was the case in previous examples, we can use the table to deduce the negative of any element from $\F_{3^2}$. For example, in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$
+We can use the addition table to deduce the additive inverse (the negative) of any element from $\F_{3^2}$. For example, in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$
 
-Multiplication needs a bit more computation, as we first have to multiply the polynomials, and whenever the result has a degree $\geq 2$, we have to divide it by $P$ and keep the remainder. To see how this works, let us compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$:
+Multiplication needs a bit more computation, as we first have to multiply the polynomials, and whenever the result has a degree $\geq 2$, we have to apply a polynomial division algorithm like \ref{alg_polynom_euclid_alg} to divide the product by the polynomial $P$ and keep the remainder. To see how this works, let us compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$:
 \begin{align*}
 (t+2) \cdot (2t+2) &= \Zmod{(2t^2 + 2t + t + 1)}{(t^2+1)} \\
                    &= \Zmod{(2t^2+1)}{(t^2+1)} & \#\; 2t^2+1:t^2+1= 2 + \frac{2}{t^2+1} \\
@@ -1096,8 +1140,8 @@ sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
 sage: P = Z3t(t^2+1)
 sage: P.is_irreducible()
-sage: F3_2.<t> = GF(3^2, name='t', modulus=P)
-sage: F3_2
+sage: F3_2.<t> = GF(3^2, name='t', modulus=P) # Extension field F_3^2
+sage: F3_2 
 sage: F3_2(t+2)*F3_2(2*t+2) == F3_2(2)
 sage: F3_2(2*t+2)^(-1) # multiplicative inverse
 sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
@@ -1113,6 +1157,9 @@ y^2 = x^3 + 4
 \end{equation}
 \end{exercise}
 
+\begin{exercise} Show that the polynomial $Q=x^2+x+2$ from $\F_3[x]$ is irreducible. Construct the multiplication table of $\F_{3^2}$ with respect to $Q$ and compare it to the multiplication table of $\F_{3^2}$ from example \ref{finite_field_F3_2}.
+\end{exercise}
+
 \begin{exercise} Show that the polynomial $P=x^3+x+1$ from $\F_5[x]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euclidean algorithm. Then find all $x\in\F_{5^3}$ that solve the following equation:
 \begin{equation}
 (2t^2+4)(x-(t^2+4t+2))= (2t+3)
@@ -1123,12 +1170,12 @@ y^2 = x^3 + 4
 \section{Projective Planes}\label{sec:planes}
 Projective planes are particular geometric constructs defined over a given field. In a sense, projective planes extend the concept of the ordinary Euclidean plane by including ``points at infinity.''
 
-Such an inclusion of infinity points makes projective planes particularly useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol ``the point at infinity'' to give the set of points on the curve the structure of a group. Translating the curve into projective geometry includes this ``point at infinity'' more naturally into the set of all points on a projective plane.
-
 To understand the idea of constructing of projective planes, note that in
 an ordinary Euclidean plane, two lines either intersect in a single point or are parallel. In the latter case, both lines are either the same, that is, they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with additional ``point at infinity'' such that two different lines always intersect in a single point. Parallel lines intersect ``at infinity''.
 
-To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times \F$ the set of all three tuples over $\F$ and $x\in \F^3$ with $x=(X,Y,Z)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given as follows:
+Such an inclusion of infinity points makes projective planes particularly useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol ``the point at infinity'' to give the set of points on the curve the structure of a group \ref{sec:short_weierstrass_curve}. Translating the curve into projective geometry includes this ``point at infinity'' more naturally into the set of all points on a projective plane.
+
+To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times \F$ the set of all tuples of three elements over $\F$ and $x\in \F^3$ with $x=(X,Y,Z)$. Then there is exactly one \textit{line} in $\F^3$ that intersects both $(0,0,0)$ and $x$. This line is given as follows:
 \begin{equation}
 [X:Y:Z] := \{(k\cdot X,k\cdot Y, k\cdot Z)\;|\; k\in\F\}
 \end{equation}
@@ -1138,17 +1185,17 @@ A \term{point} in the \textbf{projective plane} over $\F$ is defined as such a \
 \end{equation}
 It can be shown that a projective plane over a finite field $\F_{p^m}$ contains $p^{2m}+p^m+1$ number of elements.
 
-To understand why $[X:Y:Z]$ is called a line, consider the situation where the underlying field $\F$ is the set of real numbers $\mathbb{R}$. In this case, $\mathbb{R}^3$ can be seen as the three-dimensional space, and $[X:Y:Z]$ is  an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $X$, $Y$ and $Z$.
+To understand why $[X:Y:Z]$ is called a line, consider the situation where the underlying field $\F$ is the set of rational numbers $\Q$. In this case, $\Q^3$ can be seen as the three-dimensional space, and $[X:Y:Z]$ is  an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $X$, $Y$ and $Z$.
 
-The key observation here is that points in the projective plane are lines in the $3$-dimensional space $\F^3$,]. Additionally, for finite fields, the terms \term{space} and \term{line} share very little visual similarity with their counterparts over the set of real numbers.
+The key observation here is that points in the projective plane $\F\mathbb{P}^2$ are lines in the $3$-dimensional space $\F^3$. However it should be kept in mind that, for finite fields, the terms \term{space} and \term{line} share very little visual similarity with their counterparts over the set of rational numbers.
 
-It follows from this that points $[X:Y:Z]\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(X,Y,Z)$, but by \term{sets of coordinates}, where two different coordinates $(X_1,Y_1,Z_1)$ and $(X_2,Y_2,Z_2)$ describe the same point if and only if there is some field element $k$ such that $(X_1,Y_1,Z_1) = (k\cdot X_2,k\cdot Y_2,k\cdot Z_2)$. Points $[X:Y:Z]$ are called \term{projective coordinates}.
+It follows from this that points $[X:Y:Z]\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(X,Y,Z)$, but by \term{sets of coordinates}, where two different coordinates $(X_1,Y_1,Z_1)$ and $(X_2,Y_2,Z_2)$ describe the same point if and only if there is some field element $k\in\F$ such that $(X_1,Y_1,Z_1) = (k\cdot X_2,k\cdot Y_2,k\cdot Z_2)$. Points $[X:Y:Z]$ are called \term{projective coordinates}.
 
 \begin{notation}[Projective coordinates]
 %https://math.mit.edu/classes/18.783/2017/Lecture1.pdf
 Projective coordinates of the form $[X:Y:1]$ are descriptions of so-called \textbf{affine points}.  Projective coordinates of the form $[X:Y:0]$ are descriptions of so-called \textbf{points at infinity}. In particular, the projective coordinate $[1:0:0]$ describes the so-called \textbf{line at infinity}.
 \end{notation}
-\begin{example} Consider the field $\F_3$ from example XXX\sme{add reference}. As this field only contains three elements, it does not take too much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we know that it only contains $13$ elements.
+\begin{example} Consider the field $\F_3$ from exercise \ref{exercise:F3} . As this field only contains three elements, it does not take too much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we know that it only contains $13$ elements.
 
 To find $\F_3\mathbb{P}^2$, we have to compute the set of all lines in $\F_3\times \F_3\times \F_3$ that intersect $(0,0,0)$. Since those lines are parameterized by tuples $(x_1,x_2,x_3)$, we compute as follows:
 \begin{align*}
