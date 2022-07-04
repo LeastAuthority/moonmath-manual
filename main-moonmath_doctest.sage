@@ -174,21 +174,48 @@ sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
 
-Sage commandline, line 436::
+Sage commandline, line 450::
 
 sage: import hashlib
 sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-sage: hasher = hashlib.sha256(b'')
-sage: str = hasher.hexdigest()
-sage: type(str)
-sage: d = ZZ('0x'+ str) # conversion to integer type
-sage: d.str(16) == str
-sage: d.str(16) == test
-sage: d.str(16)
-sage: d.str(2)
-sage: d.str(10)
+sage: empty_string = ""
+sage: binary_string = empty_string.encode()
+sage: hasher = hashlib.sha256(binary_string)
+sage: result = hasher.hexdigest()
+sage: type(result) # sage represents digests as strings
+sage: d = ZZ('0x'+ result) # conversion to an integer
+sage: d.str(16) == test # hash is equal to test vector
+sage: d.str(16) # hexadecimal representation
+sage: d.str(2) # binary representation
+sage: d.str(10) # decimal representation
 
-Sage commandline, line 509::
+Sage commandline, line 535::
+
+sage: import hashlib
+sage: def SHA256_H(x):
+....:     Z5 = Integers(5) # define the group type
+....:     hasher = hashlib.sha256(x) # Compute SHA256
+....:     digest = hasher.hexdigest()
+....:     z = ZZ(digest, 16) # cast into integer
+....:     z_bin = z.digits(base=2, padto=256) # cast to 256bits
+....:     return Z5(2)^z_bin[0] * Z5(3)^z_bin[1]
+sage: SHA256_H(b"") # evaluate on empty string
+sage: SHA256_H(b"SHA") # possible images are {1,2,3}
+sage: SHA256_H(b"Math")
+
+Sage commandline, line 594::
+
+sage: ZZ
+
+Sage commandline, line 659::
+
+sage: ZZ['x']
+
+Sage commandline, line 666::
+
+sage: Integers(6)
+
+Sage commandline, line 738::
 
 sage: import hashlib
 sage: def Hash5(x):
@@ -199,7 +226,7 @@ sage: def Hash5(x):
 ....:     return ZZ(d,base=2)
 sage: Hash5(b'')
 
-Sage commandline, line 566::
+Sage commandline, line 795::
 
 sage: import hashlib
 sage: Z23 = Integers(23)
@@ -211,30 +238,18 @@ sage: def Hash_mod23(x, k2):
 ....:     d = ZZ(d, base=2)
 ....:     return Z23(d)
 
-Sage commandline, line 694::
-
-sage: ZZ
-
-Sage commandline, line 759::
-
-sage: ZZ['x']
-
-Sage commandline, line 766::
-
-sage: Integers(6)
-
-Sage commandline, line 833::
+Sage commandline, line 877::
 
 sage: QQ
 
-Sage commandline, line 853::
+Sage commandline, line 897::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 1138::
+Sage commandline, line 1182::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
