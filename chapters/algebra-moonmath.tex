@@ -519,15 +519,15 @@ It can be shown that Pedersen’s  hash  function  is  collision-resistant under
 
 From an implementation perspective, it is important to derive the set of generators $\{g_1,\ldots,g_k\}$ in such a way that they are as uniform and random as possible. In particular, any known discrete log relation between two generators, that is, any known $x\in \Z_n$ with $g_h = (g_i)^x$ must be avoided.
 
-\begin{example} To compute an actual Pedersen’s  hash, consider the cyclic group $\Z^*_{5}$ from example \ref{example:cyclic_group_F5*}. We know from example \ref{example:factor_groupds_of_F*5}, that the elements $2$ and $3$ are generators of  $\F^*_{5}$ and it follows that the following map is a Pedersen's hash function:
+\begin{example} To compute an actual Pedersen’s  hash, consider the cyclic group $\Z^*_{5}$ from example \ref{example:cyclic_group_F5*}. We know from example \ref{example:factor_groupds_of_F*5}, that the elements $2$ and $3$ are generators of  $\Z^*_{5}$ and it follows that the following map is a Pedersen's hash function:
 $$
-H_{\{2,3\}}: \Z_4 \times Z_4 \to \F^*_{5}\;;\; (x,y)\mapsto 2^x \cdot 3^y
+H_{\{2,3\}}: \Z_4 \times Z_4 \to \Z^*_{5}\;;\; (x,y)\mapsto 2^x \cdot 3^y
 $$
 To see how this map can be calculated, we choose the imput value $(1,3)$ from $\Z_4 \times Z_4$. Then $H_{\{2,3\}}(1,3)= 2^1\cdot 3^3= 2\cdot 2 =4$. 
 
-To see how the composition of a hash function with $H_{\{2,3\}}$ defines a hash-to-group function, consider the $SHA256$ hash function from example . Given some binary string $s\in\{0,1\}^*$, we can insert the two least significant bits $SHA256(s)_0$ and $SHA256(s)_1$ from the image $SHA256(s)$ into $H_{\{2,3\}}$ to get an element in $\F_5^*$. This defines the following hash-to-group function
+To see how the composition of a hash function with $H_{\{2,3\}}$ defines a hash-to-group function, consider the $SHA256$ hash function from example \ref{ex:SHA256}. Given some binary string $s\in\{0,1\}^*$, we can insert the two least significant bits $SHA256(s)_0$ and $SHA256(s)_1$ from the image $SHA256(s)$ into $H_{\{2,3\}}$ to get an element in $\F_5^*$. This defines the following hash-to-group function
 $$
-SHA256\_H_{\{2,3\}}: \{0,1\}^* \to \F_5^*\;;\; s \mapsto 2^{SHA256(s)_0}\cdot 3^{SHA256(s)_1}
+SHA256\_H_{\{2,3\}}: \{0,1\}^* \to \Z_5^*\;;\; s \mapsto 2^{SHA256(s)_0}\cdot 3^{SHA256(s)_1}
 $$
 To see how this hash function can be calculated, consider the empty string $<>$. Since we know from the sage computation in example \ref{ex:SHA256}, that $SHA256(<>)_0=1$ as well as $SHA256(<>)_1=0$, we get $SHA\_256H_{\{2,3\}}(<>)= 2^1 \cdot 3^0 = 2$. 
 
@@ -545,23 +545,26 @@ sage: SHA256_H(b"") # evaluate on empty string
 sage: SHA256_H(b"SHA") # possible images are {1,2,3}
 sage: SHA256_H(b"Math")
 \end{sagecommandline}
-
 \end{example}
+\begin{exercise}
+\label{exercise:Pedersen_hash_1}
+Consider the multiplicative group $\Z_{13}^*$ of modular $13$ arithmetic from example \ref{ex:Zn*}. Choose a set of $3$ generators of $\Z_{13}^*$, define its associated Pedersen hash function and compute the Pedersen hash of $(3,7,11)\in \Z_{12}$.
+\end{exercise}
+\begin{exercise}
+Consider the Pedersen hash from exercise \ref{exercise:Pedersen_hash_1}. Compose it with the $SHA256$ hash function from example \ref{ex:SHA256} to define a hash-to-group function. Implement that function in sage.
+\end{exercise}
 
 %\citep{cryptoeprint:2016:492}
-\paragraph{Pseudorandom Functions in DDH-secure groups}
+\paragraph{Pseudorandom Function Families in DDH-secure groups}
 % https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
 % Proper description in https://eprint.iacr.org/2016/492.pdf sec 3.3
-As noted in \ref{def:Pedersen_hash}, the family of Pederson's hash functions, parameterized by a set of generators $\{g_1,\ldots,g_j\}$ does not qualify as a family of pseudorandom functions and should therefore not be instantiated as such. To see an example of a proper family of pseudorandom functions in groups where the decisional Diffie--Hellman assumtion \ref{def:DDH-secure} is assumed to hold true, let $\G$ be a DDH-secure group of order $n$ with generator $g$ and $\{a_0,a_1,\ldots,a_k\}\subset \Z_{n}^*$ a uniform randomly generated set of numbers invertible in modular $n$ arithmetics. Then a family of pseudorandom functions, parameterized by the key $\{a_0,a_1,\ldots,a_k\}$ is given as follows:
+As noted in \ref{def:Pedersen_hash}, the family of Pederson's hash functions, parameterized by a set of generators $\{g_1,\ldots,g_j\}$ does not qualify as a family of pseudorandom functions and should therefore not be instantiated as such. To see an example of a proper family of pseudorandom functions in groups where the decisional Diffie--Hellman assumtion \ref{def:DDH-secure} is assumed to hold true, let $\G$ be a DDH-secure cyclic group of order $n$ with generator $g$ and $\{a_0,a_1,\ldots,a_k\}\subset \Z_{n}^*$ a uniform randomly generated set of numbers invertible in modular $n$ arithmetics. Then a family of pseudorandom functions, parameterized by the seed $\{a_0,a_1,\ldots,a_k\}$ is given as follows:
 \begin{equation}
+\label{prf_in_cyclic_group}
 F_{\{a_0,a_1,\ldots,a_k\}}: \{0,1\}^{k+1} \to \G:\; (b_0,\ldots,b_k)\mapsto g^{b_0\cdot \Pi_{i=1}^k a_i^{b_i}}
 \end{equation}
-%\begin{example}[p\&{}p-$\F_{13}$-mod-hash]
-%Consider our pen\&paper hash function from XXX. We want to use this hash function, to define a $16$-bounded hash function that maps into the prime field $\F_{13}$. We define:
-%$$\mathcal{H}_{mod}^{13}: \{0,1\}^{16}\to \F_{13}: S \mapsto \Zmod{\mathcal{H}_{PaP}(S)}{13}$$
-%Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and since $(1110)_{10}=14$ and $\Zmod{14}{13}=1$ we get $\mathcal{H}_{mod}^{13}(S)=1$.
-%\end{example}
-
+\begin{exercise} Consider the multiplicative group $\Z_{13}^*$ of modular $13$ arithmetic from example \ref{ex:Zn*} and the parameter $k=3$. Choose a generator of $\Z_{13}^*$, a seed and instantiate a member of the familie \ref{prf_in_cyclic_group} for that seed. Evaluate that member on the binary string $<1,0,1>$.
+\end{exercise}
 %\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
 
 %Considering the string $S=(1110011101110011)$ from example XXX again we know $\mathcal{H}_{PaP}(S)=(1110)$ and stripping of the leading bit we get $(110)_{10}=6$ as our hash value.
@@ -691,7 +694,7 @@ $g^{p(s)}$ can be computed using \ref{def:polynomial_ring_exponential_laws}, how
 
 \begin{example} To give an example of the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map from example \ref{ex:in-the-exponent}:
 $$
-3^{(\cdot)}: \Z_4 \to \Z_5^* \; x \mapsto 3^x
+3^{(\cdot)}: \Z_4 \to \Z_5^* \;;\; x \mapsto 3^x
 $$
 Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we first evaluate the polynomial at the point $s=2$ and then write the result into the exponent $3$ as follows:
 \begin{align*}
@@ -709,40 +712,41 @@ $p$ at the point $s$ in the exponent of $3$ as
 \end{align*}
 Both computations agree, since the secret point $s$ was equal to $2$ in this example. However the second evaluation was possible without any knowledge about $s$.
 \end{example}
-\paragraph{Hashing to Commutative Rings}
-\label{hash-to-rings}
+\paragraph{Hashing into Modular Arithmetic}
+\label{hash-to-modular-arithmetics}
 As we have seen in \ref{sec:hashing-to-groups}, various constructions for hashing-to-groups are known and used in applications. As commutative rings are commutative groups, when we disregard the multiplicative structure, hash-to-group constructions can be applied for hashing into commutative rings. 
 
-One of the most widely used applications of hash-into-ring constructions are hash functions that map into the ring $\Z_r$ of modular $r$ arithmetics for some modulus $r$. Different approaches to construct such a function are known, but probably the most widely used ones are based on the insight that the images of general hash functions can be interpreted as binary representations of integers, as explained in example \ref{integers-binary-repr}.
+One of the most widely used applications of hash-into-ring constructions are hash functions that map into the ring $\Z_n$ of modular $n$ arithmetics for some modulus $n$. Different approaches to construct such a function are known, but probably the most widely used ones are based on the insight that the images of general hash functions can be interpreted as binary representations of integers, as explained in example \ref{naive-cyclic-group-hash}.
 
-It follows from this interpretation that one simple method of hashing into $\Z_r$ is constructed by observing that if $r$ is a modulus with a bit-length of $k=r.nbits()$, then every binary string $(b_0,b_1,\ldots,b_{k-2})$ of length $k-1$ defines an integer $z$ in the rage $0\leq z < 2^{k-1}\leq r $, by defining $z$:
+It follows from this interpretation that one simple method of hashing into $\Z_n$ is constructed by observing that if $n$ is a modulus with a bit-length \ref{def:binary_representation_integer} of $k=|n|$, then every binary string $<b_0,b_1,\ldots,b_{k-2}>$ of length $k-1$ defines an integer $z$ in the rage $0\leq z \leq 2^{k-1}-1< n $:
 \begin{equation}
 z = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{k-2}\cdot 2^{k-2}
 \end{equation}
-Now, since $z<r$, we know that $z$ is guaranteed to be in the set $\{0,1,\ldots,r-1\}$, and hence it can be interpreted as an element of $\Z_r$. From this it follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-group function can be constructed as follows (where $H(s)_j$ means the $j$-th bit of the image binary string $H(s)$ of the original binary hash function):
+Now, since $z<n$, we know that $z$ is guaranteed to be in the set $\{0,1,\ldots,n-1\}$, and hence it can be interpreted as an element of $\Z_n$. From this it follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-ring function can be constructed as follows:
 \begin{equation}\label{eq:hash-Zr}
-H_{r.nbits()-1}: \{0,1\}^* \to \Z_r: \; s \mapsto
+H_{|n|_2-1}: \{0,1\}^* \to \Z_r: \; s \mapsto
 H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-2}\cdot 2^{k-2}
 \end{equation}
 
-A drawback of this hash function is that the distribution of the hash values in $\Z_r$ is not necessarily uniform. In fact, if $r-2^{k-1}\neq 0$, then by design $H_{r.nbits()-1}$ will never hash onto values $z\geq 2^{k-1}$. Using this hashing method therefore generates uniform hashes only, if $r$ is very close to $2^{k-1}$. In the worst case, when $r=2^k-1$, it misses $2^{k-1}-1$, that is, almost half of all elements, from $\Z_r$.
-\sme{TODO: DOUBLE CHECK THIS REASONING.}
+A drawback of this hash function is that the distribution of the hash values in $\Z_n$ is not necessarily uniform. In fact, if $n$ is larger then $2^{k-1}$, then by design $H_{|n|_2-1}$ will never hash onto values $z\geq 2^{k-1}$. Using this hashing method therefore generates approximately uniform hashes only, if $n$ is very close to $2^{k-1}$. In the worst case, when $n=2^k-1$, it misses almost half of all elements from $\Z_n$.
 
 An advantage of this approach is that properties like preimage resistance or collision resistance of the original hash function $H(\cdot)$ are preserved.
-\begin{example} To give an implementation of the $H_{r.nbits()-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from example \ref{ex:SHA256} and define a hash into $\Z_{16}$ as follows:
+\begin{example} To analyze a particular implementation of a $H_{|n|_2-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from example \ref{ex:SHA256} and define a hash into $\Z_{16}$ as follows:
 $$
-H_{16.nbits()-1}: \{0,1\}^* \to \Z_{16}:\; s\mapsto
+H_{|16|_2-5}: \{0,1\}^* \to \Z_{16}:\; s\mapsto
 SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_4\cdot 2^4
 $$
-Since $k=16.nbits()=5$ and $16-2^{k-1}=0$, this hash maps uniformly onto $\Z_{16}$. We can invoke Sage to implement it:
+Since $k=|16|_2=5$ and $16-2^{k-1}=0$, this hash maps uniformly onto $\Z_{16}$. We can invoke Sage to implement it:
 \begin{sagecommandline}
 sage: import hashlib
 sage: def Hash5(x):
-....:     hasher = hashlib.sha256(x)
+....:     Z16 = Integers(16)
+....:     hasher = hashlib.sha256(x) # compute SHA56
 ....:     digest = hasher.hexdigest()
-....:     d = ZZ(digest, base=16)
-....:     d = d.str(2)[-4:]
-....:     return ZZ(d,base=2)
+....:     d = ZZ(digest, base=16) # cast to integer
+....:     d = d.str(2)[-4:] # keep 5 least significant bits
+....:     d = ZZ(d, base=2) # cast to integer
+....:     return Z16(d) # cast to Z16
 sage: Hash5(b'')
 \end{sagecommandline}
 We can then use Sage to apply this function to a large set of input values in order to plot a visualization of the distribution over the set $\{0,\ldots,15\}$. Executing over $500$ input values gives the following plot:
@@ -752,7 +756,7 @@ H1 = list_plot([Hash5(ZZ(k).str(2).encode('utf-8')) for k in range(500)])
 \begin{center}
 \sageplot[scale=.5]{H1}
 \end{center}
-To get an intuition of uniformity, we can count the number of times the hash function $H_{16.nbits()-1}$ maps onto each number in the set $\{0,1,\ldots,15\}$ in a loop of $100000$ hashes, and compare that to the ideal uniform distribution, which would map exactly 6250 samples to each element. This gives the following result:
+To get an intuition of uniformity, we can count the number of times the hash function $H_{|16|_2-1}$ maps onto each number in the set $\{0,1,\ldots,15\}$ in a loop of $100000$ hashes, and compare that to the ideal uniform distribution, which would map exactly 6250 samples to each element. This gives the following result:
 \begin{sagesilent}
 arr = []
 arr = [0 for i in range(16)]
@@ -763,7 +767,7 @@ H2 = list_plot(arr, ymin=0,ymax=10000)
 \begin{center}
 \sageplot[scale=.5]{H2}
 \end{center}
-The lack of uniformity becomes apparent if we want to construct a similar hash function for $\Z_r$ for any $r$ in the range $17\leq r \leq 31$. In this case, the definition of the hash function is exactly the same as for $\Z_{16}$, and hence, the images will not exceed the value $16$. So, for example, even in the case of hashing to $\Z_{31}$, the hash function never maps to any value larger than $16$, leaving almost half of all numbers out of the image range.
+The lack of uniformity becomes apparent if we want to construct a similar hash function for $\Z_n$ for any other $5$ bit integer $n$ in the range $17\leq n \leq 31$. In this case, the definition of the hash function is exactly the same as for $\Z_{16}$, and hence, the images will not exceed the value $15$. So, for example, even in the case of hashing to $\Z_{31}$, the hash function never maps to any value larger than $15$, leaving almost half of all numbers out of the image range.
 \begin{sagesilent}
 arr = []
 arr = [0 for i in range(31)]
@@ -775,17 +779,15 @@ H3 = list_plot(arr, ymin=0,ymax=10000)
 \sageplot[scale=.5]{H3}
 \end{center}
 \end{example}
-\sme{Mirco: We can do better than this}
 
-The second widely used method of hashing into $\Z_r$ is constructed by observing the following: If $r$ is a modulus with a bit-length of $r.bits()=k_1$ and $H:\{0,1\}^*\to \{0,1\}^{k_2}$ is a hash function that produces digests of size $k_2$, with $k_2\geq k_1$, then a hash-to-group function can be constructed by interpreting the image of $H$ as a binary representation of an integer and then taking the modulus by $r$ to map into $\Z_r$. This is formalized in the equation below, where $H(s)_j$ means the $j$'th bit of the image binary string $H(s)$ of the original binary hash function.
+A second widely used method of hashing into $\Z_n$ is constructed by observing the following: If $n$ is a modulus with a bit-length of $|n|_2=k_1$ and $H:\{0,1\}^*\to \{0,1\}^{k_2}$ is a hash function that produces digests of size $k_2$, with $k_2\geq k_1$, then a hash-to-ring function can be constructed by interpreting the image of $H$ as a binary representation of an integer and then taking the modulus by $n$ to map into $\Z_n$:.
 \begin{equation}
-H'_{mod_r}: \{0,1\}^* \to \Z_r: \; s \mapsto
+H'_{mod_n}: \{0,1\}^* \to \Z_n: \; s \mapsto
 \Zmod{\left(H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k_2}\cdot 2^{k_2}\right)}{n}
 \end{equation}
 
-
-A drawback of this hash function is that computing the modulus requires some computational effort. In addition, the distribution of the hash values in $\Z_r$ might not be even, depending on the difference $2^{k_2+1}-r$. An advantage of it is that potential properties of the original hash function $H(\cdot)$(like preimage resistance or collision resistance) are preserved, and the distribution can be made almost uniform, with only negligible bias depending on what modulus $r$ and images size $k_2$ are  chosen.
-\begin{example} To give an implementation of the $H_{mod_r}$ hash function, we use  $k_2$-bit truncation of the $SHA256$ hash from example \ref{ex:SHA256}, and define a hash into $\Z_{23}$ as follows:
+A drawback of this hash function is that computing the modulus requires some computational effort. In addition, the distribution of the hash values in $\Z_n$ might not be uniform, depending on the number $\Zmod{2^{k_2+1}}{n}$. An advantage of it is that potential properties of the original hash function $H(\cdot)$ (like preimage resistance or collision resistance) are preserved, and the distribution can be made almost uniform, with only negligible bias depending on what modulus $n$ and images size $k_2$ are chosen.
+\begin{example} To give an implementation of the $H_{mod_n}$ hash function, we use  $k_2$-bit truncation of the $SHA256$ hash from example \ref{ex:SHA256}, and define a hash into $\Z_{23}$ as follows:
 \begin{multline*}
 H_{mod_{23},k_2}: \{0,1\}^* \to \Z_{23}:\; \\
 s\mapsto
@@ -796,12 +798,12 @@ We want to use various instantiations of $k_2$ to visualize the impact of trunca
 sage: import hashlib
 sage: Z23 = Integers(23)
 sage: def Hash_mod23(x, k2):
-....:     hasher = hashlib.sha256(x.encode('utf-8'))
+....:     hasher = hashlib.sha256(x.encode('utf-8')) # Compute SHA256
 ....:     digest = hasher.hexdigest()
-....:     d = ZZ(digest, base=16)
-....:     d = d.str(2)[-k2:]
-....:     d = ZZ(d, base=2)
-....:     return Z23(d)
+....:     d = ZZ(digest, base=16) # cast to integer
+....:     d = d.str(2)[-k2:] # keep k2+1 LSB
+....:     d = ZZ(d, base=2) # cast to integer
+....:     return Z23(d) # cast to Z23
 \end{sagecommandline}
 
 We can then use Sage to apply this function to a large set of input values in order to plot visualizations of the distribution over the set $\{0,\ldots,22\}$ for various values of $k_2$, by counting the number of times it maps onto each number in a loop of $100000$ hashes. We get the following plot:
@@ -810,50 +812,50 @@ arr1 = []
 arr1 = [0 for i in range(23)]
 for i in range(100000):
     arr1[Hash_mod23(ZZ(i).str(2),5)] +=1
-H3 = list_plot(arr1, ymin=0,ymax=10000,color='red', legend_label='k=5')
+H3 = list_plot(arr1, ymin=0,ymax=10000,color='red', legend_label='k2=5')
 arr2 = []
 arr2 = [0 for i in range(23)]
 for i in range(100000):
     arr2[Hash_mod23(ZZ(i).str(2),7)] +=1
-H4 = list_plot(arr2, ymin=0,ymax=10000,color='blue', legend_label='k=7')
+H4 = list_plot(arr2, ymin=0,ymax=10000,color='blue', legend_label='k2=7')
 arr3 = []
 arr3 = [0 for i in range(23)]
 for i in range(100000):
     arr3[Hash_mod23(ZZ(i).str(2),9)] +=1
-H5 = list_plot(arr3, ymin=0,ymax=10000,color='yellow', legend_label='k=9')
+H5 = list_plot(arr3, ymin=0,ymax=10000,color='yellow', legend_label='k2=9')
 arr4 = []
 arr4 = [0 for i in range(23)]
 for i in range(100000):
     arr4[Hash_mod23(ZZ(i).str(2),16)] +=1
-H6 = list_plot(arr4, ymin=0,ymax=10000,color='black', legend_label='k=16')
+H6 = list_plot(arr4, ymin=0,ymax=10000,color='black', legend_label='k2=16')
 \end{sagesilent}
 \begin{center}
 \sageplot[scale=.6]{H3+H4+H5+H6}
 \end{center}
 \end{example}
-A third method that can sometimes be found in implementations is the so-called \term{``try-and-increment'' method}. To understand this method, we define an integer $z\in\Z$ from any hash value $H(s)$ as we did in the previous methods, that is, we define $z = H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k}$.
 
-Hashing into $\Z_r$ is then achievable by first computing $z$, and then trying to see if $z\in\Z_r$. If it is, then the hash is done; if not, the string $s$ is modified in a deterministic way and the process is repeated until a suitable number $z$ is found. A suitable, deterministic modification could be to concatenate the original string by some bit counter. A ``try-and-increment'' algorithm would then work like in algorithm \ref{alg_try_and_increment}.\sme{check reference}
+A third method that can sometimes be found in implementations is the so-called \term{``try-and-increment'' method}. To understand this method, we define an integer $z\in\Z$ from any hash value $H(s)$ as we did in the previous methods, that is, we define 
+$$z = H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k}$$
+
+Hashing into $\Z_n$ is then achievable by first computing $z$, and then trying to see if $z\in\Z_n$. If it is, then the hash is done; if not, the string $s$ is modified in a deterministic way and the process is repeated until a suitable element $z\in\Z_n$ is found. A suitable, deterministic modification could be to concatenate the original string by some bit counter. A ``try-and-increment'' algorithm would then work like in algorithm \ref{alg_try_and_increment}.
 \begin{algorithm}\caption{Hash-to-$\Z_n$}
 \label{alg_try_and_increment}
 \begin{algorithmic}[0]
-\Require $r \in \Z$ with $r.nbits()=k$ and $s\in\{0,1\}^*$
-\Procedure{Try-and-Increment}{$r,k,s$}
+\Require $n \in \Z$ with $|n|_2=k$ and $s\in\{0,1\}^*$
+\Procedure{Try-and-Increment}{$n,k,s$}
 \State $c \gets 0$
 \Repeat
 \State $s' \gets s||c\_bits()$
 \State $z \gets H(s')_0\cdot 2^0 + H(s')_1\cdot 2^1 + \ldots + H(s')_{k}\cdot 2^{k}$
 \State $c\gets c+1$
-\Until{$z<r$}
+\Until{$z<n$}
 \State \textbf{return} $x$
 \EndProcedure
-\Ensure $ z\in \Z_r$
+\Ensure $ z\in \Z_n$
 \end{algorithmic}
 \end{algorithm}
 
-Depending on the parameters, this method can be very efficient. In fact, if $k$ is sufficiently large and $r$ is close to $2^{k+1}$, the probability for $z<r$ is very high and the repeat loop will almost always be executed a single time only. A drawback is, however, that the probability of having to execute the loop multiple times is not zero.
-
-Once some hash function into modular arithmetics is found, it can often be combined with additional techniques to hash into more general finite cyclic groups. The following paragraphs describe a few of those methods widely adopted in SNARK development.\label{hashing-end}
+Depending on the parameters, this method can be very efficient. In fact, if $k$ is sufficiently large and $n$ is close to $2^{k+1}$, the probability for $z<n$ is very high and the repeat loop will almost always be executed a single time only. A drawback is, however, that the probability of having to execute the loop multiple times is not zero.
 
 \section{Fields}\label{sec:fields}
 We started this chapter with the definition of a group \ref{sec:groups}, which we then expanded into the definition of a commutative ring with a unit \ref{sec:rings}. Such rings generalize the behavior of integers. In this section, we will look at those special cases of commutative rings where every element other than the neutral element of addition has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$. Rational numbers are, in a sense, an extension of the ring of integers, that is, they are constructed by including newly defined multiplicative inverses (fractions) to the integers. The following definition makes the definition of a ield precise:
@@ -1057,9 +1059,10 @@ Consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. Compute 
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
 \subsubsection{Hashing into prime fields}\label{hashing-prime-fields}
-An important problem in SNARK development is the ability to hash to (various subsets) of elliptic curves. As we will see in XXX,\sme{add reference} those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
+An important problem in cryptography is the ability to hash to (various subsets) of elliptic curves. As we will see in chapter \ref{chap:elliptic_curves}, those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
 
-On pages \pageref{hashing-start}--\pageref{hashing-end}\sme{check reference}, we looked at a few methods of hashing into the residue class rings $\Z_n$ for arbitrary $n>1$. As prime fields are just special instances of those rings, all methods for hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
+In \ref{hash-to-modular-arithmetics}, we looked at a few methods of hashing into the modular arithmetic rings $\Z_n$ for arbitrary $n>1$. As prime fields are just special instances of those rings, all methods for hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
+\begin{comment}
 \paragraph{MiMC Hash functions} As we will see in XXX, 
 
 To define a MiMC hash function, let $\F_p$ be a prime field with prime modulus $p\in\Prim$, let $n$ be the smallest natural number, such that  $gcd(n, p-1) = 1$. Let $r$ be the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and let $C=\{c_i\in \F_p \;|\; 0\leq i \leq r\}$ be a set of randomly generated field elements. The definition of the MiMC hash function then starts with an invertible map
@@ -1067,7 +1070,7 @@ To define a MiMC hash function, let $\F_p$ be a prime field with prime modulus $
 E(\cdot) : \F_p \to \F_p\; x \mapsto F_{r-1}(\cdots F_1(F_0(x))\ldots)
 \end{equation}
 where $F_i(x)= (x+c_i)^n$
-
+\end{comment}
 
 \subsection{Prime Field Extensions}\label{field-extension}
 % references https://blog.plover.com/math/se/finite-fields.html
@@ -1210,7 +1213,9 @@ y^2 = x^3 + 4
 \end{equation}
 \end{exercise}
 
+\begin{comment}
 \paragraph{Hashing into extension fields} On page \pageref{hashing-prime-fields},\sme{check reference} we have seen how to hash into prime fields. As elements of extension fields can be seen as polynomials over prime fields, hashing into extension fields is therefore possible if every coefficient of the polynomial is hashed independently.
+\end{comment}
 \section{Projective Planes}\label{sec:planes}
 Projective planes are particular geometric constructs defined over a given field. In a sense, projective planes extend the concept of the ordinary Euclidean plane by including ``points at infinity.''
 

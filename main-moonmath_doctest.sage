@@ -25,29 +25,29 @@ Sage commandline, line 130::
 sage: n = NN(504)
 sage: factor(n)
 
-Sage commandline, line 202::
+Sage commandline, line 201::
 
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
 sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 
-Sage commandline, line 218::
+Sage commandline, line 217::
 
 sage: ZZ(-17) // ZZ(-4) # Integer quotient
 sage: ZZ(-17) % ZZ(-4) # remainder
 sage: ZZ(-17).quo_rem(ZZ(-4)) # not Euclidean division
 
-Sage commandline, line 236::
+Sage commandline, line 235::
 
 sage: ZZ(143785).quo_rem(ZZ(17))
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
-Sage commandline, line 302::
+Sage commandline, line 301::
 
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 386::
+Sage commandline, line 385::
 
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)^ ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -56,33 +56,33 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)^ ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)^ ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 422::
+Sage commandline, line 421::
 
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 497::
+Sage commandline, line 496::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 577::
+Sage commandline, line 576::
 
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
 sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 
-Sage commandline, line 647::
+Sage commandline, line 646::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 695::
+Sage commandline, line 694::
 
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
 sage: Z5(3)**(-1)
 sage: Z5(3)**(5-2) == Z5(3)**(-1)
 
-Sage commandline, line 764::
+Sage commandline, line 763::
 
 sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
 sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
@@ -97,7 +97,7 @@ sage: p2
 sage: p6 = Zx([0])
 sage: p6.degree()
 
-Sage commandline, line 799::
+Sage commandline, line 798::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -108,7 +108,7 @@ sage: p1 = Z6x([17,-4,2])
 sage: p1
 sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
-Sage commandline, line 828::
+Sage commandline, line 827::
 
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -116,14 +116,14 @@ sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
 sage: p1(ZZ(2))
 sage: p7(ZZ(-6)) == ZZ(-264)
 
-Sage commandline, line 845::
+Sage commandline, line 844::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
 sage: p1 = Z6x([5,-4,2])
 sage: p1(Z6(2)) == Z6(5)
 
-Sage commandline, line 886::
+Sage commandline, line 885::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -131,7 +131,7 @@ sage: Q = Zx([5,0,-2,1])
 sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 906::
+Sage commandline, line 905::
 
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -139,7 +139,7 @@ sage: Q = Z6x([5,0,-2,1])
 sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
 sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 965::
+Sage commandline, line 964::
 
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -148,26 +148,26 @@ sage: Q = Zx([-80,19,-4,1])
 sage: P = Zx([-89,339])
 sage: A == Q*B + P
 
-Sage commandline, line 1000::
+Sage commandline, line 999::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
 sage: p.factor()
 
-Sage commandline, line 1024::
+Sage commandline, line 1023::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 1088::
+Sage commandline, line 1087::
 
 sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 
-Sage commandline, line 1117::
+Sage commandline, line 1116::
 
 sage: F5 = GF(5)
 sage: F5x = F5['x']
@@ -203,53 +203,55 @@ sage: SHA256_H(b"") # evaluate on empty string
 sage: SHA256_H(b"SHA") # possible images are {1,2,3}
 sage: SHA256_H(b"Math")
 
-Sage commandline, line 594::
+Sage commandline, line 597::
 
 sage: ZZ
 
-Sage commandline, line 659::
+Sage commandline, line 662::
 
 sage: ZZ['x']
 
-Sage commandline, line 666::
+Sage commandline, line 669::
 
 sage: Integers(6)
 
-Sage commandline, line 738::
+Sage commandline, line 740::
 
 sage: import hashlib
 sage: def Hash5(x):
-....:     hasher = hashlib.sha256(x)
+....:     Z16 = Integers(16)
+....:     hasher = hashlib.sha256(x) # compute SHA56
 ....:     digest = hasher.hexdigest()
-....:     d = ZZ(digest, base=16)
-....:     d = d.str(2)[-4:]
-....:     return ZZ(d,base=2)
+....:     d = ZZ(digest, base=16) # cast to integer
+....:     d = d.str(2)[-4:] # keep 5 least significant bits
+....:     d = ZZ(d, base=2) # cast to integer
+....:     return Z16(d) # cast to Z16
 sage: Hash5(b'')
 
-Sage commandline, line 795::
+Sage commandline, line 797::
 
 sage: import hashlib
 sage: Z23 = Integers(23)
 sage: def Hash_mod23(x, k2):
-....:     hasher = hashlib.sha256(x.encode('utf-8'))
+....:     hasher = hashlib.sha256(x.encode('utf-8')) # Compute SHA256
 ....:     digest = hasher.hexdigest()
-....:     d = ZZ(digest, base=16)
-....:     d = d.str(2)[-k2:]
-....:     d = ZZ(d, base=2)
-....:     return Z23(d)
+....:     d = ZZ(digest, base=16) # cast to integer
+....:     d = d.str(2)[-k2:] # keep k2+1 LSB
+....:     d = ZZ(d, base=2) # cast to integer
+....:     return Z23(d) # cast to Z23
 
-Sage commandline, line 877::
+Sage commandline, line 879::
 
 sage: QQ
 
-Sage commandline, line 897::
+Sage commandline, line 899::
 
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
 sage: F2(1) + F2(1) # Addition
 sage: F2(1) / F2(1) # Division
 
-Sage commandline, line 1182::
+Sage commandline, line 1185::
 
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
