@@ -58,7 +58,9 @@ The previous example of a commutative group is a very important one for this boo
 
 Find a condition such that $(\Z^*_n,\cdot)$ is a commutative group, compute the neutral element, give a closed form for the inverse of any element and prove the commutative group axioms.
 \end{exercise}
-\paragraph{Finite groups} As we have seen in the previous examples, groups can either contain infinitely many elements (such as integers) or finitely many elements (as for example the remainder class groups $(\Z_n,+)$). To capture this distinction, a group is called a \term{finite group} if the underlying set of elements is finite. In that case, the number of elements of that group is called its \term{order}.
+\paragraph{Finite groups}
+\label{sec:finite-groups}
+ As we have seen in the previous examples, groups can either contain infinitely many elements (such as integers) or finitely many elements (as for example the remainder class groups $(\Z_n,+)$). To capture this distinction, a group is called a \term{finite group} if the underlying set of elements is finite. In that case, the number of elements of that group is called its \term{order}.
 \begin{notation}
 Let $\mathbb{G}$ be a finite group. We write $ord(\mathbb{G})$ or  $|\mathbb{G}|$ for the order of $\mathbb{G}$.
 \end{notation}
@@ -151,6 +153,7 @@ However since the exponental map \ref{exponentialmap} "respects the group law" w
 \end{example}
 Since the exponential map is a one-to-one correspondence that respects the group law, it can be shown that this map has an inverse with respect to the base $g$, called the \term{base g discrete logarithm map}:
 \begin{equation}
+\label{logarithm_map}
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
 Discrete logarithms are highly important in cryptography, because there are finite cyclic groups where the exponential map and its inverse, the discrete logarithm map, are believed to be one-way functions, which informally means that computing the exponential map is fast, while computing the logarithm map is slow (We will look into a more precise definition in \ref{crypto_groups}).
@@ -265,9 +268,7 @@ In what follows, we will describe a few problems that are assumed to be infeasib
 
 \paragraph{The discrete logarithm assumption}
 \label{def:DL-secure}
-The so-called \term{discrete logarithm problem (DLP)} is one of the most fundamental assumptions in cryptography.
-To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$.
-We know from \ref{exponentialmap} that there is an exponential map $g^{(\cdot)}: \Z_r \to \G\; ;\; x\mapsto g^x$ that maps the residue classes from modulo $r$ arithmetic onto the group in a $1:1$ correspondence.
+The so-called \term{discrete logarithm problem (DLP)} is one of the most fundamental assumptions in cryptography. To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$. We know from \ref{exponentialmap} that there is an exponential map $g^{(\cdot)}: \Z_r \to \G\; ;\; x\mapsto g^x$ that maps the residue classes from modulo $r$ arithmetic onto the group in a $1:1$ correspondence.
 The \textbf{discrete logarithm problem} is the task of finding an inverse to this map, that is, to find a solution $x\in\Z_r$ to the following equation for some given $h, g \in \G$:
 
 \begin{equation}
@@ -874,7 +875,7 @@ If $(\F,+,\cdot)$ is a field and $\F'\subset \F$ is a subset of $\F$, such that 
 We call $(\F,+)$ the \term{additive group} of the field, write $\F^*:= \F \setminus \left \{0 \right \}$ for the set of all elements excluding the neutral element of addition and call the group $(\F^*,\cdot)$ the \term{multiplicative group} of the field.
 \end{notation}
 
-The \term{characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of the multiplicative neutral element  $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is also said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
+The \term{characteristic}\label{def:characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of the multiplicative neutral element  $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is also said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
 \begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no natural number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the set of rational numbers, the characteristic of the field $\mathbb{Q}$ is given by $char(\mathbb{Q})=0$. 
 \begin{sagecommandline}
 sage: QQ
@@ -961,9 +962,9 @@ So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if we comput
 \end{example}
 \begin{exercise}[Prime field $\F_3$]\label{exercise:F3} Construct the addition and multiplication table of the prime field $\F_3$.
 \end{exercise}
-\begin{exercise}[Prime field $\F_{13}$]\label{prime_field_F13} Construct the addition and multiplication table of the prime field $\F_3$.
+\begin{exercise}[Prime field $\F_{13}$]\label{prime_field_F13} Construct the addition and multiplication table of the prime field $\F_{13}$.
 \end{exercise}
-\begin{exercise} Consider the prime field $\F_{13}$ from exercise \ref{exercise:F13}. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
+\begin{exercise} Consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
 $$
 x^2+y^2 = 1 + 7\cdot x^2\cdot y^2
 $$
@@ -978,6 +979,7 @@ x^2 = y
 \end{equation}
 In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ a \term{quadratic non-residue}. For any $ y \in \F_p $, we denote the set of all square roots of $ y $ in the prime field $ \F_p $ as follows:
 \begin{equation}
+\label{ded:square_root}
 \sqrt{y}: = \{x \in \F_p \; | \; x^2 = y \}
 \end{equation}
 Informally speaking, quadratic residues are numbers such that we can take the square root of them, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have square roots and others like $2$ or $3$ don't (as integers).
