@@ -74,7 +74,7 @@ Now since the set $\F_5\times \F_5$ of all pairs $(x,y)$ from $\F_5$ contains on
 $$
 E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
-This means that our elliptic curve is a set of $9$ elements, $8$ of which are pairs of elements from $\F_5$ and one special symbol $\Oinf$. Visualizing $E_1(\F_5)$ gives the following plot:
+This means that the elliptic curve is a set of $9$ elements, $8$ of which are pairs of elements from $\F_5$ and one special symbol $\Oinf$. Visualizing $E_1(\F_5)$ gives the following plot:
 \begin{sagesilent}
 F5 = GF(5)
 E1 = EllipticCurve(F5, [1,1])
@@ -206,8 +206,8 @@ The chord-and-tangent rule defines the group law of an elliptic curve geometrica
 \begin{itemize}
 \label{def:chord-tangent-algebra}
 \item (The neutral element) The point at infinity $\Oinf$ is the neutral element.
-\item (The inverse element) The additive inverse of $\mathcal{O}$ is $\mathcal{O}$. For any other curve point $(x,y) \in E(\F)\textbackslash \{\mathcal{O}\}$, the inverse is given by $(x,-y)$.
-\item (The group law) For any two curve points $P, Q \in E(\F)$, addition is defined by one of the following cases:
+\item (The inverse element) The inverse of $\mathcal{O}$ is $\mathcal{O}$. For any other curve point $(x,y) \in E(\F)\textbackslash \{\mathcal{O}\}$, the inverse is given by $(x,-y)$.
+\item (The group law) For any two curve points $P, Q \in E(\F)$, the group law is defined by one of the following cases:
 \begin{enumerate}
 \item (Neutral element) If $Q=\Oinf$, then the group law is defined as $P\oplus Q=P$.
 \item (Inverse elements)  If $P=(x,y)$ and $Q=(x,-y)$, the group law is defined as $P\oplus Q=\Oinf$.
@@ -259,7 +259,7 @@ y_3  & = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1  & \tex
        = 1          
 \end{align*} 
 %\end{tabular}
-So, in our elliptic curve $E_1(\F_5)$ we get $(0,1)\oplus (4,2) =(2,1)$, and, indeed, the pair $(2,1)$ is an element of $E_1(\F_5)$ as expected. On the other hand, $(0,1)\oplus (0,4) =\Oinf$, since both points have equal $x$ coordinates and inverse $y$ coordinates, rendering them inverses of each other. Adding the point $(4,2)$ to itself, we have to use the tangent rule from definition \ref{def:chord-tangent-algebra}:
+So, in the elliptic curve $E_1(\F_5)$ we get $(0,1)\oplus (4,2) =(2,1)$, and, indeed, the pair $(2,1)$ is an element of $E_1(\F_5)$ as expected. On the other hand, $(0,1)\oplus (0,4) =\Oinf$, since both points have equal $x$ coordinates and inverse $y$ coordinates, rendering them inverses of each other. Adding the point $(4,2)$ to itself, we have to use the tangent rule from definition \ref{def:chord-tangent-algebra}:
 \begin{align*}
 x'  & = \left(\frac{3x^2+a}{2y}\right)^2 -2x   & \text{\# insert points}\\
     & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2 -2\cdot 4 & \text{\# simplify in } \F_5 \\
@@ -274,7 +274,7 @@ y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y  & \text{\# insert
     & = 1\cdot 1 + 3
       = 4
 \end{align*}
-So, in our elliptic curve $E_1(\F_5)$, we get the doubling  of $(4,2)$, that is, $(4,2)\oplus (4,2) =(3,4)$, and, indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self-inverse points other than the neutral element $\Oinf$, since no point has $0$ as its $y$ coordinate. We can invoke Sage to double-check the computations. 
+So, in the elliptic curve $E_1(\F_5)$, we get the doubling  of $(4,2)$, that is, $(4,2)\oplus (4,2) =(3,4)$, and, indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self-inverse points other than the neutral element $\Oinf$, since no point has $0$ as its $y$ coordinate. We can invoke Sage to double-check the computations. 
 \begin{sagecommandline}
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
@@ -398,7 +398,7 @@ To give another example, we can immediately see that $(3,4)\oplus (4,3) = (4,2)$
 
 Finally we can use $E_1(\F_5)$ as an example to understand the concept of cofactor clearing from \label{def:cofactor_clearing}. Since the order of $E_1(\F_5)$ is $9$, we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_1(\F_5)$ onto its prime factor group $E_1(\F_5)[3]$ by scalar multiplication with $3$. For example, taking the element $(3,4)$, which is not in $E_1(\F_5)[3]$, and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $E_1(\F_5)[3]$ as expected.
 \end{example}
-In the following example, we will look at the subgroups of our tiny-jubjub curve, define generators, and compute the logarithmic order for pen-and-paper computations. Then we take another look at the principle of cofactor clearing.
+In the following example, we will look at the subgroups of the tiny-jubjub curve, define generators, and compute the logarithmic order for pen-and-paper computations. Then we take another look at the principle of cofactor clearing.
 
 \begin{example}\label{ex:TJJ13-cofactor-clearing} Consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference} again. Since the order of $\mathit{TJJ\_13}$ is $20$, and the prime factorization of $20$ is $2^2\cdot 5$, we know that the $\mathit{TJJ\_13}$ contains a ``large'' prime-order subgroup of size $5$ and a small prime oder subgroup of size $2$. 
 
@@ -438,25 +438,26 @@ From the previous two examples, the reader might get the impression that ellipti
 % https://www.cosic.esat.kuleuven.be/bcrypt/lecture%20slides/wouter.pdf
 As we have seen in the previous section, describing elliptic curves as pairs of points that satisfy a certain equation is relatively straight-forward. However, in order to define a group structure on the set of points, we had to add a special point at infinity to act as the neutral element. 
 
-Recalling from the definition of projective planes (section \ref{sec:planes})\sme{check reference}, we know that points at infinity are handled as ordinary points in projective geometry. Therefore, it makes  sense to look at the definition of a short Weierstrass curve in projective geometry.
+Recalling from the definition of projective planes \ref{sec:planes}, we know that points at infinity are handled as ordinary points in projective geometry. Therefore, it makes  sense to look at the definition of a short Weierstrass curve in projective geometry.
 
-To see what a short Weierstrass curve in projective coordinates is, let $\F$ be a finite field of order $q$ and characteristic $>3$, let $a,b\in \F$ be two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$ and let $\F\mathrm{P}^2$ be the projective plane over $\F$. Then a \term{short Weierstrass elliptic curve} over $\F$ in its projective representation is the set of all points $[X:Y:Z]\in \F\mathrm{P}^2$ from the projective plane that satisfy the \term{homogenous} cubic equation $Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3$:
+To see what a short Weierstrass curve in projective coordinates is, let $\F$ be a finite field of order $q$ and characteristic $>3$, let $a,b\in \F$ be two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$ and let $\F\mathrm{P}^2$ be the projective plane over $\F$ as introduced in \ref{sec:planes}. Then a \term{projective short Weierstrass elliptic curve} over $\F$ is the set of all points $[X:Y:Z]\in \F\mathrm{P}^2$ from the projective plane that satisfy the cubic equation $Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3$:
 
 \begin{equation}
+\label{def:projective_cubic_equation}
 E(\F\mathrm{P}^2) = \{[X:Y:Z]\in \F\mathrm{P}^2\;|\; Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3 \}
 \end{equation}
 
-To understand how the point at infinity is unified in this definition, recall from XXX\sme{add reference} that, in projective geometry, points at infinity are given by homogeneous coordinates $[X:Y:0]$. Inserting representatives $(x_1,y_1,0)\in [X:Y:0]$ from those classes into the defining homogenous cubic equations gives the following:
+To understand how the point at infinity is unified in this definition, recall from \ref{sec:planes} that, in projective geometry, points at infinity are given by projective coordinates $[X:Y:0]$. Inserting representatives $(x_1,y_1,0)\in [X:Y:0]$ from those coordinates into the defining cubic equation \ref{def:projective_cubic_equation} results in the following identity:
 \begin{align*}
 y_1^2\cdot 0 & = x_1^3+a\cdot x_1\cdot 0^2 + b\cdot 0^3 & \Leftrightarrow \\
 0 & = x_1^3
 \end{align*} 
 
-This shows that the only point at infinity, that is also a point on a projective short Weierstrass curve is the class $[0,1,0] = \{(0,y,0)\;|\; y\in \F\}$.
+This implies $X=0$ and shows that the only projective point at infinity, that is also a point on a projective short Weierstrass curve is the class $[0,1,0] = \{(0,y,0)\;|\; y\in \F\}$. The point $[0:1:0]$ is the projective representation of the point at infinity $\mathcal{O}$ in the affine representation. The projective representation of a short Weierstrass curve, therefore, has the advantage that it does not need a special symbol to represent the point at infinity from the affine definition.
 
-This point is the projective representation of $\mathcal{O}$. The projective representation of a short Weierstrass curve, therefore, has the advantage that it does not need a special symbol to represent the point at infinity $\mathcal{O}$ from the affine definition.
-
-\begin{example} To get an intuition of how an elliptic curve in projective geometry looks, consider curve $E_1(\F_5)$ from example (\ref{E1F5}\sme{check reference}). We know that, in its affine representation, the set of rational points is given as follows:
+\begin{example}
+\label{ex:E1F5-projective}
+ To get an intuition of how an elliptic curve in projective geometry looks, consider curve $E_1(\F_5)$ from example \ref{E1F5}. We know that, in its affine representation, the set of points on the affine short Weierstrass curve is given as follows:
 
 \begin{equation}\label{eq:E1F5-affine}
 E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
@@ -464,36 +465,38 @@ E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 
 This is defined as the set of all pairs $(x,y)\in \F_5\times \F_5$ such that the affine short Weierstrass equation $y^2 = x^3 + ax +b$ with $a=1$ and $b=1$ is satisfied.
 
-To find the projective representation of a short Weierstrass curve with the same parameters $a=1$ and $b=1$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$ that satisfy the following homogenous cubic equation for any representative $(x_1,y_1,z_1)\in [X:Y:Z]$:
+To find the set of elements of $E_1(\F_5)$ in the projective representation of a short Weierstrass curve with the same parameters $a=1$ and $b=1$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$ that satisfy the following homogenous cubic equation for any representative $(x_1,y_1,z_1)\in [X:Y:Z]$:
 \begin{equation}\label{eq:homogenous-cubic}
 y_1^2z_1 = x_1^3 + 1\cdot x_1 z_1^2 + 1\cdot z_1^3
 \end{equation}
- We know from XXX\sme{add reference} that the projective plane $\F_5\mathrm{P}^2$ contains $5^2+5+1= 31$ elements, so we can take the effort and insert all elements into equation \ref{eq:homogenous-cubic}\sme{check reference} and see if both sides match.
+We know from \ref{sec:planes} that the projective plane $\F_5\mathrm{P}^2$ contains $5^2+5+1= 31$ elements, so we can take the effort and insert all elements into equation \ref{eq:homogenous-cubic} and see if both sides match.
 
-For example, consider the projective point $[0:4:1]$. We know from XXX\sme{add reference} that this point in the projective plane represents the following line in the three-dimensional space $\F^3$:
+For example, consider the projective point $[0:4:1]$. We know from \ref{def:projective_coordinate} that this point in the projective plane represents the following line in $\F_5^3\backslash\{(0,0,0)\}$:
+\begin{equation}
+\label{ex:projective_coordinate_1}
+[0:4:1] = \{(0,4,1),(0,3,2),(0,2,3),(0,1,4)\}
+\end{equation} 
+To check whether or not $[0:4:1]$ satisfies \ref{eq:homogenous-cubic}, we can insert any representative, in other words, any element from \ref{ex:projective_coordinate_1}. Each element satisfies the equation if and only if all other elements satisfy the equation. So, we insert $(0,3,2)$ and get the following result:
 $$
-[0:4:1] = \{(0,0,0),(0,4,1),(0,3,2),(0,2,3),(0,1,4)\}
-$$  
-To check whether or not $[0:4:1]$ satisfies \ref{eq:homogenous-cubic}\sme{check reference}, we can insert any representative, in other words, any element from XXX\sme{add reference}. Each element satisfies the equation if and only if all other elements satisfy the equation. So, we insert $(0,4,1)$ and get the following result:
+3^2\cdot 2 = 0^3 + 1\cdot 0\cdot 2^2 + 1\cdot 2^3 \Leftrightarrow
+3 = 3
 $$
-1^2\cdot 1 = 0^3 + 1\cdot 0\cdot 1^2 + 1\cdot 1^3
+This tells us that the affine point $[0:4:1]$ is indeed a solution to the equation \ref{eq:homogenous-cubic}, but we could just as well have inserted any other representative. For example, inserting $(0,1,4)$ also satisfies \ref{eq:homogenous-cubic}: 
 $$
+1^2\cdot 4 = 0^3 + 1\cdot 0\cdot 4^2 + 1\cdot 4^3 \Leftrightarrow
+4=4
+$$
+To find the projective representation of $E_1(\F_5)$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstrass curve, since it cannot satisfy the defining equation in \ref{def:projective_cubic_equation} for any parameter $a$ and $b$. Therefore, we can exclude it from our consideration. 
 
-This tells us that the affine point $[0:4:1]$ is indeed a solution to the equation \ref{eq:homogenous-cubic}, but we could just as well have inserted any other representative. For example, inserting $(0,3,2)$ also satisfies \ref{eq:homogenous-cubic}\sme{check reference}: 
-$$
-3^2\cdot 2 = 0^3 + 1\cdot 0\cdot 2^2 + 1\cdot 2^3
-$$
-To find the projective representation of $E_1$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstrass curve, since it cannot satisfy XXX\sme{add reference} for any parameter $a$ and $b$. Therefore, we can exclude it from our consideration. 
+Moreover, a point at infinity $[X:Y:0]$ can only satisfy the equation in \ref{def:projective_cubic_equation} for any $a$ and $b$, if $X=0$, which implies that the only point at infinity relevant for short Weierstrass elliptic curves is $[0:1:0]$, since $[0:k:0]= [0:1:0]$ for all $k\in\F^*$. Therefore, we can exclude all points at infinity except the point $[0:1:0]$.
 
-Moreover, a point at infinity $[X:Y:0]$ can only satisfy equation XXX\sme{add reference} for any $a$ and $b$, if $X=0$, which implies that the only point at infinity relevant for short Weierstrass elliptic curves is $[0:1:0]$, since $[0:k:0]= [0:1:0]$ for all $k$ from the finite field. Therefore, we can exclude all points at infinity except the point $[0:1:0]$.
-
-All points that remain are the affine points $[X:Y:1]$. Inserting all of them into XXX,\sme{add reference} we get the set of all projective curve points as follows:
+All points that remain are the affine points $[X:Y:1]$. Inserting all of them into \ref{eq:homogenous-cubic} we get the set of all projective curve points as follows:
 
 \begin{multline*}
 E_1(\F_5\mathrm{P}^2)=\{[0:1:0], [0:1:1], [2:1:1], [3:1:1], \\ [4:2:1], [4:3:1], [0:4:1], [2:4:1], [3:4:1]\}
 \end{multline*}
 
-If we compare this with the affine representation, we see that there is a 1:1 correspondence between the points in the affine representation in \ref{eq:E1F5-affine}\sme{check reference} and the affine points in projective geometry, and that the point $[0:1:0]$ represents the additional point $\Oinf$ in the projective representation.
+If we compare this with the affine representation, we see that there is a 1:1 correspondence between the points in the affine representation in \ref{eq:E1F5-affine} and the affine points in projective geometry, and that the projective point $[0:1:0]$ represents the additional point $\Oinf$ in the affine representation.
 \end{example} 
 
 \begin{exercise}
@@ -502,11 +505,11 @@ Compute the projective representation of the tiny-jubjub curve and the logarithm
 
 \paragraph{Projective Group law}
 \label{sec:projective_group_law}
-As we have seen on page \pageref{chap:elliptic-curves}\sme{check reference}, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its rational points, described geometrically by the chord-and-tangent rule (definition \ref{def:chord-and-tangent}). This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appeared whenever the chord or the tangent did not have a third intersection point with the curve.
+As we have seen in section \ref{sec:affine_group_law}, one of the key properties of an elliptic curve is that it comes with a definition of a group law on the set of its points, described geometrically by the chord-and-tangent rule \ref{def:chord-and-tangent}. This rule was kind of intuitive, with the exception of the distinguished point at infinity, which appeared whenever the chord or the tangent did not have a third intersection point with the curve.
 
-One of the key features of projective coordinates is that, in projective space, it is guaranteed that any chord will always intersect the curve in three points, and any tangent will intersect it in two points including the tangent point. So, the geometric picture simplifies, as we don't need to consider external symbols and associated cases.
+One of the key features of projective coordinates is that, in projective space, it is guaranteed that any chord will always intersect the curve in three points, and any tangent will intersect it in two points. So, the geometric picture simplifies, as we don't need to consider external symbols and associated cases. The price to pay for this mathematical simplification is of course that for a beginner, projective coordinates might be less intuitive.
 
-Again, it can be shown that the points of an elliptic curve in projective space form a commutative group with respect to the tangent-and-chord rule such that the projective point $[0:1:0]$ is the neutral element, and the additive inverse of a point $[X:Y:Z]$ is given by $[X:-Y:Z]$. The addition law is usually described by the following algorithm, minimizing the number of necessary additions and multiplications in the base field. \final{Check if following Alg is floated too far}
+It can be shown that the points of an elliptic curve in projective space form a commutative group with respect to the tangent-and-chord rule such that the projective point $[0:1:0]$ is the neutral element, and the additive inverse of a point $[X:Y:Z]$ is given by $[X:-Y:Z]$. The addition law is usually described by the following algorithm, minimizing the number of necessary additions and multiplications in the base field. \final{Check if following Alg is floated too far}
 % https://www.hyperelliptic.org/EFD/precomp.pdf
 
 \begin{algorithm}\caption{Projective short Weierstrass Addition Law}
@@ -566,79 +569,71 @@ Again, it can be shown that the points of an elliptic curve in projective space 
 %So we assume that there is some trusted third party $C$ that chooses a publicly known generator of a large prime-order subgroup of $TJJ(\F_{13})$, say  a secrete point $s\in\F_{13}$, say $s=2$. $C$ then c
 %\end{example}
 
-
 \begin{exercise}
 Compare the affine addition law for short Weierstrass curves with the projective addition rule. Which branch in the projective rule corresponds to which case in the affine law? 
 \end{exercise}
 
-\paragraph{Coordinate Transformations} As we have seen in example XXX\sme{add reference}, there was a close relation between the affine and the projective representation of a short Weierstrass curve. This was not a coincidence.
-In fact, from a mathematical point of view, projective and affine short Weierstrass curves describe the same thing, as there is a one-to-one correspondence (an isomorphism) between both representations for any arbitrary parameters $a$ and $b$. 
+\paragraph{Coordinate Transformations} As we have seen in example 
+\ref{ex:E1F5-projective}, there was a close relation between the affine and the projective representation of a short Weierstrass curve. This was not a coincidence. In fact, from a mathematical point of view, projective and affine short Weierstrass curves describe the same thing, as there is a one-to-one correspondence (an isomorphism) between both representations for any parameters $a$ and $b$. 
 
-To specify the isomorphism, let $E(\F)$ and $E(\F\mathrm{P}^2)$ be an affine and a projective short Weierstrass curve defined for the same parameters $a$ and $b$. Then the map in \ref{eq:weierstrass-isomorphism-map} maps points from the affine representation to points from the projective representation of a short Weierstrass curve. In other words, if the pair of points $(x,y)$ satisfies the affine equation $y^2= x^3 + ax + b$, then all homogeneous coordinates $(x_1,y_1,z_1)\in [x:y:1]$ satisfy the projective equation $y_1^2\cdot z_1= x_1^3 + ay_1\cdot z_1^2 + b\cdot z_1^3$. 
+To specify the isomorphism, let $E(\F)$ and $E(\F\mathrm{P}^2)$ be an affine and a projective short Weierstrass curve defined for the same parameters $a$ and $b$. Then the following function maps points from the affine representation to points from the projective representation of a short Weierstrass curve. In other words, if the pair of field elements $(x,y)$ satisfies the affine short Weierstrass equation $y^2= x^3 + ax + b$, then all homogeneous coordinates $(x_1,y_1,z_1)\in [x:y:1]$ satisfy the projective short Weierstrass equation $y_1^2\cdot z_1= x_1^3 + ay_1\cdot z_1^2 + b\cdot z_1^3$. 
 
 \begin{equation}\label{eq:weierstrass-isomorphism-map}
-\Phi : E(\F) \to E(\F\mathrm{P}^2)\;:\;
+I : E(\F) \to E(\F\mathrm{P}^2)\;:\;
 \begin{array}{lcl}
 (x,y)       &\mapsto & [x:y:1]\\
 \mathcal{O} &\mapsto & [0:1:0]
 \end{array}
 \end{equation}
-
-
-The inverse is given by the following map:
+This map is a $1:1$ correspondense, which means that it maps exactly one point from the affine representation onto one point from the projective representation. It is therefore possible to invert this map in order to map points from the projective representation to points from the affine representation of a short Weierstrass curve. The inverse is given by the following map:
 \begin{equation}
-\Phi^{-1} : E(\F\mathbb{P}^2)\to E(\F) \;:\; [X:Y:Z] \mapsto \begin{cases}
+I^{-1} : E(\F\mathbb{P}^2)\to E(\F) \;:\; [X:Y:Z] \mapsto \begin{cases}
 (\frac{X}{Z},\frac{Y}{Z}) & \text{ if } Z\neq 0\\
 \mathcal{O} & \text{ if } Z=0
 \end{cases}
 \end{equation}
+Note that the only projective point $[X:Y:Z]$ with $Z\neq 0$ that satisfies the equation in \ref{def:projective_cubic_equation} is given by the class $[0:1:0]$. A key feature of $I$ and its inverse is that both mps respect the group structure, which means that the neutral element is mapped to the neutral element, i.e. $I(\mathcal{O})=[0:1:0]$ and that  $I((x_1,y_1)\oplus (x_2,y_2))$ is equal to $I(x_1,y_1)\oplus I(x_2,y_2)$ and the same holds true for the inverse map $I^{-1}$.
 
-Note that the only projective point $[X:Y:Z]$ with $Z\neq 0$ that satisfies XXX\sme{add reference} is given by the class $[0:1:0]$. 
-
-One key feature of $\Phi$ and its inverse is that it respects the group structure, which means that $\Phi((x_1,y_1)\oplus (x_2,y_2))$ is equal to $\Phi(x_1,y_1)\oplus \Phi(x_2,y_2)$. The same holds true for the inverse map $\Phi^{-1}$.
-
-Maps with these properties are called \term{group isomorphisms}, and, from a mathematical point of view, the existence of $\Phi$ implies that these two definitions are equivalent, and implementations can choose freely between these representations. 
+Maps with these properties are called \term{group isomorphisms}, and, from a mathematical point of view, the existence of function $I$ implies that the affine and the projective definition of short Weierstrass elliptic curves are equivalent. Implementations can therefore choose freely between both representations. 
 
 
 \section{Montgomery Curves}\label{sec:montgomery}
 % https://eprint.iacr.org/2017/212.pdf
-\smelong{History and use of them (optimized scalar multiplication)}\sme{write up this part}
+Both the affine and the projective short Weierstrass forms are the most general ways to describe elliptic curves over fields of characteristics larger then $3$. However in certain situations it might be advantageous to consider more specialized representations of elliptic curves for example to get faster algorithms for the group law or the scalar multiplication. 
 
-\paragraph{Affine Montgomery Form}
-To see what a Montgomery curve in affine coordinates is, let $\F$ be a finite field of characteristic $>2$, and let $A,B\in \F$ be two field elements such that $B\neq 0$ and $A^2 \neq 4$.  A \term{Montgomery elliptic curve} $M(\F)$ over $\F$ in its affine representation is the set of all pairs of field elements $(x,y)\in \F\times \F$ that satisfy the Montgomery cubic equation $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
+As we will see in this section so called Montgomery curves are a subset of all elliptic curves that can be written in the \term{Montgomery form}. Those curves allow for constant time algorithms for (specializations of) the elliptic curve scalar multiplication. 
 
-\begin{equation}\label{eq:montgomery-curve}M(\F) = \{(x,y)\in \F\times \F\;|\; B\cdot y^2 = x^3 + A\cdot x^2 + x  \} \bigcup \{\Oinf\}
-\end{equation}\sme{is the label in \LaTeX{} correct here?}
+To see what a Montgomery curve in its affine representation is, let $\F$ be a finite field of characteristic $p>3$, and let $A,B\in \F$ be two field elements such that $B\neq 0$ and $A^2 \neq 4$.  A \term{Montgomery elliptic curve} $M(\F)$ over $\F$ in its affine representation is then the set of all pairs of field elements $(x,y)\in \F\times \F$ that satisfy the \term{Montgomery cubic equation} $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
 
-Despite the fact that Montgomery curves look different from short Weierstrass curves, they are just a special way to describe certain short Weierstrass curves. In fact, every curve in affine Montgomery form can be transformed into an elliptic curve in short Weierstrass form. To see that, assume that a curve is given in Montgomery form $B y^2 = x^3 + A x^2 + x$. The associated short Weierstrass form is then as follows:
-
-\begin{equation}\label{eq:montgomery-to-weierstrass}
-y^2 = x^3 + \frac{3-A^2}{3B^2}\cdot x + \frac{2A^3-9A}{27B^3}
+\begin{equation}
+\label{eq:montgomery-curve}
+M(\F) = \{(x,y)\in \F\times \F\;|\; B\cdot y^2 = x^3 + A\cdot x^2 + x  \} \bigcup \{\Oinf\}
 \end{equation}
 
-On the other hand, an elliptic curve $E(\F)$ over base field $\F$ in short Weierstrass form $y^2 = x^3 + a x + b$ can be converted to Montgomery form if and only if the following conditions hold:
-\begin{definition}{\deftitle{Requirements for Montgomery curves}}\label{def:montgomery}
-\begin{itemize}
-\item The number of points on $E(F)$ is divisible by $4$
-\item The polynomial $z^3 + a z + b \in \F[z]$ has at least one root $z_0\in\F$
-\item $3z_0^2 + a$ is a quadratic residue in $\F$.
-\end{itemize}
-\end{definition}
+Despite the fact that Montgomery curves look different from short Weierstrass curves, they are just a special way to describe certain short Weierstrass curves. In fact, every curve in affine Montgomery form can be transformed into an elliptic curve in short Weierstrass form. To see that, assume that a curve is given in Montgomery form $B y^2 = x^3 + A x^2 + x$. The associated short Weierstrass form is then defined as follows:
 
-When these conditions are satisfied, then for $s=({\sqrt{3z_0^{2}+a}})^{-1}$, the equivalent Montgomery curve is defined by the following equation:
+\begin{equation}\label{eq:montgomery-to-weierstrass}
+y^2 = x^3 + \frac{3-A^2}{3\cdot B^2}\cdot x + \frac{2\cdot A^3-(\Zmod{9}{q})\cdot A}{(\Zmod{27}{q})\cdot B^3}
+\end{equation}
+
+On the other hand, not every elliptic curve $E(\F)$ over base field $\F$ given in short Weierstrass form $y^2 = x^3 + a x + b$ can be converted into Montgomery form. For a short Weierstrass curve to be a Montgomery curve the following conditions need to hold:
+\begin{itemize}
+\label{def:montgomery}
+\item The number of points on $E(\F)$ is divisible by $4$
+\item The polynomial $z^3 + a z + b \in \F[z]$ has at least one root $z_0\in\F$
+\item $3z_0^2 + a$ is a quadratic residue in $\F^*$.
+\end{itemize}
+
+When these conditions are satisfied, then for $s=({\sqrt{3z_0^{2}+a}})^{-1}$, a Montgomery curve is defined by the following equation:
 \begin{equation}\label{eq:montgomery-form}
 sy^{2}=x^{3}+(3z_0 s)x^{2}+x
 \end{equation}
 
-In the following example we will look at our tiny-jubjub curve again, and show that it is actually a Montgomery curve.
+In the following example we will look at the tiny-jubjub curve again, and show that it is actually a Montgomery curve.
 \begin{example}\label{TJJ13-montgomery}
-Consider the prime field $\F_{13}$ and the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference}. To see that it is a Montgomery curve, we have to check the requirements from \ref{def:montgomery}\sme{check reference}: 
+Consider the prime field $\F_{13}$ and the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}. To see that it is a Montgomery curve, we have to check the requirements from \ref{def:montgomery}: 
 
-Since the order  of $\mathit{TJJ\_13}$ is $20$, which is divisible by $4$, the first requirement is met. 
-
-Next, since $a=8$ and $b=8$, we have to check if the polynomial $P(z) = z^3 + 8z + 8$ has a root in $\F_{13}$. We simply evaluate $P$ at all numbers $z\in \F_{13}$, and find that $P(4)=0$, so a root is given by $z_0=4$.
-
-In the last step, we have to check that $3\cdot z_0^2 + a$ has a root in $\F_{13}$. We compute as follows:
+Since the order  of $\mathit{TJJ\_13}$ is $20$, which is divisible by $4$, the first requirement is met. Moreover, since $a=8$ and $b=8$, we have to check that the polynomial $P(z) = z^3 + 8z + 8$ has a root in $\F_{13}$. To see this we simply evaluate $P$ at all numbers $z\in \F_{13}$, and find that $P(4)=0$, so a root is given by $z_0=4$. In the last step, we have to check that $3\cdot z_0^2 + a$ has a root in $\F_{13}^*$. We compute as follows:
 \begin{align*}
 3z_0^2 + a & = 3\cdot 4^2 + 8 \\
            & = 3 \cdot 3 + 8 \\
@@ -646,21 +641,21 @@ In the last step, we have to check that $3\cdot z_0^2 + a$ has a root in $\F_{13
            & = 4
 \end{align*}
 
-To see if $4$ is a quadratic residue, we can use Euler's criterion (\ref{eq: Euler_criterion})\sme{check reference} to compute the Legendre symbol of $4$. We get the following:
+To see that $4$ is a quadratic residue in $\F_{13}$, we use Euler's criterion (\ref{eq: Euler_criterion}) to compute the Legendre symbol of $4$. We get the following:
 
 $$
 \left(\frac{4}{13}\right) = 4^{\frac{13-1}{2}} = 4^6 = 1
 $$ 
 This means that $4$ does have a root in $\F_{13}$. In fact, computing a root of $4$ in $\F_{13}$ is easy, since the integer root $2$ of $4$ is also one of its roots in $\F_{13}$. The other root is given by $13-4=9$.
 
-Since all requirements are meet, we have now shown that $\mathit{TJJ\_13}$ is indeed a Montgomery curve, and we can use \ref{eq:montgomery-form}\sme{check reference} to compute its associated Montgomery form. We compute as follows:
+Since all requirements are meet, we have shown that $\mathit{TJJ\_13}$ is indeed a Montgomery curve, and we can use \ref{eq:montgomery-form} to compute its associated Montgomery form. We compute as follows:
 \begin{align*}
 s & = \left(\sqrt{3\cdot z_0^2 +8}\right)^{-1} \\
   & = 2^{-1} & \text{\# Fermat's little theorem} \\
   & = 2^{13-2} & \text{\# }\Zmod{2048}{13} = 7\\
   & = 7
 \end{align*}
-The defining equation for the Montgomery form of our tiny-jubjub curve is then given by the following equation:
+The defining equation for the Montgomery form of the tiny-jubjub curve is then given by the following equation:
 \begin{align*}
 sy^{2} & =x^{3}+(3z_0 s)x^{2}+x  & \Rightarrow\\
 7\cdot y^{2} & =x^{3}+(3\cdot 4 \cdot 7)x^{2}+x &\Leftrightarrow\\
@@ -671,7 +666,7 @@ So, we get the defining parameters as $B= 7$ and $A=6$, and we can write the tin
 \mathit{TJJ\_13} = \{(x,y)\in \F_{13}\times \F_{13}\;|\; 7\cdot y^{2} =x^{3}+6x^{2}+x \}\bigcup \{\Oinf\}
 \end{equation}
 
-Now that we have the abstract definition of our tiny-jubjub curve in Montgomery form, we can compute the set of points by inserting all pairs $(x,y)\in\F_{13}\times \F_{13}$ similarly to how we computed the curve points in its short Weierstrass representation. We get the following:
+Now that we have the abstract definition of the tiny-jubjub curve in Montgomery form, we can compute the set of points by inserting all pairs $(x,y)\in\F_{13}\times \F_{13}$ similarly to how we computed the curve points in its short Weierstrass representation. We get the following:
 \begin{multline*}
 \mathit{TJJ\_13} = \{\Oinf, (0, 0),(1, 4),(1, 9),(2, 4),(2, 9),(3, 5),(3, 8),(4, 4),(4, 9),\\ (5, 1),(5, 12),(7, 1),(7, 12),(8, 1),(8, 12),(9, 2),(9, 11),(10, 3),(10, 10)\}
 \end{multline*}
@@ -686,77 +681,77 @@ sage: MTJJ = Set(L_MTJJ)
 sage: # does not compute the point at infinity
 \end{sagecommandline}
 \end{example}
-\paragraph{Affine Montgomery coordinate transformation} Comparing the Montgomery representation of the previous example (equation \ref{eq:TJJ13-montgomery-representation}) with the short Weierstrass representation of the same curve (equation \ref{eq:TJJ13-weierstrass}\sme{check reference}), we see that there is a 1:1 correspondence between the curve points in both examples. This is no accident. In fact, if $M_{A,B}$ is a Montgomery curve, and $E_{a,b}$ a short Weierstrass curve with $a = \frac{3-A^2}{3B^2}$ and $b= \frac{2A^2 -9A}{27B^3}$ then the following function maps all points in Montgomery representation onto the points in short Weierstrass representation:
+\paragraph{Affine Montgomery coordinate transformation} Comparing the Montgomery representation of the previous example \ref{eq:TJJ13-montgomery-representation} with the short Weierstrass representation of the same curve \ref{eq:TJJ13-weierstrass}, we see that there is a 1:1 correspondence between the curve points in both examples. This is no accident. In fact, if $M_{A,B}$ is a Montgomery curve, and $E_{a,b}$ a short Weierstrass curve with $a = \frac{3-A^2}{3B^2}$ and $b= \frac{2A^2 -9A}{27B^3}$ then the following function maps all points in Montgomery representation onto the points in short Weierstrass representation:
 \begin{equation}
-\Phi: M_{A,B} \to E_{a,b}\; : \; (x,y) \mapsto \left(\frac{3x + A}{3B}, \frac{y}{B}\right)
+I: M_{A,B} \to E_{a,b}\; : \; (x,y) \mapsto \left(\frac{3x + A}{3B}, \frac{y}{B}\right)
 \end{equation}
-This map is a 1:1 correspondence (am isomorphism), and its inverse map is given by the following equation (where $z_0$ is a root of the polynomial $z^3 + a z + b \in \F[z]$ and $s=({\sqrt{3z_0^{2}+a}})^{-1}$).
+The point at infinity of the Montgomery form is mapped to the point at infinity of the short Weierstrass form. This map is a 1:1 correspondence (an isomorphism), and its inverse map is given by the following equation (where $z_0$ is a root of the polynomial $z^3 + a z + b \in \F[z]$ and $s=({\sqrt{3z_0^{2}+a}})^{-1}$).
 \begin{equation}
-\Phi^{-1}: E_{a,b} \to M_{A,B}\; : \; (x,y) \mapsto \left(s\cdot(x-z_0), s\cdot y\right)
+I^{-1}: E_{a,b} \to M_{A,B}\; : \; (x,y) \mapsto \left(s\cdot(x-z_0), s\cdot y\right)
 \end{equation}
- Using this map, it is therefore possible for implementations of Montgomery curves to freely transit between the short Weierstrass and the Montgomery representation. However, as we saw in definition \ref{def:montgomery}\sme{check reference}, not every short Weierstrass curve is a Montgomery curve, as all criteria in \ref{def:montgomery}\sme{check reference} have to be satisfied. This means that the map $\Phi^{-1}$ does not always exist. 
+The point at infinity of the short Weierstrass form is mapped to the point at infinity of the Montgomery form. Using this map, it is therefore possible for implementations of Montgomery curves to freely transit between the short Weierstrass and the Montgomery form. 
  
-\begin{example} Consider our tiny-jubjub curve again. In equation \ref{eq:TJJ13-weierstrass}\sme{check reference} we derived its short Weierstrass representation and in example \ref{eq:TJJ13-montgomery-representation}\sme{check reference}, we derived its Montgomery representation. 
+\begin{example} Consider the tiny-jubjub curve again. In \ref{eq:TJJ13-weierstrass} we defined its short Weierstrass representation and in example \ref{eq:TJJ13-montgomery-representation}, we derived its Montgomery representation. 
 
-To see how coordinate transformation $\Phi$ works in this example, let's map points from the Montgomery representation onto points from the short Weierstrass representation. Inserting, for example, the point $(0,0)$ from the Montgomery representation \ref{eq:TJJ13-montgomery-representation}\sme{check reference} into $\Phi$ gives the following:
+To see how the coordinate transformation $I$ works in this example, let's map points from the Montgomery representation onto points from the short Weierstrass representation. Inserting, for example, the point $(0,0)$ from the Montgomery representation \ref{eq:TJJ13-montgomery-representation} into $I$ gives the following:
 \begin{align*}
-\Phi(0,0) & = \left(\frac{3\cdot 0 + A}{3B}, \frac{0}{B}\right) \\
+I(0,0) & = \left(\frac{3\cdot 0 + A}{3B}, \frac{0}{B}\right) \\
           & = \left(\frac{3\cdot 0 + 6}{3\cdot 7}, \frac{0}{7}\right) \\
           & = \left(\frac{6}{8}, 0\right) \\
           & = \left(4, 0\right) \\
 \end{align*}
 
-As we can see, the Montgomery point $(0,0)$ maps to the self-inverse point $(4,0)$ of the short Weierstrass representation. On the other hand, we can use our computations of $s=7$ and $z_0=4$ from XXX\sme{add reference} to compute the inverse map $\Phi^{-1}$, which maps points on the Weiertraß representation to points on the Mongomery form. Inserting, for example, $(4,0)$ we get the following:
+As we can see, the Montgomery point $(0,0)$ maps to the self-inverse point $(4,0)$ of the short Weierstrass representation. On the other hand, we can use our computations of $s=7$ and $z_0=4$ from example \ref{TJJ13-montgomery} to compute the inverse map $I^{-1}$, which maps points on the short Weierstrass representation to points on the Mongomery form. Inserting, for example, $(4,0)$ we get the following:
 \begin{align*}
-\Phi^{-1}(4,0) & = \left(s\cdot(4-z_0), s\cdot 0\right)\\
+I^{-1}(4,0) & = \left(s\cdot(4-z_0), s\cdot 0\right)\\
                & = \left(7\cdot(4-4), 0\right)\\
                & = (0,0)
 \end{align*}
 
-As expected, the inverse map maps the short Weierstrass point back to where it originated in the Montgomery form. We can invoke Sage to check that our computation of $\Phi$ is correct:
+As expected, the inverse map maps the short Weierstrass point back to where it originated in the Montgomery form. We can invoke Sage to check that our computation of $I$ is correct:
 \begin{sagecommandline}
-sage: # Compute PHI of Montgomery form:
-sage: L_PHI_MTJJ = []
+sage: # Compute I of Montgomery form:
+sage: L_I_MTJJ = []
 sage: for (x,y) in L_MTJJ: # LMTJJ as defined previously                                   
 ....:     v = (F13(3)*x + F13(6))/(F13(3)*F13(7))
 ....:     w = y/F13(7)
-....:     L_PHI_MTJJ.append((v,w))
-sage: PHI_MTJJ = Set(L_PHI_MTJJ)
+....:     L_I_MTJJ.append((v,w))
+sage: I_MTJJ = Set(L_I_MTJJ)
 sage: # Computation short Weierstrass form
 sage: C_WTJJ = EllipticCurve(F13,[8,8]) 
 sage: L_WTJJ = [P.xy() for P in C_WTJJ.points() if P.order() > 1]
 sage: WTJJ = Set(L_WTJJ)
-sage: # check PHI(Montgomery) == Weierstrass
-sage: WTJJ == PHI_MTJJ
-sage: # check the inverse map PHI^(-1)
-sage: L_PHIINV_WTJJ = []
+sage: # check I(Montgomery) == Weierstrass
+sage: WTJJ == I_MTJJ
+sage: # check the inverse map I^(-1)
+sage: L_IINV_WTJJ = []
 sage: for (v,w) in L_WTJJ:
 ....:     x = F13(7)*(v-F13(4))
 ....:     y = F13(7)*w
-....:     L_PHIINV_WTJJ.append((x,y))
-sage: PHIINV_WTJJ = Set(L_PHIINV_WTJJ)
-sage: MTJJ == PHIINV_WTJJ
+....:     L_IINV_WTJJ.append((x,y))
+sage: IINV_WTJJ = Set(L_IINV_WTJJ)
+sage: MTJJ == IINV_WTJJ
 \end{sagecommandline}
 \end{example}
 
-\paragraph{Montgomery group law} We have seen that Montgomery curves special cases of short Weierstrass curves. As such, they have a group structure defined on the set of their points, which can also be derived from the chord-and-tangent rule. In accordance with short Weierstrass curves, it can be shown that the identity $x_1=x_2$ implies $y_2=\pm y_1$, meaning that the following rules are a complete description of the affine addition law.
+\subsection{Montgomery group law} We have seen that Montgomery curves are special cases of short Weierstrass curves. As such, they have a group structure defined on the set of their points, which can also be derived from the chord-and-tangent rule. In accordance with short Weierstrass curves, it can be shown that the identity $x_1=x_2$ implies $y_2=\pm y_1$, meaning that the following rules are a complete description of the elliptic curve group law:
 
-\begin{definition}{\deftitle{Montgomery group law}}\label{def:montgomery-group-law}
 \begin{itemize}
-\item (Neutral element) Point at infinity $\Oinf$ is the neutral element.
-\item (Additive inverse ) The additive inverse of $\mathcal{O}$ is $\mathcal{O}$. For any other curve point $(x,y) \in M(\F_q)\textbackslash \{\mathcal{O}\}$, the additive inverse is given by $(x,-y)$.
-\item (Addition rule) For any two curve points $P, Q \in M(\F_q)$, addition is defined by one of the following cases:
+\label{def:montgomery-group-law}
+\item (The neutral element) The point at infinity $\Oinf$ is the neutral element.
+\item (The inverse element) The inverse of $\mathcal{O}$ is $\mathcal{O}$. For any other curve point $(x,y) \in M(\F_q)\textbackslash \{\mathcal{O}\}$, the inverse is given by $(x,-y)$.
+\item (The group law) For any two curve points $P, Q \in M(\F_q)$, the group law is defined by one of the following cases:
 \begin{enumerate}
-\item (Adding the neutral element) If $Q=\Oinf$, then the sum is defined as $P+Q=P$.
-\item (Adding inverse elements)  If $P=(x,y)$ and $Q=(x,-y)$, the sum is defined as $P+Q=\Oinf$.
-\item (Adding non-self-inverse equal points) If $P=(x,y)$ and $Q=(x,y)$ with $y\neq 0$, the sum $2P=(x',y')$ is defined as follows:
+\item (Neutral element) If $Q=\Oinf$, then the sum is defined as $P\oplus Q=P$.
+\item (Inverse elements)  If $P=(x,y)$ and $Q=(x,-y)$, the group law is defined as $P\oplus Q=\Oinf$.
+\item (Tangent rule) If $P=(x,y)$ with $y\neq 0$, the group law $P\oplus P=(x',y')$ is defined as follows:
 $$
 \begin{array}{llr}
 x' = (\frac{3x_1^2 + 2A x_1 +1}{2By_1})^2\cdot B - (x_1 + x_2) - A &,&
 y' = \frac{3x_1^2 + 2A x_1 +1}{2By_1}(x_1-x') - y_1
 \end{array} 
 $$
-\item (Adding non-inverse different points) If $P=(x_1,y_1)$ and $Q=(x_2,y_2)$ such that $x_1 \neq x_2$, the sum $R=P+Q$ with $R=(x_3,y_3)$ is defined as follows:
+\item (Chord rule) If $P=(x_1,y_1)$ and $Q=(x_2,y_2)$ such that $x_1 \neq x_2$, the group law $R=P\oplus Q$ with $R=(x_3,y_3)$ is defined as follows:
 $$
 \begin{array}{llr}
 x' = (\frac{y_2-y_1}{x_2-x_1})^2B - (x_1 + x_2) - A &, &
@@ -764,8 +759,7 @@ y' = \frac{y_2-y_1}{x_2-x_1}(x_1-x') - y_1
 \end{array} 
 $$
 \end{enumerate}
-\end{itemize} 
-\end{definition}
+\end{itemize}
 %\paragraph{Projective Montgomery Form}
 %As with more general curves in short Weierstrass form, we can look at Montgomery curves in projective space. To see how such a curve looks in projective coordinates is, let $\F_{q}$ be a finite field and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2\neq 4$. Then a \term{Montgomery elliptic curve} $E/\F_q$ over $\F_q$ in its projective representation is the set
 %\begin{equation}
@@ -777,34 +771,32 @@ $$
 % TODO: https://maths-people.anu.edu.au/~brent/pd/Subramanya-thesis.pdf
 % x-coordinate only aka differential arithmetics on Montgomery curves
 \section{Twisted Edwards Curves}\label{sec:edwards}
-As we have seen in \ref{def:montgomery-group-law}\sme{check reference} both short Weierstrass and Montgomery curves have somewhat complicated addition and doubling laws, as many cases have to be distinguished. Those various cases translate to branches in computer programs.
+As we have seen in \ref{def:chord-tangent-algebra} and \ref{def:montgomery-group-law} both short Weierstrass and Montgomery curves have somewhat complicated group laws, as many cases have to be distinguished. Those various cases translate to branches in computer programs.
 
-In the context of SNARK development, two computational models for bounded computations are used, called \term{circuits} and \term{rank-1 constraint systems}. Program branches are undesirably costly when implemented in those models. It is therefore advantageous to look for curves with an addition/doubling rule that requires no branches and as few field operations as possible.
+In the context of SNARK development, two computational models for bounded computations are used, called \term{circuits} \ref{sec:circuits} and \term{rank-1 constraint systems} \ref{sec:R1CS} and program branches are undesirably costly when implemented in those models. It is therefore advantageous to look for curves with a group law that requires no branches and as few field operations as possible.
 
-\term{Twisted Edwards curves} are particularly useful here, as a subclass of these curves has a compact and easily implementable addition law that works for all points including the point at infinity. Implementing this law needs no branching. 
-\paragraph{Twisted Edwards Form}
+\term{Twisted Edwards curves} are particularly useful here, as a subclass of these curves has a compact and easily implementable group law that works for all points including the point at infinity. Implementing this law needs no branching. 
+
 % https://eprint.iacr.org/2008/013.pdf
-To see what an affine \term{twisted Edwards curve} looks like, let $\F$ be a finite field of characteristic $>2$, and let $a,d\in \F\backslash\{0\}$ be two non-zero field elements with $a\neq d$.  A \term{twisted Edwards elliptic curve} in its affine representation is the set of all pairs $(x,y)$ from $\F\times \F$ that satisfy the twisted Edwards equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$, given below:
+To see what a \term{twisted Edwards curve} in its affine form looks like, let $\F$ be a finite field of characteristic $>3$, and let $a,d\in \F\backslash\{0\}$ be two non-zero field elements with $a\neq d$.  A \term{twisted Edwards elliptic curve} in its affine representation is then the set of all pairs $(x,y)$ from $\F\times \F$ that satisfy the twisted Edwards equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$:
 \begin{equation}
 E(\F)=\{(x,y)\in\F\times\F\;|\; a\cdot x^2+y^2= 1+d\cdot x^2y^2\}
 \end{equation} 
-A twisted Edwards curve is called an \term{Edwards curve (non-twisted)}, if the parameter $a$ is equal to $1$, and it is called a \term{SNARK-friendly twisted Edwards curve} if the parameter $a$ is a quadratic residue and the parameter $d$ is a quadratic non-residue.
+A twisted Edwards curve is called a \term{SNARK-friendly twisted Edwards curve} if the parameter $a$ is a quadratic residue and the parameter $d$ is a quadratic non-residue.
 
-As we can see from the definition, affine twisted Edwards curves look somewhat different from short Weierstrass curves, as their affine representation does not need a special symbol to represent the point at infinity. In fact, we we will see that the pair $(0,1)$ is always a point on any twisted Edwards curve, and that it takes the role of the point at infinity.
+As we can see from the definition, affine twisted Edwards curves look somewhat different from short Weierstrass curves, as their affine representation does not need a special symbol to represent the point at infinity. In fact, the pair $(0,1)$ is always a point on any twisted Edwards curve, and it takes the role of the point at infinity.
 
-Despite their different appearances however, twisted Edwards curves are equivalent to Montgomery curves in the sense that, for every twisted Edwards curve, there is a Montgomery curve, and a way to map the points of one curve in a 1:1 correspondence onto the other and vice versa. To see that, assume that a curve in twisted Edwards form $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ is given. The associated Montgomery curve is then defined by the Montgomery equation:
+Despite their different appearances however, twisted Edwards curves are equivalent to Montgomery curves in the sense that, for every twisted Edwards curve, there is a Montgomery curve, and a way to map the points of one curve in a 1:1 correspondence onto the other and vice versa. To see that, assume that a curve in twisted Edwards form is given. The associated Montgomery curve is then defined by the Montgomery equation:
 \begin{equation}
 \frac{4}{a-d} y^2 = x^3 + \frac{2(a+d)}{a-d}\cdot x^2 + x 
 \end{equation}
 
-On the other hand, a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ with $B\neq 0$ and $A^2\neq 4$ can give rise to a twisted Edwards curve defined by the following equation:
+On the other hand, a Montgomery curve $By^{2}=x^{3}+Ax^{2}+x$ with $B\neq 0$ and $A^2\neq 4$ gives rise to a twisted Edwards curve defined by the following equation:
 \begin{equation}\label{eq:montgomery-to-twisted-edwards}
 (\frac{A+2}{B})x^2+y^2= 1+(\frac{A-2}{B})x^2y^2
 \end{equation}
 
-As we have seen in equation \ref{eq:montgomery-to-weierstrass} and the following discussion,\sme{check reference}  Montgomery curves are just a special class of short Weierstrass curves. Furthermore we now know that twisted Edwards curves are special short Weierstrass curves too. This means that the more general way to describe elliptic curves is as short Weierstrass curves.
-
-\begin{example}Consider the tiny-jubjub curve from example \ref{TJJ13}\sme{check reference} again. We know from example \ref{TJJ13-montgomery}\sme{check reference} that it is a Montgomery curve, and, since Montgomery curves are equivalent to twisted Edwards curves, we want to write this curve in twisted Edwards form. We use equation \ref{eq:montgomery-to-twisted-edwards},\sme{check reference} and compute the parameters $a$ and $d$ as follows:
+\begin{example}Consider the tiny-jubjub curve from example \ref{TJJ13} again. We know from example \ref{TJJ13-montgomery} that it is a Montgomery curve, and, since Montgomery curves are equivalent to twisted Edwards curves, we want to write this curve in twisted Edwards form. We use equation \ref{eq:montgomery-to-twisted-edwards} and compute the parameters $a$ and $d$ as follows:
 \begin{align*}
 a & = \frac{A+2}{B} & \text{\# insert A=6 and B=7}\\
   & = \frac{8}{7} = 3 & \text{\# } 7^{-1}= 2 \\
@@ -849,20 +841,21 @@ sage: ETJJ = Set(L_ETJJ)
 
 
 \end{example}
-\paragraph{Twisted Edwards group law}As we have seen, twisted Edwards curves are equivalent to Montgomery curves, and, as such, also have a group law. However, in contrast to Montgomery and short Weierstrass curves, the group law of SNARK-friendly twisted Edwards curves can be described by a single computation that works in all cases, no matter if we add the neutral element, the inverse, or if we have to double a point. To see what the group law looks like, first observe that the point $(0,1)$ is
-a solution to $a\cdot x^{2} + y^2 =1+ d\cdot x^{2}\cdot y^2$ for any curve. The sum of any two points $(x_1, y_1)$, $(x_2, y_2)$ on an Edwards curve $E(\F)$ is then given by the following equation:
+\subsection{Twisted Edwards group law} As we have seen, twisted Edwards curves are equivalent to Montgomery curves, and, as such, also have a group law. However, in contrast to Montgomery and short Weierstrass curves, the group law of SNARK-friendly twisted Edwards curves can be described by a single computation that works in all cases, no matter if we add the neutral element, the inverse, or if we have to double a point. 
+
+To see what the twisted Edwards group law looks like let $(x_1, y_1)$, $(x_2, y_2)$ be two points on an Edwards curve $E(\F)$. The sum of those points is then given by the following equation:
 
 \begin{equation}\label{twisted-edwards-group-law}
 (x_1, y_1) \oplus (x_2, y_2) =\left(\frac{x_1y_2+y_1x_2}{1 +dx_1x_2y_1y_2},\frac{y_1y_2-ax_1x_2}{1-dx_1x_2y_1y_2}\right)
 \end{equation}
 
-and it can be shown that the point $(0,1)$ serves as the neutral element and the inverse of a point $(x_1, y_1)$ is given by $(-x_1, y1)$.
-\begin{example} Lets look at the tiny-jubjub curve in Edwards form from example \ref{TJJ13-twisted-edwards}\sme{check reference} again. As we have seen, this curve is given by
+In order to see what the neutral element of the group law is, first observe that the point $(0,1)$ is a solution to the twisted Edwards equation $a\cdot x^{2} + y^2 =1+ d\cdot x^{2}\cdot y^2$ for any parameters $a$ an $d$ and hence $(0,1)$ is a point on any twisted Edwards curve. It can be shown that $(0,1)$ serves as the neutral element and that the inverse of a point $(x_1, y_1)$ is given by the point $(-x_1, y1)$.
+\begin{example} Lets look at the tiny-jubjub curve in Edwards form from example \ref{TJJ13-twisted-edwards} again. As we have seen, this curve is given by
 \begin{multline*}
 \mathit{TJJ\_13} = \{(0, 1),(0, 12),(1, 2),(1, 11),(2, 6),(2, 7),(3, 0),(5, 5),(5, 8),(6, 4),\\
 (6, 9),(7, 4),(7, 9),(8, 5),(8, 8),(10, 0),(11, 6),(11, 7),(12, 2),(12, 11)\}
 \end{multline*}
-To get an understanding of the twisted Edwards addition law, let's first add the neutral element $(0,1)$ to itself. We apply the group law \ref{twisted-edwards-group-law}\sme{check reference} and get the following:
+To get an understanding of the twisted Edwards addition law, let's first add the neutral element $(0,1)$ to itself. We apply the group law \ref{twisted-edwards-group-law} and get the following:
 \begin{align*}
 (0, 1) \oplus (0, 1) &= \left(\frac{0\cdot 1+1 \cdot 0}{1 +8\cdot0\cdot 0\cdot 1\cdot 1},\frac{1\cdot 1-3\cdot 0\cdot 0}{1-8\cdot 0\cdot 0\cdot 1\cdot 1}\right)\\
                      & = (0,1)
