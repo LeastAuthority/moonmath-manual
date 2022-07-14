@@ -893,36 +893,33 @@ Adding a curve point to its inverse gives the neutral element, as expected. As w
 %\end{example}
 \section{Elliptic Curve Pairings}
 \label{sec:elliptic_curve_pairings}
- As we have seen in equation \ref{pairing-map},\sme{check reference} some groups come with the notation of a so-called pairing map, which is a non-degenerate bilinear map from two groups into another group.
+As introduced in \ref{pairing-map}, some groups come with the notion of a pairing map. In this section, we discuss \term{pairings on elliptic curves}, which form the basis of several zk-SNARKs and other zero-knowledge proof schemes. We start out by defining some important subgroups of the so called full torsion group of an elliptic curve. We then introduce the Weil pairing of an elliptic curve and describe Miller's algorithm, which makes these pairings practically interesting.
 
-In this section, we discuss \term{pairings on elliptic curves}, which form the basis of several zk-SNARKs and other zero-knowledge proof schemes. The SNARKs derived from pairings have the advantage of constant proof sizes, which is crucial to blockchains. 
+\paragraph{Embedding Degrees} As we will see in what follows, every elliptic curve gives rise to a pairing map. However, we will also see in example \ref{ex:pairings_on_secp256k1} that not every such pairing can be efficiently computed. In order to distinguish curves with efficiently computable pairings from the rest, we need to start with an introduction to the so-called \term{embedding degree} of a curve. 
 
-We start out by defining elliptic curve pairings and discussing a simple application which bears some resemblance to more advanced SNARKs. We then introduce the pairings arising from elliptic curves and describe Miller's algorithm, which makes these pairings practical rather than just theoretically interesting.
+To see what the embedding degree of an elliptic curve is, let $\F$ be a finite field of order $|\F|=q$, $E(\F)$ an elliptic curve over $\F$, and let $n$ be a prime factor of the order of $E(\F)$. The embedding degree of $E(\F)$ with respect to $n$ is then the smallest integer $k$ such that
+\begin{equation}
+\label{def:embedding-degree}
+n\,|\, q^k-1
+\end{equation}
+Fermat's little theorem \ref{fermats-little-theorem} implies that there always exists an embedding degree $k(n)$ for every elliptic curve and any factor $n$ of the curves order $n$, since $k=n-1$ is always a solution to the congruency $\kongru{q^{k}}{1}{n}$. This implies that the remainder of the integer division of $q^{n-1}-1$ by $n$ is $0$.
 
-\smelong{Elliptic curves have a few structures, like the Weil or the Tate map that qualifies as pairing.}\sme{either expand on this or delete it}  
+\begin{notation} Let $\F$ be a finite field of order $q$ and $E(\F)$ an elliptic curve over $\F$, such that $n$ is a prime factor of the order of $E(\F)$. We then write $k(n)$ for the embedding degree of $E(\F)$ with respect to $n$.
+\end{notation}
 
-\paragraph{Embedding Degrees}As we will see in what follows, every elliptic curves gives rise to a pairing map. However, we will also see in example XXX\sme{add reference} that not every such pairing can be efficiently computed. In order to distinguish curves with efficiently computable pairings from the rest, we need to start with an introduction to the so-called \term{embedding degree} of a curve. 
-
-\begin{definition}{\deftitle{Embedding degree}}\label{def:embedding-degree}\\
-Let $\F$ be a finite field, let $E(\F)$ be an elliptic curve over $\F$, and let $n$ be a prime number that divides the order of $E(\F)$. The embedding degree of $E(\F)$ with respect to $n$ is then the smallest integer $k$ such that $n$ divides $q^k-1$. 
-\end{definition}
-
-Fermat's little theorem (page \pageref{fermats-little-theorem} ff.)\sme{check reference} implies that every curve has at least \term{some} embedding degree $k$, since at least $k=n-1$ is always a solution to the congruency 
-$\kongru{q^k}{1}{n}$. This implies that the remainder of the integer division of $q^k-1$ by $n$ is $0$.
-
-\begin{example} To get a better intuition of the embedding degree, let's consider the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}\sme{check reference}. We know from \ref{E1F5}\sme{check reference} that the order of $E_1(\F_5)$ is $9$, and, since the only prime factor of $9$ is $3$, we compute the embedding degree of $E_1(\F_5)$ with respect to $3$. 
+\begin{example} To get a better intuition of the embedding degree, let's consider the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}. We know that the order of $E_1(\F_5)$ is $9$, and, since the only prime factor of $9$ is $3$, we compute the embedding degree of $E_1(\F_5)$ with respect to $3$. 
 
 To find the embedding degree, we have to find the smallest integer $k$ such that $3$ divides $q^k-1= 5^k-1$. We try and increment until we find a proper $k$. 
 
 \begin{align*}
-k=1 &\text{: } 5^1-1 = 4 & \text{ not divisible by } 3\\ 
-k=2 &\text{: } 5^2-1 = 24 & \text{ divisible by } 3
+k=1 &\text{ : } 5^1-1 = 4 & \text{ not divisible by } 3\\ 
+k=2 &\text{ : } 5^2-1 = 24 & \text{ divisible by } 3
 \end{align*} 
 
-Now we know that the embedding degree of $E_1(\F_5)$ is $2$ relative to the the prime factor $3$.
+This shows that the embedding degree of the elliptic curve $E_1(\F_5)$ is $2$ relative to the the prime factor $3$ of the order of $E_1(\F_5)$.
 \end{example}
 
-\begin{example}\label{ex:TJJ13-embedding-degree} Let us consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference}. We know from \ref{TJJ13}\sme{check reference} that the order of $\mathit{TJJ\_13}$ is $20$, and that the order therefore has two prime factors. A ``large'' prime factor $5$ and a small prime factor $2$. 
+\begin{example}\label{ex:TJJ13-embedding-degree} Let us consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}. We know that the order of $\mathit{TJJ\_13}$ is $20$, and that the order therefore has two prime factors. A ``large'' prime factor $5$ and a small prime factor $2$. 
 
 We start by computing the embedding degree of $\mathit{TJJ\_13}$ with respect to the large prime factor $5$. To find that embedding degree, we have to find the smallest integer $k$ such that $5$ divides $q^k-1= 13^k-1$. We try and increment until we find a proper $k$. 
 \begin{align*}
@@ -931,7 +928,7 @@ k=2 &\text{: } 13^2-1 = 168 & \text{ not divisible by } 5\\
 k=3 &\text{: } 13^3-1 = 2196 & \text{ not divisible by } 5\\ 
 k=4 &\text{: } 13^4-1 = 28560 & \text{ divisible by } 5
 \end{align*} 
-Now we know that the embedding degree of $\mathit{TJJ\_13}$ is $4$ relative to the the prime factor $5$.
+Now we know that the embedding degree of $\mathit{TJJ\_13}$ relative to the the prime factor $5$ is $k(5)=4$.
 
 In real-world applications, like on pairing-friendly elliptic curves such as BLS\_12-381, usually only the embedding degree of the large prime factor is relevant, which in the case of our tiny-jubjub curve is represented by $5$. It should be noted, however that every prime factor of a curve's order has its own notation of embedding degree despite the fact that this is mostly irrelevant in applications.
 
@@ -943,31 +940,39 @@ k=1 &\text{: } 13^1-1 = 12 & \text{ divisible by } 2
 Now we know that the embedding degree of $\mathit{TJJ\_13}$ is $1$ relative to the the prime factor $2$. As we have seen, different prime factors can have different embedding degrees in general.
 
 \begin{sagecommandline}
-sage: p = 13
+sage: p = ZZ(13)
 sage: # large prime factor
-sage: n = 5
-sage: for k in range(1,5): # Fermat's little theorem
+sage: n = ZZ(5)
+sage: k = ZZ(1)
+sage: while k < n:  # Fermat's little theorem
 ....:     if (p^k-1)%n == 0:
 ....:         break
+....:     k=k+1
 sage: k
 sage: # small prime factor
-sage: n = 2
-sage: for k in range(1,2): # Fermat's little theorem
+sage: n = ZZ(2)
+sage: k = ZZ(1)
+sage: while k < n:  # Fermat's little theorem
 ....:     if (p^k-1)%n == 0:
 ....:         break
+....:     k=k+1
 sage: k
 \end{sagecommandline}
 \end{example}
 
-\begin{example} To give an example of a cryptographically secure real-world elliptic curve that does not have a small embedding degree, let's look at curve secp256k1 again. We know from \ref{secp256k1} that the order of this curve is a prime number, so we only have a single embedding degree.
+\begin{example}
+\label{ex:pairings_on_secp256k1}
+ To give an example of a cryptographically secure real-world elliptic curve that does not have a small embedding degree, let's look at curve secp256k1 again. We know from \ref{secp256k1} that the order of this curve is a prime number, so we only have a single embedding degree.
 
-To test potential embedding degrees $k$, say, in the range $1\ldots 1000$, we can invoke Sage and compute as follows:
+To test potential embedding degrees $k$, say, in the range $1\leq k < 1000$, we can invoke Sage and compute as follows:
 \begin{sagecommandline}
-sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
-sage: n = 115792089237316195423570985008687907852837564279074904382605163141518161494337
-sage: for k in range(1,1000):
+sage: p = ZZ(115792089237316195423570985008687907853269984665640564039457584007908834671663)
+sage: n = ZZ(115792089237316195423570985008687907852837564279074904382605163141518161494337)
+sage: k = ZZ(1)
+sage: while k < 1000:
 ....:     if (p^k-1)%n == 0:
 ....:         break
+....:     k=k+1
 sage: k
 \end{sagecommandline}
 We see that secp256k1 has at least no embedding degree $k<1000$, which renders secp256k1 a curve that has no small embedding degree. This property will be of importance later on.
@@ -982,11 +987,11 @@ E(\F')=\{ (x,y)\in \F' \times \F' \;|\; y^2 = x^3 +a\cdot x +b \}
 
 While we did not change the defining parameters, we consider curve points from the affine plane over the extension field now. Since $\F\subset \F'$, it can be shown that the original elliptic curve $E(\F)$ is a sub-curve of the extension curve $E(\F')$.
 
-\begin{example}\label{ex:EF52} Consider the prime field $\F_5$ from example \ref{prime-field-F5}\sme{check reference} and the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}\sme{check reference}. Since we know from XXX\sme{add reference} that $\F_{5^2}$ is an extension field of $\F_5$, we can extend the definition of $E_1(\F_5)$ to define a curve over $\F_{5^2}$:
+\begin{example}\label{ex:EF52} Consider the prime field $\F_5$ from example \ref{prime-field-F5} and the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}. We constructed the extension field $\F_{5^2}$ relative to the polynomial $t^2+2 \in \F_5[t]$ in exercise \ref{exercise:finite_fieldF5_2}. In this example we extend the definition of $E_1(\F_5)$ to an elliptic curve over $\F_{5^2}$ and compute its set of points:
 $$
-E_1(\F_{5^2}) = \{ (x,y)\in \F\times \F \;|\; y^2 = x^3 + x +1 \}
+E_1(\F_{5^2}) = \{ (x,y)\in \F_{5^2}\times \F_{5^2} \;|\; y^2 = x^3 + x +1 \}
 $$
-Since $\F_{5^2}$ contains $25$ points, in order to compute the set $E_1(\F_{5^2})$, we have to try $25\cdot 25 = 625$ pairs, which is probably a bit too much for the average motivated reader. Instead, we invoke Sage to compute the curve for us. To do, we so choose the representation of $\F_{5^2}$ from XXX\sme{add reference}. We get:
+Since $\F_{5^2}$ contains $25$ points, in order to compute the set $E_1(\F_{5^2})$, we have to try $25\cdot 25 = 625$ pairs, which is probably a bit tedious. Instead, we invoke Sage to compute the curve for us. To do, we choose the representation of $\F_{5^2}$ from \ref{exercise:finite_fieldF5_2}. We get:
 \begin{sagecommandline}
 sage: F5= GF(5)
 sage: F5t.<t> = F5[] 
@@ -996,30 +1001,48 @@ sage: F5_2.<t> = GF(5^2, name='t', modulus=P)
 sage: E1F5_2 = EllipticCurve(F5_2,[1,1])
 sage: E1F5_2.order()
 \end{sagecommandline}
-The curve $E_1(\F_{5^2})$ consist of $27$ points, in contrast to curve $E_1(\F_{5})$, which consists of $9$ points. Printing the points gives the following:
+The curve $E_1(\F_{5^2})$ consist of $27$ points, in contrast to curve $E_1(\F_{5})$, which consists of $9$ points. Writing those points down gives the following:
 \begin{multline*}
 E_1(\F_{5^2}) = \{\Oinf, (0, 4), (0, 1), (3, 4), (3, 1), (4, 3), (4, 2), (2, 4), (2, 1),\\ 
 (4t + 3, 3t + 4), (4t + 3, 2t + 1),  (3t + 2, t), (3t + 2, 4t),\\ 
 (2t + 2, t), (2t + 2, 4t), (2t + 1, 4t + 4), (2t + 1, t + 1),\\ 
 (2t + 3, 3), (2t + 3, 2), (t + 3, 2t + 4), (t + 3, 3t + 1),\\ 
-(3t + 1, t + 4), (3t + 1, 4t + 1), (3t + 3, 3), (3t + 3, 2), (1, 4t)
+(3t + 1, t + 4), (3t + 1, 4t + 1), (3t + 3, 3), (3t + 3, 2), (1, 4t),  (1, t)
 \}
 \end{multline*}
-As we can see, curve $E_1(\F_5)$ sits inside curve $E(\F_{5^2})$, which is implied by $\F_5$ being a subfield of $\F_{5^2}$.
+As we can see, the set of points from the elliptic curve $E_1(\F_5)$ is a subset of the sets of points from the elliptic curve $E(\F_{5^2})$. This was expected since the prime field $\F_5$ is a subfield of the finite field $\F_{5^2}$.
 \end{example}
-\paragraph{Full torsion groups} The fundamental theorem of finite cyclic groups XXX\sme{This needs to be written (in Algebra)} implies that every prime factor $n$ of a cyclic group's order defines a subgroup of the size of the prime factor. Such a subgroup is called an $n$-torsion group. We have seen many of those subgroups in the examples XXX\sme{add reference} and XXX\sme{add reference}.
+\paragraph{Full torsion groups} As we will see in what follows, cryptographically interesting pairings are defined on so called torsion subgroups of elliptic curves. To define \term{torsion groups} of an elliptic curve, let $\F$ be a finite field, $E(\F)$ an elliptic curve of order $n$ and $r$ a factor of $n$. Then the \term{$r$-torsion group} of the elliptic curve $E(\F)$ is defined as the set
+\begin{equation}
+\label{def:torsion_group}
+E(\F)[r]:= \{P\in E(\F)\;|\; [r]P = \mathcal{O}\}
+\end{equation} 
+The fundamental theorem of finite cyclic groups \ref{def:fundamental_theorem_groups} states that every factor $r$ of a cyclic group's order uniquely defines a subgroup of the size of that factor and those subgroup are important examples of $r$-torsion groups. We have seen examples of those subgroups in \ref{ex:G1G2-subgroups} and \ref{ex:TJJ13-cofactor-clearing}.
 
-When we consider elliptic curve extensions as defined in \ref{elliptic-curve-extension}\sme{check reference}, we could ask what happens to the $n$-torsion groups in the extension. One might intuitively think that their extension just parallels the extension of the curve. For example, when $E(\F_p)$ is a curve over prime field $\F_p$, with some $n$-torsion group $\G$ and when we extend the curve to $E(\F_{p^m})$, then there is a bigger $n$-torsion group such that $\G$ is a subgroup. This might make intuitive sense, as $E(\F_p)$ is a sub-curve of $E(\F_{p^m})$. 
+When we consider elliptic curve extensions as defined in \ref{elliptic-curve-extension}, we could ask what happens to the $r$-torsion groups in the extension. One might intuitively think that their extension just parallels the extension of the curve. For example, when $E(\F_p)$ is a curve over prime field $\F_p$, with some $r$-torsion group $E(\F_p)[r]$ and when we extend the curve to $E(\F_{p^m})$, then there might be a bigger $r$-torsion group $E(\F_{p^m})[r]$ such that $E(\F_p)[r]$ is a subgroup of $E(\F_{p^m})[r]$. This might make intuitive sense, as $E(\F_p)$ is a subset of $E(\F_{p^m})$. 
 
-However, the actual situation is a bit more surprising than that. To see that, let $\F_p$ be a prime field and let $E(\F_p)$ be an elliptic curve of order $r$, with embedding degree $k$ and $n$-torsion group $E(\F_p)[n]$ for the same prime factor $n$ of $r$. Then it can be shown that the $n$-torsion group $E(\F_{p^m})[n]$ of a curve extension is equal to $E(\F_p)[n]$, as long as the power $m$ is less than the embedding degree $k$ of $E(\F_p)$. 
+However, the actual situation is a bit more surprising than that. To see that, let $\F_p$ be a prime field and let $E(\F_p)$ be an elliptic curve of order $n$, such that $r$ is a factor of $n$, with embedding degree $k(r)$ and $r$-torsion group $E(\F_p)[r]$. Then it can be shown that the $r$-torsion group $E(\F_{p^m})[r]$ of a curve extension is equal to $E(\F_p)[r]$, only as long as the power $m$ is less than the embedding degree $k(r)$ of $E(\F_p)$. 
 
-However, for the prime power $p^m$, for any $m\geq k$, $E(\F_{p^m})[n]$ is strictly larger than $E(\F_p)[n]$ and contains $E(\F_p)[n]$ as a subgroup. We call the $n$-torsion group $E(\F_{p^k})[n]$ of the extension of $E$ over $\F_{p^k}$ the \term{full $n$-torsion group} of that elliptic curve. It can be shown that it contains $n^2$ many elements and consists of $n+1$ subgroups, one of which is $E(\F_{p})[n]$.
+For the prime power $p^{k(r)}$, the $r$-torsion group $E(\F_{p^{k(r)}})[r]$ might then be larger than $E(\F_p)[r]$ and it contains $E(\F_p)[r]$ as a subgroup. We call it the \term{full $r$-torsion group} of that elliptic curve and write is as follows
+\begin{equation}
+\label{def:full_torsion_group}
+E[r] := E(\F_{p^{k(r)}})[r]
+\end{equation}
+It can be shown that the $r$-torsion groups $E(\F_{p^m})[r]$ of any curve extensions for $m>k(r)$ are all equal to $E(\F_{p^m})[r]$. In this sense $E(\F_{p^{k(n)}})[n]$ is already the largest $r$-torsion group, which justifies the name. The full $r$-torsion group contains $r^2$ many elements and consists of $r+1$ subgroups, one of which is $E(\F_{p})[r]$. The following diagram summarizes the situation:
+\begin{equation}
+\label{def:full_torsion_group_tower}
+\begin{array}{lccclclclcl}
+E(\F_{p}) & \subset & \cdots  & \subset & E(\F_{p^{k-1}}) & \subset & E(\F_{p^{k(r)}})[r] & \subset & E(\F_{p^{k+1}})[r] & \subset & \ldots\\
+E(\F_{p})[r] & = & \cdots  & = & E(\F_{p^{k-1}})[r] & \subset & E(\F_{p^{k(r)}})[r] & = & 
+E(\F_{p^{k+1}})[r] & = & \ldots
+\end{array}
+\end{equation}
 
-So, roughly speaking, when we consider \uterm{towers of curve extensions} $E(\F_{p^m})$ ordered by the prime power $m$, then the $n$-torsion group stays constant for every level $m$, that is smaller than the embedding degree, while it suddenly blossoms into a larger group on level $k$ with $n+1$ subgroups, and then stays like that for any level $m$ larger than $k$. In other words, once the extension field is big enough to find one more point of order $n$ (that is not defined over the base field), then we actually find all of the points in the full torsion group.
+So, when we consider nested elliptic curve extensions as in \ref{def:full_torsion_group_tower}, ordered by the prime power $m$, then the $r$-torsion group stays constant for every level $m$ that is smaller than the embedding degree $k(r)$, while it suddenly blossoms into a larger group on level $k(r)$ with $n+1$ subgroups, and then all $r$-torsion groups on higher levels $m\geq k(r)$ stay the same. In other words, once the extension field is big enough to find one more curve point $P$ with $[r]P=\mathcal{O}$ that is not defined over the base field, then we actually find all of the points in the full torsion group.
 
-\begin{example} Consider curve $E_1(\F_5)$ again. We know that it contains a $3$-torsion group and that the embedding degree of $3$ is $2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in example \ref{ex:EF52} \sme{check reference}. 
+\begin{example} Consider curve $E_1(\F_5)$ again. We know from \ref{ex:G1G2-subgroups} that it contains a $3$-torsion group and that the embedding degree of $3$ is $k(3)=2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in example \ref{ex:EF52}. 
 
-Since that curve is small, in order to find the full $3$-torsion, we can loop through all elements of $E_1(\F_{5^2})$ and check check the defining equation $[3]P= \Oinf$. Invoking Sage, we compute as follows:
+Since that curve is small, in order to find the full $3$-torsion, we can loop through all elements of $E_1(\F_{5^2})$ and check the defining equation $[3]P= \Oinf$. Invoking Sage and using our implementation of $E_1(\F_{5^2})$ in sage from \ref{ex:EF52}, we compute as follows:
 \begin{sagecommandline}
 sage: INF = E1F5_2(0) # Point at infinity
 sage: L_E1_3 = []
@@ -1028,11 +1051,10 @@ sage: for p in E1F5_2:
 ....:         L_E1_3.append(p)
 sage: E1_3 = Set(L_E1_3) # Full 3-torsion set
 \end{sagecommandline}
-We get the following result:
 $$
-E_1[3] = \{\Oinf,(1,t),(1,4t),(2,1),(2,4), (2t + 1,t + 1),
- (2t + 1, 4t + 4), (3t + 1,t + 4), (3t + 1, 4t + 1) \}
+E_1[3] = \{\Oinf,(2,1),(2,4),(1,t),(1,4t), (2t + 1,t + 1), (2t + 1, 4t + 4), (3t + 1,t + 4), (3t + 1, 4t + 1) \}
 $$
+As we can see the group $E_1[3]$ contains $9=3^3$ many elements and the $3$-torsion group $E_1(\F_5)[3]$ is a subset of the full torsion group. 
 \end{example}
 \begin{example}\label{ex:TJJ13-full-torsion} Consider the tiny-jubjub curve from example \ref{TJJ13}\sme{check reference}. We know from example \ref{ex:TJJ13-embedding-degree}\sme{check reference} that it contains a $5$-torsion group and that the embedding degree of $5$ is $4$. This implies that we can find the full $5$-torsion group $\mathit{TJJ\_13}[5]$ in the curve extension $\mathit{TJJ\_13}(\F_{13^4})$. 
 
