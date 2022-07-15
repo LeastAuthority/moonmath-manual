@@ -995,9 +995,9 @@ Since $\F_{5^2}$ contains $25$ points, in order to compute the set $E_1(\F_{5^2}
 \begin{sagecommandline}
 sage: F5= GF(5)
 sage: F5t.<t> = F5[] 
-sage: P = F5t(t^2+2)
-sage: P.is_irreducible()
-sage: F5_2.<t> = GF(5^2, name='t', modulus=P)
+sage: P_MOD_2 = F5t(t^2+2)
+sage: P_MOD_2.is_irreducible()
+sage: F5_2.<t> = GF(5^2, name='t', modulus=P_MOD_2)
 sage: E1F5_2 = EllipticCurve(F5_2,[1,1])
 sage: E1F5_2.order()
 \end{sagecommandline}
@@ -1028,19 +1028,21 @@ For the prime power $p^{k(r)}$, the $r$-torsion group $E(\F_{p^{k(r)}})[r]$ migh
 \label{def:full_torsion_group}
 E[r] := E(\F_{p^{k(r)}})[r]
 \end{equation}
-It can be shown that the $r$-torsion groups $E(\F_{p^m})[r]$ of any curve extensions for $m>k(r)$ are all equal to $E(\F_{p^m})[r]$. In this sense $E(\F_{p^{k(n)}})[n]$ is already the largest $r$-torsion group, which justifies the name. The full $r$-torsion group contains $r^2$ many elements and consists of $r+1$ subgroups, one of which is $E(\F_{p})[r]$. The following diagram summarizes the situation:
+It can be shown that the $r$-torsion groups $E(\F_{p^m})[r]$ of any curve extensions for $m>k(r)$ are all equal to $E[r]$. In this sense $E[r]$ is already the largest $r$-torsion group, which justifies the name. The full $r$-torsion group contains $r^2$ many elements and consists of $r+1$ subgroups, one of which is $E(\F_{p})[r]$. The following diagram summarizes the situation:
 \begin{equation}
 \label{def:full_torsion_group_tower}
 \begin{array}{lccclclclcl}
-E(\F_{p}) & \subset & \cdots  & \subset & E(\F_{p^{k-1}}) & \subset & E(\F_{p^{k(r)}})[r] & \subset & E(\F_{p^{k+1}})[r] & \subset & \ldots\\
-E(\F_{p})[r] & = & \cdots  & = & E(\F_{p^{k-1}})[r] & \subset & E(\F_{p^{k(r)}})[r] & = & 
-E(\F_{p^{k+1}})[r] & = & \ldots
+E(\F_{p}) & \subset & \cdots  & \subset & E(\F_{p^{k(r)-1}}) & \subset & E(\F_{p^{k(r)}})[r] & \subset & E(\F_{p^{k(r)+1}})[r] & \subset & \ldots\\
+E(\F_{p})[r] & = & \cdots  & = & E(\F_{p^{k(r)-1}})[r] & \subset & E(\F_{p^{k(r)}})[r] & = & 
+E(\F_{p^{k(r)+1}})[r] & = & \ldots
 \end{array}
 \end{equation}
 
-So, when we consider nested elliptic curve extensions as in \ref{def:full_torsion_group_tower}, ordered by the prime power $m$, then the $r$-torsion group stays constant for every level $m$ that is smaller than the embedding degree $k(r)$, while it suddenly blossoms into a larger group on level $k(r)$ with $n+1$ subgroups, and then all $r$-torsion groups on higher levels $m\geq k(r)$ stay the same. In other words, once the extension field is big enough to find one more curve point $P$ with $[r]P=\mathcal{O}$ that is not defined over the base field, then we actually find all of the points in the full torsion group.
+So, when we consider nested elliptic curve extensions as in \ref{def:full_torsion_group_tower}, ordered by the prime power $m$, then the $r$-torsion group stays constant for every level $m$ that is smaller than the embedding degree $k(r)$, while it suddenly blossoms into a larger group on level $k(r)$ with $r+1$ subgroups, and then all $r$-torsion groups on higher levels $m\geq k(r)$ stay the same. In other words, once the extension field is big enough to find one more curve point $P$ with $[r]P=\mathcal{O}$ that is not an element of the curve over the base field, then we actually find all of the points in the full torsion group.
 
-\begin{example} Consider curve $E_1(\F_5)$ again. We know from \ref{ex:G1G2-subgroups} that it contains a $3$-torsion group and that the embedding degree of $3$ is $k(3)=2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in example \ref{ex:EF52}. 
+\begin{example}
+\label{example:E1_full_torsion}
+ Consider curve $E_1(\F_5)$ again. We know from \ref{ex:G1G2-subgroups} that it contains a $3$-torsion group and that the embedding degree of $3$ is $k(3)=2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in example \ref{ex:EF52}. 
 
 Since that curve is small, in order to find the full $3$-torsion, we can loop through all elements of $E_1(\F_{5^2})$ and check the defining equation $[3]P= \Oinf$. Invoking Sage and using our implementation of $E_1(\F_{5^2})$ in sage from \ref{ex:EF52}, we compute as follows:
 \begin{sagecommandline}
@@ -1056,58 +1058,55 @@ E_1[3] = \{\Oinf,(2,1),(2,4),(1,t),(1,4t), (2t + 1,t + 1), (2t + 1, 4t + 4), (3t
 $$
 As we can see the group $E_1[3]$ contains $9=3^3$ many elements and the $3$-torsion group $E_1(\F_5)[3]$ is a subset of the full torsion group. 
 \end{example}
-\begin{example}\label{ex:TJJ13-full-torsion} Consider the tiny-jubjub curve from example \ref{TJJ13}\sme{check reference}. We know from example \ref{ex:TJJ13-embedding-degree}\sme{check reference} that it contains a $5$-torsion group and that the embedding degree of $5$ is $4$. This implies that we can find the full $5$-torsion group $\mathit{TJJ\_13}[5]$ in the curve extension $\mathit{TJJ\_13}(\F_{13^4})$. 
+\begin{example}\label{ex:TJJ13-full-torsion} Consider the tiny-jubjub curve from example \ref{TJJ13}. We know from example \ref{ex:TJJ13-embedding-degree} that it contains a $5$-torsion group and that the embedding degree of $5$ is $4$. This implies that we can find the full $5$-torsion group $\mathit{TJJ\_13}[5]$ in the curve extension $\mathit{TJJ\_13}(\F_{13^4})$. 
 
 To compute the full torsion, first observe that, since $\F_{13^4}$ contains $28561$ elements, computing $\mathit{TJJ\_13}(\F_{13^4})$ means checking $28561^2=815730721$ elements. From each of these curve points $P$, we then have to check the equation $[5]P=\Oinf$. Doing this for $815730721$ is a bit too slow even on a computer.
 
-Fortunately, Sage has a way to loop through points of a given order efficiently. The following Sage code  provides a way to compute the full torsion group:
+Fortunately, Sage has a funcion that computes all points $P$, such that $[m]P=Q$ for given integer $m$ and curve point $Q$. The following Sage code  provides a way to compute the full torsion group:
 \begin{sagecommandline}
 sage: # define the extension field
 sage: F13= GF(13) # prime field
 sage: F13t.<t> = F13[] # polynomials over t
-sage: P = F13t(t^4+2) # irreducible polynomial of degree 4
-sage: P.is_irreducible()
-sage: F13_4.<t> = GF(13^4, name='t', modulus=P) # F_{13^4}
+sage: P_MOD_4 = F13t(t^4+2) # irreducible polynomial of degree 4
+sage: P_MOD_4.is_irreducible()
+sage: F13_4.<t> = GF(13^4, name='t', modulus=P_MOD_4) # F_{13^4}
 sage: TJJF13_4 = EllipticCurve(F13_4,[8,8]) # tiny-jubjub extension
 sage: # compute the full 5-torsion
-sage: L_TJJF13_4_5 = []
-sage: INF = TJJF13_4(0)
-sage: for P in INF.division_points(5): # [5]P == INF
-....:     L_TJJF13_4_5.append(P)
-sage: len(L_TJJF13_4_5)
+sage: INF = TJJF13_4(0) # point at infinity
+sage: L_TJJF13_4_5 = INF.division_points(5) # All P with [5]P == INF
 sage: TJJF13_4_5 = Set(L_TJJF13_4_5)
+sage: TJJF13_4_5.cardinality()	# number of elements
 \end{sagecommandline}
-As expected, we get a group that contains $5^2=25$ elements. As it's rather tedious to write this group down, and as we don't need it in what follows, we forgo doing this. To see that the embedding degree $4$ is actually the smallest prime power to find the full $5$-torsion group, let's compute the $5$-torsion group over of the tiny-jubjub curve of the extension field $\F_{13^3}$. We get the following:
+As expected, we get a group that contains $5^2=25$ elements. As it's rather tedious to write this group down, and as we don't need it in what follows, we adivese the interested reader to do it as an exercise. To see that the embedding degree $4$ is actually the smallest prime power to find the full $5$-torsion group, let's compute the $5$-torsion group over of the tiny-jubjub curve of the extension field $\F_{13^3}$. We get the following:
 \begin{sagecommandline}
 sage: # define the extension field
-sage: P = F13t(t^3+2) # irreducible polynomial of degree 3
-sage: P.is_irreducible()
-sage: F13_3.<t> = GF(13^3, name='t', modulus=P) # F_{13^3}
+sage: P_MOD_3 = F13t(t^3+2) # irreducible polynomial of degree 3
+sage: P_MOD_3.is_irreducible()
+sage: F13_3.<t> = GF(13^3, name='t', modulus=P_MOD_3) # F_{13^3}
 sage: TJJF13_3 = EllipticCurve(F13_3,[8,8]) # tiny-jubjub extension
 sage: # compute the 5-torsion
-sage: L_TJJF13_3_5 = []
 sage: INF = TJJF13_3(0)
-sage: for P in INF.division_points(5): # [5]P == INF
-....:     L_TJJF13_3_5.append(P)
-sage: len(L_TJJF13_3_5)
-sage: TJJF13_3_5 = Set(L_TJJF13_3_5) # full $5$-torsion
+sage: L_TJJF13_3_5 = INF.division_points(5) # [5]P == INF
+sage: TJJF13_3_5 = Set(L_TJJF13_3_5) # $5$-torsion
+sage: TJJF13_3_5.cardinality()	# number of elements
 \end{sagecommandline}
 
 As we can see, the $5$-torsion group of tiny-jubjub over $\F_{13^3}$ is equal to the $5$-torsion group of tiny-jubjub over $\F_{13}$ itself. 
 \end{example}
 
 \begin{example} 
+\label{example:secp256k1}
 % https://www.sikoba.com/docs/SKOR_SV_Pairing_Based_Crypto.pdf
-Let's look at the curve secp256k1. We know from example \ref{secp256k1}\sme{check reference} that the curve is of some prime order $r$. Because of this, the only $n$-torsion group to consider is the curve itself, so the curve group is the $r$-torsion. 
+Let's look at the curve secp256k1. We know from example \ref{secp256k1} that the curve is of some prime order $r$. Because of this, the only torsion group to consider is the curve itself, so the curve group is the $r$-torsion. 
 
-However, in order to find the full $r$-torsion of secp256k1, we need to compute the embedding degree $k$. And as we have seen in XXX\sme{add reference} it is at least not small. However, we know from Fermat's little theorem (page \pageref{fermats-little-theorem} ff.) that a finite embedding degree must exist. It can be shown that it is given by the following 256-bit number:
+In order to find the full $r$-torsion of secp256k1, we need to compute the embedding degree $k$. And as we have seen in \ref{ex:pairings_on_secp256k1} it is at least not small. However, we know from Fermat's little theorem \ref{fermats-little-theorem} that a finite embedding degree must exist. It can be shown that it is given by the following 256-bit number:
 $$
 k = \scriptstyle 192986815395526992372618308347813175472927379845817397100860523586360249056 
 $$
- This means that the embedding degree is \smelong{very large}, which implies that the field extension $\F_{p^k}$ is very large too. To understand how big $\F_{p^k}$ is, recall that an element of $\F_{p^m}$ can be represented as a string $[x_0,\ldots,x_m]$ of $m$ elements, each containing a number from the prime field $\F_p$. Now, in the case of secp256k1, such a representation has $k$-many entries, each of them $256$ bits in size. So, without any optimizations, representing such an element would need $k\cdot 256$ bits, which is too much to be represented in the observable universe.
+This means that the embedding degree is very large, which implies that the field extension $\F_{p^k}$ is very large too. To understand how big $\F_{p^k}$ is, recall that an element of $\F_{p^m}$ can be represented as a string $<x_0,\ldots,x_m>$ of $m$ elements, each containing a number from the prime field $\F_p$. Now, in the case of secp256k1, such a representation has $k$-many entries, each of them $256$ bits in size. So, without any optimizations, representing such an element would need $k\cdot 256$ bits, which is too much to be representable in the observable universe. It follows that it is not only infeasible to compute the full $r$-torsion group of secp256k1, but moreover to even write down single elements of that group in general. 
 \end{example}
 
-\paragraph{Torsion subgroups}As we have stated above, any full $n$-torsion group contains $n+1$ cyclic subgroups, two of which are of particular interest in pairing-based elliptic curve cryptography. To characterize these groups, we need to consider the so-called \term{Frobenius endomorphism} of an elliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$:
+\paragraph{Pairing groups} As we have stated above, any full $r$-torsion group contains $r+1$ cyclic subgroups, two of which are of particular interest in pairing-based elliptic curve cryptography. To characterize these groups, we need to consider the so-called \term{Frobenius endomorphism} of an elliptic curve $E(\F)$ over some finite field $\F$ of characteristic $p$:
 \begin{equation}\label{eq:frobenius-enomorphism}
 \pi : E(\F) \to E(\F): \;\; 
 \begin{array}{lcl}
@@ -1115,36 +1114,34 @@ $$
 \Oinf &\mapsto & \Oinf
 \end{array} 
 \end{equation}
-It can be shown that $\pi$ maps curve points to curve points. The first thing to note is that, in case  $\F$ is a prime field, the Frobenius endomorphism acts trivially, since $(x^p,y^p) = (x,y)$ on prime fields due to Fermat's little theorem (page \pageref{fermats-little-theorem} ff.)\sme{check reference}. This means that the Frobenius map is more interesting over prime field extensions.
+It can be shown that $\pi$ maps curve points to curve points. The first thing to note is that, in case  $\F$ is a prime field, the Frobenius endomorphism acts as the identity map, since $(x^p,y^p) = (x,y)$ on prime fields due to Fermat's little theorem \ref{fermats-little-theorem}. This means that the Frobenius map is more interesting on elliptic curves over prime field extensions.
 
-With the Frobenius map at hand, we can characterize two important subgroups of the full $n$-torsion. The first subgroup is the $n$-torsion group that already exists in the curve over the base field. In pairing-based cryptography, this group is usually written as $\G_1$, assuming that the prime factor $n$ in the definition is implicitly given. Since we know that the Frobenius map acts trivially on curves over the prime field, we can define $\G_1$ as follows:
-\begin{equation}
-\G_1[n] := \{(x,y)\in E[n]\;| \pi(x,y) = (x,y)\;\}
-\end{equation}
-In more mathematical terms, this definition means that $\G_1$ is the \term{Eigenspace} of the Frobenius map with respect to the \term{Eigenvalue} $1$.\sme{S: either add more explanation or move to a footnote}
+With the Frobenius map at hand, we can characterize two important subgroups of the full $r$-torsion group $E[r]$ of an elliptic curve. The first subgroup is the group of elements from the full $r$-torsion group, on which the Frobenius map acts trivially. Since in pairing-based cryptography, this group is usually written as $\G_1$, assuming that the prime factor $r$ in the definition is implicitly given, we define $\G_1$ as follows:
 
-It can be shown that there is another subgroup of the full $n$-torsion group that can be characterized by the Frobenius map. In the context of so-called \uterm{type $3$ pairing-based cryptography}, this subgroup is usually called $\G_2$ and it is defined as follows:
 \begin{equation}
-\G_2[n] := \{(x,y)\in E[n]\;| \pi(x,y) = [p](x,y)\;\}
+\label{def:pairing_group_G1}
+\G_1[r] := \{(x,y)\in E[r]\;|\; \pi(x,y) = (x,y)\;\}
 \end{equation}
 
-In mathematical terms, $\G_2$ is the \term{Eigenspace} of the Frobenius map with respect to the \term{Eigenvalue} $p$.
+It can be shown that $\G_1$ is precisely the $r$-torsion group $E(\F_p)$ of the unextended elliptic curve defined over the prime field. There is another subgroup of the full $r$-torsion group that can be characterized by the Frobenius map and in the context of pairing-based cryptography, this subgroup is usually called $\G_2$. This group is defined as follows:
 
-\begin{notation}
-If the prime factor $n$ of a curve's order is clear from the context, we sometimes simply write $\G_1$ and $\G_2$ to mean $\G_1[n]$ and $\G_2[n]$, respectively.
+\begin{equation}
+\label{def:pairing_group_G2}
+\G_2[r]:= \{(x,y)\in E[r]\;|\; \pi(x,y) = [p](x,y)\;\}
+\end{equation}
+
+\begin{notation} If $E(\F)$ is an elliptic curve and $r$ is the largest prime factor of the curves order, we call $\G_1[r]$ and $G_2[r]$ \term{pairing groups}. If the prime factor $r$ is clear from the context, we sometimes simply write $\G_1$ and $\G_2$ to mean $\G_1[r]$ and $\G_2[r]$, respectively. 
 \end{notation}
 
-It should be noted, however that other definitions of $\G_2$ also exists in the literature.\sme{add references?} However, in the context of pairing-based cryptography, this is the most common one. It is particularly useful because we can define hash functions that map into $\G_2$, which is not possible for all subgroups of the full $n$-torsion.
+It should be noted that other definitions of $\G_2$ also exists in the literature. However, in the context of pairing-based cryptography, this is a common choise as it is particularly useful because we can define hash functions that map into $\G_2$, which is not possible for all subgroups of the full $r$-torsion.
 
 \begin{example} Consider the curve $E_1(\F_5)$ from example \ref{E1F5} again. As we have seen, this curve has the embedding degree $k=2$, and a full $3$-torsion group is given as follows:
-\begin{equation}
-\begin{split}
-E_1[3] = \{\Oinf,(2,1),(2,4), (1,t), (1,4t),(2t + 1,t + 1),\\ (2t + 1, 4t + 4),
+\begin{multline}
+E_1[3] = \{\Oinf,(2,1),(2,4), (1,t), (1,4t), (2t + 1,t + 1),\\ (2t + 1, 4t + 4),
 (3t + 1,t + 4), (3t + 1, 4t + 1) \}
-\end{split}
-\end{equation}
+\end{multline}
 
-According to the general theory, $E_1[3]$ contains $4$ subgroups, and we can characterize the subgroups $\G_1$ and $\G_2$ using the Frobenius endomorphism. Unfortunately, at the time of writing, Sage does not have a predefined Frobenius endomorphism for elliptic curves, so we have to use the Frobenius endomorphism of the underlying field as a temporary workaround. We compute as follows:
+According to the general theory, $E_1[3]$ contains $4$ subgroups, and we can characterize the subgroups $\G_1$ and $\G_2$ using the Frobenius endomorphism. Unfortunately, at the time of writing, Sage does not have a predefined Frobenius endomorphism for elliptic curves, so we have to use the Frobenius endomorphism of the underlying field as a temporary workaround. Using our implementation of $E_1[3]$ in sage from example \ref{example:E1_full_torsion}, we compute $\G_1$ as follows:
 \begin{sagecommandline}
 sage: L_G1 = []
 sage: for P in E1_3: 
@@ -1152,8 +1149,11 @@ sage: for P in E1_3:
 ....:     if P == PiP:
 ....:         L_G1.append(P)
 sage: G1 = Set(L_G1)
+sage: G1
 \end{sagecommandline}
-As expected, the group $\G_1=\{\Oinf, (2,4), (2,1)\}$ is identical to the $3$-torsion group of the (unextended) curve over the prime field $E_1(\F_5)$. We can use almost the same algorithm to compute the group $\G_2$ and get the following:
+As expected, the group $\G_1=\{\Oinf, (2,4), (2,1)\}$ is identical to the $3$-torsion group of the (unextended) curve over the prime field $E_1(\F_5)$. 
+
+In order to compute the group $\G_2$ for the curve $E_1(\F_5)$, we can use almost the same algorithm as we used for the computation of $\G_1$. Since $p=5$ we get the following:
 \begin{sagecommandline}
 sage: L_G2 = []
 sage: for P in E1_3: 
@@ -1162,13 +1162,15 @@ sage: for P in E1_3:
 ....:     if pP == PiP:
 ....:         L_G2.append(P)
 sage: G2 = Set(L_G2)
+sage: G2
 \end{sagecommandline}
 
-Thus, we have computed the the second subgroup of the full $3$-torsion group of curve $E_1$ as the set $\G_2 = \{\Oinf, (1,t), (1,4t)\}$. 
+Thus, we have computed the pairing group $\G_2$ of the full $3$-torsion group of curve $E_1(\F_5)$ as the set $\G_2 = \{\Oinf, (1,t), (1,4t)\}$. 
 \end{example}
 
 \begin{example}
-Consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference}. In example \ref{ex:TJJ13-full-torsion},\sme{check reference} we computed its full $5$ torsion, which is a group that has $6$ subgroups. We compute $G1$ using Sage as follows:
+\label{example:TJJ_pairing_groups}
+Consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}. In example \ref{ex:TJJ13-full-torsion} we computed its full $5$ torsion, which is a group that has $6$ subgroups. We compute $\G_1$ using Sage as follows:
 \begin{sagecommandline}
 sage: L_TJJ_G1 = []
 sage: for P in TJJF13_4_5: 
@@ -1176,31 +1178,38 @@ sage: for P in TJJF13_4_5:
 ....:     if P == PiP:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
+sage: TJJ_G1
 \end{sagecommandline}
-We get $\G1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$
+We get $\G_1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$ and as expected, $\G_1$ is identical to the $5$-torsion group of the (unextended) curve over the prime field $TJJ_13$ as computed in example \ref{eq:TJJ13-logarithmic-order}.
+
+In order to compute the group $\G_2$ for the tiny jubjub curve, we can use almost the same algorithm as we used for the computation of $\G_1$. Since $p=13$ we get the following:
 \begin{sagecommandline}
-sage: L_TJJ_G1 = []
+sage: L_TJJ_G2 = []
 sage: for P in TJJF13_4_5: 
 ....:     PiP = TJJF13_4([a.frobenius() for a in P]) # pi(P)
-....:     pP = 13*P # [5]P
-....:     if pP == PiP:
-....:         L_TJJ_G1.append(P)
-sage: TJJ_G1 = Set(L_TJJ_G1)
+....:     pP = 13*P # [13]P
+....:     if pP == PiP:	# pi(P) ==[13]P
+....:         L_TJJ_G2.append(P)
+sage: TJJ_G2 = Set(L_TJJ_G2)
+sage: TJJ_G2
 \end{sagecommandline}
-$\G_2 = \{\Oinf, (9t^2 + 7,t^3 + 11t,), (9t^2 + 7, 12t^3 + 2t), (4t^2 + 7,5t^3 + 10t),(4t^2 + 7,8t^3 + 3t)\}$
+$\G_2 = \{\Oinf, (9t^2 + 7,t^3 + 11t), (9t^2 + 7, 12t^3 + 2t), (4t^2 + 7,5t^3 + 10t),(4t^2 + 7,8t^3 + 3t)\}$
 \end{example}
 
-\begin{example}Consider Bitcoin's curve secp256k1 again. Since the group $\G_1$ is identical to the torsion group of the unextended curve, and since secp256k1 has prime order, we know that, in this case, $\G_1$ is identical to secp256k1. It is however, infeasible not to compute not only $\G_2$ itself, but to even compute an average element of $\G_2$, as elements need too much storage to be representable in this universe.
+\begin{example}
+\label{example:secp256k1_pairing_groups}
+Consider Bitcoin's curve secp256k1 again. Since the group $\G_1$ is identical to the torsion group of the unextended curve, and since secp256k1 has prime order, we know that, in this case, $\G_1$ is identical to secp256k1 itself. However it is infeasible to compute elements from $\G_2$, since according to example \ref{example:secp256k1} we can not store avarage curve points from the extension curve $secp256k1(\F_{p^k})$ on any computer, let alone compute their images under the Frobenious map.
 \end{example}
 
-\paragraph{The Weil pairing} In this part, we consider a pairing function defined on
-the subgroups $\G_1[r]$ and $\G_2[r]$ of the full $r$-torsion $E[r]$ of a short Weierstrass elliptic curve. To be more precise, let $E(\F_p)$ be an elliptic curve of embedding degree $k$ such that $r$ is a prime factor of its order. Then the \term{Weil pairing} is a bilinear, non-degenerate map:
+\paragraph{The Weil pairing} Recall the definition of a non-degenerate group pairing from \ref{pairing-map}. In this part, we consider a pairing function defined on
+the subgroups $\G_1[r]$ and $\G_2[r]$ of the full $r$-torsion $E[r]$ of a short Weierstrass elliptic curve. To be more precise, let $E(\F_p)$ be an elliptic curve of embedding degree $k$ such that $r$ is a prime factor of its order. Then the \term{Weil pairing} is defined as the following bilinear, non-degenerate map:
+
 \begin{equation}\label{eq:weil-pairing}
-e(\cdot,\cdot) : \G_1[r] \times \G_2[r] \to \F_{p^k}\; ;\; 
+e(\cdot,\cdot) : \G_1[r] \times \G_2[r] \to \F^*_{p^k}\; ;\; 
 (P,Q)\mapsto (-1)^r \cdot \frac{f_{r,P}(Q)}{f_{r,Q}(P)}
 \end{equation} 
 
-The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ are computed by \term{Miller's algorithm}:\final{check floating of algorithm}
+The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ in the definition of the Weil pairing are computed by \term{Miller's algorithm}:\final{check floating of algorithm}
 \begin{algorithm}\caption{Miller's algorithm for short Weierstrass curves $y^2 = x^3 +ax +b$}
 % https://www.math.u-bordeaux.fr/~damienrobert/csi2018/pairings.pdf
 \begin{algorithmic}[0]
@@ -1235,73 +1244,39 @@ The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ are computed b
 \end{algorithmic}
 \end{algorithm}
 
-Understanding how the algorithm works in detail requires the concept of \term{divisors}, which is outside of the scope this book. The interested reader might look at XXX.\sme{add references}
+Understanding the details of how and why this algorithm works requires the concept of \term{divisors}, which is outside of the scope this book. The interested reader might look at XXX.\sme{add references} As we can see the algorithm is more efficient on prime numbers $r$, that have a low Hamming weight \ref{def:binary_representation_integer}.
 
-In real-world applications of pairing-friendly elliptic curves, the embedding degree is usually a small number like $2$, $4$, $6$ or $12$, and the number $r$ is the largest prime factor of the curve's order.
+We call an elliptic curve $E(\F_p)$ \term{pairing-friendly} if there is a prime factor of the groups order such that the Weil pairing is efficiently computable with respect to that prime factor. In real-world applications of pairing-friendly elliptic curves, the embedding degree is usually a small number like $2$, $4$, $6$ or $12$, and the number $r$ is the largest prime factor of the curve's order. 
 
-\begin{example}Consider curve $E_1(\F_5)$ from example \ref{E1F5}\sme{check reference}. Since the only prime factor of the group's order is $3$, we cannot compute the Weil pairing on this group using our definition of Miller's algorithm. In fact, since $\G_1$ is of order $3$, executing the if statement on line XXX\sme{add reference} will lead to a ``division by zero'' error in the computation of the slope $m$.
+\begin{example}Consider curve $E_1(\F_5)$ from example \ref{E1F5}. Since the only prime factor of the group's order is $3$, we cannot compute the Weil pairing on this group using our definition of Miller's algorithm. In fact, since $\G_1$ is of order $3$, executing the algorithm will lead to a ``division by zero''.
 \end{example}
 
-\begin{example} Consider the tiny-jubjub curve $\mathit{TJJ\_13}(\F_{13})$ from example \ref{TJJ13}\sme{check reference} again. We want to instantiate the general definition of the Weil pairing for this example. To do so, recall that, as we have see in example \ref{ex:TJJ13-embedding-degree}\sme{check reference}, its embedding degree is $4$, and that we have the following type-3 pairing groups (where $\G_1$ and $\G_2$ are subgroups of the full $5$-torsion found in the curve $\mathit{TJJ\_13}(\F_{13^4})$):
+\begin{example} Consider the tiny-jubjub curve $\mathit{TJJ\_13}(\F_{13})$ from example \ref{TJJ13} and its associated pairing groups from example \ref{example:TJJ_pairing_groups}:
 \begin{align*}
-\G_1 & = \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}\\
-\G_2 & = \{\Oinf, (9t^2 + 7,t^3 + 11t), (9t^2 + 7, 12t^3 + 2t), 
+\G_1[5] & = \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}\\
+\G_2[5] & = \{\Oinf, (9t^2 + 7,t^3 + 11t), (9t^2 + 7, 12t^3 + 2t), 
 (4t^2 + 7, 5t^3 + 10t), (4t^2 + 7, 8t^33 + 3t)\}
 \end{align*}
 
-The type-3 Weil pairing is a map $e(\cdot,\cdot): \G_1 \times \G_2 \to \F_{13^4}$. From the first if-statement in Miller's algorithm, we can deduce that 
-$e(\Oinf,Q)=1$ as well as $e(P,\Oinf)=1$ for all arguments $P\in\G_1$ and $Q\in \G_2$. In order to compute a non-trivial Weil pairing, we choose the arguments 
-$P=(7,2)$ and $Q=(9t^2 + 7, 12t^3 + 2t)$. 
-
-To compute the pairing $e((7,2),(9t^2 + 7, 12t^3 + 2t))$, we have to compute the extension field elements $f_{5,P}(Q)$ and $f_{5,Q}(P)$ by applying Miller's algorithm. Do do so, observe that we have $5 = 1\cdot 2^0 + 0 \cdot 2^1 + 1\cdot 2^2$, so we get $t=2$ as well as $b_0=1$, $b_1=0$ and $b_2=1$. The loop therefore needs to be executed two times. 
-
-Computing $f_{5,P}(Q)$, we initiate $(x_T,y_T) = (7,2)$ as well as $f_1=1$ and $f_2=1$. Then we proceed as follows:
+Since we know from example \ref{ex:TJJ13-embedding-degree} that the embedding degree of $5$ id $4$, we can instantiate the general definition of the Weil pairing for this example as follows:
 $$
-\begin{array}{l|l|lllllll}
-j & b_j & m & f_1 & f_2 & x_{2T} & y_{2T} & x_{T+P} & y_{T+P}\\
-\hline\\
-1 & \cdot & 
-\end{array}
-$$
+e(\cdot,\cdot): \G_1[5] \times \G_2[5] \to \F_{13^4}
+$$ 
 
-\begin{align*}
-m & = \frac{3\cdot x_T^2 +a}{2\cdot y_T}\\
-  & = \frac{3\cdot 2^2 +1}{2\cdot 4}
-    = \frac{3}{3}\\
-  & = 1\\
-  \\
-f_1 & = f_1^2\cdot (y_Q - y_T - m\cdot(x_Q-x_T)) \\
-    & = 1^2\cdot (t - 4 - 1\cdot(1-2))
-      = t-4+1\\
-    & = t+2\\
-    \\
-f_2 & =  f_2^2\cdot (x_Q + 2x_T -m^2)\\
-    & = 1^2\cdot (1 + 2\cdot 2 -1^2)
-      = (1 + 4 -1)\\
-    & = 4\\
-\\  
-x_{2T} & =  m^2 - 2 x_T\\
-       & =  1^2 - 2\cdot 2
-         = -3\\
-       & = 2 \\  
-\\
-y_{2T} & = -y_T - m\cdot (x_{2T}-x_T)\\
-       & = -4 - 1\cdot (2-2)
-         = -4\\
-       & = 1
-\end{align*}
-
-We update $(x_T,y_T) =(2,1)$ and, since $b_0=1$, we have to execute the if statement on line XXX\sme{add reference}\sme{should all lines of all algorithms be numbered?} in the \hilight{for} loop. However, since we only loop a single time, we don't need to compute $y_{T+P}$, since we only need the updated $x_T$ in the final step. We get:
-\begin{align*}
-m & =  \frac{y_T -y_P}{x_T - x_P}\\
-  & =  \frac{1 -4}{2 - x_P}\\
-\\
-f_1 & = f_1\cdot (y_Q -y_T -m\cdot (x_Q - x_T))\\
-\\
-f_2 & = f_2\cdot (x_Q + (x_P+x_T) - m^2)\\
-\\
-x_{T+P} & = m^2 -x_T -x_P\\
-\end{align*}
+The first if-statement in Miller's algorithm, implies that $e(\Oinf,Q)=1$ as well as $e(P,\Oinf)=1$ for all arguments $P\in\G_1[5]$ and $Q\in \G_2[5]$. In order to compute a non-trivial Weil pairing, we choose the argument $P=(7,2)\in \G_1$ and $Q=(9t^2 + 7, 12t^3 + 2t)\in\G_2$. Invoking sage we get the following computation of the Weil pairing:  
+\begin{sagecommandline}
+sage: F13 = GF(13)
+sage: F13t.<t> = F13[]
+sage: P_MOD_4 = F13t(t^4+2)
+sage: F13_4.<t> = GF(13^4, name='t', modulus=P_MOD_4)
+sage: TJJF13_4 = EllipticCurve(F13_4,[8,8])
+sage: P=TJJF13_4([7,2])
+sage: Q=TJJF13_4([9*t^2+7,12*t^3+2*t])
+sage: P.weil_pairing(Q,5)
+\end{sagecommandline}
+\end{example}
+\begin{example}
+Consider Bitcoin's curve secp256k1 again. As we have seen in example \ref{example:secp256k1_pairing_groups}, it is infeasible to compute elements from the pairing group $\G_2$ and as we know from example \ref{example:secp256k1} it is moreover infeasible to do calculations in the extension field $\F_{p^k}$. It follows that the Weil pairing is not efficiently computable and that secp256k1 is not pairing friendly. 
 \end{example}
 
 % http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf
