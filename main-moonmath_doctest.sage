@@ -388,38 +388,38 @@ sage: L_ETJJ = []
 ....:             L_ETJJ.append((x,y))
 sage: ETJJ = Set(L_ETJJ)
 
-Sage commandline, line 994::
+Sage commandline, line 996::
 
 sage: p = ZZ(13)
 sage: # large prime factor
-sage: n = ZZ(5)
+sage: r = ZZ(5)
 sage: k = ZZ(1)
-sage: while k < n:  # Fermat's little theorem
-....:     if (p^k-1)%n == 0:
+sage: while k < r:  # Fermat's little theorem
+....:     if (p^k-1)%r == 0:
 ....:         break
 ....:     k=k+1
 sage: k
 sage: # small prime factor
-sage: n = ZZ(2)
+sage: r = ZZ(2)
 sage: k = ZZ(1)
-sage: while k < n:  # Fermat's little theorem
-....:     if (p^k-1)%n == 0:
+sage: while k < r:  # Fermat's little theorem
+....:     if (p^k-1)%r == 0:
 ....:         break
 ....:     k=k+1
 sage: k
 
-Sage commandline, line 1020::
+Sage commandline, line 1022::
 
 sage: p = ZZ(115792089237316195423570985008687907853269984665640564039457584007908834671663)
-sage: n = ZZ(115792089237316195423570985008687907852837564279074904382605163141518161494337)
+sage: r = ZZ(115792089237316195423570985008687907852837564279074904382605163141518161494337)
 sage: k = ZZ(1)
 sage: while k < 1000:
-....:     if (p^k-1)%n == 0:
+....:     if (p^k-1)%r == 0:
 ....:         break
 ....:     k=k+1
 sage: k
 
-Sage commandline, line 1047::
+Sage commandline, line 1050::
 
 sage: F5= GF(5)
 sage: F5t.<t> = F5[]
@@ -429,7 +429,7 @@ sage: F5_2.<t> = GF(5^2, name='t', modulus=P_MOD_2)
 sage: E1F5_2 = EllipticCurve(F5_2,[1,1])
 sage: E1F5_2.order()
 
-Sage commandline, line 1100::
+Sage commandline, line 1109::
 
 sage: INF = E1F5_2(0) # Point at infinity
 sage: L_E1_3 = []
@@ -438,35 +438,35 @@ sage: for p in E1F5_2:
 ....:         L_E1_3.append(p)
 sage: E1_3 = Set(L_E1_3) # Full 3-torsion set
 
-Sage commandline, line 1118::
+Sage commandline, line 1127::
 
 sage: # define the extension field
 sage: F13= GF(13) # prime field
 sage: F13t.<t> = F13[] # polynomials over t
-sage: P_MOD_4 = F13t(t^4+2) # irreducible polynomial of degree 4
+sage: P_MOD_4 = F13t(t^4+2) # degree 4 irreducible polynomial
 sage: P_MOD_4.is_irreducible()
-sage: F13_4.<t> = GF(13^4, name='t', modulus=P_MOD_4) # F_{13^4}
-sage: TJJF13_4 = EllipticCurve(F13_4,[8,8]) # tiny-jubjub extension
+sage: F13_4.<t> = GF(13^4, name='t', modulus=P_MOD_4)
+sage: TJJF13_4 = EllipticCurve(F13_4,[8,8]) # TJJ extension
 sage: # compute the full 5-torsion
 sage: INF = TJJF13_4(0) # point at infinity
-sage: L_TJJF13_4_5 = INF.division_points(5) # All P with [5]P == INF
+sage: L_TJJF13_4_5 = INF.division_points(5) # [5]P == INF
 sage: TJJF13_4_5 = Set(L_TJJF13_4_5)
 sage: TJJF13_4_5.cardinality() # number of elements
 
-Sage commandline, line 1133::
+Sage commandline, line 1142::
 
 sage: # define the extension field
-sage: P_MOD_3 = F13t(t^3+2) # irreducible polynomial of degree 3
+sage: P_MOD_3 = F13t(t^3+2) # degree 3 irreducible polynomial
 sage: P_MOD_3.is_irreducible()
-sage: F13_3.<t> = GF(13^3, name='t', modulus=P_MOD_3) # F_{13^3}
-sage: TJJF13_3 = EllipticCurve(F13_3,[8,8]) # tiny-jubjub extension
+sage: F13_3.<t> = GF(13^3, name='t', modulus=P_MOD_3)
+sage: TJJF13_3 = EllipticCurve(F13_3,[8,8]) # TJJ extension
 sage: # compute the 5-torsion
 sage: INF = TJJF13_3(0)
 sage: L_TJJF13_3_5 = INF.division_points(5) # [5]P == INF
 sage: TJJF13_3_5 = Set(L_TJJF13_3_5) # $5$-torsion
 sage: TJJF13_3_5.cardinality() # number of elements
 
-Sage commandline, line 1199::
+Sage commandline, line 1212::
 
 sage: L_G1 = []
 sage: for P in E1_3:
@@ -474,9 +474,8 @@ sage: for P in E1_3:
 ....:     if P == PiP:
 ....:         L_G1.append(P)
 sage: G1 = Set(L_G1)
-sage: G1
 
-Sage commandline, line 1211::
+Sage commandline, line 1223::
 
 sage: L_G2 = []
 sage: for P in E1_3:
@@ -485,9 +484,8 @@ sage: for P in E1_3:
 ....:     if pP == PiP:
 ....:         L_G2.append(P)
 sage: G2 = Set(L_G2)
-sage: G2
 
-Sage commandline, line 1228::
+Sage commandline, line 1239::
 
 sage: L_TJJ_G1 = []
 sage: for P in TJJF13_4_5:
@@ -495,9 +493,8 @@ sage: for P in TJJF13_4_5:
 ....:     if P == PiP:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
-sage: TJJ_G1
 
-Sage commandline, line 1240::
+Sage commandline, line 1250::
 
 sage: L_TJJ_G2 = []
 sage: for P in TJJF13_4_5:
@@ -506,9 +503,8 @@ sage: for P in TJJF13_4_5:
 ....:     if pP == PiP: # pi(P) ==[13]P
 ....:         L_TJJ_G2.append(P)
 sage: TJJ_G2 = Set(L_TJJ_G2)
-sage: TJJ_G2
 
-Sage commandline, line 1321::
+Sage commandline, line 1332::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -519,7 +515,7 @@ sage: P=TJJF13_4([7,2])
 sage: Q=TJJF13_4([9*t^2+7,12*t^3+2*t])
 sage: P.weil_pairing(Q,5)
 
-Sage commandline, line 1388::
+Sage commandline, line 1399::
 
 sage: import hashlib
 sage: def try_hash(s,c):
@@ -532,20 +528,20 @@ sage: def try_hash(s,c):
 ....:     return (x,z_bin[4])
 sage: try_hash('1110010000','0')
 
-Sage commandline, line 1402::
+Sage commandline, line 1413::
 
 sage: try_hash('1110010000','1')
 
-Sage commandline, line 1407::
+Sage commandline, line 1418::
 
 sage: try_hash('1110010000','10')
 
-Sage commandline, line 1416::
+Sage commandline, line 1427::
 
 sage: P = TJJ_13(12,8)
 sage: (4*P).xy()
 
-Sage commandline, line 1478::
+Sage commandline, line 1494::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: r = 115792089237316195423570985008687907852837564279074904382605163141518161494337
@@ -553,14 +549,14 @@ sage: t = p + 1 -r
 sage: t.nbits()
 sage: abs(RR(t)) <= 2*sqrt(RR(p))
 
-Sage commandline, line 1517::
+Sage commandline, line 1533::
 
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: F = GF(p)
 sage: j = F(1728)*((F(4)*F(0)^3)/(F(4)*F(0)^3+F(27)*F(7)^2))
 sage: j == F(0)
 
-Sage commandline, line 1575::
+Sage commandline, line 1591::
 
 sage: z = ComplexField(100)(0,1)
 sage: z # (0+1i)
@@ -577,7 +573,7 @@ sage: elliptic_j(z)
 sage: elliptic_j(z).imag().round()
 sage: elliptic_j(z).real().round()
 
-Sage commandline, line 1768::
+Sage commandline, line 1784::
 
 sage: D = -3
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
@@ -590,7 +586,7 @@ sage: v.is_integer()
 sage: 4*p == t^2 + abs(D)*v^2
 sage: v
 
-Sage commandline, line 1785::
+Sage commandline, line 1801::
 
 sage: F = GF(p)
 sage: for c2 in F:
@@ -606,7 +602,7 @@ sage: for c3 in F:
 ....:         break
 sage: c3
 
-Sage commandline, line 1802::
+Sage commandline, line 1818::
 
 sage: C1 = EllipticCurve(F,[0,1])
 sage: C1.order() == r
@@ -621,7 +617,7 @@ sage: C5.order() == r
 sage: C6 = EllipticCurve(F,[0,c3^(-2)*c2^3])
 sage: C6.order() == r
 
-Sage commandline, line 1827::
+Sage commandline, line 1843::
 
 sage: b1=86844066927987146567678238756515930889952488499230423029593188005931626003754
 sage: for b2 in F:
@@ -637,14 +633,14 @@ sage: for b2 in F:
 ....:         pass
 sage: b2
 
-Sage commandline, line 1892::
+Sage commandline, line 1908::
 
 sage: for k in range(1,42): # Fermat's little theorem
 ....:     if (43^k-1)%13 == 0:
 ....:         break
 sage: k
 
-Sage commandline, line 1914::
+Sage commandline, line 1930::
 
 sage: F43 = GF(43)
 sage: c2 = F43(5)
@@ -658,7 +654,7 @@ sage: c3 =F43(36)
 ....: except ValueError:
 ....:     c3
 
-Sage commandline, line 1930::
+Sage commandline, line 1946::
 
 sage: BLS61 = EllipticCurve(F43,[0,1])
 sage: BLS61.order() == 39
@@ -674,7 +670,7 @@ sage: BLS66 = EllipticCurve(F43,[0,c3^(-2)*c2^3])
 sage: BLS66.order() == 39
 sage: BLS6 = BLS63 # our BLS6 curve in the book
 
-Sage commandline, line 1980::
+Sage commandline, line 1996::
 
 sage: P = BLS6(9,2)
 sage: Q = 3*P
@@ -684,7 +680,7 @@ sage: for x in range(0,13): # cyclic of order 13
 ....:     P = x*Q
 ....:     BLS6_13.append(P)
 
-Sage commandline, line 2065::
+Sage commandline, line 2081::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -692,7 +688,7 @@ sage: p = F43t(t^6+6)
 sage: p.is_irreducible()
 sage: F43_6.<v> = GF(43^6, name='v', modulus=p)
 
-Sage commandline, line 2079::
+Sage commandline, line 2095::
 
 sage: BLS6 = EllipticCurve (F43_6,[0 ,6]) # curve extension
 sage: INF = BLS6(0) # point at infinity
@@ -705,7 +701,7 @@ sage: for P in INF.division_points(13): # full 13-torsion
 ....:             break
 sage: P.xy()
 
-Sage commandline, line 2098::
+Sage commandline, line 2114::
 
 sage: Q = BLS6(7*v^2,16*v^3)
 sage: BLS6_13_2 = []
@@ -713,7 +709,7 @@ sage: for x in range(0,13):
 ....:     P = x*Q
 ....:     BLS6_13_2.append(P)
 
-Sage commandline, line 2144::
+Sage commandline, line 2160::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
