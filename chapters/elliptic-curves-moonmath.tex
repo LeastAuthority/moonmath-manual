@@ -15,11 +15,11 @@ We then introduce the elliptic curve group law and describe elliptic curve scala
 
 We finish this section with an explicit equivalence that transforms affine representations into projective representations and vice versa.
 
-\subsection{Affine Short Weierstrass form} Probably the least abstract and most straight-forward way to introduce elliptic curves for non-mathematicians and beginners is the so-called affine representation of a short Weierstrass curve. To see what this is, let $\F$ be a finite field of characteristic $q$ with $q>3$ and $a,b\in \F$ two field elements such that the so called \term{discriminant} $4a^3+ 27b^2$ is not equal to zero. Then a \term{short Weierstrass elliptic curve} $E(\F)$ over $\F$ in its affine representation is the set of all pairs of field elements $(x,y)\in \F\times \F$ that satisfy the short Weierstrass cubic equation $y^2=x^3+a\cdot x+b$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}:
+\subsection{Affine Short Weierstrass form} Probably the least abstract and most straight-forward way to introduce elliptic curves for non-mathematicians and beginners is the so-called affine representation of a short Weierstrass curve. To see what this is, let $\F$ be a finite field of characteristic $q$ with $q>3$ and $a,b\in \F$ two field elements such that the so called \term{discriminant} $4a^3+ 27b^2$ is not equal to zero. Then a \term{short Weierstrass elliptic curve} $E_{a,b}(\F)$ over $\F$ in its affine representation is the set of all pairs of field elements $(x,y)\in \F\times \F$ that satisfy the short Weierstrass cubic equation $y^2=x^3+a\cdot x+b$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}:
 
 \begin{equation}
 \label{def_short_weierstrass_curve}
-E(\F) = \{(x,y)\in \F\times \F\;|\; y^2=x^3+a\cdot x+b \} \bigcup \{\Oinf\}
+E_{a,b}(\F) = \{(x,y)\in \F\times \F\;|\; y^2=x^3+a\cdot x+b \} \bigcup \{\Oinf\}
 \end{equation}
 The term ``curve'' is used here because, if an elliptic curve is defined over a characteristic zero field, like the field $\Q$ of rational numbers, the set of all points $(x,y)\in \Q\times \Q$ that satisfy $y^2 = x^3 +a\cdot x +b$ looks like a curve. We should note however that visualizing elliptic curves over finite fields as ``curves'' has its limitations, and we will therefore not stress the geometric picture too much, but focus on the computational properties instead. To understand the visual difference, consider the following two elliptic curves: 
 
@@ -67,15 +67,15 @@ sage: try: 	# point at infinity has no affine coordinates
 sage: P = E.plot() # create a plotted version 
 \end{sagecommandline}
 The following three examples give a more practical understanding of what an elliptic curve is and how we can compute it. The reader is advised to read these examples carefully, and ideally, to also carry out the computation themselves. We will repeatedly build on these examples in this chapter, and use the second example throughout the entire book.
-\begin{example}\label{E1F5} Consider the prime field $\F_5$ from example \ref{primfield_z_5}. To define an elliptic curve over $\F_5$, we have to choose two numbers $a$ and $b$ from that field. Assuming we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5}$ from which follows that the corresponding elliptic curve $E_1(\F_5)$ is given by the set of all pairs $(x,y)$ from $\F_5$ that satisfy the equation $y^2=x^3+x+1$, together with the special symbol $\Oinf$, which represents the ``point at infinity''. 
+\begin{example}\label{E1F5} Consider the prime field $\F_5$ from example \ref{primfield_z_5}. To define an elliptic curve over $\F_5$, we have to choose two numbers $a$ and $b$ from that field. Assuming we choose $a=1$ and $b=1$ then $\kongru{4a^3+ 27b^2}{1}{5}$ from which follows that the corresponding elliptic curve $E_{1,1}(\F_5)$ is given by the set of all pairs $(x,y)$ from $\F_5$ that satisfy the equation $y^2=x^3+x+1$, together with the special symbol $\Oinf$, which represents the ``point at infinity''. 
 
-To get a better understanding of that curve, observe that if we choose arbitrarily the pair $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence $(1,1)$ is not a point on the curve $E_1(\F_5)$. On the other hand choosing for example $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is a point on the curve $E_1(\F_5)$ (Remember that all computations are done in modulo $5$ arithmetics).
+To get a better understanding of that curve, observe that if we choose arbitrarily the pair $(x,y)=(1,1)$, we see that $1^2 \neq 1^3+1 + 1$ and hence $(1,1)$ is not a point on the curve $E_{1,1}(\F_5)$. On the other hand choosing for example $(x,y)=(2,1)$ gives $1^2 = 2^3 + 2 + 1$ and hence the pair $(2,1)$ is a point on the curve $E_{1,1}(\F_5)$ (Remember that all computations are done in modulo $5$ arithmetics).
 
 Now since the set $\F_5\times \F_5$ of all pairs $(x,y)$ from $\F_5$ contains only $5\cdot 5=25$ pairs, we can compute the curve, by just inserting every possible pair $(x,y)$ into the short Weierstrass equation $y^2 = x^3 + x +1$. If the equation holds, the pair is a curve point, if not that means that the point is not on the curve. Combining the result of this computation with the point at infinity gives the curve as follows:
 $$
-E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+E_{1,1}(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
-This means that the elliptic curve is a set of $9$ elements, $8$ of which are pairs of elements from $\F_5$ and one special symbol $\Oinf$. Visualizing $E_1(\F_5)$ gives the following plot:
+This means that the elliptic curve is a set of $9$ elements, $8$ of which are pairs of elements from $\F_5$ and one special symbol $\Oinf$. Visualizing $E_{1,1}(\F_5)$ gives the following plot:
 \begin{sagesilent}
 F5 = GF(5)
 E1 = EllipticCurve(F5, [1,1])
@@ -150,6 +150,41 @@ sage: r.nbits()
 \end{exercise}
 \begin{exercise}
 Look up the definition of curve BLS12-381, implement it in Sage and compute the number of all curve points.
+\end{exercise}
+\paragraph{Isomorphic affine short Weierstrass curves}
+\label{sec:isomorphic_curves} As explained in the previous part, elliptic curves are defined by pairs of parameters $(a, b)\in \F\times \F$ for some field $\F$. An important question in classifying elliptic curves is then the task to decide which pairs of parameters $(a,b)$ and $(a',b')$ instantiate equivalent curves in the sense that there is a 1:1 correspondence between the set of curve points.
+
+To be more precise let $\F$ be a field and $(a,b)$ as well as $(a',b')$ two pairs of parameters, such that there is an invertible field element $c\in \F^*$ with $a' = a\cdot c^4$ and $b' = b\cdot c^6$. Then the elliptic curves $E_{a,b}(\F)$ and $E_{a',b'}(\F)$ are called \term{isomorphic} and there is a map that maps curve points onto curve points
+\begin{equation}
+\label{eq:curve_isomorphism}
+I: E_{a,b}(\F) \to E_{a',b'}(\F):\; \begin{cases}(x,y)\\\Oinf\end{cases}
+\mapsto \begin{cases}(c^2\cdot x,c^2\cdot y)\\\Oinf\end{cases}
+\end{equation}
+This map is a 1:1 correspondence and its inverse map is given by mapping the point at infinity onto the point at infinity and each curve point $(x,y)$ onto the curve point $(c^{-2}x,c^{-2}y)$.
+\begin{example}
+\label{ex:isomorphic_E1F5}
+ Consider the short Weierstrass elliptic curve $E_{1,1}(\F_5)$ from example \ref{E1F5} and the elliptic curve
+$$
+E_{1,4}(\F_5):= \{(x,y)\in \F_5\times \F_5 \; | \; y^3 = x^3 + x + 4 \}
+$$
+Inserting all pairs of elements $(x,y)\in \F_5\times \F_5$ into the short Weierstrass equation $y^3 = x^3 + x + 4$ of $E_{1,4}(\F_5)$ results in the following set of points:
+$$
+E_{1,4}(\F_5) = \{
+\Oinf, (0,2), (0,3), (1,1), (1,4), (2,2), (2,3), (3,2), (3,3)\}
+$$
+As we can see, both curves are of the same order and indeed since $2$ is an invertible element from $\F_5$ with $1 = 2^4\cdot 1$ and $4=2^6\cdot 1$, $E_{1,4}(\F)$ and $E_{1,1}(\F)$ are isomorphic and the map $I: E_{1,1}(\F_5)\to E_{1,4}(\F_5): (x,y)\mapsto (4x,4y)$ from \ref{eq:curve_isomorphism} defines a 1:1 correspondence. For example the point $(4,3)\in E_{1,1}(\F)$ is mapped onto the point $I(4,3)=(4\cdot 4, 4\cdot 3) = (1,2)\in E_{1,4}(\F)$.
+\end{example}
+  
+\begin{exercise}
+Let $\F$ be a finite field and $(a,b)$ as well as $(a',b')$ two pairs of parameters, and $c\in \F^*$ an invertible field element with $a' = a\cdot c^4$ and $b' = b\cdot c^6$. Show that in this case function $I$ \ref{eq:curve_isomorphism} maps curve points onto curve points.
+\end{exercise}
+
+\begin{exercise}
+\label{ex:isomorphic_TJJ13} Consider the tiny-jubjub curve from example \ref{TJJ13} and the elliptic curve $E_{5,12}(\F_{13})$ defined as follows:
+$$
+E_{5,12}(\F_{13}) = \{ (x,y)\in \F_{13}\times \F_{13}\;|\; y^2 = x^3 + 5x +12\}
+$$
+Show that $TJJ\_13$ and $E_{5,12}(\F_{13})$ are isomorphic. Then compute the set of all points from $E_{5,12}(\F_{13})$, construct $I$ and map all points of $TJJ\_13$ onto $E_{5,12}(\F_{13})$.
 \end{exercise}
 
 \paragraph{Affine compressed representation}
@@ -243,11 +278,11 @@ As we can see, it is very efficient to compute inverses on elliptic curves. Howe
 
 To get some practical impression of how the group law on an elliptic curve is computed, let's look at some actual cases: 
 \begin{example}\label{ex:01+42}
-Consider the elliptic curve $E_1(\F_5)$ from example \ref{E1F5} again. As we have seen, the curve conists of the following $9$ elements:
+Consider the elliptic curve $E_{1,1}(\F_5)$ from example \ref{E1F5} again. As we have seen, the curve conists of the following $9$ elements:
 $$
-E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+E_{1,1}(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 $$
-We know that this set defines a group, so we can add any two elements from $E_1(\F_5)$ to get a third element. 
+We know that this set defines a group, so we can add any two elements from $E_{1,1}(\F_5)$ to get a third element. 
 
 To give an example, consider the elements $(0,1)$ and $(4,2)$. Neither of these elements is the neutral element $\Oinf$, and since, the $x$ coordinate of $(0,1)$ is different from the $x$ coordinate of $(4,2)$, we know that we have to use the chord rule from definition \ref{def:chord-tangent-algebra} to compute the sum $(0,1)\oplus (4,2)$:
 %\begin{tabular}{lr}
@@ -268,7 +303,7 @@ y_3  & = \left(\frac{y_2-y_1}{x_2-x_1} \right)\left(x_1-x_3\right) - y_1  & \tex
        = 1          
 \end{align*} 
 %\end{tabular}
-So, in the elliptic curve $E_1(\F_5)$ we get $(0,1)\oplus (4,2) =(2,1)$, and, indeed, the pair $(2,1)$ is an element of $E_1(\F_5)$ as expected. On the other hand, $(0,1)\oplus (0,4) =\Oinf$, since both points have equal $x$ coordinates and inverse $y$ coordinates, rendering them inverses of each other. Adding the point $(4,2)$ to itself, we have to use the tangent rule from definition \ref{def:chord-tangent-algebra}:
+So, in the elliptic curve $E_{1,1}(\F_5)$ we get $(0,1)\oplus (4,2) =(2,1)$, and, indeed, the pair $(2,1)$ is an element of $E_{1,1}(\F_5)$ as expected. On the other hand, $(0,1)\oplus (0,4) =\Oinf$, since both points have equal $x$ coordinates and inverse $y$ coordinates, rendering them inverses of each other. Adding the point $(4,2)$ to itself, we have to use the tangent rule from definition \ref{def:chord-tangent-algebra}:
 \begin{align*}
 x'  & = \left(\frac{3x^2+a}{2y}\right)^2 -2x   & \text{\# insert points}\\
     & = \left(\frac{3\cdot 4^2+1}{2\cdot 2}\right)^2 -2\cdot 4 & \text{\# simplify in } \F_5 \\
@@ -283,7 +318,7 @@ y'  & = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y  & \text{\# insert
     & = 1\cdot 1 + 3
       = 4
 \end{align*}
-So, in the elliptic curve $E_1(\F_5)$, we get the doubling  of $(4,2)$, that is, $(4,2)\oplus (4,2) =(3,4)$, and, indeed the pair $(3,4)$ is an element of $E_1(\F_5)$ as expected. The group $E_1(\F_5)$ has no self-inverse points other than the neutral element $\Oinf$, since no point has $0$ as its $y$ coordinate. We can invoke Sage to double-check the computations. 
+So, in the elliptic curve $E_{1,1}(\F_5)$, we get the doubling  of $(4,2)$, that is, $(4,2)\oplus (4,2) =(3,4)$, and, indeed the pair $(3,4)$ is an element of $E_{1,1}(\F_5)$ as expected. The group $E_{1,1}(\F_5)$ has no self-inverse points other than the neutral element $\Oinf$, since no point has $0$ as its $y$ coordinate. We can invoke Sage to double-check the computations. 
 \begin{sagecommandline}
 sage: F5 = GF(5)
 sage: E1 = EllipticCurve(F5,[1,1])
@@ -358,13 +393,13 @@ For small pen and paper groups, the logarithmic order greatly simplifies complic
 The reader should keep in mind though, that many elliptic curves are believed to be DL-secure \ref{def:DL-secure}, which implies that in those cases the logarithmic order can not be computed efficiently.  
 
 In the following example, we will look at some implications of the fact that elliptic curves are finite cyclic groups and apply the logarithmic order:
-\begin{example}\label{ex:G1G2-subgroups} Consider the elliptic curve group $E_1(\F_5)$ from example \ref{E1F5}. Since it is a finite cyclic group of order $9$, and the prime factorization of $9$ is $3\cdot 3$, we can use the fundamental theorem of finite cyclic groups \ref{def:fundamental_theorem_groups} to reason about all its subgroups. In fact, since the only  factors of $9$ are $1$, $3$ and $9$, we know that $E_1(\F_5)$ has the following subgroups:
+\begin{example}\label{ex:G1G2-subgroups} Consider the elliptic curve group $E_{1,1}(\F_5)$ from example \ref{E1F5}. Since it is a finite cyclic group of order $9$, and the prime factorization of $9$ is $3\cdot 3$, we can use the fundamental theorem of finite cyclic groups \ref{def:fundamental_theorem_groups} to reason about all its subgroups. In fact, since the only  factors of $9$ are $1$, $3$ and $9$, we know that $E_{1,1}(\F_5)$ has the following subgroups:
 \begin{itemize}
-\item $E_1(\F_5)[9]$ is a subgroup of order $9$. By definition, any group is a subgroup of itself.
-\item $E_1(\F_5)[3] = \{(2,1),(2,4),\Oinf\}$ is a subgroup of order $3$. This is the subgroup associated to the prime factor $3$.
-\item $E_1(\F_5)[1] = \{\Oinf\}$ is a subgroup of order $1$. This is the trivial subgroup.
+\item $E_{1,1}(\F_5)[9]$ is a subgroup of order $9$. By definition, any group is a subgroup of itself.
+\item $E_{1,1}(\F_5)[3] = \{(2,1),(2,4),\Oinf\}$ is a subgroup of order $3$. This is the subgroup associated to the prime factor $3$.
+\item $E_{1,1}(\F_5)[1] = \{\Oinf\}$ is a subgroup of order $1$. This is the trivial subgroup.
 \end{itemize}
-Moreover, since $E_1(\F_5)$ and all its subgroups are cyclic, we know from \pageref{cyclic-groups} that they must have generators. For example, the curve point $(2,1)$ is a generator of the order $3$ subgroup $E_1(\F_5)[3]$, since every element of $E_1(\F_5)[3]$ can be generated by repeatedly adding $(2,1)$ to itself: 
+Moreover, since $E_{1,1}(\F_5)$ and all its subgroups are cyclic, we know from \pageref{cyclic-groups} that they must have generators. For example, the curve point $(2,1)$ is a generator of the order $3$ subgroup $E_{1,1}(\F_5)[3]$, since every element of $E_{1,1}(\F_5)[3]$ can be generated by repeatedly adding $(2,1)$ to itself: 
 \begin{align*}
 [1](2,1) & = (2,1) \\
 [2](2,1) & = (2,4) \\
@@ -372,9 +407,9 @@ Moreover, since $E_1(\F_5)$ and all its subgroups are cyclic, we know from \page
 \end{align*}
 Since $(2,1)$ is a generator, we know from \ref{exponentialmap} that it gives rise to an exponential map from the finite field $\F_3$ onto $\G_2$ defined by scalar multiplication:
 $$
-[\cdot](2,1): \F_3 \to E_1(\F_5)[3]\; : \; x\mapsto [x](2,1) 
+[\cdot](2,1): \F_3 \to E_{1,1}(\F_5)[3]\; : \; x\mapsto [x](2,1) 
 $$
-To give an example of a generator that generates the entire group $E_1(\F_5)$, consider the point $(0,1)$. Applying the tangent rule repeatedly, we compute as follows:
+To give an example of a generator that generates the entire group $E_{1,1}(\F_5)$, consider the point $(0,1)$. Applying the tangent rule repeatedly, we compute as follows:
 $$
 \begin{array}{lccr}
 {}\begin{array}{lcl}
@@ -395,17 +430,17 @@ $$
 $$
 Again, since $(0,1)$ is a generator, we know from \ref{exponentialmap} that it gives rise to an exponential map. However, since the group order is not a prime number, the exponential map does not map from any field, but from the ring $\Z_9$ of modular $9$ arithmetics:
 $$
-[\cdot](0,1): \Z_9 \to E_1(\F_5)\; : \; x\mapsto [x](0,1) 
+[\cdot](0,1): \Z_9 \to E_{1,1}(\F_5)\; : \; x\mapsto [x](0,1) 
 $$
 Using the generator $(0,1)$ and its associated exponential map, we can write $E(\F_1)$ in logarithmic order with respect to $(0,1)$ as explained in \ref{def:logarithmic_ordering}. We get the following:
 $$
-E_1(\F_5) = \{(0, 1)\to (4, 2)\to (2, 1)\to (3, 4)\to (3, 1)\to (2, 4)\to (4, 3)\to (0, 4)\to \Oinf \}
+E_{1,1}(\F_5) = \{(0, 1)\to (4, 2)\to (2, 1)\to (3, 4)\to (3, 1)\to (2, 4)\to (4, 3)\to (0, 4)\to \Oinf \}
 $$
 This indicates that the first element is a generator, and the $n$-th element is the scalar product of $n$ and the generator. To see how logarithmic orders like this simplify the computations in small elliptic curve groups, consider example \ref{ex:01+42} again. In that example, we use the chord-and-tangent rule to compute $(0,1)\oplus (4,2)$. Now, in the logarithmic order of $E_1(\F)$, we can compute that sum much easier, since we can directly see that $(0,1)=[1](0,1)$ and $(4,2)=[2](0,1)$. We can then deduce $(0,1)\oplus (4,2)= (2,1)$ immediately, since $[1](0,1)\oplus [2](0,1)= [3](0,1)=(2,1)$.
 
-To give another example, we can immediately see that $(3,4)\oplus (4,3) = (4,2)$, without doing any expensive elliptic curve addition, since we know $(3,4)= [4](0,1)$ as well as $(4,3)= [7](0,1)$ from the logarithmic ordering of $E_1(\F_5)$. Since $4+7 = 2$ in $\Z_9$, the result must be $[2](0,1)=(4,2)$.
+To give another example, we can immediately see that $(3,4)\oplus (4,3) = (4,2)$, without doing any expensive elliptic curve addition, since we know $(3,4)= [4](0,1)$ as well as $(4,3)= [7](0,1)$ from the logarithmic ordering of $E_{1,1}(\F_5)$. Since $4+7 = 2$ in $\Z_9$, the result must be $[2](0,1)=(4,2)$.
 
-Finally we can use $E_1(\F_5)$ as an example to understand the concept of cofactor clearing from \ref{def:cofactor_clearing}. Since the order of $E_1(\F_5)$ is $9$, we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_1(\F_5)$ onto its prime factor group $E_1(\F_5)[3]$ by scalar multiplication with $3$. For example, taking the element $(3,4)$, which is not in $E_1(\F_5)[3]$, and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $E_1(\F_5)[3]$ as expected.
+Finally we can use $E_{1,1}(\F_5)$ as an example to understand the concept of cofactor clearing from \ref{def:cofactor_clearing}. Since the order of $E_{1,1}(\F_5)$ is $9$, we only have a single factor, which happen to be the cofactor as well. Cofactor clearing then implies that we can map any element from $E_{1,1}(\F_5)$ onto its prime factor group $E_{1,1}(\F_5)[3]$ by scalar multiplication with $3$. For example, taking the element $(3,4)$, which is not in $E_{1,1}(\F_5)[3]$, and multiplying it with $3$, we get $[3](3,4)= (2,1)$, which is an element of $E_{1,1}(\F_5)[3]$ as expected.
 \end{example}
 In the following example, we will look at the subgroups of the tiny-jubjub curve, define generators, and compute the logarithmic order for pen-and-paper computations. Then we take another look at the principle of cofactor clearing.
 
@@ -472,15 +507,15 @@ This implies $X=0$ and shows that the only projective point at infinity, that is
 
 \begin{example}
 \label{ex:E1F5-projective}
- To get an intuition of how an elliptic curve in projective geometry looks, consider curve $E_1(\F_5)$ from example \ref{E1F5}. We know that, in its affine representation, the set of points on the affine short Weierstrass curve is given as follows:
+ To get an intuition of how an elliptic curve in projective geometry looks, consider curve $E_{1,1}(\F_5)$ from example \ref{E1F5}. We know that, in its affine representation, the set of points on the affine short Weierstrass curve is given as follows:
 
 \begin{equation}\label{eq:E1F5-affine}
-E_1(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
+E_{1,1}(\F_5) = \{\Oinf, (0,1),(2,1),(3,1),(4,2),(4,3),(0,4),(2,4),(3,4)\}
 \end{equation}
 
 This is defined as the set of all pairs $(x,y)\in \F_5\times \F_5$ such that the affine short Weierstrass equation $y^2 = x^3 + ax +b$ with $a=1$ and $b=1$ is satisfied.
 
-To find the set of elements of $E_1(\F_5)$ in the projective representation of a short Weierstrass curve with the same parameters $a=1$ and $b=1$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$ that satisfy the following homogenous cubic equation for any representative $(x_1,y_1,z_1)\in [X:Y:Z]$:
+To find the set of elements of $E_{1,1}(\F_5)$ in the projective representation of a short Weierstrass curve with the same parameters $a=1$ and $b=1$, we have to compute the set of projective points $[X:Y:Z]$ from the projective plane $\F_5\mathrm{P}^2$ that satisfy the following homogenous cubic equation for any representative $(x_1,y_1,z_1)\in [X:Y:Z]$:
 \begin{equation}\label{eq:homogenous-cubic}
 y_1^2z_1 = x_1^3 + 1\cdot x_1 z_1^2 + 1\cdot z_1^3
 \end{equation}
@@ -501,7 +536,7 @@ $$
 1^2\cdot 4 = 0^3 + 1\cdot 0\cdot 4^2 + 1\cdot 4^3 \Leftrightarrow
 4=4
 $$
-To find the projective representation of $E_1(\F_5)$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstrass curve, since it cannot satisfy the defining equation in \ref{def:projective_cubic_equation} for any parameter $a$ and $b$. Therefore, we can exclude it from our consideration. 
+To find the projective representation of $E_{1,1}(\F_5)$, we first observe that the projective line at infinity $[1:0:0]$ is not a curve point on any projective short Weierstrass curve, since it cannot satisfy the defining equation in \ref{def:projective_cubic_equation} for any parameter $a$ and $b$. Therefore, we can exclude it from our consideration. 
 
 Moreover, a point at infinity $[X:Y:0]$ can only satisfy the equation in \ref{def:projective_cubic_equation} for any $a$ and $b$, if $X=0$, which implies that the only point at infinity relevant for short Weierstrass elliptic curves is $[0:1:0]$, since $[0:k:0]= [0:1:0]$ for all $k\in\F^*$. Therefore, we can exclude all points at infinity except the point $[0:1:0]$.
 
@@ -961,7 +996,7 @@ Fermat's little theorem \ref{fermats-little-theorem} implies that there always e
 \begin{notation} Let $\F$ be a finite field of order $q$ and $E(\F)$ an elliptic curve over $\F$, such that $r$ is a prime factor of the order of $E(\F)$. We then write $k(r)$ for the embedding degree of $E(\F)$ with respect to $r$.
 \end{notation}
 
-\begin{example} To get a better intuition of the embedding degree, let's consider the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}. We know that the order of $E_1(\F_5)$ is $9$, and, since the only prime factor of $9$ is $3$, we compute the embedding degree of $E_1(\F_5)$ with respect to $3$. 
+\begin{example} To get a better intuition of the embedding degree, let's consider the elliptic curve $E_{1,1}(\F_5)$ from example \ref{E1F5}. We know that the order of $E_{1,1}(\F_5)$ is $9$, and, since the only prime factor of $9$ is $3$, we compute the embedding degree of $E_{1,1}(\F_5)$ with respect to $3$. 
 
 To find the embedding degree, we have to find the smallest integer $k$ such that $3$ divides $q^k-1= 5^k-1$. We try and increment until we find a proper $k$. 
 
@@ -970,7 +1005,7 @@ k=1 &\text{ : } 5^1-1 = 4 & \text{ not divisible by } 3\\
 k=2 &\text{ : } 5^2-1 = 24 & \text{ divisible by } 3
 \end{align*} 
 
-This shows that the embedding degree of the elliptic curve $E_1(\F_5)$ is $2$ relative to the the prime factor $3$ of the order of $E_1(\F_5)$.
+This shows that the embedding degree of the elliptic curve $E_{1,1}(\F_5)$ is $2$ relative to the the prime factor $3$ of the order of $E_{1,1}(\F_5)$.
 \end{example}
 
 \begin{example}\label{ex:TJJ13-embedding-degree} Let us consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}. We know that the order of $\mathit{TJJ\_13}$ is $20$, and that the order therefore has two prime factors. A ``large'' prime factor $5$ and a small prime factor $2$. 
@@ -1042,7 +1077,7 @@ E(\F')=\{ (x,y)\in \F' \times \F' \;|\; y^2 = x^3 +a\cdot x +b \}
 
 While we did not change the defining parameters, we consider curve points from the affine plane over the extension field now. Since $\F\subset \F'$, it can be shown that the original elliptic curve $E(\F)$ is a sub-curve of the extension curve $E(\F')$.
 
-\begin{example}\label{ex:EF52} Consider the prime field $\F_5$ from example \ref{prime-field-F5} together with the elliptic curve $E_1(\F_5)$ and its definition from example \ref{E1F5} and the construction the extension field $\F_{5^2}$ relative to the polynomial $t^2+2 \in \F_5[t]$ from exercise \ref{exercise:finite_fieldF5_2}. In this example we extend the definition of $E_1(\F_5)$ to an elliptic curve over $\F_{5^2}$ and compute its set of points:
+\begin{example}\label{ex:EF52} Consider the prime field $\F_5$ from example \ref{prime-field-F5} together with the elliptic curve $E_{1,1}(\F_5)$ and its definition from example \ref{E1F5} and the construction the extension field $\F_{5^2}$ relative to the polynomial $t^2+2 \in \F_5[t]$ from exercise \ref{exercise:finite_fieldF5_2}. In this example we extend the definition of $E_{1,1}(\F_5)$ to an elliptic curve over $\F_{5^2}$ and compute its set of points:
 $$
 E_1(\F_{5^2}) = \{ (x,y)\in \F_{5^2}\times \F_{5^2} \;|\; y^2 = x^3 + x +1 \}
 $$
@@ -1065,7 +1100,7 @@ E_1(\F_{5^2}) = \{\Oinf, (0, 4), (0, 1), (3, 4), (3, 1), (4, 3), (4, 2), (2, 4),
 (3t + 1, t + 4), (3t + 1, 4t + 1), (3t + 3, 3), (3t + 3, 2), (1, 4t),  (1, t)
 \}
 \end{multline*}
-As we can see, the set of points from the elliptic curve $E_1(\F_5)$ is a subset of the sets of points from the elliptic curve $E(\F_{5^2})$. This was expected since the prime field $\F_5$ is a subfield of the finite field $\F_{5^2}$.
+As we can see, the set of points from the elliptic curve $E_{1,1}(\F_5)$ is a subset of the sets of points from the elliptic curve $E(\F_{5^2})$. This was expected since the prime field $\F_5$ is a subfield of the finite field $\F_{5^2}$.
 \end{example}
 \begin{exercise} Consider the short Weierstrass elliptic curve $E(\F_{5^2})$ from example \ref{ex:EF52}, compute the expression $(4t+3,2t+1)\oplus(3t+3,2)$ using pen and paper and double check the computation using sage. Then solve the equation $x\oplus (3t+3,3)=(3,4)$ for some $x\in E(\F_{5^2})$. After that compute the scalar multiplication $[5](2t + 1, 4t + 4)$ using the double-and-add algorithm from exercise \ref{alg_double-and-add}.
 \end{exercise}
@@ -1103,7 +1138,7 @@ So, when we consider nested elliptic curve extensions as in \ref{def:full_torsio
 
 \begin{example}
 \label{example:E1_full_torsion}
- Consider curve $E_1(\F_5)$ again. We know from \ref{ex:G1G2-subgroups} that it contains a $3$-torsion group and that the embedding degree of $3$ is $k(3)=2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in example \ref{ex:EF52}. 
+ Consider curve $E_{1,1}(\F_5)$ again. We know from \ref{ex:G1G2-subgroups} that it contains a $3$-torsion group and that the embedding degree of $3$ is $k(3)=2$. From this we can deduce that we can find the full $3$-torsion group $E_1[3]$ in the curve extension $E_1(\F_{5^2})$, the latter of which we computed in example \ref{ex:EF52}. 
 
 Since that curve is small, in order to find the full $3$-torsion, we can loop through all elements of $E_1(\F_{5^2})$ and check the defining equation $[3]P= \Oinf$. Invoking Sage and using our implementation of $E_1(\F_{5^2})$ in sage from \ref{ex:EF52}, we compute as follows:
 \begin{sagecommandline}
@@ -1117,7 +1152,7 @@ sage: E1_3 = Set(L_E1_3) # Full 3-torsion set
 $$
 E_1[3] = \{\Oinf,(2,1),(2,4),(1,t),(1,4t), (2t + 1,t + 1), (2t + 1, 4t + 4), (3t + 1,t + 4), (3t + 1, 4t + 1) \}
 $$
-As we can see the group $E_1[3]$ contains $9=3^3$ many elements and the $3$-torsion group $E_1(\F_5)[3]$ of the curve over the prime field is a subset of the full torsion group. 
+As we can see the group $E_1[3]$ contains $9=3^3$ many elements and the $3$-torsion group $E_{1,1}(\F_5)[3]$ of the curve over the prime field is a subset of the full torsion group. 
 \end{example}
 \begin{example}\label{ex:TJJ13-full-torsion} Consider the tiny-jubjub curve from example \ref{TJJ13}. We know from example \ref{ex:TJJ13-embedding-degree} that it contains a $5$-torsion group and that the embedding degree of $5$ is $4$. This implies that we can find the full $5$-torsion group $\mathit{TJJ\_13}[5]$ in the curve extension $\mathit{TJJ\_13}(\F_{13^4})$. 
 
@@ -1202,7 +1237,7 @@ It can be shown that $\G_1$ is precisely the $r$-torsion group $E(\F_p)[r]$ of t
 
 It should be noted that other definitions of $\G_2$ exists in the literature, too. However, in the context of pairing-based cryptography, this is a common choice as it is particularly useful because we can define efficient hash functions that map into $\G_2$, which is not possible for all subgroups of the full $r$-torsion.
 
-\begin{example} Consider the curve $E_1(\F_5)$ from example \ref{E1F5} again. As we have seen, this curve has the embedding degree $k=2$, and a full $3$-torsion group is given as follows:
+\begin{example} Consider the curve $E_{1,1}(\F_5)$ from example \ref{E1F5} again. As we have seen, this curve has the embedding degree $k=2$, and a full $3$-torsion group is given as follows:
 \begin{multline}
 E_1[3] = \{\Oinf,(2,1),(2,4), (1,t), (1,4t), (2t + 1,t + 1),\\ (2t + 1, 4t + 4),
 (3t + 1,t + 4), (3t + 1, 4t + 1) \}
@@ -1217,9 +1252,9 @@ sage: for P in E1_3:
 ....:         L_G1.append(P)
 sage: G1 = Set(L_G1)
 \end{sagecommandline}
-As expected, the group $\G_1=\{\Oinf, (2,4), (2,1)\}$ is identical to the $3$-torsion group of the (unextended) curve over the prime field $E_1(\F_5)$. 
+As expected, the group $\G_1=\{\Oinf, (2,4), (2,1)\}$ is identical to the $3$-torsion group of the (unextended) curve over the prime field $E_{1,1}(\F_5)$. 
 
-In order to compute the group $\G_2$ for the curve $E_1(\F_5)$, we can use almost the same algorithm as we used for the computation of $\G_1$. Since $p=5$ we get the following:
+In order to compute the group $\G_2$ for the curve $E_{1,1}(\F_5)$, we can use almost the same algorithm as we used for the computation of $\G_1$. Since $p=5$ we get the following:
 \begin{sagecommandline}
 sage: L_G2 = []
 sage: for P in E1_3: 
@@ -1230,7 +1265,7 @@ sage: for P in E1_3:
 sage: G2 = Set(L_G2)
 \end{sagecommandline}
 
-Thus, we have computed the pairing group $\G_2$ of the full $3$-torsion group of curve $E_1(\F_5)$ as the set $\G_2 = \{\Oinf, (1,t), (1,4t)\}$. 
+Thus, we have computed the pairing group $\G_2$ of the full $3$-torsion group of curve $E_{1,1}(\F_5)$ as the set $\G_2 = \{\Oinf, (1,t), (1,4t)\}$. 
 \end{example}
 
 \begin{example}
@@ -1313,7 +1348,7 @@ Understanding the details of how and why this algorithm works requires the conce
 
 We call an elliptic curve $E(\F_p)$ \term{pairing-friendly} if there is a prime factor of the groups order such that the Weil pairing is efficiently computable with respect to that prime factor. In real-world applications of pairing-friendly elliptic curves, the embedding degree is usually a small number like $2$, $4$, $6$ or $12$, and the number $r$ is the largest prime factor of the curve's order. 
 
-\begin{example}Consider curve $E_1(\F_5)$ from example \ref{E1F5}. Since the only prime factor of the group's order is $3$, we cannot compute the Weil pairing on this group using our definition of Miller's algorithm. In fact, since $\G_1$ is of order $3$, executing the algorithm will lead to a ``division by zero''.
+\begin{example}Consider curve $E_{1,1}(\F_5)$ from example \ref{E1F5}. Since the only prime factor of the group's order is $3$, we cannot compute the Weil pairing on this group using our definition of Miller's algorithm. In fact, since $\G_1$ is of order $3$, executing the algorithm will lead to a ``division by zero''.
 \end{example}
 
 \begin{example} Consider the tiny-jubjub curve $\mathit{TJJ\_13}(\F_{13})$ from example \ref{TJJ13} and its associated pairing groups from example \ref{example:TJJ_pairing_groups}:
@@ -1440,56 +1475,56 @@ Use our definition of the $try\_hash$ algorithm to implement a hash function $H_
 \begin{exercise}
 Implement a cryptographic hash function $H_{secp256k1} : \{0,1\}^*\to secp256k1$ that maps binary strings of arbitrary length onto the elliptic curve secp256k1. 
 \end{exercise}
-\section{Constructing elliptic curves} Cryptographically secure elliptic curves like secp256k1 from example \ref{secp256k1}\sme{check reference} have been known for quite some time. Given the latest advancements of cryptography, however, it is often necessary to design and instantiate elliptic curves from scratch that satisfy certain very specific properties. 
+\section{Constructing elliptic curves} Cryptographically secure elliptic curves like secp256k1 \ref{secp256k1} have been known for quite some time. Given the latest advancements of cryptography, however, it is often necessary to design and instantiate elliptic curves from scratch that satisfy certain very specific properties. 
 
-For example, in the context of SNARK development, it was necessary to design a curve that can be efficiently implemented inside of a so-called \uterm{circuit} in order to enable primitives like elliptic curve \uterm{signature schemes} in a zero-knowledge proof. Such a curve is given by the Baby-jubjub curve in XXX\sme{add reference}, and we have paralleled its definition by introducing the tiny-jubjub curve from example \ref{TJJ13}\sme{check reference}. As we have seen, those curves are instances of so-called twisted Edwards curves, and as such have easy to implement addition laws that work without branching. However, we introduced the tiny-jubjub curve out of thin air, as we just gave the curve parameters without explaining how we came up with them.
+For example, in the context of SNARK development, it became necessary to design elliptic curves that can be efficiently implemented inside of a so-called \uterm{circuit} in order to enable primitives like elliptic curve \uterm{signature schemes} in a zero-knowledge proof. Such a curve is given by the Baby-jubjub curve in XXX\sme{add reference}, and we have paralleled its definition by introducing the tiny-jubjub curve from example \ref{TJJ13}. As we have seen, those curves are instances of so-called twisted Edwards curves, and as such have easy to implement addition laws that work without branching. However, we introduced the tiny-jubjub curve out of thin air, as we just gave the curve parameters without explaining how we came up with them.
 
-Another requirement in the context of many so-called \term{pairing-based zero-knowledge proofing systems} is the existence of a suitable, pairing-friendly curve with a specified security level and a low embedding degree as defined in \ref{def:embedding-degree}\sme{check reference}. Famous examples are the BLS\_12 and the NMT curves.\sme{add references}
+Another requirement in the context of many so-called \term{pairing-based zero-knowledge proofing systems} is the existence of a suitable, pairing-friendly curve with a specified security level and a low embedding degree as defined in \ref{def:embedding-degree}. Famous examples are the BLS\_12 and the NMT curves.\sme{add references}
 
-The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{complex multiplication method}. We will apply this method in section XXX\sme{add reference} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, but it will serve as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our tiny-jubjub curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
+The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{complex multiplication method}. We will apply this method in section \label{BLS6} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our tiny-jubjub curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
  
-Before we introduce the complex multiplication method, we have to explain a few properties of elliptic curves that are of key importance in understanding the complex multiplication method. 
+Before we introduce the complex multiplication method, we have to explain a few properties of elliptic curves that are of key importance in understanding that method. 
 
 \paragraph{The Trace of Frobenius} To understand the complex multiplication method of elliptic curves, we have to define the so-called \term{trace} of an elliptic curve first.
 
-We know from XXX\sme{reference text to be written in Algebra} that elliptic curves over finite fields are products of cyclic groups of finite order. Therefore, an interesting question is whether it is possible to estimate the number of elements that this curve contains. Since an affine short Weierstrass curve consists of pairs $(x,y)$ of elements from a finite field $\F_q$ plus the point at infinity, and the field $\F_q$ contains $q$ elements, the number of curve points cannot be arbitrarily large, since it can contain at most $q^2+1$ many elements. 
+We know that elliptic curves are cyclic groups of finite order. Therefore, an interesting question is whether it is possible to estimate the number of elements that this curve contains. Since an affine short Weierstrass curve consists of pairs $(x,y)$ of elements from a finite field $\F_q$ plus the point at infinity, and the field $\F_q$ contains $q$ elements, the number of curve points cannot be arbitrarily large, since it can contain at most $q^2+1$ many elements. 
 
-There is however, a more precise estimation, usually called the \term{Hasse bound}. To understand it, let $E(\F_q)$ be an affine short Weierstrass curve over a finite field $\F_w$ of order $q$, and let $|E(\F_q)|$ be the order of the curve. Then there is an integer $t\in \Z$, called the \term{trace of Frobenius} of the curve, such that $|t| \leq 2\sqrt{q}$ and the following equation holds:
+There is however, a more precise estimation, usually called the \term{Hasse bound}. To understand it, let $E(\F_q)$ be an affine short Weierstrass curve over a finite field $\F_q$ of order $q$, and let $|E(\F_q)|$ be the order of the curve. Then there is an integer $t\in \Z$, called the \term{trace of Frobenius} of the curve, such that $|t| \leq 2\sqrt{q}$ and the following equation holds:
 \begin{equation}\label{hasse-bound}
 |E(\F)| = q +1 -t
 \end{equation}
 
-A positive trace, therefore, implies that the curve contains less points than the underlying field, whereas a negative trace means that the curve contains more points. However, the estimation $|t| \leq 2\sqrt{q}$ implies that the difference is not very large in either direction, and the number of elements in an elliptic curve is always approximately in the same order of magnitude as the size of the curve's base field.
+A positive trace, therefore, implies that the curve contains no more points than the underlying field, whereas a non-negative trace means that the curve contains more points. However, the estimation $|t| \leq 2\sqrt{q}$ implies that the difference is not very large in either direction, and the number of elements in an elliptic curve is always approximately in the same order of magnitude as the size of the curve's base field.
 
-\begin{example}\label{ex:E1F5-frobenius} Consider the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}\sme{check reference}. We know that it contains $9$ curve points. Since the order of $\F_5$ is $5$, we compute the trace of $E_1(\F)$ to be $t=-3$, since the Hasse bound is given by the following equation:
+\begin{example}\label{ex:E1F5-frobenius} Consider the elliptic curve $E_{1,1}(\F_5)$ from example \ref{E1F5}. We know that it contains $9$ curve points. Since the order of $\F_5$ is $5$, we compute the trace of $E_{1,1}(\F_5)$ to be $t=-3$, since the Hasse bound is given by the following equation:
 $$
 9 = 5 + 1 - (-3)
 $$
-Indeed, we have $|t| \leq 2\sqrt{q}$, since $\sqrt{5}> 2.23$ and 
-$|-3|= 3 \leq 4.46 = 2\cdot 2.23< 2\cdot \sqrt{5}$.
+Indeed, we have $|t| \leq 2\sqrt{q}$, since $\sqrt{5}> 2$ and 
+$|-3|= 3 \leq 4 = 2\cdot 2< 2\cdot \sqrt{5}$.
 \end{example}
 
-\begin{example}\label{ex:TJJ13-frobenius} To compute the trace of the tiny-jubjub curve, recall from example \ref{ex:TJJ13-cofactor-clearing}\sme{check reference} that the order of $\mathit{TJJ\_13}$ is $20$. Since the order of $\F_{13}$ is $13$, we can therefore use the Hasse bound and compute the trace as $t=-6$:
+\begin{example}\label{ex:TJJ13-frobenius} To compute the trace of the tiny-jubjub curve, recall from example \ref{TJJ13} that the order of $\mathit{TJJ\_13}$ is $20$. Since the order of $\F_{13}$ is $13$, we can therefore use the Hasse bound and compute the trace as $t=-6$:
 \begin{equation}
 20 = 13 + 1 - (-6)
 \end{equation}
 
-Again, we have $|t| \leq 2\sqrt{q}$, since $\sqrt{13}> 3.60$ and 
-$|-6|= 6 \leq 7.20 = 2\cdot 3.60< 2\cdot \sqrt{13}$.
+Again, we have $|t| \leq 2\sqrt{q}$, since $\sqrt{13}> 3$ and 
+$|-6|= 6 = 2\cdot 3< 2\cdot \sqrt{13}$.
 \end{example}
 
-\begin{example}\label{ex:secp256k1-trace}To compute the trace of secp256k1, recall from example \ref{secp256k1}\sme{check reference} that this curve is defined over a prime field with $p$ elements, and that the order of that group is given by $r$:  
+\begin{example}\label{ex:secp256k1-trace}To compute the trace of secp256k1, recall from example \ref{secp256k1} that this curve is defined over a prime field with $p$ elements, and that the order of that group is given by $r$:  
 \begin{align*}
 p &= \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663\\
 r &= \scriptstyle 115792089237316195423570985008687907852837564279074904382605163141518161494337
 \end{align*}
 
-Using the Hesse bound $r = p + 1 -t$, we therefore compute $t= p+1 -r$, which gives the trace of curve secp256k1 as follows:
+Using the Hasse bound $r = p + 1 -t$, we therefore compute $t= p+1 -r$, which gives the trace of curve secp256k1 as follows:
 $$
 t = \scriptstyle 432420386565659656852420866390673177327
 $$
 
-As we can see, secp256k1 contains less elements than its underlying field. However,  the difference is tiny, since the order of secp256k1 is in the same order of magnitude as the order of the underlying field. Compared to $p$ and $r$, $t$ is tiny.
+As we can see, secp256k1 contains less elements than its underlying field. However,  the difference is tiny, since the order of secp256k1 is in the same order of magnitude as the order of the underlying field. Compared to $p$ and $r$, the integer $t$ is tiny.
 
 \begin{sagecommandline}
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
@@ -1504,32 +1539,32 @@ sage: abs(RR(t)) <= 2*sqrt(RR(p))
 
 There is, however, a more general way to classify elliptic curves over finite fields $\F_q$, based on the so-called \term{$j$-invariant} of an elliptic curve with $j(E(\F_q))\in\F_q$, as defined below:
 \begin{equation}\label{eq:j-invariant1}
-j(E(\F_q)) = \left(\Zmod{1728}{q}\right) \frac{4\cdot a^3}{4\cdot a^3+ (\Zmod{27}{q})\cdot b^2}
+j(E(\F_q)) = \Zmod{1728\cdot \frac{4\cdot a^3}{4\cdot a^3+ 27\cdot b^2}}{q}
 \end{equation}
 
 A detailed description of the $j$-invariant is beyond the scope of this book. For our present purposes, it is sufficient to note that two elliptic curves $E_1(\F)$ and $E_2(\F')$ are isomorphic over the \uterm{algebraic closures} of $\F$ and $\F'$, if and only if $\overline{\F}=\overline{\F'}$ and $j(E_1)=j(E_2)$.
 
 So, the $j$-invariant is an important tool to classify elliptic curves and it is needed in the complex multiplication method to decide on an actual curve instantiation that implements abstractly chosen properties.
 
-\begin{example} Consider the elliptic curve $E_1(\F_5)$ from example \ref{E1F5}\sme{check reference}. We compute its $j$-invariant as follows:
+\begin{example} Consider the elliptic curve $E_{1,1}(\F_5)$ from example \ref{E1F5}\sme{check reference}. We compute its $j$-invariant as follows:
 \begin{align*}
-j(E_1(\F_5)) &= \left(\Zmod{1728}{5}\right) \frac{4\cdot 1^3}{4\cdot 1^3+ (\Zmod{27}{5})\cdot 1^2}\\
+j(E_{1,1}(\F_5)) &= \Zmod{1728\cdot \frac{4\cdot 1^3}{4\cdot 1^3+ 27\cdot 1^2}}{5}\\
              &= 3 \frac{4}{4+ 2}\\
-             &= 3\cdot 4
+             &= 3\cdot 4\\
              & = 2
 \end{align*}
 \end{example}
 \begin{example} Consider the elliptic curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference}. We compute its $j$-invariant as follows:
 \begin{align*}
-j(E_1(\F_5)) &= \left(\Zmod{1728}{13}\right) \frac{4\cdot 8^3}{4\cdot 8^3+ (\Zmod{27}{13})\cdot 8^2}\\
+j(TJJ\_13) &= \Zmod{1728\cdot \frac{4\cdot 8^3}{4\cdot 8^3+ 27\cdot 8^2}}{13}\\
              &= 12\cdot \frac{4\cdot 5}{4\cdot 5+ 1\cdot 12}\\
              &= 12\cdot \frac{7}{7+ 12}\\
              &= 12\cdot 7\cdot 6^{-1}\\
-             &= 12\cdot 7\cdot 11\\
-             &0 1 
+             &= 2\cdot 7\\
+             &= 1 
 \end{align*}
 \end{example}
-\begin{example}Consider secp256k1 from example secp256k1\sme{check reference}. We compute its $j$-invariant using Sage: 
+\begin{example}Consider secp256k1 from example secp256k1. We compute its $j$-invariant using Sage: 
 \begin{sagecommandline}
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
 sage: F = GF(p)
@@ -1547,44 +1582,44 @@ As we have seen in the previous sections, elliptic curves have various defining 
 % https://graui.de/code/elliptic2/ //draw curves
 % https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf proposition 2.1
 
-The method usually starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct such that $q = p^m$ for some prime number $p$, and  `` $m\in \N$ with $m\geq 1$. We assume $p>3$ to simplify things in what follows. 
+The complex multiplication method starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct such that $q = p^m$ for some prime number $p$, and  $m\in \N$. We assume $p>3$ to simplify things in what follows. 
 
-Next, the trace of Frobenius $t\in \Z$ of the curve is chosen such that $p$ and $t$ are coprime, that is, $gcd(p,t)=0$ holds true. The choice of $t$ also defines the curve's order $r$, since $r=p+1-t$ by the Hasse bound (equation \ref{hasse-bound})\sme{check reference}, so choosing $t$ will define the large order subgroup as well as all small cofactors. $r$ has to be defined in such a way that the elliptic curve meets the security requirements of the application it is designed for. 
+Next, the trace of Frobenius $t\in \Z$ of the curve is chosen such that $p$ and $t$ are coprime, that is, $gcd(p,t)=1$ holds true and $|t|\leq 2\sqrt{q}$. The choice of $t$ also defines the curve's order $r$, since $r=p+1-t$ by the Hasse bound \ref{hasse-bound}, so choosing $t$ will determine the large order subgroup as well as all small cofactors. The resulting $r$ must be such that the curve meets the application's security requirements. 
 
 Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of any prime-order subgroup of the curve, since $k$ is defined as the smallest number such that the prime order $n$ divides the number $q^k-1$.
+
+In order for the complex multiplication method to work, neither $q$ nor $t$ can be arbitrary, but must be chosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist and the following conditions hold:
 
 \begin{equation}\label{eq:D-criteria}
 \begin{split}
 D<0\\
-\Zmod{D}{4}=0 \text{ or } \Zmod{D}{4}=1\\
+\Zmod{\left( D =0  \text{ or } D=1\right)}{4}\\
 4q  = t^2 + |D|v^2 
 \end{split}
 \end{equation}
 
-In order for the complex multiplication method to work, neither $q$ nor $t$ can be arbitrary, but must be chosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist and the following conditions hold:
-
-
 If such numbers exist, we call $D$ the \term{CM-discriminant}, and we know that we can construct a curve $E(\F_q)$ over a finite field $\F_q$ such that the order of the curve is $|E(\F_q)|= q+1-t$. 
 
-It is the content of the complex multiplication method to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weiertraß equation such that the curve has the desired order $r$. 
+It is the goal of the complex multiplication method to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weierstrass equation such that the curve has the desired order $r$. 
 
-Finding solutions to equation \ref{hasse-bound}\sme{check reference},= can be achieved in different ways, but we will forego the fine detail here. In general, it can be said that there are well-known constraints for elliptic curve families (e.g. the BLS (ECT) families) that provides families of solutions. In what follows, we will look at one type curve in the BLS-family, which gives an entire range of solutions.\sme{disambiguate}\smelong{Are we looking at a subtype of BLS or is BLS the specific type we're referring to?}
+Finding solutions to equation \ref{eq:D-criteria} can be achieved in different ways. In general, it can be said that there are well-known constraints for elliptic curve families (e.g. the BLS families REFERENCES) that provides families of solutions. In what follows, we will look at one type curve in the BLS-family, which gives an entire range of solutions.\sme{disambiguate}\smelong{Are we looking at a subtype of BLS or is BLS the specific type we're referring to?}
 
-Assuming that the proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so-called \term{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
+Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so-called \term{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
 \begin{multline*}
-ICG(D)=\{(A,B,C)\;|\; A,B,C\in\Z, D = B^2-4AC, gcd(A,B,C)=1, \\
-|B|\leq A \leq \sqrt{\frac{|D|}{3}}, A\leq C, 
+\label{def:hilbert_class_domain}
+S(D)=\{(A,B,C)\;|\; A,B,C\in\Z,\; D = B^2-4AC,\; gcd(A,B,C)=1, \\
+|B|\leq A \leq \sqrt{\frac{|D|}{3}},\; A\leq C, 
 \text{ if } B< 0 \text{ then } |B| < A < C\}
 \end{multline*} 
-One way to compute this set is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $A$ in the range $[0,\ldots,A_{max}]$, as well as through all the integers $B$ in the range $[-A_{max},\ldots,A_{max}]$, then see if there is an integer $C$ that satisfies $D = B^2-4AC$ and the rest of the requirements in XXX\sme{add reference}.
+One way to compute this set is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $0\leq A\leq A_{max}$, as well as through all the integers $-A\leq B \leq A$ and check if there is an integer $C$ that satisfies the equation $D = B^2-4AC$ and the rest of the requirements from \ref{def:hilbert_class_domain}.
 
-To compute the Hilbert class polynomial, the so-called \term{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as follows:\smelong{is this the same as equation {eq:j-invariant1 No they just sound very similar. But they are very different}?}\sme{unify terminology}
+To compute the Hilbert class polynomial, the so-called \term{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as follows:
+
 \begin{equation}\label{eq:j-invariant2}
 j: \mathbb{H} \to \mathbb{C}
 \end{equation}
 
-Roughly speaking, what this means is that the $j$-functions takes complex numbers 
-$(x +i\cdot y)$ with a positive imaginary part $y>0$ as inputs and returns a complex number $j(x+i\cdot y)$ as a result.
+What this means is that the $j$-functions takes complex numbers $(x +y\cdot i)$ with a positive imaginary part $y>0$ as inputs and returns a complex number $j(x+i\cdot y)$ as a result.
 
 For the purposes of this book, it is not important to understand the $j$-function in detail, and we can use Sage to compute it in a similar way that we would use Sage to compute any other well-known function. It should be noted, however, that the computation of the $j$-function in Sage is sometimes prone to precision errors. For example, the $j$-function has a root in $\frac{-1+i\sqrt{3}}{2}$, which Sage only approximates. Therefore, when using Sage to compute the $j$-function, we need to take precision loss into account and possibly round to the nearest integer.
 
@@ -1605,29 +1640,28 @@ sage: elliptic_j(z).imag().round()
 sage: elliptic_j(z).real().round()
 \end{sagecommandline}
 
-With a way to compute the $j$-function and the precomputed set $ICG(D)$ at hand, we can now compute the Hilbert class polynomial as follows:
+With a way to compute the $j$-function and the precomputed set $S(D)$ at hand, we can now compute the Hilbert class polynomial as follows:
 \begin{equation}
-H_D(x) = \Pi_{(A,B,C)\in ICG(D)} \left(x - j\left(\frac{-B + \sqrt{D}}{2A}\right)\right)
+H_D(x) = \Pi_{(A,B,C)\in S(D)} \left(x - j\left(\frac{-B + \sqrt{D}}{2A}\right)\right)
 \end{equation}
 
-In other words, we loop over all elements $(A,B,C)$ from the set $ICG(D)$ and compute the $j$-function at the point $\frac{-B + \sqrt{D}}{2A}$, where $D$ is the CM-discriminant that we chose in a previous step. The result defines a factor of the Hilbert class polynomial and all factors are multiplied together.
+In other words, we loop over all elements $(A,B,C)$ from the set $S(D)$ and compute the $j$-function at the point $\frac{-B + \sqrt{D}}{2A}$, where $D$ is the CM-discriminant that we chose in a previous step. The result defines a factor of the Hilbert class polynomial and all factors are multiplied together.
 
-It can be shown that the Hilbert class polynomial is an integer polynomial, but actual computations need high-precision arithmetics to avoid approximation errors that usually occur in computer approximations of the $j$-function (as shown above). So, in case the calculated Hilbert class polynomial does not have integer coefficients, we need to round the result to the nearest integer. Given that the precision we used was high enough, the result will be correct.
+It can be shown that the Hilbert class polynomial is an integer polynomial, but actual computations need high-precision arithmetic to avoid approximation errors that usually occur in computer approximations of the $j$-function (as shown above). So, in case the calculated Hilbert class polynomial does not have integer coefficients, we need to round the result to the nearest integer. Given that the precision we used was high enough, the result will be correct.
 
-In the next step, we use the Hilbert class polynomial $H_D\in \Z[x]$, and project it to a polynomial $H_{D,q}\in\F_q[x]$ with coefficients in the base field $\F_q$ as chosen in the first step. We do this by simply computing the new coefficients as the old coefficients modulus $p$, that is, if $H_D(x)= a_mx^m +a_{m-1}x^{m-1}+\ldots + a_1 x + a_0$, we compute the $q$-modulus of each coefficient
-$\tilde{a}_j = \Zmod{a_j}{p}$, which defines the \term{projected Hilbert class polynomial} as follows:
+In the next step, we use the Hilbert class polynomial $H_D\in \Z[x]$, and project it to a polynomial $H_{D,q}\in\F_q[x]$ with coefficients in the base field $\F_q$ as chosen in the first step. We do this by simply reducing the coefficients modulo $p$, that is, if $H_D(x)= a_mx^m +a_{m-1}x^{m-1}+\ldots + a_1 x + a_0$, we compute the $q$-modulus of each coefficient
+$\tilde{a}_j = \Zmod{a_j}{p}$, which yields the \term{projected Hilbert class polynomial} as follows:
 $$
 H_{D,p}(x)=\tilde{a}_mx^m +\tilde{a}_{m-1}x^{m-1}+\ldots + \tilde{a}_1 x + \tilde{a}_0
 $$
-We then search for roots of $H_{D,p}$, since every root $j_0$ of $H_{D,p}$ defines a family of elliptic curves over $\F_q$, which all have a $j$-invariant \ref{eq:j-invariant1} or \ref{eq:j-invariant2}\sme{check reference} equal to $j_0$. We can pick any root, since all of them will lead to proper curves eventually.
+We then search for roots of $H_{D,p}$, since every root $j_0$ of $H_{D,p}$ defines a family of elliptic curves over $\F_q$, which all have a $j$-invariant \ref{eq:j-invariant2} equal to $j_0$. We can pick any root, since all of them define an elliptic curve. However, some of the curves with the correct $j$-invariant might have an order different from the one we initially decided on. Therefore, we need a way to decide on a curve with the correct order. 
 
-However, some of the curves with the correct $j$-invariant might have an order different from the one we initially decided on. Therefore, we need a way to decide on a curve with the correct order. 
+To compute a curve with the correct order, we have to distinguish a few different cases based on our choice of the root $j_0\in \F_q$ and of the CM-discriminant $D\in \Z$. If $j_0\neq 0$ or $j_0\neq \Zmod{1728}{q}$, we compute $c_1=\frac{j_0}{(\Zmod{1728}{q}) -j_0}\in \F_q$, then we chose some arbitrary quadratic non-residue $c_2\in \F_q$, and some arbitrary cubic non-residue $c_3\in \F_q$. 
 
-To compute such a curve, we have to distinguish a few different cases based on our choice of the root $j_0$ and of the CM-discriminant $D$. If $j_0\neq 0$ or $j_0\neq \Zmod{1728}{q}$, we compute $c_1=\frac{j_0}{(\Zmod{1728}{q}) -j_0}$, then we chose some arbitrary quadratic non-residue $c_2\in \F_q$, and some arbitrary cubic non-residue $c_3\in \F_q$. 
+The following table is guaranteed to define a curve with the correct order $r= q+1 -t$ for the fields order $q$ and the trace of Frobenius $t$ we initially decided on:
 
-The following table is guaranteed to define a curve with the correct order $r= q+1 -t$ for the trace of Frobenius $t$ we initially decided on:\sme{actually make this a table?}
-\begin{definition}\label{def:curve-order-frobenius}
 \begin{itemize}
+\label{def:curve-order-frobenius}
 \item Case $j_0 \neq 0 $ and $j_0\neq \Zmod{1728}{q}$. A curve with the correct order is defined by one of the following equations:
 \begin{equation}
 y^2 = x^3 + 3c_1x + 2c_1 \text{\;\; or \;\; } y^2 = x^3 + 3c_1c_2^2x + 2c_1c_2^3
@@ -1652,14 +1686,14 @@ y^2 = x^3 +x & \text{\;\; or \;\; } y^2 = x^3 + c_2x \text{ \;\; or}\\
 y^2 = x^3 + c_2^2x & \text{\;\; or \;\; } y^2 = x^3 + c_2^3x
 \end{align*}
 \end{itemize} 
-\end{definition}
-To decide the proper defining short Weierstrass equation, we therefore have to compute the order of any of the potential curves above, and then choose the one that fits our initial requirements. Since it can be shown that the Hilbert class polynomials for the CM-discriminants $D=-3$ and $D=-4$ are given by  $H_{-3,q}(x)=x$ and $H_{-4,q}= x-(\Zmod{1728}{q})$ (EXERCISE), the previous cases are exhaustive.\sme{exercise still to be written?}
 
-To summarize, using the complex multiplication method, it is possible to synthesize elliptic curves with predefined order over predefined base fields from scratch. However, the curves that are constructed this way are just some representatives of a larger class of curves, all of which have the same order. Therefore, in real-world applications, it is sometimes more advantageous to choose a different representative from that class. To do so recall from XXX\sme{add reference} that any curve defined by the short Weierstrass equation $y^2 = x^3 + ax b$ is isomorphic to a curve of the form $y^2 = x^3 + ad^2 x + bd^3$ for some quadratic residue $d\in \F_q$. 
+To decide the proper defining short Weierstrass equation, we therefore have to compute the order of any of the potential curves above, and then choose the one that fits our initial requirements. 
 
-In order to find a suitable representative (e.g. with small parameters $a$ and $b$) in the last step, the curve designer might choose a quadratic residue $d$ such that the transformed curve has the properties they wanted.
+To summarize, using the complex multiplication method, it is possible to synthesize elliptic curves with predefined order over predefined base fields from scratch. However, the curves that are constructed this way are just some representatives of a larger class of curves, all of which have the same order. Therefore, in real-world applications, it is sometimes more advantageous to choose a different representative from that class. To do so recall from \ref{sec:isomorphic_curves} that any curve defined by the short Weierstrass equation $y^2 = x^3 + ax + b$ is isomorphic to a curve of the form $y^2 = x^3 + ad^4 x + bd^6$ for some invertible field element $d\in \F^*_q$. 
 
-\begin{example} Consider curve $E_1(\F_5)$ from example \ref{E1F5}\sme{check reference}. We want to use the complex multiplication method to derive that curve from scratch. Since $E_1(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from example \ref{ex:E1F5-frobenius}\sme{check reference} that its trace of Frobenius is $t=-3$, which also implies that $q$ and $|t|$ are coprime. 
+In order to find a suitable representative (e.g. with small parameters $a$ and $b$) in the last step, the curve designer might choose an invertible field element $d$ such that the transformed curve has the properties they wanted.
+
+\begin{example} Consider curve $E_{1,1}(\F_5)$ from example \ref{E1F5}. We want to use the complex multiplication method to derive that curve from scratch. Since $E_{1,1}(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from example \ref{ex:E1F5-frobenius}\sme{check reference} that its trace of Frobenius is $t=-3$, which also implies that $q$ and $|t|$ are coprime. 
 
 We then have to find parameters $D,v\in\Z$ such that the criteria in \ref{eq:D-criteria} hold. We get the following:
 \begin{align*}
@@ -1669,16 +1703,16 @@ We then have to find parameters $D,v\in\Z$ such that the criteria in \ref{eq:D-c
 \end{align*}
 Now, since $11$ is a prime number, the only solution is $|D|=11$ and $v=1$ here. With $D=-11$ and  the Euclidean division of $-11$ by $4$ being $-11 = -3\cdot 4 +1$, we have $\Zmod{-11}{4}=1$, which shows that $D=-11$ is a proper choice.
 
-In the next step, we have to compute the Hilbert class polynomial $H_{-11}$. To do so, we first have to find the set $ICG(D)$. To compute that set, observe that, since $\sqrt{\frac{|D|}{3}}\approx 1.915<2$, we know from $A\leq \sqrt{\frac{|D|}{3}}$ and $A\in\Z$ that $A$ must be either $0$ or $1$. 
+In the next step, we have to compute the Hilbert class polynomial $H_{-11}$. To do so, we first have to find the set $S(D)$. To compute that set, observe that, since $\sqrt{\frac{|D|}{3}}\approx 1.915<2$, we know from $A\leq \sqrt{\frac{|D|}{3}}$ and $A\in\Z$ that $A$ must be either $0$ or $1$. 
 
 For $A=0$, we know $B=0$ from the constraint $|B|\leq A$. However, in this case, there could be no $C$ satisfying $-11= B^2 -4AC$. So we try $A=1$ and deduce $B\in\{-1,0,1\}$ from the constraint $|B|\leq A$. The case $B=-1$ can be excluded, since then $B<0$ has to imply $|B|<A$. The case $B=0$ can also be excluded, as there cannot be an integer $C$ with $-11 = -4C$, since $11$ is a prime number. 
 
 This leaves the case $B=1$, and we compute $C=3$ from the equation $-11 = 1^2 -4C$, which gives the solution $(A,B,C)=(1,1,3)$:
 $$
-ICG(D)=\{(1,1,3)\}
+S(D)=\{(1,1,3)\}
 $$
 
-With the set $ICG(D)$ at hand, we can compute the Hilbert class polynomial of $D=-11$. To do so, we have to insert the term $\frac{-1+\sqrt{-11}}{2\cdot1}$ into the $j$-function. To do so, first observe that $\sqrt{-11}=i\sqrt{11}$, where $i$ is the imaginary unit, defined by $i^2=-1$. Using this, we can invoke Sage to compute the $j$-invariant and get the following:
+With the set $S(D)$ at hand, we can compute the Hilbert class polynomial of $D=-11$. To do so, we have to insert the term $\frac{-1+\sqrt{-11}}{2\cdot1}$ into the $j$-function. To do so, first observe that $\sqrt{-11}=i\sqrt{11}$, where $i$ is the imaginary unit, defined by $i^2=-1$. Using this, we can invoke Sage to compute the $j$-invariant and get the following:
 $$
 H_{-11}(x) = x - j\left(\frac{-1+i\sqrt{11}}{2}\right) = x + 32768
 $$
@@ -1701,10 +1735,11 @@ $$
 y^2 = x^3 + x +1
 $$
 
-This is the curve $E_1(\F_5)$ that we used extensively throughout this book. Thus, using the complex multiplication method, we were able to derive a curve with specific properties from scratch.
+This is the curve $E_{1,1}(\F_5)$ that we used extensively throughout this book. Thus, using the complex multiplication method, we were able to derive a curve with specific properties from scratch.
 \end{example}
 
-\begin{example} Consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference}. We want to use the complex multiplication method to derive that curve from scratch. Since $\mathit{TJJ\_13}$ is a curve of order $r=20$ over the prime field of order $q=13$, we know from example \ref{ex:TJJ13-frobenius}\sme{check reference} that its trace of Frobenius is $t=-6$, which also implies that $q$ and $|t|$ are coprime. 
+\begin{example}
+ Consider the tiny-jubjub curve $\mathit{TJJ\_13}$ from example \ref{TJJ13}\sme{check reference}. We want to use the complex multiplication method to derive that curve from scratch. Since $\mathit{TJJ\_13}$ is a curve of order $r=20$ over the prime field of order $q=13$, we know from example \ref{ex:TJJ13-frobenius}\sme{check reference} that its trace of Frobenius is $t=-6$, which also implies that $q$ and $|t|$ are coprime. 
 
 We then have to find parameters $D,v\in\Z$ such that \ref{eq:D-criteria} holds. We get the following:
 \begin{align*}
@@ -1716,15 +1751,15 @@ We then have to find parameters $D,v\in\Z$ such that \ref{eq:D-criteria} holds. 
 
 This equation has two solutions for $(D,v)$, namely $(-4,\pm 2)$ and $(-16,\pm 1)$. Looking at the first solution, we know that  $D=-4$ implies $j=1728$, and the constructed curve is defined by a short Weierstrass equation \ref{def_short_weierstrass_curve}\sme{check reference} that has a vanishing parameter $b=0$. We can therefore conclude that choosing $D=-4$ will not help us reconstructing $\mathit{TJJ\_13}$. It will produce curves with order $20$, just not the one we are looking for.
 
-So we choose the second solution $D=-16$. In the next step, we have to compute the Hilbert class polynomial $H_{-16}$. To do so, we first have to find the set $ICG(D)$. To compute that set, observe that since $\sqrt{\frac{|-16|}{3}}\approx 2.31<3$, we know from $A\leq \sqrt{\frac{|-16|}{3}}$ and $A\in\Z$ that $A$ must be in the range $0..2$. So we loop through all possible values of $A$ and through all possible values of $B$ under the constraints $|B|\leq A$, and if $B<0$ then $|B|<A$.
-Then we compute potential $C$'s from $-16 = B^2 -4AC$. We get the following two solutions for $ICG(D)$:
+So we choose the second solution $D=-16$. In the next step, we have to compute the Hilbert class polynomial $H_{-16}$. To do so, we first have to find the set $S(D)$. To compute that set, observe that since $\sqrt{\frac{|-16|}{3}}\approx 2.31<3$, we know from $A\leq \sqrt{\frac{|-16|}{3}}$ and $A\in\Z$ that $A$ must be in the range $0..2$. So we loop through all possible values of $A$ and through all possible values of $B$ under the constraints $|B|\leq A$, and if $B<0$ then $|B|<A$.
+Then we compute potential $C$'s from $-16 = B^2 -4AC$. We get the following two solutions for $S(D)$:
 % sage has precomputed Hilbert class polynomials 
 % https://doc.sagemath.org/html/en/reference/databases/sage/databases/db_class_polynomials.html
 we get
 $$
-ICG(D)=\{(1,0,4),(2,0,2)\}
+S(D)=\{(1,0,4),(2,0,2)\}
 $$
-With the set $ICG(D)$ at hand, we can compute the Hilbert class polynomial of $D=-16$. We can invoke Sage to compute the $j$-invariant and get the following:
+With the set $S(D)$ at hand, we can compute the Hilbert class polynomial of $D=-16$. We can invoke Sage to compute the $j$-invariant and get the following:
 \begin{align*}
 H_{-16}(x) &= \left(x - j\left(\frac{i\sqrt{16}}{2}\right)\right)
  \left(x - j\left(\frac{i\sqrt{16}}{4}\right)\right) \\
@@ -1735,7 +1770,7 @@ As we can see, in this particular case, the Hilbert class polynomial is a quadra
 $$
 H_{-11,5}(x)=(x-1)(x-12)= (x+12)(x+1)
 $$ 
-This is considered a polynomial from $\F_5[x]$. Thus, we have two roots, namely $j=1$ and $j=12$. We already know that $j=12$ is the wrong root to construct the tiny-jubjub curve, since $\Zmod{1728}{13}=2$, and that case is not compatible with a curve with $b\neq 0$. So we choose $j=1$.
+This is considered a polynomial from $\F_{13}[x]$. Thus, we have two roots, namely $j=1$ and $j=12$. We already know that $j=12$ is the wrong root to construct the tiny-jubjub curve, since $\Zmod{1728}{13}=2$, and that case is not compatible with a curve with $b\neq 0$. So we choose $j=1$.
 
 Another way to decide the proper root is to compute the $j$-invariant of the tiny-jubjub curve. We get the following:
 \begin{align*}
@@ -1863,8 +1898,11 @@ which we might call secp256k1. As we have just seen, the complex multiplication 
 \end{example}
 %\section{twists}
 %I think this has to wait for Volume 2, due to timing constraints...
+\begin{exercise}
+\label{ex:Low_order_Hilbert_polys} Show that the Hilbert class polynomials for the CM-discriminants $D=-3$ and $D=-4$ are given by  $H_{-3,q}(x)=x$ and $H_{-4,q}= x-(\Zmod{1728}{q})$.
+\end{exercise}
 
-\paragraph{The $BLS6\_6$ pen-and-paper curve}\label{BLS6}
+\subsection{The $BLS6\_6$ pen-and-paper curve}\label{BLS6}
 
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
