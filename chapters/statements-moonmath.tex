@@ -3,151 +3,170 @@
 
 % https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
 % https://docs.zkproof.org/reference.pdf
-As we have seen in the informal introduction XXX\sme{Chapter 1?}, a SNARK is a short non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like ``The proofer knows the prime factorization of a given number'' or ``The proofer knows the preimage to a given SHA2 digest value'' and similar things. However,  human-readable statements like these are imprecise and not very useful from a formal perspective. 
+As we have seen in the informal introduction XXX\sme{Chapter 1?}, a SNARK is a succinct non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like ``The prover knows the prime factorization of a given number'' or ``The prover knows the preimage to a given SHA2 digest value'' and similar things. However,  human-readable statements like these are imprecise and not very useful from a formal perspective. 
 
-In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (section \ref{sec:formal-languages}). We will then look at algebraic circuits and rank-1 constraint systems as two particularly useful ways to define statements in certain formal languages (section\ref{sec:statement-representations}). After that, we will have a look at fundamental building blocks of compilers that compile high-level languages to circuits and associated rank-1 constraint systems.
+In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (section \ref{sec:formal-languages}). We will then look at algebraic circuits and Rank-1 Constraint Systems [R1CS] as two particularly useful ways to define statements in certain formal languages (section\ref{sec:statement-representations}). 
 
 Proper statement design should be of high priority in the development of SNARKs, since unintended true statements can lead to potentially severe and almost undetectable security vulnerabilities in the applications of SNARKs.
 
 \section{Formal Languages}\label{sec:formal-languages}
 
-Formal languages provide the theoretical background in which statements can be formulated in a logically \smelong{regious} \sme{"rigorous"?} way and where \smelong{proofing} \sme{"proving"?} the correctness of any given statement can be realized by computing words in that language.
+Formal languages provide the theoretical background in which statements can be formulated in a logically rigorous way and where proving the correctness of any given statement can be realized by computing words in that language.
 
 One might argue that the understanding of formal languages is not very important in SNARK development and associated statement design, but terms from that field of research are standard jargon in many papers on zero-knowledge proofs. We therefore believe that at least some introduction to formal languages and how they fit into the picture of SNARK development is beneficial, mostly to give developers a better intuition about where all this is located in the bigger picture of the logic landscape. In addition, formal languages give a better understanding of what a formal proof for a statement actually is.
 
-Roughly speaking, a formal language (or just language for short) is nothing but a set of words, th. Words, in turn, are strings of letters taken from some alphabet and formed according to some defining rules of the language. 
+Roughly speaking, a formal language (or just language for short) is nothing but a set of words and words, in turn, are strings of letters taken from some alphabet and formed according to some defining rules of the language. 
 
-To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite \term{tuples} (ordered lists) $(x_1,\ldots,x_n)$ of elements $x_j$ from $\Sigma$ including the empty tuple $(\;)\in \Sigma^*$. Then, a \term{language} $L$, in its most general definition, is nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \term{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \term{words}. The rules that specify which tuples from $\Sigma^*$ belong to the language and which don't, are called the \term{grammar} of the language. \sme{Add example}\smelong{S: I suggest adding an example based on English, e.g. ``tea'' and ``eat'' are words of English, but ``aet'' and ``tae'' are not}
+To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all \term{strings} of finite length $<x_1,\ldots,x_n>$ of elements $x_j$ from $\Sigma$ including the empty string $<>\in \Sigma^*$. Then, a \term{language} $L$, in its most general definition, is nothing but a subset of the set of all finite strings $\Sigma^*$. In this context, the set $\Sigma$ is called the \term{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \term{words}. If there are rules that specify which strings from $\Sigma^*$ belong to the language and which don't, those rules are called the \term{grammar} of the language. If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \term{equivalent} if they consist of the same set of words.
 
-If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \term{equivalent} if they generate the same set of words. \sme{M: 1:1 correspondence might actually be wrong}
+While the term language might suggest a deeper relation to the well known \term{natural languages} like English, formal languages and natural languages differ in many ways. The following two examples will provide some intuition about formal languages and their differences to natural languages: 
+\begin{example}[The English language] To given a better understanding of formal languages consider the natural language English. The English alphabet is given by the following set
+\begin{multline*}
+\Sigma_{English} = \{A, a, B, b, C, c, D, d, E, e, F, f, G, g, H, h, I, i, J, j, K, k, L, l, M, m, N, n, O,\\ o, P, p, Q, q, R, r, S, s, T, t, U, u, V, v, W, w, X, x, Y, y, Z, z\}
+\end{multline*}
+The natural language English does not define words by abstract rules, but by something we might call historical human convention as a word in the language English is distinguished from any other string from the English alphabet by human convention not by formal rules. In that regard strings like ``tea'' or ``eat'' are words in English, but ``aet'' and ``tae'' are not, because people agree on that. So while the set of all English words is a formal language $L_{English}\subset \Sigma_{English}$ there is no formal grammar that defines what a word in English is and what not. 
 
-\paragraph{Decision Functions} Our previous definition of formal languages is very general and many subclasses of languages are known in the literature. However,  in the context of SNARK development, languages are commonly defined as \term{decision problems} where a so-called \term{deciding relation} $R\subset \Sigma^*$ decides whether a given tuple $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
+It should also be recognized that in such a simple definition, the ''grammar'' of the natural language English is different from the grammar of the formal language English. The grammar of natural English defines how sentences are generated from words, while sentences have no meaning in our simple formal language English. 
+
+In order to express natural English sentences in a formal English language, one has to extend the alphabet by a space character together with the set of all punctuations and then include the grammar of the natural language English into the formal language English. It should be noted however that in such a formal language, sentences like "I drink tea, but I don't eat meat." from the natural language English are actually words in the formal language English.
+\end{example}
+
+\begin{example}[Alternating Binary strings]
+\label{ex:alternating_strings_lang}
+To consider a very basic formal language with an almost trivial grammar, consider the set  of the two letters $0$ and $1$ as our alphabet $\Sigma$:
+$$
+\Sigma = \{0,1\}
+$$
+Also imply the grammar that a proper word must consist of alternating binary letters of arbitrary length including the empty string. The associated language $L_{alt}$ is the set of all finite binary strings, where a $1$ must follow a $0$ and vice versa. So, for example, $<1,0,1,0,1,0,1,0,1>\in L_{alt}$ is a word in this languages as is $<0>\in L_{alt}$ or the empty word $<>\in L_{alt}$. However, the binary string $<1,0,1,0,1,0,1,1,1>\in \{0,1\}^*$ is not a proper word, as it violates the grammar of $L_{alt}$, since the last 3 letters are all $1$. Furthermore, the string $<0,A,0,A,0,A,0>$ is not a proper word, as not all its letters are from the alphabet $\Sigma$. 
+\end{example}
+
+\paragraph{Decision Functions}
+\label{sec:decision_function}
+ Our previous definition of formal languages is very general and many subclasses of languages are known in the literature. However, in the context of SNARK development, languages are commonly defined as \term{decision problems} where a so-called \term{deciding relation} $R\subset \Sigma^*$ decides whether a given string $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
 
 Unfortunately, in some literature on proof systems, $x\in R$ is often written as $R(x)$, which is  misleading since in general $R$ is not a function but a relation in $\Sigma^*$. For the sake of this book, we therefore adopt a different point of view and work with what we might call a \term{decision function} instead:
 \begin{equation}\label{eq:decision-function}
 R: \Sigma^* \to \{true, false\}
 \end{equation}
-Decision functions decide if a tuple $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all tuples that are decided by $R$, i.e as the set:
+Decision functions decide if a string $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all strings that are decided by $R$, i.e as the set:
 \begin{equation}
 L_R := \{x\in \Sigma^*\;|\; R(x)=true\}
 \end{equation}
-In the context of formal languages and decision problems, a \term{statement} $S$ is the claim that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \term{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and such a proof is \term{verified} by checking $R(P)=true$. In this case, $P$ is called an \term{instance} of the statement $S$.
+In the context of formal languages and decision problems, a \term{statement} $S$ is the claim that language $L$ contains a word $x$, i.e a statement claims that there exists some $x\in L$. A constructive \term{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and a proof is \term{verified} by checking $R(P)=true$. In this case, $P$ is called an \term{instance} of the statement $S$.
 
-While the term \term{language} might suggest a deeper relation to the well known \term{natural languages} like English, formal languages and natural languages differ in many ways. The following examples will provide some intuition about formal languages, highlighting the concepts of statements, proofs and instances:
-\begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar, consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters of arbitrary length. 
-
-Then, the associated language $L_{alt}$ is the set of all finite binary tuples, where a $1$ must follow a $0$ and vice versa. So, for example, $(1,0,1,0,1,0,1,0,1)\in L_{alt}$ is a proper word in this languages as is $(0)\in L_{alt}$ or the empty word $(\;)\in L_{alt}$. However,  the binary tuple $(1,0,1,0,1,0,1,1,1)\in \{0,1\}^*$ is not a proper word, as it violates the grammar of $L_{alt}$: the last3 letters are all $1$. Furthermore, the tuple $(0,A,0,A,0,A,0)$ is not a proper word, as not all its letters are not from the proper alphabet: we defined the alphabet $\Sigma$ as the set $\{0,1\}$, and $A$ is not part of that set. 
-
-Attempting to write the grammar of this language in a more formal way, we can define the following decision function:
+\begin{example}[Alternating Binary strings] To consider a very basic formal language with a decision function, consider the language $L_{alt}$ from example \ref{ex:alternating_strings_lang}. Attempting to write the grammar of this language in a more formal way, we can define the following decision function:
 $$
-R: \{0,1\}^* \to \{true,false\}\;;\; (x_0,x_1,\ldots,x_n) \mapsto 
+R: \{0,1\}^* \to \{true,false\}\;;\; <x_0,x_1,\ldots,x_n> \mapsto 
 \begin{cases}
 true & x_{j-1} \neq x_{j} \text{ for all } 1\leq j \leq n \\
 false & \text{ else}
 \end{cases}
 $$
-We can use this function to decide if arbitrary \uterm{binary tuples} are words in $L_{alt}$ or not. Some examples are given below:
-
-\begin{itemize} 
-\item $R(1,0,1)=true$, 
-\item $R(0)=true$, 
-\item $R()=true$, 
-\item but $R(1,1)=false $.
-\end{itemize}
-
-Inside our language $L_{alt}$, it makes sense to claim the following statement: ``There exists an alternating string.'' One way to prove this statement constructively is by providing an actual instance, that is, finding actual alternating string like $x = (1,0,1)$. Constructing string $(1,0,1)$ therefore proves the statement ``There exists an alternating string.", because it is easy to verify that $R(1,0,1)=true$.
+We can use this function to decide if given binary strings are words in $L_{alt}$ or not. Some examples are given below:
+$$
+\begin{array}{cccc}
+R(<1,0,1>)=true , & R(<0>)=true , & R(<>)=true , & R(<1,1>)=false
+\end{array} 
+$$
+Given language $L_{alt}$, it makes sense to claim the following statement: ``There exists an alternating string.'' One way to prove this statement constructively is by providing an actual instance, that is, providing an example of an alternating string like $x = <1,0,1>$. Constructing string $<1,0,1>$ therefore proves the statement ``There exists an alternating string.", because one can verify that $R(<1,0,1>)=true$.
 \end{example}
 \begin{example}[Programming Language]Programming languages are a very important class of formal languages. For these languages, the alphabet is usually (a subset) of the ASCII table, and the grammar is defined by the rules of the programming language's compiler. Words, then, are nothing but properly written computer programs that the compiler accepts. The compiler can therefore be interpreted as the decision function.
 
-To give an unusual example strange enough to highlight the point, consider the programming language \href{https://en.wikipedia.org/wiki/Malbolge}{Malbolge} as defined in XXX\sme{add reference}. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An interesting claim is therefore the statement: ``There exists a computer program in Malbolge". As it turned out, proving this statement constructively, that is, by providing an actual instance of such a program, was not an easy task, as it took two years after the introduction of Malbolge to write a program that its compiler accepts. So, for two years, no one was able to prove the statement constructively.
+To give an unusual example strange enough to highlight the point, consider the programming language \href{https://en.wikipedia.org/wiki/Malbolge}{Malbolge} as defined in XXX\sme{add reference}. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An interesting claim is therefore the statement: ``There exists a computer program in Malbolge". As it turned out, proving this statement constructively, that is, providing an example instance of such a program, is not an easy task, as it took two years after the introduction of Malbolge to write a program that its compiler accepts. So, for two years, no one was able to prove the statement constructively.
 
-To look at this high-level description more formally, we write $L_{Malbolge}$ for the language that uses the ASCII table as its alphabet and its words are tuples of ASCII letters that the Malbolge compiler accepts. Proving the statement ``There exists a computer program in Malbolge'' is then equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
-$$
-\scriptstyle (=<'\#9]~6ZY327Uv4-QsqpMn\&+Ij"'E\%e\{Ab~w=\_:]Kw\%o44Uqp0/Q?xNvL:'H\%c\#DD2\wedge WV>gY;dts76qKJImZkj
-$$
+To look at the high-level description of Malbolge more formally, we write $L_{Malbolge}$ for the language that uses the ASCII table as its alphabet and its words are strings of ASCII letters that the Malbolge compiler accepts. Proving the statement ``There exists a computer program in Malbolge'' is then equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
+\begin{multline*}
+\scriptstyle (=<':9876Z4321UT.-Q+*)M'\&\%\$H"!~\}|Bzy?=|\{z]KwZY44Eq0/
+\{mlk** \\ 
+\scriptstyle hKs\_dG5[m\_BA\{?-Y;;Vb'rR5431M\}/.zHGwEDCBA@98\backslash 6543W10/.R,+O<
+\end{multline*}
 is an example of such a proof, as it is excepted by the Malbolge compiler and is compiled to an executable binary that displays ``Hello, World.'' (See XXX\sme{add reference}). In this example, the Malbolge compiler therefore serves as the verification process.
 \end{example}
-\begin{example}[The Empty Language] To see that not every language has even one word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetics as derived in example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}\sme{check reference}, together with the following decision function 
+\begin{example}[The Empty Language] To see that not every language has even a single word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetic as derived in example \ref{def_residue_ring_z_6}. Distinguishing the set $\Z_6^*$ of all elements in modular $6$ arithmetic that have multiplicative inverses from the set $(\Z_6)^*$ of all finite strings over the alphabet $\Z_6$, we define the following decision function: 
 $$
-R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
-(x_1,\ldots,x_n) \mapsto
+R_{\emptyset} : (\Z_{6})^* \to \{true, false\}\;;\;
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
-true & n=4 \text{ and } x_1\cdot x_1 = 2\\
-true & else
+true & n=1 \text{ and } x\cdot x = 2\\
+false & else
 \end{cases}
 $$
-We write $L_\emptyset$ for the associated language. As we can see from the multiplication table of $\Z_6$ in example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}\sme{check reference}, the ring $\Z_6$ does not contain any element $x$ such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proving the statement ``There exists a word in $L_\emptyset$'' constructively by providing an instance is therefore impossible. The verification will never check any tuple.
+We write $L_\emptyset$ for the associated language. As we can see from the multiplication table of $\Z_6$ in example \ref{def_residue_ring_z_6}, the ring $\Z_6$ does not contain any element $x$ such that $x\cdot x =2$, which implies $R_{\emptyset}(<x_1,\ldots,x_n>)=false$ for all strings $<x_1,\ldots,x_n>\in \Sigma^*$. The language therefore does not contain any words. Proving the statement ``There exists a word in $L_\emptyset$'' constructively by providing an instance is therefore impossible. The verification will never check any string.
 \end{example}
 \begin{example}[3-Factorization]\label{ex:3-factorization} We will use the following simple example repeatedly throughout this book. The task is to develop a SNARK that proves knowledge of three factors of an element from the finite field $\F_{13}$. There is nothing particularly useful about this example from an application point of view, however, in a sense, it is the most simple example that gives rise to a non trivial SNARK in some of the most common zero-knowledge proof systems. 
 
-Formalizing the high-level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those tuples of field elements from $\F_{13}$ that contain exactly $4$ letters $w_1,w_2,w_3,w_4$ which satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$. \sme{Are we using $w$ and $x$ interchangeably or is there a difference between them?}
+Formalizing the high-level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those strings of field elements from $\F_{13}$ that contain exactly $4$ letters $x_1,x_2,x_3,x_4$ which satisfy the equation $x_1\cdot x_2\cdot x_3 =x_4$.
 
-So, for example, the tuple $(2, 12, 4, 5)$ is a word in $L_{3.fac}$, while neither $(2, 12, 11)$, nor $(2, 12, 4, 7)$ nor $(2, 12, 7, 168)$ are words in $L_{3.fac}$ as they don't satisfy the grammar or are not define over the proper alphabet. 
+So, for example, the string $<2, 12, 4, 5>$ is a word in $L_{3.fac}$, while neither $<2, 12, 11>$, nor $<2, 12, 4, 7>$ nor $<2, 12, 7, UPS>$ are words in $L_{3.fac}$ as they don't satisfy the grammar or are not defined over the alphabet $\F_{13}$. 
 
-We can describe the language $L_{3.fac}$ more formally by introducing a decision function (as described in equation \ref{eq:decision-function}\sme{check reference}):
+Distinguishing the set $\F_{13}^*$ of all elements in the multiplicative group of $\F_{13}$ from the set $(\F_{13})^*$ of all finite strings over the alphabet $\F_{13}$, we can describe the language $L_{3.fac}$ more formally by introducing a decision function:
 $$
-R_{3.fac} : \F_{13}^* \to \{true, false\}\;;\;
-(x_1,\ldots,x_n) \mapsto
+R_{3.fac} : (\F_{13})^* \to \{true, false\}\;;\;
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
 true & n=4 \text{ and } x_1\cdot x_2 \cdot x_3 = x_4\\
 false & else
 \end{cases}
 $$
-Having defined the language $L_{3.fac}$, it then makes sense to claim the statement ``There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement ``There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$ such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds.''
+Having defined the language $L_{3.fac}$, it then makes sense to claim the statement ``There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement ``There are four elements $x_1,x_2,x_3,x_4$ from the finite field $\F_{13}$ such that the equation $x_1\cdot x_2\cdot x_3 =w_4$ holds.''
 
-Proving the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement and the computation $R_{3.fac}(2,12,4,5)=true$ is a verification  of that proof. In contrast, the tuple $(2, 12, 4, 7)$ is not a proof of the statement, since the check $R_{3.fac}(2,12,4,7)=false$ does not verify the proof.
+Proving the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the decision function $R_{3.fac}$. The string $<2,12,4,5>$ is therefore a constructive proof for the statement that $L_{3.fac}$ contains words and the computation $R_{3.fac}(<2,12,4,5>)=true$ is a verification of that proof. In contrast, the string $<2, 12, 4, 7>$ is not a proof of the statement, since the check $R_{3.fac}(<2,12,4,7>)=false$ does not verify the proof.
 \end{example}
-\begin{example}[Tiny-jubjub Membership]\label{ex:tiny-jubjub} In one of our main examples, we derive a SNARK that proves a pair $(x,y)$ of field elements from $\F_{13}$ to be a point on the tiny-\comms{jubjub} curve in its \term{Edwards form} (see section \ref{sec:edwards})\sme{check reference}.
+\begin{example}[Tiny-jubjub Membership]\label{ex:tiny-jubjub} In one of our main examples, we derive a SNARK that proves a pair $(x,y)$ of field elements from $\F_{13}$ to be a point on the tiny-\comms{jubjub} curve in its twisted Edwards form as derived in example \ref{TJJ13-twisted-edwards}.
 
 In the first step, we define a language such that points on the tiny-jubjub curve are in 1:1 correspondence with words in that language.
 
-Since the tiny-jubjub curve is an elliptic curve over the field $\F_{13}$, we choose the alphabet $\Sigma = \F_{13}$. In this case, the set $\F_{13}^*$ consists of all finite strings of field elements from $\F_{13}$. To define the grammar, recall from \ref{TJJ13}\sme{check reference} that a point on the tiny-jubjub curve is a pair $(x,y)$ of field elements such that $3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2$. We can use this equation to derive the following decision function:
+Since the tiny-jubjub curve is an elliptic curve over the field $\F_{13}$, we choose the alphabet $\Sigma = \F_{13}$. In this case, the set $(\F_{13})^*$ consists of all finite strings of field elements from $\F_{13}$. To define the grammar, recall from \ref{TJJ13-twisted-edwards} that a point on the tiny-jubjub curve is a pair $(x,y)$ of field elements such that $3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2$. We can use this equation to derive the following decision function:
 $$
-R_{tiny.jj} : \F_{13}^* \to \{true, false\}\;;\;
-(x_1,\ldots,x_n) \mapsto
+R_{tiny.jj} : (\F_{13})^* \to \{true, false\}\;;\;
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
 true & n=2 \text{ and } 3\cdot x_1^2 + x_2^2 = 1+ 8\cdot x_1^2\cdot x_2^2\\
 false & else
 \end{cases}
 $$
-The associated language $L_{tiny.jj}$ is then given as the set of all strings from $\F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj}$. We get
+The associated language $L_{tiny.jj}$ is then given as the set of all strings from $(\F_{13})^*$ that are mapped onto $true$ by $R_{tiny.jj}$. We get
 $$
-L_{tiny.jj} = \{(x_1,\ldots,x_n)\in \F_{13}^*\;|\; R_{tiny.jj(x_1,\ldots,x_n)=true}\}
+L_{tiny.jj} = \{<x_1,\ldots,x_n>\in (\F_{13})^*\;|\; R_{tiny.jj(<x_1,\ldots,x_n>)=true}\}
 $$
-We can claim the statement ``There is a word in $L_{tiny.jj}$'' and because $L_{tiny.jj}$ is defined by $R_{tiny.jj}$, this statement is equivalent to the claim ``The tiny-jubjub curve in its Edwards form \smelong{has curve a point}.\sme{check wording}'' 
+We can claim the statement ``There is a word in $L_{tiny.jj}$'' and because $L_{tiny.jj}$ is defined by $R_{tiny.jj}$, this statement is equivalent to the claim ``The tiny-jubjub curve in its twisted Edwards form has a curve point.'' 
 
-A constructive proof for this statement is a pair $(x,y)$ of field elements that satisfies the Edwards equation. Example \ref{TJJ13}\sme{check reference} therefore implies that the tuple $(11,6)$ is a constructive proof and the computation $R_{tiny.jj}(11,6)=true$ is a proof verification. In contrast, the tuple $(1,1)$ is not a proof of the statement, since the check $R_{tiny.jj}(1,1)=false$ does not verify the proof.
+A constructive proof for this statement is a string $<x,y>$ of field elements from $\F_{13}$ that satisfies the twisted Edwards equation. Example \ref{TJJ13-twisted-edwards} therefore implies that the string $<11,6>$ is a constructive proof and the computation $R_{tiny.jj}(<11,6>)=true$ is a proof verification. In contrast, the string $<1,1>$ is not a proof of the statement, since the computation $R_{tiny.jj}(<1,1>)=false$ does not verify the proof.
 \end{example}
-\begin{exercise} Consider exercise XXX again. Define a decision function such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: ``There exist a word in $L_{Exercise_XXX}$ and verify the proof.  
+\begin{exercise}
+\label{ex:decision_function_1} Define a decision function such that the associated language $L_{Exercise_1}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: ``There exist a word in $L_{Exercise_1}$ and verify the proof.  
 \end{exercise}
-\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from  example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}, the alphabet $\Sigma = \Z_6$ and the decision function
+\begin{exercise} Consider modular $6$ arithmetic $\Z_6$ from  example \ref{def_residue_ring_z_6}, the alphabet $\Sigma = \Z_6$ and the decision function
 \begin{equation*}
 R_{example\_\ref{def_residue_ring_z_6}} : \Sigma^*\to \{true, false\}\;;\;
-x \mapsto
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
-true & x.len()=1 \text{ and } 3\cdot x + 3 = 0\\
+true & n=1 \text{ and } 3\cdot x_1 + 3 = 0\\
 false & else
 \end{cases}
 \end{equation*}
-Compute all words in the associated language $L_{example\_\ref{def_residue_ring_z_6}}$, provide a constructive proof for the statement ``There exist a word in $L_{example\_ example\_\ref{def_residue_ring_z_6}}$'' and verify the proof.
-\end{exercise}\sme{check references}
+Compute all words in the associated language $L_{example\_\ref{def_residue_ring_z_6}}$, provide a constructive proof for the statement ``There exist a word in $L_{example\_\ref{def_residue_ring_z_6}}$'' and verify the proof.
+\end{exercise}
 \paragraph{Instance and Witness}
 % https://www.claymath.org/sites/default/files/pvsnp.pdf
-As we have seen in the previous paragraph, statements provide membership claims in formal languages, and instances serve as constructive proofs for those claims. However, in the context of \term{zero-knowledge} proof systems, our naive notion of constructive proofs is refined in such a way that  its possible to hide parts of the proof instance and still be able to prove the statement. In this context, it is therefore necessary to split a proof into a \term{public part} called the \term{instance} and a private part called a \term{witness}.
+As we have seen in the previous paragraph, statements provide membership claims in formal languages, and instances serve as constructive proofs for those claims. However, in the context of \term{zero-knowledge} proof systems, our notion of constructive proofs is refined in such a way that  it is possible to hide parts of the proof instance and still be able to prove the statement. In this context, it is therefore necessary to split a proof into an unhidden, public part called the \term{instance} and a hidden, private part called a \term{witness}.
 
-To account for this separation of a proof instance into a public and a private part, our previous definition of formal languages needs a refinement in the context of zero-knowledge proof systems. Instead of a single alphabet, the refined definition considers two alphabets $\Sigma_I$ and $\Sigma_W$, and a decision function defined as follows:
+To account for this separation of a proof instance into a public and a private part, our previous definition of formal languages needs a refinement. Instead of a single alphabet, the refined definition considers two alphabets $\Sigma_I$ and $\Sigma_W$, and a decision function defined as follows:
 \begin{equation}
 R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\; (i\,;w) \mapsto R(i\,;w)
 \end{equation}
-Words are therefore tuples $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ with $R(i\,;w)=true$. The refined definition differentiates between public inputs $i\in \Sigma_I$ and private inputs $w\in \Sigma_W$. The public input $i$ is called an \term{instance} and the private input $w$ is called a \term{witness} of $R$. 
+Words are therefore strings $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ with $R(i\,;w)=true$. The refined definition differentiates between inputs $i\in \Sigma_I$ and inputs $w\in \Sigma_W$. The input $i$ is called an \term{instance} and the input $w$ is called a \term{witness} of $R$. 
 
-If a decision function is given, the associated language is defined as the set of all tuples from the underlying alphabet that are verified by the decision function:
+If a decision function is given, the associated language is defined as the set of all strings from the underlying alphabets that are verified by the decision function:
 \begin{equation}
+\label{def:refined_language}
 L_R := \{(i\,;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i\,;w)=true\}
 \end{equation}
-In this refined context, a \term{statement} $S$ is a claim that, given an instance $i\in\Sigma_I^*$, there is a witness $w\in \Sigma_W^*$ such that language $L$ contains a word $(i\,;w)$. A constructive \term{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \term{verified} by checking $R(P)=true$. 
+In this refined context, a \term{statement} $S$ is a claim that, given an instance $i\in\Sigma_I^*$, there is a witness $w\in \Sigma_W^*$ such that language $L$ contains a word $(i\,;w)$. A constructive \term{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \term{verified} by $R(P)=true$. 
 
-It is worth understanding the difference between statements as defined in XXX\sme{add reference} and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen as knowledge-proofs, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX\sme{add reference} sec 1.4]
+At this point, it is important to note that, while constructive proofs in languages that distinguish between instance and witness as in \label{def:refined_language} don't look very different from constructive proofs in languages from \ref{sec:decision_function}, we will see in \ref{chapter:zk-protocols} that given some instance, there are proof systems able to prove the statement (at least with high probability) without revealing anything about the witness. In this sense the witness is often called the \term{private input} and the instance is called the \term{public input}.
+
+It is worth understanding the difference between statements as defined in \ref{sec:decision_function} and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen as knowledge-claims, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX\sme{add reference} sec 1.4]
 \begin{example}[SHA256 -- Knowlege of Preimage] One of the most common examples in the context of zero-knowledge proof systems is the \term{knowledge-of-a-preimage proof} for some cryptographic hash function like $SHA256$, where a publicly known $SHA256$ digest value is given, and the task is to prove knowledge of a preimage for that digest under the $SHA256$ function, without revealing that preimage. 
 
 To understand this problem in detail, we have to introduce a language able to describe the knowledge-of-preimage problem in such a way that the claim ``Given digest $i$, there is a preimage $w$ such that $SHA256(w)=i$'' becomes a statement in that language. Since $SHA256$ is a function
@@ -165,58 +184,55 @@ true & i.len()=256,\; i = SHA256(w)\\
 false & else
 \end{cases}
 \end{multline*}
-We write $L_{SHA256}$ for the associated language and note that it consists of words, which are tuples $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
+We write $L_{SHA256}$ for the associated language and note that it consists of words, which are strings $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
 
-Given some instance $i\in \{0,1\}^{256}$, a statement in $L_{SHA256}$ is the claim ``Given digest $i$, there is a preimage $w$ such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by checking that $SHA256(w)=i$. 
+Given some instance $i\in \{0,1\}^{256}$, a statement in $L_{SHA256}$ is the claim ``Given digest $i$, there is a preimage $w$ such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by verifying that $SHA256(w)=i$. 
 \end{example}
-\begin{example}[3-factorization] To give an intuition about the implication of refined languages, consider $L_{3.fac}$ from example \ref{ex:3-factorization}\sme{check reference} again. As we have seen, a constructive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$ such that the product in modular $13$ arithmetics of the first three elements is equal to the $4$'th element. 
+\begin{example}[3-factorization] To give another intuition about the implication of refined languages, consider $L_{3.fac}$ from example \ref{ex:3-factorization} again. As we have seen, a constructive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$ such that the product in modular $13$ arithmetic of the first three elements is equal to the $4$'th element. 
 
-Splitting words from $L_{3.fac}$ into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example, we could reformulate the membership statement of $L_{3.fac}$ into a statement where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. A statement for this reformulation is then expressed by the claim: ``Given a publicly known field element $x_4$, there are three private factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any tuple $(x_1,x_2,x_3)$ such that $x_1\cdot x_2\cdot x_3= x_4$. 
+Splitting words from $L_{3.fac}$ into instance and witness parts, we can reformulate the problem and introduce different levels of knowledge-claims into the problem. For example, we could reformulate the membership statement of $L_{3.fac}$ into a statement where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are witnesses and only the product $x_4$ is the instance. A statement for this reformulation is then expressed by the claim: ``Given an instance field element $x_4$, there are three witness factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any string $(x_1,x_2,x_3)$ such that $x_1\cdot x_2\cdot x_3= x_4$. 
 
-At this point, it is important to note that, while constructive proofs in the refinement don't look very different from constructive proofs in the original language, we will see in XXX\sme{add reference} that there are proof systems able to prove the statement (at least with high probability) without revealing anything about the factors $x_1$, $x_2$, or $x_3$. This is why the importance of the refinement only becomes clear once more elaborate proofing methods beyond naive constructive proofs are provided.
-
-We can formalize this new language, which we might call $L_{3.fac\_zk}$, by defining the following decision function: 
-\begin{definition}\label{R3-fac-zk}
+We can formalize this new language, which we might call $L_{3.fac\_zk}$, by defining the following decision function:
 \begin{multline*}
-R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{true, false\}\;;\;\\
-((i_1,\ldots,i_n);(w_1,\ldots, w_m)) \mapsto
+\label{R3-fac-zk}
+R_{3.fac\_zk} : (\F_{13})^* \times (\F_{13})^* \to \{true, false\}\;;\;\\
+(<i_1,\ldots,i_n>;<w_1,\ldots, w_m>) \mapsto
 \begin{cases}
 true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
 false & else
 \end{cases}
 \end{multline*}
-\end{definition}
-The associated language $L_{3.fac\_zk}$ is defined by all tuples from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
+The associated language $L_{3.fac\_zk}$ is defined by all strings from $(\F_{13})^* \times (\F_{13})^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
 
-Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask why we chose the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose another combination? This was an arbitrary choice in the example. Every other combination of private and public factors would be equally valid. For example, it would be possible to declare all variables as private or to declare all variables as public. Actual choices are determined by the application only.
+Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask why we chose the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose another combination? This was an arbitrary choice in the example. Every other combination of instance and witness would be equally valid. For example, it would be possible to declare all variables as witness or to declare all variables as instance. Actual choices are determined by the application only.
 \end{example}
-\begin{example}[The Tiny-Jubjub Curve] Consider the language $L_{tiny.jj}$ from example \ref{ex:tiny-jubjub}\sme{check reference}. As we have seen, a constructive proof in $L_{tiny.jj}$ is given by a pair $(x_1,x_2)$ of field elements from $\F_{13}$ such that the pair is a point of the tiny-jubjub curve in its Edwards representation.
+\begin{example}[The Tiny-Jubjub Curve] Consider the language $L_{tiny.jj}$ from example \ref{ex:tiny-jubjub}. As we have seen, a constructive proof in $L_{tiny.jj}$ is given by a pair $(x_1,x_2)$ of field elements from $\F_{13}$ such that the pair is a point of the tiny-jubjub curve in its Edwards representation.
 
-We look at a reasonable splitting of words from $L_{tiny.jj}$ into private and public parts. The two obvious choices are to either choose both coordinates $x_1$ as $x_2$ as public inputs, or to choose both coordinates $x_1$ as $x_2$ as private inputs. 
+We look at a reasonable splitting of words from $L_{tiny.jj}$ into instance and witness parts. The two obvious choices are to either choose both coordinates $x_1$ as $x_2$ as instance inputs, or to choose both coordinates $x_1$ as $x_2$ as witness inputs. 
 
-In case both coordinates are public, we define the grammar of the associated language by introducing the following decision function:
+In case both coordinates are instance, we define the grammar of the associated language by introducing the following decision function:
 \begin{multline*}
-R_{tiny.jj.1} : \F_{13}^*\times \F_{13}^* \to \{true, false\}\;;\;\\
+R_{tiny.jj.1} : (\F_{13})^*\times (\F_{13})^* \to \{true, false\}\;;\;\\
 (I_1,\ldots,I_n;W_1,\ldots,W_m) \mapsto
 \begin{cases}
 true & n=2, m=0 \text{ and } 3\cdot I_1^2 + I_2^2 = 1+ 8\cdot I_1^2\cdot I_2^2\\
 false & else
 \end{cases}
 \end{multline*}
-The language $L_{tiny.jj.1}$ is defined as the set of all strings from $\F_{13}^*\times \F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj.1}$. 
+The language $L_{tiny.jj.1}$ is defined as the set of all strings from $(\F_{13})^*\times (\F_{13})^*$ that are mapped onto $true$ by $R_{tiny.jj.1}$. 
 
-In case both coordinates are private, we define the grammar of the associated refined language by introducing the following decision function:
+In case both coordinates are witness inputs, we define the grammar of the associated refined language by introducing the following decision function:
 \begin{multline*}
-R_{tiny.jj\_zk} : \F_{13}^*\times \F_{13}^* \to \{true, false\}\;;\;\\
+R_{tiny.jj\_zk} : (\F_{13})^*\times (\F_{13})^* \to \{true, false\}\;;\;\\
 (I_1,\ldots,I_n;W_1,\ldots,W_m) \mapsto
 \begin{cases}
 true & n=0, m=m \text{ and } 3\cdot W_1^2 + W_2^2 = 1+ 8\cdot W_1^2\cdot W_2^2\\
 false & else
 \end{cases}
 \end{multline*}
-The language $L_{tiny.jj\_zk}$ is defined as the set of all strings from $\F_{13}^*\times \F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj\_zk}$. 
+The language $L_{tiny.jj\_zk}$ is defined as the set of all strings from $(\F_{13})^*\times (\F_{13})^*$ that are mapped onto $true$ by $R_{tiny.jj\_zk}$. 
 \end{example}
-\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}\sme{check reference} as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
+\begin{exercise} Consider the modular $6$ arithmetic $\Z_6$ from example \ref{def_residue_ring_z_6} as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
 \begin{multline*}
 R_{linear} : \Sigma^* \times \Sigma^* \to \{true, false\}\;;\;\\
 (i;w) \mapsto
@@ -232,11 +248,11 @@ Which of the following instances $(i_1,i_2,i_3)$ has a proof of knowledge in $L_
 \item $(4,4,2)$
 \end{itemize}
 \end{exercise}
-\begin{exercise}[Edwards Addition on Tiny-Jubjub] Consider the tiny-jubjub curve together with its Edwards addition law from example XXX\sme{add reference}. Define an instance alphabet $\Sigma_I$, a witness alphabet $\Sigma_W$ and a decision function $R_{add}$ with associated language $L_{add}$ such that a string $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ is a word in $L_{add}$ if and only if $i$ is a pair of curve points on the tiny-jubjub curve in Edwards form and $w$ is the Edwards sum of those curve points.
+\begin{exercise}[Edwards Addition on Tiny-Jubjub] Consider the tiny-jubjub curve together with its twisted Edwards addition law from example \ref{TJJ13}. Define an instance alphabet $\Sigma_I$, a witness alphabet $\Sigma_W$ and a decision function $R_{add}$ with associated language $L_{add}$ such that a string $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ is a word in $L_{add}$ if and only if $i$ is a pair of curve points on the tiny-jubjub curve in Edwards form and $w$ is the sum of those curve points.
 
 Choose some instance $i\in \Sigma_I^*$, provide a constructive proof for the statement ``There is a witness $w\in \Sigma_W^*$ such that $(i\,;w)$ is a word in $L_{add}$'' and verify that proof. Then find some instance $i\in \Sigma_I^*$ such that $i$ has no knowledge proof in $L_{add}$.
 \end{exercise}
-\paragraph{Modularity}\label{modularity} From a developers perspective, it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero-knowledge proof systems, those simple building blocks are often called \term{gadgets}, and gadget libraries usually contain representations of atomic types like booleans, integers, various hash functions, elliptic curve cryptography and many more. In order to synthesize statements, developers then combine predefined gadgets into complex logic. We call the ability to combine statements into more complex statements \term{modularity}. 
+\paragraph{Modularity}\label{modularity} From a developers perspective, it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero-knowledge proof systems, those simple building blocks are often called \term{gadgets}, and gadget libraries usually contain representations of atomic types like booleans, integers, various hash functions, elliptic curve cryptography and many more (See chapter \ref{chap:circuit-compilers} for that). In order to synthesize statements, developers then combine predefined gadgets into complex logic. We call the ability to combine statements into more complex statements \term{modularity}. 
 
 To understand the concept of modularity on the level of formal languages defined by decision functions, we need to look at the \term{intersection} of two languages, which exists whenever both languages are defined over the same alphabet. In this case, the intersection is a language that consists of strings which are words in both languages. 
 
@@ -258,7 +274,7 @@ As we have seen in the previous section, formal languages and their definitions 
 However, from the perspective of existing zero-knowledge proof systems, not all ways to actually represent decision functions are equally useful. Depending on the proof system, some are more suitable than others. In this section, will describe two of the most common ways to represent decision functions and their statements.
 \subsection{Rank-1 Quadratic Constraint Systems}
 \label{sec:R1CS}
-Although decision functions are expressible in various ways, many contemporary proofing systems require the deciding relation to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing-based proofing systems like XXX\sme{add reference}, roughly because it is possible to check solutions to those equations ``in the exponent'' of pairing-friendly cryptographic groups.
+Although decision functions are expressible in various ways, many contemporary proving systems require the deciding relation to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing-based proving systems like XXX\sme{add reference}, roughly because it is possible to check solutions to those equations ``in the exponent'' of pairing-friendly cryptographic groups.
 
 In this section, we will therefore have a closer look at a particular type of quadratic equation called \term{rank-1 quadratic constraints systems}, which are a common standard in zero-knowledge proof systems. We will start with a general introduction to those systems and then look at their relation to formal languages. We will look into a common way to compute solutions to those systems, and then show how a simple compiler might derive rank-1 constraint systems from more high-level programming code. 
 
@@ -275,7 +291,7 @@ In this section, we will therefore have a closer look at a particular type of qu
 \scriptstyle c^k_0 + \sum_{j=1}^n c^k_j \cdot I_j + \sum_{j=1}^m c^k_{n+j} \cdot W_j       
 \end{align*}
 \end{definition}
-If a rank-1 constraint system is given, the parameter $k$ is called the \term{number of constraints}  If a tuple $(I_1,\ldots, I_n; W_1,\ldots,W_m)$ of field elements satisfies theses equations, $(I_1,\ldots, I_n)$ is called an \term{instance} and $(W_1,\ldots,W_m)$ is called an associated \term{witness} of the system.
+If a rank-1 constraint system is given, the parameter $k$ is called the \term{number of constraints}  If a string $(I_1,\ldots, I_n; W_1,\ldots,W_m)$ of field elements satisfies theses equations, $(I_1,\ldots, I_n)$ is called an \term{instance} and $(W_1,\ldots,W_m)$ is called an associated \term{witness} of the system.
 
 \begin{remark}[Matrix notation] The presentation of rank-1 constraint systems can be simplified using the notation of vectors and matrices, which abstracts over the indices. In fact if
 $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, $C$ are $(n+m+1)\times k$-dimensional matrices and $\odot$ is the \uterm{Schur/Hadamard product}, then a R1CS can be written as
@@ -430,9 +446,9 @@ To be more precise, let $S_1$ and $S_2$ be two R1CS over $\F$, then a new R1CS $
 As a consequence, developers are able to construct complex R1CS from simple ones and this modularity provides the theoretical foundation for many R1CS compilers, as we will see in XXX\sme{add reference}.
 
 \subsection{Algebraic Circuits}
-\label{sec:circuits} As we have seen in the previous paragraphs, rank-1 constraint systems are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a proofer, it is therefore important to solve those equations efficiently. 
+\label{sec:circuits} As we have seen in the previous paragraphs, rank-1 constraint systems are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a prover, it is therefore important to solve those equations efficiently. 
 
-However,  in contrast to systems of linear equation, no general methods are known that solve systems of quadratic equations efficiently. Rank-1 constraint systems are therefore impractical from a proofers perspective and auxiliary information is needed that helps to compute solutions efficiently.
+However,  in contrast to systems of linear equation, no general methods are known that solve systems of quadratic equations efficiently. Rank-1 constraint systems are therefore impractical from a provers perspective and auxiliary information is needed that helps to compute solutions efficiently.
 
 Methods which compute R1CS solutions are sometimes called \term{witness generator functions}.  To provide a common example, we introduce another class of decision functions called \term{algebraic circuits}. As we will see, every algebraic circuit defines an associated R1CS and also provides an efficient way to compute solutions for that R1CS.
 
@@ -722,9 +738,9 @@ The previous circuit enforces input values assigned to the labels $S_1$ and $S_2
 \end{example}
 It can be shown that every space- and time-bounded computation can be transformed into an algebraic circuit. We call any process that transforms a bounded computation into a circuit \term{flattening}.
 
-\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular, every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tuple $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gate label and the process is repeated along all edges until a sink node is reached. We call this computation \term{circuit execution}.
+\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular, every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables can be seen a function that transforms an input string $(x_1,\ldots, x_n)$ from $\F^n$ into an output string $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gate label and the process is repeated along all edges until a sink node is reached. We call this computation \term{circuit execution}.
 
-When executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges, and, in particular, for all edge labels in the circuit. The result is a tuple $(S_1,S_2,\ldots, S_n)$ of field elements associated to all labeled edges, which we call a \term{valid assignment} to the circuit. In contrast, any assignment $(S'_1,S'_2,\ldots, S'_n)$ of field elements to edge labels that can not arise from circuit execution is called an \term{invalid assignment}.
+When executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges, and, in particular, for all edge labels in the circuit. The result is a string $(S_1,S_2,\ldots, S_n)$ of field elements associated to all labeled edges, which we call a \term{valid assignment} to the circuit. In contrast, any assignment $(S'_1,S'_2,\ldots, S'_n)$ of field elements to edge labels that can not arise from circuit execution is called an \term{invalid assignment}.
 
 Valid assignments can be interpreted as \term{proofs for proper circuit execution} because they keep a record of the computational result as well as intermediate computational steps. 
 \begin{example}[3-factorization] Consider the $3$-factorization problem from example \ref{ex:3-factorization}\sme{check reference} and its representation as an algebraic circuit from XXX\sme{add reference}. We know that the set of edge labels is given by $S:=\{I_{1};W_{1},W_{2},W_{3}, W_{4}\}$. 
@@ -844,7 +860,7 @@ false & else
 \end{equation}
 Every algebraic circuit therefore defines a formal language. The grammar of this language is encoded in the shape of the circuit, words are assignments to edge labels that are derived from circuit execution, and \term{statements} are knowledge claims ``Given instance $I$, there is a witness $W$ such that $(I;W)$ is a valid assignment to the circuit". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verified by executing the circuit to see if the assignment of the execution meets the assignment of the proof. 
 
-In the context of zero-knowledge proof systems, executing circuits is also often called \term{witness generation}, since in applications the instance part is usually public, while its the task of a proofer to compute the witness part.
+In the context of zero-knowledge proof systems, executing circuits is also often called \term{witness generation}, since in applications the instance part is usually public, while its the task of a prover to compute the witness part.
 
 \begin{remark}[Circuit satisfiability]\sme{Should we refer to R1CS satisfiability (p. \pageref{r1cs-satisfiability} here?} It should be noted that, in our definition, every circuit defines its own language. However,  in more theoretical approaches another language usually called \term{circuit satisfiability} is often considered, which is useful when it comes to more abstract problems like expressiveness, or computational complexity of the class of \term{all} algebraic circuits over a given field. From our perspective the circuit satisfiability language is obtained by union of all circuit languages that are in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
 $$
@@ -853,11 +869,11 @@ $$
 \end{remark}
 \begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from equation \ref{C3fac}\sme{check reference} again. We call the associated language $L_{3.fac\_circ}$.
 
-To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement ``There exist a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$'' a proof therefore has to consists of proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Any proofer therefore has to find input values for $W_1$, $W_2$ and $W_3$ and then execute the circuit to compute $W_4$ under the assumption $I_1=11$. 
+To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement ``There exist a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$'' a proof therefore has to consists of proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Any prover therefore has to find input values for $W_1$, $W_2$ and $W_3$ and then execute the circuit to compute $W_4$ under the assumption $I_1=11$. 
 
 Example XXX\sme{add reference} implies that $(2,3,4,6)$ is a proper constructive proof and in order to verify the proof a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
 \end{example}
-\paragraph{Associated Constraint Systems} As we have seen in \ref{R1CS}\sme{check reference}, rank-1 constraint systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a proofer to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
+\paragraph{Associated Constraint Systems} As we have seen in \ref{R1CS}\sme{check reference}, rank-1 constraint systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a prover to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
 
 In this paragraph, we show how to transform any algebraic circuit into a rank-1 constraint system such that valid circuit assignments are in 1:1 correspondence with solutions to the associated R1CS. 
 
@@ -877,7 +893,7 @@ where $(\text{left input})$ respectively $(\text{right input})$ is the output fr
 \item No other edge label adds a constraint to the system.
 \end{itemize}
 \end{definition}
-The result of this method is a rank-1 constraint system, and, in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a tuple of field elements $(S_1,S_2,\ldots, S_n)$ is a valid assignment to a circuit if and only if the same tuple is a solution to the associated R1CS. Circuit executions therefore compute solutions to rank-1 constraints systems efficiently. 
+The result of this method is a rank-1 constraint system, and, in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a string of field elements $(S_1,S_2,\ldots, S_n)$ is a valid assignment to a circuit if and only if the same string is a solution to the associated R1CS. Circuit executions therefore compute solutions to rank-1 constraints systems efficiently. 
 
 To understand the contribution of algebraic gates to the number of constraints, note that,
 by definition, multiplication gates have labels on their outgoing edges if and only if
@@ -1196,7 +1212,7 @@ A_j(m_i)=a_j^i & B_j(m_i)=b_j^i & C_j(m_i)=C_j^i & j= 1, \ldots , n+m+1, i=1,\ld
 \end{equation}
 Given some rank-1 constraint system, an associated quadratic arithmetic program is therefore nothing but a set of polynomials, computed from the constants in the R1CS. To see that the polynomials $A_j$, $B_j$ and $C_j$ are uniquely defined by the equations in XXX\sme{add reference}, recall that a a polynomial of degree $k-1$ is completely determined \smelong{on}\sme{"by"?} $k$ evaluation points and the equation \ref{alg_lagrange_interplation}\sme{check reference} precisely determines those $k$ evaluation points.
 
-Since we only consider polynomials over fields, Lagrange's interpolation method from \ref{def_lagrange_interpolation_set} in chapter \ref{chap:arithmetics}\sme{check reference} can be used to derive the polynomials $A_j$, $B_j$ and $C_j$ from their defining equations XXX\sme{add reference}. A practical method to compute a QAP from a given R1CS therefore consists of two steps. If the R1CS consists of $k$ constraints, first choose $k$ invertible and mutually different points from the underlaying field. Every choice defines a different QAP for the same R1CS. Then use Lagrange's method and equation XXX\sme{add reference} to compute the polynomials $A_j$, $B_j$ and $C_j$ for every $1\leq j \leq k$. 
+Since we only consider polynomials over fields, Lagrange's interpolation method from \ref{def_lagrange_interpolation_set} in chapter \ref{chap:arithmetic}\sme{check reference} can be used to derive the polynomials $A_j$, $B_j$ and $C_j$ from their defining equations XXX\sme{add reference}. A practical method to compute a QAP from a given R1CS therefore consists of two steps. If the R1CS consists of $k$ constraints, first choose $k$ invertible and mutually different points from the underlaying field. Every choice defines a different QAP for the same R1CS. Then use Lagrange's method and equation XXX\sme{add reference} to compute the polynomials $A_j$, $B_j$ and $C_j$ for every $1\leq j \leq k$. 
 \begin{example}[Generalized factorization SNARK]  To provide a better intuition of quadratic arithmetic programs and how they are computed from their associated rank-1 constraint systems, consider the language $L_{3.fac\_zk}$ from example \ref{ex:3-factorization}\sme{check reference} and its associated R1CS:
 \begin{align*}
 W_1 \cdot W_2 & = W_4 & \text{constraint } 1\\
@@ -1290,14 +1306,14 @@ QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
 \end{split}
 \end{equation}
 \end{example}
-\paragraph{QAP Satisfiability} One of the major points of quadratic arithmetic programs in proofing systems is that solutions of their associated rank-1 constraints systems are in 1:1 correspondence with certain polynomials $P$ such that $P$ is divisible by the target polynomial $T$ of the QAP if and only if \smelong{the solution id a solution}\sme{clarify language}. Verifying solutions to the R1CS and hence, checking proper circuit execution is then achievable by polynomial division of $P$ by $T$.
+\paragraph{QAP Satisfiability} One of the major points of quadratic arithmetic programs in proving systems is that solutions of their associated rank-1 constraints systems are in 1:1 correspondence with certain polynomials $P$ such that $P$ is divisible by the target polynomial $T$ of the QAP if and only if \smelong{the solution id a solution}\sme{clarify language}. Verifying solutions to the R1CS and hence, checking proper circuit execution is then achievable by polynomial division of $P$ by $T$.
 
-To be more specific, let $R$ be some rank-1 constraints system with associated assignment variables $(I_1,\ldots,I_n; W_1,\ldots, W_m)$ and let $QAP(R)$ be a quadratic arithmetic program of $R$. Then the tuple $(I_1,\ldots,I_n; W_1,\ldots, W_m)$ is a solution to the R1CS if and only if the following polynomial is divisible by the target polynomial $T$:
+To be more specific, let $R$ be some rank-1 constraints system with associated assignment variables $(I_1,\ldots,I_n; W_1,\ldots, W_m)$ and let $QAP(R)$ be a quadratic arithmetic program of $R$. Then the string $(I_1,\ldots,I_n; W_1,\ldots, W_m)$ is a solution to the R1CS if and only if the following polynomial is divisible by the target polynomial $T$:
 \begin{equation}\label{polynomial-P-IW}
 P_{(I;W)} = \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j\cdot A_{n+j} \right) \cdot \left(B_0 + \sum_{j}^n I_j\cdot B_j + \sum_{j}^m W_j\cdot B_{n+j} \right) 
 -\left(C_0 + \sum_{j}^n I_j\cdot C_j + \sum_{j}^m W_j\cdot C_{n+j} \right)
 \end{equation}
-Every tuple $(I;W)$ defines a polynomial $P_{(I;W)}$, and, since each polynomial $A_j$, $B_j$ and $C_j$ is of degree $k-1$, $P_{(I;W)}$ is of degree $(k-1)\cdot (k-1)= k^2 -2k +1$. 
+Every string $(I;W)$ defines a polynomial $P_{(I;W)}$, and, since each polynomial $A_j$, $B_j$ and $C_j$ is of degree $k-1$, $P_{(I;W)}$ is of degree $(k-1)\cdot (k-1)= k^2 -2k +1$. 
 
 To understand how quadratic arithmetic programs define formal languages, observe that every QAP over a field $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
@@ -1312,7 +1328,7 @@ This means that every QAP defines a formal language, and, if the QAP is associat
 
 Note the structural similarity to the definition of an R1CS in \ref{R1CS}\sme{check reference} and the different ways of computing proofs in both systems. For circuits and their associated rank-1 constraints systems, a constructive proof consists of a valid assignment of field elements to the edges of the circuit, or the variables in the R1CS. However,  in the case of QAPs, a valid proof consists of a polynomial $P_{(I;W)}$.
 
-To compute a proof for a statement in $L_{QAP}$ given some instance $I$, a proofer first needs to compute a constructive proof $W$, e.g. by executing the circuit. With $(I;W)$ at hand, the proofer can then compute the polynomial $P_{(I;W)}$ and publish it as proof.
+To compute a proof for a statement in $L_{QAP}$ given some instance $I$, a prover first needs to compute a constructive proof $W$, e.g. by executing the circuit. With $(I;W)$ at hand, the prover can then compute the polynomial $P_{(I;W)}$ and publish it as proof.
 
 Verifying a constructive proof in the case of a circuit is achieved by executing the circuit, comparing the result to the given proof, and verifying the same proof in the R1CS picture means checking if the elements of the proof satisfy all equation. 
 
@@ -1321,7 +1337,7 @@ In contrast, verifying a proof in the case of a QAP is done by polynomial divisi
 \begin{example} Consider the quadratic arithmetic program $QAP(R_{3.fac\_zk})$ from example XXX\sme{add reference} and its associated R1CS from equation \ref{R3-fac-zk}\sme{check reference}. To give an intuition of how proofs in the language $L_{QAP(R_{3.fac\_zk})}$ lets consider the instance $I_1=11$. As we know from example XXX\sme{add reference}, $(W_1,W_2,W_3,W_5)=(2,3,4,6)$ is a proper witness, since 
 $(I_1;W_1,W_2,W_3,W_5)=(11;2,3,4,6)$ is a valid circuit assignment and hence, a solution to $R_{3.fac\_zk}$ and a constructive proof for language $L_{R_{3.fac\_zk}}$. 
 
-In order to transform this constructive proof into a membership proof in language $L_{QAP(R_{3.fac\_zk})}$, a proofer has to use the elements of the constructive proof, to compute the polynomial $P_{(I;W)}$. 
+In order to transform this constructive proof into a membership proof in language $L_{QAP(R_{3.fac\_zk})}$, a prover has to use the elements of the constructive proof, to compute the polynomial $P_{(I;W)}$. 
 
 In the case of $(I_1;W_1,W_2,W_3,W_5)=(11;2,3,4,6)$,  the associated proof is computed as follows: 
 \begin{align*}
@@ -1334,7 +1350,7 @@ P_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j
 = & (x^{2}+x+9x+9)-(9x) \\
 = & x^{2}+x+9
 \end{align*}
-Given instance $I_1=11$ a proofer therefore provides the polynomial $x^2+x+9$ as proof. To verify this proof, any verifier can then look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example, $P_{(I;W)}$ is equal to the target polynomial $T$, and hence, it is divisible by $T$ with $P/T=1$. The verification therefore checks the proof.
+Given instance $I_1=11$ a prover therefore provides the polynomial $x^2+x+9$ as proof. To verify this proof, any verifier can then look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example, $P_{(I;W)}$ is equal to the target polynomial $T$, and hence, it is divisible by $T$ with $P/T=1$. The verification therefore checks the proof.
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -1344,14 +1360,14 @@ sage: P == T
 sage: P % T # remainder
 \end{sagecommandline}
 
-To give an example of a false proof, consider the tuple $(I_1;W_1,W_2,W_3,W_4)=(11, 2, 3, 4, 8)$. Executing the circuit, we can see that this is not a valid assignment and not a solution to the R1CS, and hence, not a constructive knowledge proof in $L_{3.fac\_zk}$. However,  a proofer might use these values to construct a false proof $P_{(I;W)}$:
+To give an example of a false proof, consider the string $(I_1;W_1,W_2,W_3,W_4)=(11, 2, 3, 4, 8)$. Executing the circuit, we can see that this is not a valid assignment and not a solution to the R1CS, and hence, not a constructive knowledge proof in $L_{3.fac\_zk}$. However,  a prover might use these values to construct a false proof $P_{(I;W)}$:
 \begin{align*}
 P'_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j\cdot A_{n+j} \right) \cdot \left(B_0 + \sum_{j}^n I_j\cdot B_j + \sum_{j}^m W_j\cdot B_{n+j} \right) 
 -\left(C_0 + \sum_{j}^n I_j\cdot C_j + \sum_{j}^m W_j\cdot C_{n+j} \right)\\
 = & (2(6x+10)+8(7x+4))\cdot(3(6x+10)+4(7x+4))-(8(6x+10)+11(7x+4)) \\
 = & 8x^{2}+6
 \end{align*}
-Given instance $I_1=11$, a proofer therefore provides the polynomial $8x^2+6$ as proof. To verify this proof, any verifier can look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. However,  polynomial division has the following remainder:
+Given instance $I_1=11$, a prover therefore provides the polynomial $8x^2+6$ as proof. To verify this proof, any verifier can look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. However,  polynomial division has the following remainder:
 $$
 (8x^{2}+6)/(x^{2}+x+9) =8+\frac{5x+12}{x^{2}+x+9} 
 $$
