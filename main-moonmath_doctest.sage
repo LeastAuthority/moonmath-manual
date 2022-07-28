@@ -715,7 +715,7 @@ sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1312::
+Sage commandline, line 1321::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -726,7 +726,7 @@ sage: T == F13t(t^2 + t + 9)
 sage: A2 == F13t(6*t + 10)
 sage: A5 == F13t(7*t + 4)
 
-Sage commandline, line 1377::
+Sage commandline, line 1385::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -735,7 +735,7 @@ sage: P = F13t((2*(6*t+10)+6*(7*t+4))*(3*(6*t+10)+4*(7*t +4))-(11*(7*t+4)+6*(6*t
 sage: P == T
 sage: P % T # remainder
 
-Sage commandline, line 1398::
+Sage commandline, line 1406::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
