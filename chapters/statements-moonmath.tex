@@ -151,7 +151,7 @@ Compute all words in the associated language $L_{example\_\ref{def_residue_ring_
 % https://www.claymath.org/sites/default/files/pvsnp.pdf
 As we have seen in the previous paragraph, statements provide membership claims in formal languages, and instances serve as constructive proofs for those claims. However, in the context of \term{zero-knowledge} proof systems, our notion of constructive proofs is refined in such a way that  it is possible to hide parts of the proof instance and still be able to prove the statement. In this context, it is therefore necessary to split a proof into an unhidden, public part called the \term{instance} and a hidden, private part called a \term{witness}.
 
-To account for this separation of a proof instance into a public and a private part, our previous definition of formal languages needs a refinement. Instead of a single alphabet, the refined definition considers two alphabets $\Sigma_I$ and $\Sigma_W$, and a decision function defined as follows:
+To account for this separation of a proof instance into an instance and a witness part, our previous definition of formal languages needs a refinement. Instead of a single alphabet, the refined definition considers two alphabets $\Sigma_I$ and $\Sigma_W$, and a decision function defined as follows:
 \begin{equation}
 R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\; (i\,;w) \mapsto R(i\,;w)
 \end{equation}
@@ -451,7 +451,8 @@ I_2 \cdot I_2 & = W_2 & 6 \cdot 6 = 10 \\
 \end{align*}
 A proper constructive proof is therefore given by $\pi=<4,10,8>$, which shows that the instance $<11,6>$ is a point on the tiny-jubjub curve. 
 \end{example}
-\paragraph{Modularity} As we discussed in \ref{modularity}, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 Constraint Systems are particularly useful for this, as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
+\paragraph{Modularity}
+\label{sec:R1CS_modularity} As we discussed in \ref{modularity}, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 Constraint Systems are particularly useful for this, as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
 
 To be more precise, let $S_1$ and $S_2$ be two R1CS over $\F$, then a new R1CS $S_3$ is obtained by the intersection $S_3 = S_1\cap S_2$  of $S_1$ and $S_2$. In this context, intersection means that both the equations of $S_1$ \term{and} the equations of $S_2$ have to be satisfied in order to provide a solution for the system $S_3$.
 
@@ -510,7 +511,7 @@ f_{3.fac}(x_1,x_2,x_3) & = x_1\cdot x_2 \cdot x_3  & \text{\# bracket choice} \\
                        & = (x_1\cdot x_2 ) \cdot x_3  & \text{\# operator notation} \\
                        & = MUL(MUL(x_1,x_2),x_3)
 \end{align*}
-Using this expression, we can write an associated algebraic circuit by first constraining the variables to edge labels $W_1=x_1$, $W_2=x_2$ and $W_3=x_3$ as well as $I_1=f_{3.fac}(x_1,x_2,x_3)$, taking the distinction between private and public inputs into account. We then rewrite the operator representation of $f_{3.fac}$ into circuit nodes and get the following: 
+Using this expression, we can write an associated algebraic circuit by first constraining the variables to edge labels $W_1=x_1$, $W_2=x_2$ and $W_3=x_3$ as well as $I_1=f_{3.fac}(x_1,x_2,x_3)$, taking the distinction between witness and instance inputs into account. We then rewrite the operator representation of $f_{3.fac}$ into circuit nodes and get the following: 
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G1}{
@@ -570,7 +571,7 @@ f_{tiny-jj}(x,y) & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2  & \Leftrighta
  & = ((8\cdot ((x\cdot x)\cdot (y\cdot y))) + (1+ 10\cdot (x\cdot x))) + (12\cdot(y\cdot y))  & \Leftrightarrow\\
   & = \scriptstyle ADD(ADD(MUL(8,MUL(MUL(x,x),MUL(y,y))), ADD(1,MUL(10,MUL(x,x)))),MUL(12,MUL(y,y)))
 \end{align*}
-Since we haven't decided which part of the computation should be public and which part should be private, we use the unspecified symbol $S$ to represent edge labels. Constraining all variables to edge labels $S_1=x$, $S_2=y$ and $S_6=f_{tiny-jj}$, we get the following circuit, representing the function $f_{tiny-jj}$, by inductively replacing binary operators with their associated arithmetic gates:
+Since we haven't decided which part of the computation should be instance and which part should be witness, we use the unspecified symbol $S$ to represent edge labels. Constraining all variables to edge labels $S_1=x$, $S_2=y$ and $S_6=f_{tiny-jj}$, we get the following circuit, representing the function $f_{tiny-jj}$, by inductively replacing binary operators with their associated arithmetic gates:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.4]{G2}{
@@ -869,7 +870,8 @@ $$
 S_{tiny-jj} = <S_1, S_2, S_3, S_4, S_5, S_6> = <11, 6, 4, 10, 1, 0>
 $$
 \end{example}
-\paragraph{Circuit Satisfiability} To understand how algebraic circuits give rise to formal languages, observe that every algebraic circuit $C(\F)$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{Circuit Satisfiability}
+\label{circuit-satisfiability} To understand how algebraic circuits give rise to formal languages, observe that every algebraic circuit $C(\F)$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
 R_{C(\F)} : \F^* \times \F^* \to \{true, false\}\;;\;
 (I;W) \mapsto
@@ -896,7 +898,9 @@ Example \ref{ex:3-fac-zk-circuit_2}implies that $<2,3,4,6>$ is a proper construc
 \begin{exercise}
 Consider the circuit $C_{tiny-jj}(\F_{13})$ from example \ref{ex:TJJ-circuit_1}, with its associated language $L_{tiny-jj}$. Construct a proof $\pi$ for the instance $<11,6>$ and verify the proof.
 \end{exercise}
-\paragraph{Associated Constraint Systems} As we have seen in \ref{sec:R1CS}, Rank-1 Constraint Systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a prover to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
+
+\paragraph{Associated Constraint Systems}
+\label{sec:circuits_associated_R1CS} As we have seen in \ref{sec:R1CS}, Rank-1 Constraint Systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a prover to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
 
 In this paragraph, we show how to transform any algebraic circuit into a Rank-1 Constraint System such that valid circuit assignments are in 1:1 correspondence with solutions to the associated R1CS. 
 
