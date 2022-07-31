@@ -680,7 +680,7 @@ sage: for x in range(0,13): # cyclic of order 13
 ....:     P = x*Q
 ....:     BLS6_13.append(P)
 
-Sage commandline, line 2120::
+Sage commandline, line 2121::
 
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
@@ -688,7 +688,7 @@ sage: p = F43t(t^6+6)
 sage: p.is_irreducible()
 sage: F43_6.<v> = GF(43^6, name='v', modulus=p)
 
-Sage commandline, line 2134::
+Sage commandline, line 2135::
 
 sage: BLS6 = EllipticCurve (F43_6,[0 ,6]) # curve extension
 sage: INF = BLS6(0) # point at infinity
@@ -701,7 +701,7 @@ sage: for P in INF.division_points(13): # full 13-torsion
 ....:             break
 sage: P.xy()
 
-Sage commandline, line 2153::
+Sage commandline, line 2154::
 
 sage: Q = BLS6(7*v^2,16*v^3)
 sage: BLS6_13_2 = []
@@ -709,13 +709,13 @@ sage: for x in range(0,13):
 ....:     P = x*Q
 ....:     BLS6_13_2.append(P)
 
-Sage commandline, line 2199::
+Sage commandline, line 2201::
 
 sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1326::
+Sage commandline, line 1331::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -726,7 +726,7 @@ sage: T == F13t(t^2 + t + 9)
 sage: A2 == F13t(6*t + 10)
 sage: A5 == F13t(7*t + 4)
 
-Sage commandline, line 1390::
+Sage commandline, line 1395::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -735,7 +735,7 @@ sage: P = F13t((2*(6*t+10)+6*(7*t+4))*(3*(6*t+10)+4*(7*t +4))-(11*(7*t+4)+6*(6*t
 sage: P == T
 sage: P % T # remainder
 
-Sage commandline, line 1411::
+Sage commandline, line 1416::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]

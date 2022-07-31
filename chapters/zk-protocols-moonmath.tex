@@ -3,96 +3,108 @@
 % Intro from https://core.ac.uk/download/pdf/82198769.pdf
 % CONTAINS NICE HIHG LEVEL STUFF
 % Term SNARK was introduced in  Bitansky, Nir; Canetti, Ran; Chiesa, Alessandro; Tromer, Eran (January 2012). ``From extractable collision resistance to succinct non-interactive arguments of knowledge, and back again''
-A so-called \term{zero-knowledge protocol} is a set of mathematical rules by which one party (usually called \term{the prover}) can convince another party (usually called \term{the verifier}) that a given statement is true, while not revealing any additional information apart from the truth of the statement. 
+A so-called \term{zero-knowledge protocol} is a set of mathematical rules by which one party, usually called \term{the prover}, can convince another party, usually called \term{the verifier}, that given some instance, the prover knows some witness for that instance, without revealing any information about the witness. 
 
-As we have seen in chapter \ref{chap:statements}\sme{add reference}, given some language $L$ and instance $I$, the knowledge claim ``there is a witness $W$ such that  $(I;W)$ is a word in $L$'' is constructively provable by providing $W$ to the verifier. However, the challenge for a zero-knowledge protocol is to prove knowledge of a witness without revealing any information beyond its bare existence.
+As we have seen in chapter \ref{chap:statements}, given some language $L$ and instance $I$, the knowledge claim ``there is a witness $W$ such that  $(I;W)$ is a word in $L$'' is constructively provable by providing the witness $W$ to the verifier. The verifier can then use the grammar of the language to verify the proof. In contrast, it's the challenge of any zero-knowledge protocol to enable a prover to prove knowledge of a witness to any verifier, without revealing any information about the witness beyond its existence.
 
-In this chapter, we look at various systems that exist to solve this task. We start with an introduction to the basic concepts and terminology in zero-knowledge proving systems and then introduce the so-called Groth\_16 protocol as one of the most efficient systems. We plan to update this chapter with new inventions in future versions of this book.
+In this chapter, we look at various systems that exist to solve this task. We start with an introduction to the basic concepts and terminology in zero-knowledge proving systems and then introduce the so-called Groth\_16 protocol as one of the most efficient systems. We will update this chapter with other zero-knowledge proof systems in future versions of this book.
 
 \section{Proof Systems}
-From an abstract point of view, a proof system is a set of rules which models the generation and exchange of messages between two parties: a prover and a verifier. Its task is to ascertain whether a given string belongs to a formal language or not.  
+From an abstract point of view, a proof system is a set of rules which models the generation and exchange of messages between two parties, usually called the prover and the verifier. The purpose of a proof system is to ascertain whether a given string belongs to a formal language or not.  
 
-Proof systems are often classified by certain trust assumptions and the computational capabilities of both parties. In its most general form, the prover usually possesses unlimited computational resources but cannot be trusted, while the verifier has bounded computation power but is assumed to be honest.
+Proof systems are often classified by certain trust assumptions and the computational capabilities of the prover and the verifier. In its most general form, the prover usually possesses unlimited computational resources but cannot be trusted, while the verifier has bounded computational power but is assumed to be honest.
 
-Proving the membership statement for some string is executed by the generation of certain messages that are sent between prover and verifier, until the verifier is convinced that the string is an element of the language in consideration.
+Proving membership or knowledge claims of a statement for some string as explained in chapter \ref{chap:statements} is executed by the generation of certain messages that are sent between prover and verifier, until the verifier is convinced that the string is a word in the language in consideration.
 
 % https://link.springer.com/content/pdf/10.1007/BF00195207.pdf
 To be more specific, let $\Sigma$ be an alphabet, and let $L$ be a formal language defined over $\Sigma$. Then a \term{proof system} for language $L$ is a pair of probabilistic interactive algorithms $(P,V)$, where $P$ is called the \term{prover} and $V$ is called the \term{verifier}. 
 
-Both algorithms are able to send messages to one another, and each algorithm has its own state, some shared initial state and access to the messages. The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops and outputs either \texttt{accept} or \texttt{reject} indicating that it accepts or rejects a given string to be in $L$. In contrast, there are bounds on the computational power of the prover.
+Both algorithms are able to send messages to one another, each algorithm has its own state, some shared initial state and access to the messages. The verifier is bounded to a number of steps which is polynomial in the size of the shared initial state, after which it stops and outputs either \texttt{accept} or \texttt{reject} indicating that it accepts or rejects a given string to be a word in $L$ or not. In contrast, in the most general form of a proof system, there are no bounds on the computational power of the prover.
 
 When the execution of the verifier algorithm stops the following conditions are required to hold:
 \begin{itemize}
-\item (Completeness) If the tuple $x\in \Sigma^*$ is a word in language $L$ and both prover and verifier follow the protocol, the verifier outputs \texttt{accept}.
-\item (Soundness) If the tuple $x\in \Sigma^*$ is not a word in language $L$ and the verifier follows the protocol, the verifier outputs \texttt{reject}, except with some small probability.
+\item (Completeness) If the string $x\in \Sigma^*$ is a word in language $L$ and both prover and verifier follow the protocol, the verifier outputs \texttt{accept}.
+\item (Soundness) If the string $x\in \Sigma^*$ is not a word in language $L$ and the verifier follows the protocol, the verifier outputs \texttt{reject}, except with some small probability.
 \end{itemize}
 In addition, a proof system is called \term{zero-knowledge} if the verifier learns nothing about $x$ other than $x\in L$. 
 
-The previous definition of proof systems is very general, and many subclasses of proving systems are known in the field. The type of languages that a proof system can support crucially depends on the abilities of the verifier (for example, whether it can make random choices) or on the nature and number of the messages that can be exchanged. If the system only requires to send a single message from the prover to the verifier, the proof system is called \term{non-interactive}, because no interaction other then sending the actual proof is required. In contrast, any other proof system is called \term{interactive}.
+The previous definition of proof systems is very general, and many subclasses of proof systems are known in the field. For example, some proof systems restrict the computational power of the prover, while some proof systems assume that the verifier has access to randomness. In addition, proof systems are classified by the number of messages that can be exchanged. If the system only requires to send a single message from the prover to the verifier, the proof system is called \term{non-interactive}, because no interaction other then sending the actual proof is required. In contrast, any other proof system is called \term{interactive}.
 
-A proof system is usually called \term{succinct} if the size of the proof is shorter than the witness necessary to generate the proof. Moreover, a proof system is called \term{computationally sound} if soundness only holds under the assumption that the computational capabilities of the prover are polynomially bound. To distinguish general proofs from computationally sound proofs, the latter are often called \term{arguments}. Zero-knowledge, succinct, non-interactive arguments of knowledge claims are often abbreviated \term{zk-SNARKs}.
-\begin{example}[Constructive Proofs for Algebraic Circuits] To formalize our previous notion of constructive proofs for algebraic circuits, let $\F$ be a finite field, and let $C(\F)$ be an algebraic circuit over $\F$ with associated language $L_{C(\F)}$. A non-interactive proof system for $L_{C(\F)}$ is given by the following two algorithms:
+A proof system is usually called \term{succinct} if the size of the proof is shorter than the witness necessary to generate the proof. Moreover, a proof system is called \term{computationally sound} if soundness only holds under the assumption that the computational capabilities of the prover are polynomial bound. To distinguish general proofs from computationally sound proofs, the latter are often called \term{arguments}.
 
-Given some instance $I$, the prover algorithm $P$ uses its unlimited computational power to compute a witness $W$ such that the pair $(I;W)$ is a valid assignment to $C(\F)$ whenever the circuit is satisfiable for $I$. The prover then sends the constructive proof $(I;W)$ to the verifier.
+Since the term \term{zk-SNARKs} is an abbreviation for "Zero-knowledge, succinct, non-interac-tive argument of knowledge", proof system able to generate zk-SNARKS therefore have the zero-knowledge property, are able to generate proofs that require less space then the original witness and require no interaction between prover and verifier, other then transmitting the zk-SNARK itself. However those systems are only sound under the assumption that the prover's computational capabilities are polynomial bound.
+\begin{example}[Constructive Proofs for Algebraic Circuits] We have seen in \ref{circuit-satisfiability} how algebraic circuit give rise to formal languages and constructive proofs for knowledge claims.
 
-On receiving a message $(I;W)$, the verifier algorithm $V$ assigns the constructive proof $(I;W)$ to circuit $C(\F)$, and decides whether the assignment is valid by executing all gates in the circuit. The runtime is polynomial in the number of gates. If the assignment is valid, the verifier returns \texttt{accepts}, if not, it returns \texttt{reject}. 
+To reformulate this notion of constructive proofs for algebraic circuits into a proof system, let $\F$ be a finite field, and let $C(\F)$ be an algebraic circuit over $\F$ with associated language $L_{C(\F)}$. A non-interactive proof system for $L_{C(\F)}$ is given by the following two algorithms:
 
-To see that this proof system has the completeness and soundness properties, let $C(\F)$ be a circuit of the field $\F$, and let $I$ be an instance. The circuit may or may not have a witness $W$ such that  $(I;W)$ is a valid assignment to $C(\F)$. 
+\term{Prover Algorithm}: The prover $P$ is defined by circuit execution. Given some instance $I$ the prover executes circuit $C(\F)$ to compute a witness $W$ such that the pair $(I;W)$ is a valid assignment to $C(\F)$ whenever the circuit is satisfiable for $I$. The prover then sends the constructive proof $(I;W)$ to the verifier.
 
-If no $W$ exists, $I$ is not part of any word in $L_{C(\F)}$, and there is no way for $P$ to generate a valid assignment. If follows that the verifier will not accept any claimed proof sent by $P$, which implies that the system has \term{soundness}.
+\term{Verifier Algorithm}: On receiving a message $(I;W)$, the verifier algorithm $V$ inserts $(I;W)$ into the associated R1CS of the circuit. If $(I;W)$ is a solution to the $R1CS$, the verifier returns \texttt{accepts}, if not, it returns \texttt{reject}. 
 
-If, on the other hand, $W$ exists and $P$ is honest, $P$ can use its unlimited computational power to compute $W$ and send $(I;W)$ to $V$, which $V$ will accept in polynomial time. This implies that the system has \term{completeness}.
+To see that this proof system is complete and sound, let $C(\F)$ be a circuit of the field $\F$, and let $I$ be an instance. The circuit may or may not have a witness $W$ such that $(I;W)$ is a valid assignment to $C(\F)$. 
 
-The system is non-interactive because the prover only sends a single message to the verifier, which contains the proof itself. Because in this simple system the witness itself is the proof, the proof system is \term{not} succinct.
+If no $W$ exists, $I$ is not part of any word in $L_{C(\F)}$, and there is no way for $P$ to generate a valid assignment. It follows that the verifier will not accept any claimed proof sent by $P$, since the associated $R1CS$ has no solutions for instance $I$. This implies that the system is \term{sound}.
+
+If, on the other hand, $W$ exists and $P$ is honest, $P$ can use its unlimited computational power to compute $W$ and send $(I;W)$ to $V$, which $V$ will accept, since it is a solution to the associated $R1CS$. This implies that the system is \term{complete}.
+
+The system is non-interactive because the prover only sends a single message to the verifier, which contains the proof itself. However the proof system is \term{not} succinct, since the proof is the witness. The proof system is also not zero knowledge, since the verifier has access to the witness and hence learns everything about the witness.
 \end{example}
 \section{The ``Groth16'' Protocol}
 \label{sec:gorth_16}
- In chapter \ref{chap:statements}\sme{check reference}, we have introduced algebraic circuits, their associated rank-1 constraint systems and their induced quadratic arithmetic programs. These models define formal languages, and associated memberships and knowledge claims can be constructively proofed by executing the circuit to compute a solution to its associated R1CS. The solution can then be transformed into a polynomial such that  the polynomial is divisible by another polynomial if and only if the solution is correct. 
+ In chapter \ref{chap:statements}, we have introduced algebraic circuits, their associated Rank-1 Constraint Systems and their induced Quadratic Arithmetic Programs. These models define formal languages, and associated memberships and knowledge claims can be constructively proofed by executing the circuit to compute a solution to its associated R1CS. As we have seen in \ref{sec:QAP} the proof can then be transformed into a polynomial such that the polynomial is divisible by another polynomial if and only if the proof is correct. 
  
-In \cite{Groth16},\sme{check reference} Jens Groth provides a method that can transform those proofs into zero-knowledge succinct non-interactive arguments of knowledge. Assuming that the pairing groups $(\G_1,\G_2,\G_T,b)$ are given, the arguments are of constant size and consist of $2$ elements from $G_1$ and a single element from $\G_2$, regardless of the size of the witness. They are zero-knowledge in the sense that the verifier learns nothing about the witness beside the fact that the instance-witness pair is a proper word in the language of the problem.
+In \cite{Groth16},\sme{check reference} Jens Groth provides a method, capable to transform constructive proofs into zero-knowledge succinct non-interactive arguments of knowledge. Assuming that there are groups $\G_1$, $\G_2$ and $\G_3$ and an efficiently computable pairing map \ref{pairing-map}
 
-Verification is non-interactive and needs to compute a number of exponentiations proportional to the size of the instance, together with $3$ group pairings in order to check a single equation.
+$$
+e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3
+$$
 
-The generated argument is perfectly zero-knowledge has perfect completeness and soundness in the generic bilinear group model, assuming the existence of a trusted third party that executes a preprocessing phase to generate a \uterm{common reference string} and a \uterm{simulation trapdoor}. This party must be trusted to delete the simulation trapdoor, since everyone in possession of it can simulate proofs. 
+Then the zk-SNArK in Groth's protocol is of constant size and consist of $2$ elements from $G_1$ and a single element from $\G_2$, regardless of the size of the witness. Verification is non-interactive and the verifier needs to compute a number of exponentiations proportional to the size of the instance, together with $3$ group pairings in order to verify a single proof.
 
-To be more precise, let $R$ be a rank-1 constraint system defined over some finite field $\F_r$. Then \term{Groth\_16 parameters} for $R$ are given by the following set:
+The generated zk-SNARK is zero-knowledge, has completeness and soundness in the generic bilinear group model, assuming the existence of a trusted third party that executes a preprocessing phase to generate a \term{Common Reference String} and a \term{simulation trapdoor}. This party must be trusted to delete the simulation trapdoor, since everyone in possession of it can simulate proofs. 
+
+To be more precise, let $R$ be a Rank-1 Constraint System defined over some finite field $\F_r$. Then \term{Groth\_16 parameters} for $R$ are given by the following set:
 \begin{equation}
+\label{groth16-parameters}
 \mathtt{Groth\_16-Param}(R)=(r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2)
 \end{equation}
 
-In the equation above, $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a generator of $\G_1$, $g_2$ is a generator of $\G_2$ and $e: \G_1 \times \G_2 \to \G_T$ is a non-degenerate, bilinear pairing for some target group $\G_T$. In real-world applications, the parameter set is usually agreed on in advance. 
+Here, $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a generator of $\G_1$, $g_2$ is a generator of $\G_2$ and $e: \G_1 \times \G_2 \to \G_T$ is an efficiently computable, non-degenerate, bilinear pairing for some target group $\G_T$. In real-world applications, the parameter set is usually agreed on in advance. 
 
 Given some Groth\_16 parameters, a \term{Groth\_16 protocol} is then a quadruple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Prove},\textsc{Vfy},\textsc{Sim})$ such that the following conditions hold:
 \begin{itemize}
-\item (Setup-Phase): $(CRS,\tau)\leftarrow \mathtt{Setup}(R)$: Algorithm $\mathtt{Setup}$ takes the R1CS $R$ as input and computes a common reference string $CRS$ and a simulation trapdoor $\tau$.
-\item (Prover-Phase): $\pi\leftarrow Prove(R,CRS,I,W)$: Given a constructive proof $(I;W)$ for $R$, algorithm $\mathtt{Prove}$ takes the R1CS $R$, the common reference string $CRS$ and the constructive proof $(I,W)$ as input and computes an zk-SNARK $\pi$.
-\item Verify: $\{\mathtt{accept},\mathtt{reject}\}\leftarrow Vfy(R,CRS,I,\pi)$:   Algorithm \texttt{Vfy} takes the R1CS $R$, the common reference string $CRS$, the instance $I$ and the zk-SNARK $\pi$ as input and returns \texttt{reject} or \texttt{accept}.
-\item $\pi\leftarrow Sim(R,\tau,CRS, I)$: Algorithm \texttt{Sim} takes the R1CS $R$, the common reference string $CRS$, the simulation trapdoor $\tau$ and the instance $I$ as input and returns a zk-SNARK $\pi$. 
+\item (Setup-Phase): $(CRS,\tau)\leftarrow \textsc{Setup}(R)$: Algorithm $\textsc{Setup}$ takes the R1CS $R$ as input and computes a \term{Common Reference String} $CRS$ and a \term{simulation trapdoor} $\tau$.
+\item (Prover-Phase): $\pi\leftarrow \textsc{Prove}(R,CRS,I,W)$: Given a constructive proof $(I;W)$ for $R$, algorithm $\textsc{Prove}$ takes the R1CS $R$, the Common Reference String $CRS$ and the constructive proof $(I,W)$ as input and computes an zk-SNARK $\pi$.
+\item Verify: $\{\mathtt{accept},\mathtt{reject}\}\leftarrow \textsc{Vfy}(R,CRS,I,\pi)$:   Algorithm \textsc{Vfy} takes the R1CS $R$, the Common Reference String $CRS$, the instance $I$ and the zk-SNARK $\pi$ as input and returns \texttt{reject} or \texttt{accept}.
+\item $\pi\leftarrow \textsc{Sim}(R,\tau,CRS, I)$: Algorithm \textsc{Sim} takes the R1CS $R$, the Common Reference String $CRS$, the simulation trapdoor $\tau$ and the instance $I$ as input and returns a zk-SNARK $\pi$. 
 \end{itemize}
 We will explain these algorithms together with detailed examples in the remainder of this section.
 
-Assuming a trusted third party for the setup, the protocol is  able to compute a zk-SNARK from a constructive proof for $R$, provided that $r$ is sufficiently large, and, in particular, larger than the number of constraints in the associated R1CS.
+Assuming a trusted third party for the setup, the protocol is  able to compute a zk-SNARK from a constructive proof for $R$, provided that the group order $r$ is sufficiently large, and, in particular, larger than the number of constraints in the associated R1CS.
 
-\begin{example}[The 3-Factorization Problem] Consider the $3$-factorization problem from \ref{ex:3-factorization}\sme{check reference} and its associated algebraic circuit and rank-1 constraint system from  \ref{C3fac}\sme{check reference}. In this example, we want to agree on a parameter set $(R,r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2)$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
+\begin{example}[The 3-Factorization Problem]
+\label{ex:3-fac-groth-16-params} Consider the $3$-factorization problem from \ref{ex:3-factorization} and its associated algebraic circuit \ref{ex:3-fac-zk-circuit} as well the Rank-1 Constraint System from \ref{ex:3-factorization-r1cs}. In this example, we want to agree on a parameter set $(r, \G_1, \G_2, e(\cdot,\cdot), g_1, g_2)$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
 
-To find proper parameters, first observe that the circuit XXX\sme{add reference}, as well as its associated R1CS $R_{3.fac\_zk}$ {ex:3-factorization-r1cs}\sme{check reference} and the derived QAP \ref{QAP-R3-fac-zk}\sme{check reference}, are defined over the field $\F_{13}$. We therefore have $r=13$ and need pairing groups $\G_1$ and $\G_2$ of order $13$. 
+To find proper parameters, first observe that the circuit \ref{ex:3-fac-zk-circuit}, as well as its associated R1CS $R_{3.fac\_zk}$ \ref{ex:3-factorization-r1cs} and the derived QAP \ref{ex:3-fac-QAP}, are defined over the field $\F_{13}$. We therefore have to choose pairing groups $\G_1$ and $\G_2$ of order $13$. 
 
-We know from \ref{BLS6} that the moon-math curve \texttt{BLS6\_6} has two subgroups $\G_1[13]$ and $\G_2[13]$, which are both of order $13$. The associated Weil pairing $b$ (\ref{BLS6-weil-pairing})\sme{check reference} is a proper bilinear map. We therefore choose those groups and the Weil pairing together with the generators $g_1 = (13,15) $ and $g_2=(7v^2,16v^3)$ of $\G_1[13]$ and $\G_2[13]$, as a parameter:
+We know from \ref{BLS6} that the moon-math curve \texttt{BLS6\_6} has two subgroups $\G_1[13]$ and $\G_2[13]$, which are both of order $13$. The associated Weil pairing $e(\cdot,\cdot)$ \ref{BLS6-weil-pairing} is efficiently computable, bilinear as well as non-degenerate. We therefore choose those groups and the Weil pairing together with the generators $g_1 = (13,15) $ and $g_2=(7v^2,16v^3)$ of $\G_1[13]$ and $\G_2[13]$, as a parameter set:
 $$
-\mathtt{Groth\_16-Param}(R_{3.fac\_zk})=(r, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3))
+\mathtt{Groth\_16-Param}(R_{3.fac\_zk})=(13, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3))
 $$
-It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has a proper bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real-world applications, where SNARKs with equivalent behavior are defined over different curves, used in different applications.
+It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has an efficiently computable, non-degenerate, bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real-world applications, where SNARKs with equivalent behavior are defined over different curves, used in different applications.
 \end{example}
-\paragraph{The Setup Phase} To generate zk-SNARKs from constructive knowledge proofs in the Groth16 protocol, a preprocessing phase is required. This has to be executed a single time for every rank-1 constraint system and any associated quadratic arithmetic program. The outcome of this phase is a common reference string that prover and verifier need in order to generate and verify the zk-SNARK. In addition, a simulation trapdoor is produced that can be used to simulate proofs.
+\paragraph{The Setup Phase} To generate zk-SNARKs from constructive knowledge proofs in the Groth16 protocol, a preprocessing phase is required. This has to be executed a single time for every Rank-1 Constraint System and any associated Quadratic Arithmetic Program. The outcome of this phase is a Common Reference String that prover and verifier need in order to generate and verify the zk-SNARK. In addition, a simulation trapdoor is produced that can be used to simulate proofs.
 
-To be more precise, let $L$ be a language defined by some rank-1 constraint system $R$ such that  a constructive proof of knowledge for an instance $(I_1,\ldots,I_n)$ in $L$ consists of a witness $(W_1,\ldots,W_m)$. Let $QAP(R) = \left\{T\in \F[x],\left\{A_j,B_j,C_j\in \F[x]\right\}_{j=0}^{n+m}\right\}$ be a quadratic arithmetic program associated to $R$, and let $\{\G_1, \G_2, e(\cdot,\cdot), g_1, g_2, \F_r\}$ be the set of Groth\_16 parameters.\label{groth16-parameters}
+To be more precise, let $L$ be a language defined by some Rank-1 Constraint System $R$ such that  a constructive proof of knowledge for an instance $<I_1,\ldots,I_n>$ in $L$ consists of a witness $<W_1,\ldots,W_m>$. Let $QAP(R) = \left\{T\in \F[x],\left\{A_j,B_j,C_j\in \F[x]\right\}_{j=0}^{n+m}\right\}$ be a Quadratic Arithmetic Program associated to $R$, and let $\{\G_1, \G_2, e(\cdot,\cdot), g_1, g_2, \F_r\}$ be a set of Groth\_16 parameters.
 
-The setup phase then samples $5$ random, \smelong{inverible}\sme{"invariable"?} elements $\alpha$, $\beta$,$\gamma$, $\delta$ and $s$ from the scalar field $\F_r$ of the protocol and outputs the \term{simulation trapdoor} $\tau$:
+The setup phase then samples $5$ random, invertible elements $\alpha$, $\beta$,$\gamma$, $\delta$ and $s$ from the scalar field $\F_r$ of the protocol and outputs the \term{simulation trapdoor} $\tau$:
 \begin{equation}
+\label{def:groth16-trapdoor}
 \tau = (\alpha, \beta, \gamma, \delta, s)
 \end{equation}
-In addition, the setup phase uses those $5$ random elements together with the two generators $g_1$ and $g_2$  and the quadratic arithmetic program to generate a \term{common reference string} $CRS_{QAP}= (CRS_{\mathbb{G}_1},CRS_{\mathbb{G}_2})$ of language $L$:
+In addition, the setup phase uses those $5$ random elements together with the two generators $g_1$ and $g_2$  and the Quadratic Arithmetic Program to generate a \term{Common Reference String} $CRS_{QAP}= (CRS_{\mathbb{G}_1},CRS_{\mathbb{G}_2})$ of language $L$:
 \begin{align*}
+\label{def:groth16-crs}
 CRS_{\mathbb{G}_{1}} &= \textstyle\left\{ \begin{array}{c}
 g_1^\alpha,g_1^\beta,g_1^\delta,\left(g_1^{s^j},\ldots\right)_{j=0}^{deg(T)-1},
 \left(g_1^{\frac{\beta\cdot A_{j}(s)+\alpha\cdot B_{j}(s)+C_{j}(s)}{\gamma}},\ldots\right)_{j=0}^n\\
@@ -100,45 +112,46 @@ g_1^\alpha,g_1^\beta,g_1^\delta,\left(g_1^{s^j},\ldots\right)_{j=0}^{deg(T)-1},
 \end{array}\right\} \\
 CRS_{\mathbb{G}_{2}} &= \left\{g_2^\beta ,g_2^\gamma,g_2^\delta,\left(g_2^{s^j},\ldots\right) _{j=0}^{deg(T)-1}\right\}
 \end{align*}
-Common reference strings depend on the simulation trapdoor, and are therefore not unique to the problem. Any language can have more than one common reference string. The  size of a common reference string is linear in the size of the instance and the size of the witness.
+Common reference strings depend on the simulation trapdoor, and are therefore not unique to the problem. Any language can have more than one Common Reference String. The  size of a Common Reference String is linear in the size of the instance and the size of the witness.
 
-If a simulation trapdoor $\tau = (\alpha,\beta,\gamma,\delta, s)$ is given, we call the element $s$ a \term{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$, then a key feature of any common reference string is that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $s$ in the exponent of the generator $g_1$ or $g_2$, without knowing $s$.
+If a simulation trapdoor $\tau = (\alpha,\beta,\gamma,\delta, s)$ is given, we call the element $s$ a \term{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$, then a key feature of any Common Reference String is that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $s$ in the exponent of the generator $g_1$ or $g_2$, without knowing $s$.
 
 To be more precise, let $s$ be the secret evaluation point and let $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ be a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(s)}$ without knowing what the actual value of $s$ is:
-\begin{align*}
-g_1^{P(s)} & = g_1^{a_0\cdot s^0 + a_1\cdot s^1 + \ldots a_k\cdot s^k} \\
- & = g_1^{a_0\cdot s^0} \cdot g_1{a_1\cdot s^1} \cdot \ldots \cdot g_1^{a_k\cdot s^k}\\
+\label{eq:exp_evaluation-poly}
+\begin{align}
+g_1^{P(s)} & = g_1^{a_0\cdot s^0 + a_1\cdot s^1 + \ldots a_k\cdot s^k} \notag\\
+ & = g_1^{a_0\cdot s^0} \cdot g_1{a_1\cdot s^1} \cdot \ldots \cdot g_1^{a_k\cdot s^k}\notag\\
  & = \Big(g_1^{s^0}\Big)^{a_0} \cdot \Big(g_1^{s^1}\Big)^{a_1} \cdot \ldots \cdot \Big(g_1^{s^k}\Big)^{a_k}\\
-\end{align*}
-In this expression, all group points $g_1^{s^j}$ are part of the common reference string, hence, they can be used to compute the result. The same holds true for the evaluation of $g_2^{P(s)}$, since the $\G_2$ part of the common reference string contains the points $g_2^{s^j}$. 
+\end{align}
+In this expression, all group points $g_1^{s^j}$ are part of the Common Reference String, hence, they can be used to compute the result. The same holds true for the evaluation of $g_2^{P(s)}$, since the $\G_2$ part of the Common Reference String contains the points $g_2^{s^j}$. 
 
-In real-world applications, the simulation trapdoor is often called the \term{toxic waste}\sme{explain why} of the setup-phase, while a common reference string is also-called the pair of \term{prover and verifier key}. 
+In real-world applications, the simulation trapdoor is often called the \term{toxic waste} of the setup-phase. As we will see in \ref{sec:proof_simulation}, a simulation trapdoor can be used to generate fraud proofs, which are verifiable zk-SNAKS that can be constructed without knowledge of any witness. The Common Reference String is also-called a pair of \term{prover and verifier key}. 
 
-In order to make the protocol secure, the setup needs to be executed in a way that  guarantees that the simulation trapdoor is deleted. Anyone in possession of it can generate arguments without knowledge of a constructive proof. The most simple approach to achieving deletion of the toxic waste is by a so-called \term{trusted third party}, where the trust assumption is that that the party generates the common reference string precisely as defined and deletes the simulation backdoor afterwards.
+In order to make the protocol secure, the setup needs to be executed in a way that  guarantees that the simulation trapdoor is deleted. The most simple approach to achieving deletion of the toxic waste is by a so-called \term{trusted third party}, where the trust assumption is that the party generates the Common Reference String precisely as defined and deletes the simulation trapdoor afterwards.
 
-However, as trusted third parties are not easy to find, more sophisticated protocols exist in real-world applications. They execute the setup phase as a multi party computation, where the proper execution can be publicly verified and the simulation trapdoor is deleted if at least one participant deletes their individual contribution to the randomness. Each participant only possesses a fraction of the simulation trapdoor, so it can only be recovered if all participants collude and share their fraction.
+However, as trusted third parties are not easy to find, more sophisticated protocols for the setup phase exist in real-world applications. They execute the setup phase as a multi party computation, where the proper execution can be publicly verified and the simulation trapdoor is deleted if at least one participant deletes their individual contribution. Each participant only possesses a fraction of the simulation trapdoor, so it can only be recovered if all participants collude and share their fraction.
 
-\begin{example}[The $3$-factorization Problem]\sme{4 examples have the same title. Change it to be distinct}
-To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization}\sme{check reference} and the parameters from page \pageref{groth16-parameters}\sme{add reference}. As we have seen in \ref{QAP-R3-fac-zk}\sme{check reference}, an associated quadratic arithmetic program is given as follows:
+\begin{example}[The $3$-factorization Problem]
+To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization} and the Groth\_16 parameters from example \ref{ex:3-fac-groth-16-params}. As we have seen in \ref{ex:3-fac-QAP}, an associated Quadratic Arithmetic Program is given by the following set:
 \begin{multline*}
 QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
  \{0,0,6x+10,0,0,7x+4\},\{0,0,0,6x+10,7x+4,0\},\{0,7x+4,0,0,0,6x+10\}\}
 \end{multline*}
-To transform this QAP into a common reference string, we choose the  field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$. 
+To transform this QAP into a Common Reference String, we choose the  field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$. 
 In real-world applications, it is important to sample those values randomly from the scalar field, but in our approach, we choose those non-random values to make them more memorizable, which helps in pen-and-paper computations. Our simulation trapdoor is then given as follows:
 $$
 \tau = (6,5,4,3,2)
 $$
 
-We keep this secret in order to simulate proofs later on, butwe are careful though to hide $\tau$ from anyone who hasn't read this book. Then we instantiate the common reference string XXX\sme{add reference} from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
+We keep this secret in order to simulate proofs later on, but we are careful to hide $\tau$ from anyone who hasn't read this book. Then we instantiate the Common Reference String \ref{def:groth16-crs}from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
 
-To compute the $\G_1$ part of the common reference string, we use the logarithmic order of the group $\G_1$ XXX\sme{add reference}, the generator $g_1=(13,15)$, as well as the values from the simulation backdoor. Since $deg(T)=2$, we get the following:
+To compute the $\G_1$ part of the Common Reference String, we use the logarithmic order of the group $\G_1$ \ref{BLS6-G1-log}, the generator $g_1=(13,15)$, as well as the values from the simulation trapdoor. Since $deg(T)=2$, we get the following:
 \begin{align*}
 [\alpha]g_1 & = [6](13,15) = (27,34) \\
 [\beta]g_1 & = [5](13,15) = (26,34) \\
 [\delta]g_1 & = [3](13,15) = (38,15)
 \end{align*}
-To compute the rest of the $\G_1$ part of the common reference string, we expand the indexed tuples and insert the secret random elements from the simulation backdoor. We get the following:
+To compute the rest of the $\G_1$ part of the Common Reference String, we expand the indexed tuples and insert the secret random elements from the simulation backdoor. We get the following:
 \begin{align*}
 \Big( [s^{j}]g_1,\ldots\Big) _{j=0}^{1} = 
  & \Big( [2^0](13,15), [2^1](13,15)\Big)  \\
@@ -150,10 +163,10 @@ To compute the rest of the $\G_1$ part of the common reference string, we expand
 &  \Big( [\frac{5 A_{2}(2)+ 6 B_{2}(2) + C_{2}(2)}{3}](13,15),\\ 
 & \phantom{\Big(} [\frac{5 A_{3}(2)+ 6 B_{3}(2) + C_{3}(2)}{3}](13,15),\\
 & \phantom{\Big(} [\frac{5 A_{4}(2)+ 6 B_{4}(2) + C_{4}(2)}{3}](13,15),\\ 
-& \phantom{\Big(} [\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{6}(2)}{3}](13,15)\Big)\\
+& \phantom{\Big(} [\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{5}(2)}{3}](13,15)\Big)\\
 \Big([\frac{s^j\cdot T(s)}{\delta})]g_1\Big)_{j=0}^0 = & \Big([\frac{2^0\cdot T(2)}{3}](13,15)\Big) 
 \end{align*}
-To compute the curve points on the right side of these expressions, we need the polynomials from the associated quadratic arithmetic program and evaluate them on the secret point $s=2$. Since $4^{-1}=10$ and $3^{-1}=9$ in $\F_{13}$, we get the following:
+To compute the curve points on the right side of these expressions, we need the polynomials from the associated Quadratic Arithmetic Program and evaluate them on the secret point $s=2$. Since $4^{-1}=10$ and $3^{-1}=9$ in $\F_{13}$, we get the following:
 \begin{align*}
 [\frac{5 A_{0}(2)+6 B_{0}(2)+C_{0}(2)}{4}](13,15) = 
  & [(5 \cdot 0 +6\cdot 0 + 0)\cdot 10](13,15) = [0](13,14)\\
@@ -171,38 +184,40 @@ To compute the curve points on the right side of these expressions, we need the 
  & [(5\cdot 0+6\cdot(7\cdot 2 +4)+0)\cdot 9](13,15) =[10](13,15) = \\
  & (38,28) \\
 [\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{5}(2)}{3}](13,15) =
- & [(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 0 )\cdot 9](13,15) = [4](13,15) = \\
- & (35,28)\\
+ & [(5\cdot (7\cdot 2 + 4) +6\cdot 0 + 6\cdot 2 + 10 )\cdot 9](13,15) = [7](13,15) = \\
+ & (27,9)\\
 [\frac{2^0\cdot T(2)}{3}](13,15) =
  & [1\cdot (2^2+2+9)\cdot 9](13,15)= [5](13,15) = \\
  & (26,34)
 \end{align*}
-Putting all those values together, we see that the $\mathbb{G}_1$ part of the common reference string is given by the following set of $12$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_1$: 
-$$
+Putting all those values together, we see that the $\mathbb{G}_1$ part of the Common Reference String is given by the following set of $12$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_1$: 
+\begin{equation}
+\label{ex:3-fac-groth-16-crs}
 CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
 (27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
 \Big(\mathcal{O}, (33,9)\Big)\\
-\Big((33,34),(26,34),(38,28),(35,28)\Big),
+\Big((33,34),(26,34),(38,28),(27,9)\Big),
 \Big((26,34)\Big)
 \end{array}\right\}
-$$
-To compute the $\G_2$ part of the common reference string, we use the logarithmic order of the group $\G_2$ XXX\sme{add reference}, the generator $g_2=(7v^2,16v^3)$, as well as the values from the simulation backdoor. Since $deg(T)=2$, we get the following:
+\end{equation}
+
+To compute the $\G_2$ part of the Common Reference String, we use the logarithmic order of the group $\G_2$ \ref{BLS6-G2-log}, the generator $g_2=(7v^2,16v^3)$, as well as the values from the simulation trapdoor. Since $deg(T)=2$, we get the following:
 \begin{align*}
 [\beta]g_2 & = [5](7v^2,16v^3) = (16v^2,28v^3) \\
 [\gamma]g_2 & = [4](7v^2,16v^3) = (37v^2,27v^3) \\
 [\delta]g_2 & = [3](7v^2,16v^3) = (42v^2,16v^3)
 \end{align*}
-To compute the rest of the $\G_2$ part of the common reference string, we expand the indexed tuple and insert the secret random elements from the simulation backdoor. We get the following:
+To compute the rest of the $\G_2$ part of the Common Reference String, we expand the indexed tuple and insert the secret random elements from the simulation trapdoor. We get the following:
 \begin{align*}
 \Big( [s^{j}]g_2,\ldots\Big) _{j=0}^{1} = 
  & \Big( [2^0](7v^2,16v^3), [2^1](7v^2,16v^3)\Big)  \\
  = & \Big((7v^2,16v^3),(10v^2,28v^3)\Big)
 \end{align*}
-Putting all these values together, we see that the $\mathbb{G}_2$ part of the common reference string is given by the following set of $5$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_2$:
+Putting all these values together, we see that the $\mathbb{G}_2$ part of the Common Reference String is given by the following set of $5$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_2$:
 $$
 CRS_{\mathbb{G}_{2}}=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\Big(7v^2,16v^3), (10v^2,28v^3)\Big)\right\} 
 $$
-Given the simluation trapdoor $\tau$ and the quadratic arithmetic program \ref{QAP-R3-fac-zk}\sme{check reference}, the associated common reference string of the $3$-factorization problem is as follows:
+Given the simluation trapdoor $\tau$ and the Quadratic Arithmetic Program \ref{ex:3-fac-QAP}, the associated Common Reference String of the $3$-factorization problem is as follows:
 \begin{align*}
 CRS_{\mathbb{G}_{1}} &=\left\{ \begin{array}{c}
 (27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
@@ -214,9 +229,9 @@ CRS_{\mathbb{G}_{2}} &=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\Big(7v
 \end{align*}
 We then publish this data to everyone who wants to participate in the generation of a zk-SNARK or its verification in the $3$-factorization problem.
 
-To understand how this common reference string can be used to evaluate polynomials at the secret evaluation point in the exponent of a generator, let's assume that we have deleted the simulation trapdoor. In that case, we have no way to know the secret evaluation point anymore, hence, we cannot evaluate polynomials at that point. However, we can evaluate polynomials of  smaller degree than the degree of the target polynomial in the exponent of both generators at that point. 
+To understand how this Common Reference String can be used to evaluate polynomials at the secret evaluation point in the exponent of a generator, let's assume that we have deleted the simulation trapdoor. In that case, assuming that the discrete logarithm problem is hard in our groups, we have no way to know the secret evaluation point anymore, hence, we cannot evaluate polynomials at that point. However, we can evaluate polynomials of smaller degree than the degree of the target polynomial in the exponent of both generators at that point. 
 
-To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secret point $s$ without knowing the value of $s$ (which is $2$), we can use the common reference string and equation XXX\sme{add reference}. Using the scalar product notation instead of exponentiation, we get the following:
+To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secret point $s$ without knowing the value of $s$ (which is $2$), we can use the Common Reference String and equation \ref{eq:exp_evaluation-poly}. Using the scalar product notation instead of exponentiation, we get the following:
 \begin{align*}
 [A_2(s)]g_1 & = [6\cdot s^1 + 10\cdot s^0] g_1 \\
      & = [6](33,34) + [10](13,15) & \text{\# } [s^0]g_1 = (13,15), [s^1]g_1 = (33,34)\\
@@ -228,7 +243,7 @@ To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ fr
      & = (26,34)     
 \end{align*}
 
-Indeed, we are able to evaluate the polynomials in the exponent at a secret evaluation point, because that point is encrypted in the curve point $(33,34)$ and its secrecy is protected by the discrete logarithm assumption. Of course, in our computation, we recovered the secret point $s=2$, but that was only possible because we have a group of logarithmic order in order to simplify our pen-and-paper computations. Such an order is infeasible for computing in cryptographically secure curves. We can do the same computation on $\G_2$ and get the following:
+Indeed, we are able to evaluate the polynomials in the exponent at a secret evaluation point, because that point is encrypted in the curve point $(33,34)$ and its secrecy is protected by the discrete logarithm assumption. Of course, in our computation, we recovered the secret point $s=2$, but that was only possible because we know the logarithmic order of our groups with respect to the generators. Such an order is infeasible in cryptographically secure curves. We can do the same computation on $\G_2$ and get the following:
 \begin{align*}
 [A_2(s)]g_2 & = [6\cdot s^1 + 10\cdot s^0] g_2 \\
      & = [6](10v^2,28v^3) + [10](7v^2,16v^3) \\
@@ -240,29 +255,29 @@ Indeed, we are able to evaluate the polynomials in the exponent at a secret eval
      & = (16v^2,28v^3)     
 \end{align*}
 
-Apart from the target polynomial $T$, all other polynomials of the quadratic arithmetic program can be evaluated in the exponent this way.
+Apart from the target polynomial $T$, all other polynomials of the Quadratic Arithmetic Program can be evaluated in the exponent this way.
 \end{example}
-\paragraph{The Prover Phase} Given some rank-1 constraint system $R$ and instance $I=(I_1,\ldots, I_n)$, the task of the prover phase is to convince any verifier that a prover knows a witness $W$ to instance $I$ such that  $(I;W)$ is a word in the language $L_R$ of the system, without revealing anything about $W$. 
+\paragraph{The Prover Phase} Given some Rank-1 Constraint System $R$ and instance $I=<I_1,\ldots, I_n>$, the task of the prover phase is to convince any verifier that a prover knows a witness $W$ to instance $I$ such that  $(I;W)$ is a word in the language $L_R$ of the system, without revealing anything about $W$. 
 
-To achieve this in the Groth\_16 protocol, we assume that any prover has access to the rank-1 constraint system of the problem, in addition to some algorithm that tells the prover how to compute constructive proofs for the R1CS. In addition, the prover has access to a common reference string and its associated quadratic arithmetic program. 
+To achieve this in the Groth\_16 protocol, we assume that any prover has access to the Rank-1 Constraint System of the problem, in addition to some algorithm that tells the prover how to compute constructive proofs for the R1CS. In addition, the prover has access to a Common Reference String and its associated Quadratic Arithmetic Program. 
 
-In order to generate a zk-SNARK for this instance, the prover first computes a valid constructive proof as explained in XXX\sme{add reference}, that is, the prover generates a proper witness $W= (W_1,\ldots,W_m)$ such that  $(I_1,\ldots, I_n; W_1,\ldots,W_m)$ is a solution to the rank-1 constraint system $R$. 
+In order to generate a zk-SNARK for this instance, the prover first computes a valid constructive proof as explained in \ref{r1cs-constructive-proofs}, that is, the prover generates a proper witness $W= <W_1,\ldots,W_m>$ such that  $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$ is a solution to the Rank-1 Constraint System $R$. 
 
-The prover then uses the quadratic arithmetic program and computes the polynomial $P_{(I;W)}$, as explained in \ref{polynomial-P-IW}\sme{check reference}. They then divide $P_{(I;W)}$ by the target polynomial $T$ of the quadratic arithmetic program. Since $P_{(I;W)}$ is constructed from a valid solution to the R1CS, we know from \ref{polynomial-P-IW}\sme{check reference} that it is divisible by $T$. This implies that polynomial division of $P$ by $T$ generates another polynomial $H:= P / T$, with $deg(H)<deg(T)$. 
+The prover then uses the Quadratic Arithmetic Program and computes the polynomial $P_{(I;W)}$, as explained in \ref{polynomial-P-IW}. They then divide $P_{(I;W)}$ by the target polynomial $T$ of the Quadratic Arithmetic Program. Since $P_{(I;W)}$ is constructed from a valid solution to the R1CS, we know from \ref{polynomial-P-IW} that it is divisible by $T$. This implies that polynomial division of $P$ by $T$ generates another polynomial $H:= P / T$, with $deg(H)<deg(T)$. 
 
-The prover then evaluates the polynomial $(H\cdot T)\delta^{-1}$ in the exponent of the generator $g_1$ at the secret point $s$, as explained in XXX\sme{add reference}. To see how this can be achieved, let $H(x)$ be the quotient polynomial $P/T$:
+The prover then evaluates the polynomial $(H\cdot T)/\delta$ in the exponent of the generator $g_1$ at the secret point $s$, as explained in \ref{eq:exp_evaluation-poly}. To see how this can be achieved, let $H(x)$ be the quotient polynomial $P/T$:
 
 \begin{equation}
 H(x) = H_0\cdot x^0 + H_1\cdot x^1 +\ldots + H_k \cdot x^k
 \end{equation}
 
-To evaluate $H\cdot T$ at $s$ in the exponent of $g_1$, the prover uses the common reference string and computes as follows:
+To evaluate $(H\cdot T)/\delta$ at $s$ in the exponent of $g_1$, the prover uses the Common Reference String and computes as follows:
 \begin{align*}
 g_1^{\frac{H(s)\cdot T(s)}{\delta}} 
  &= \Big(g_1^{\frac{s^0\cdot T(s)}{\delta}}\Big)^{H_0}\cdot \Big(g_1^{\frac{s^1\cdot T(s)}{\delta}}\Big)^{H_1}\cdots \Big(g_1^{\frac{s^k\cdot T(s)}{\delta}}\Big)^{H_k}
 \end{align*}
 
-After this has been done, the prover samples two random field elements $r,t\in \F_r$, and uses the common reference string, the instance variables $I_1$, $\ldots$, $I_n$ and the witness variables $W_1$, $\ldots$, $W_m$ to compute the following curve points:
+After this has been done, the prover samples two random field elements $r,t\in \F_r$, and uses the Common Reference String, the instance variables $I_1$, $\ldots$, $I_n$ and the witness variables $W_1$, $\ldots$, $W_m$ to compute the following curve points:
 \begin{align*}
 g_1^W & = \Big( g_1^{\frac{\beta\cdot A_{1+n}(s)+\alpha\cdot B_{1+n}(s)+C_{1+n}(s)}{\delta}}\Big)^{W_1}\cdots \Big(g_1^{\frac{\beta\cdot A_{m+n}(s)+\alpha\cdot B_{m+n}(s)+C_{m+n}(s)}{\delta}}\Big)^{W_m}\\
 g_1^A & = g_1^\alpha \cdot g_1^{A_0(s)} \cdot \Big(g_1^{A_1(s)}\Big)^{I_1}\cdots \Big(g_1^{A_n(s)}\Big)^{I_n} \cdot \Big(g_1^{A_{n+1}(s)}\Big)^{W_1}\cdots \Big(g_1^{A_{n+m}(s)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^r \\
@@ -271,36 +286,37 @@ g_2^B & = g_2^\beta \cdot g_2^{B_0(s)} \cdot \Big(g_2^{B_1(s)}\Big)^{I_1}\cdots 
 g_1^C & = g_1^W\cdot g_1^{\frac{H(s)\cdot T(s)}{\delta}} \cdot \Big(g_1^A\Big)^t \cdot \Big(g_1^B\Big)^r \cdot \Big(g_1^\delta\Big)^{-r\cdot t}
 \end{align*}
 
-In this computation, the group elements $g_1^{A_j(s)}$, $g_1^{B_j(s)}$ and $g_2^{B_j(s)}$ can be derived from the common reference string and the quadratic arithmetic program of the problem, as we have seen in XXX\sme{add reference}. In fact, those points only have to be computed once, and can be published and reused for multiple proof generations because they are the same for all instances and witnesses. All other group elements are part of the common reference string. 
+In this computation, the group elements $g_1^{A_j(s)}$, $g_1^{B_j(s)}$ and $g_2^{B_j(s)}$ can be derived from the Common Reference String and the Quadratic Arithmetic Program of the problem, as we have seen in \ref{eq:exp_evaluation-poly}. In fact, those points only have to be computed once, and can be published and reused for multiple proof generations because they are the same for all instances and witnesses. All other group elements are part of the Common Reference String. 
 
 After all these computations have been done, a valid zero-knowledge succinct non-interactive argument of knowledge $\pi$ in the Groth\_16 protocol is given by the following three curve points:
 
 \begin{equation}
+\label{def:groth16-snark}
 \pi = (g_1^A,g_1^C,g_2^B)
 \end{equation}
 
-As we can see, a Groth\_16 zk-SNARK consists of $3$ curve points, two points from $\G_1$ and $1$ point from $\G_2$. The argument is specifically designed this way because, in typical applications, $\G_1$ is a torsion group of an elliptic curve over some prime field, while $\G_2$ is a subgroup of a torsion group over an extension field. Elements from $\G_1$ therefore need less space to be stored, and computations in $\G_1$ are typically faster then in $\G_2$.
+As we can see, a Groth\_16 zk-SNARK consists of $3$ curve points, two points from $\G_1$ and $1$ point from $\G_2$. The argument is specifically designed this way because, in typical applications, $\G_1$ is a torsion group of an elliptic curve over some prime field, while $\G_2$ is a subgroup of the full torsion group over an extension field as explained in \ref{sec:elliptic_curve_pairings}. Elements from $\G_1$ therefore need less space to be stored, and computations in $\G_1$ are typically faster then in $\G_2$.
 
-Since the witness is encoded in the exponent of a generator of a cryptographically secure elliptic curve, it is hidden from anyone but the prover. Moreover, since any proof is randomized by the occurrence of the random field elements $r$ and $t$, proofs are not unique to any given witness. This is an important feature because, if all proofs for the same witness would be the same, knowledge of a witness would destroy the zero-knowledge property of those proofs. 
+Since the witness is encoded in the exponent of a generator of a cryptographically secure elliptic curve, it is hidden from anyone but the prover. Moreover, since any proof is randomized by the occurrence of the random field elements $r$ and $t$, proofs are not unique to any given witness. 
 
 \begin{example}[The $3$-factorization Problem] To see how a prover might compute 
-a zk-SNARK, consider the $3$-factorization problem from \ref{ex:3-factorization}\sme{check reference}, our protocol parameters from XXX\sme{add reference} as well as the common reference string from XXX\sme{add reference}.
+a zk-SNARK, consider the $3$-factorization problem from \ref{ex:3-factorization}, our protocol parameters from \ref{ex:3-fac-groth-16-params} as well as the Common Reference String from \ref{ex:3-fac-groth-16-crs}.
 
-Our task is to compute a zk-SNARK for the instance $I_1=11$ and its constructive proof $(W_1,W_2,W_3,W_4)=(2,3,4,6)$ as computed in XXX\sme{add reference}. As we know from \ref{polynomial-P-IW},\sme{check reference} the associated polynomial $P_{(I;W)}$ of the quadratic arithmetic program from XXX\sme{add reference} is given by the following equation:
+Our task is to compute a zk-SNARK for the instance $I_1=<11>$ and its constructive proof $<W_1,W_2,W_3,W_4>=<2,3,4,6>$ as computed in \ref{ex:3-fac-R1CS-constr-proof}. As we know from \ref{ex:3-fac-QAP} the associated polynomial $P_{(I;W)}$ of the Quadratic Arithmetic Program from \ref{ex:3-fac-QAP} is given as follows:
 $$
 P_{(I;W)} = x^2 + x + 9
 $$ 
-Since $P_{(I;W)}$ is identical to the target polynomial $T(x)=x^2+x + 9$ in this example, we know from XXX\sme{add reference} that the quotient polynomial $H=P/T$ is the constant degree $0$ polynomial:
+Since $P_{(I;W)}$ is identical to the target polynomial $T(x)=x^2+x + 9$ in this example, we know from example \ref{ex:3-fac-QAP} that the quotient polynomial $H=P/T$ is the constant degree $0$ polynomial:
 $$
 H(x)= H_0 \cdot x^0 = 1 \cdot x^0
 $$
-We therefore use $[\frac{s^0\cdot T(s)}{\delta}]g_1=(26,34)$ from our common reference string XXX\sme{add reference} of the $3$-factorization problem and compute as follows:
+We therefore use $[\frac{s^0\cdot T(s)}{\delta}]g_1=(26,34)$ from our Common Reference String \ref{ex:3-fac-groth-16-crs} of the $3$-factorization problem and compute as follows:
 \begin{align*}
 [\frac{H(s)\cdot T(s)}{\delta}]g_1 &= [H_0](26,34)=[1](26,34)\\
                                    &= (26,34)
 \end{align*}
 
-In the next step, we have to compute all group elements required for a proper Groth16 zk-SNARK. We start with $g_1^W$. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[W]g_1$:
+In the next step, we have to compute all group elements required for a proper Groth16 zk-SNARK \ref{def:groth16-snark}. We start with $g_1^W$. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[W]g_1$:
 \begin{align*}
 [W]g_1 = & \phantom{\oplus} [W_1] g_1^{\frac{\beta\cdot A_{2}(s)+\alpha\cdot B_{2}(s)+C_{2}(s)}{\delta}}
         \oplus [W_2] g_1^{\frac{\beta\cdot A_{3}(s)+\alpha\cdot B_{3}(s)+C_{3}(s)}{\delta}}        
@@ -308,13 +324,13 @@ In the next step, we have to compute all group elements required for a proper Gr
          &\oplus [W_4] g_1^{\frac{\beta\cdot A_{5}(s)+\alpha\cdot B_{5}(s)+C_{5}(s)}{\delta}}
 \end{align*}
 
-To compute this point, we have to remember that a prover should not be in possession of the simulation trapdoor, hence, they do not know what $\alpha$, $\beta$, $\delta$ and $s$ are. In order to compute this group element, the prover therefore needs the common reference string. Using the logarithmic order from XXX\sme{add reference} and the witness, we get the following:
+To compute this point, we have to remember that a prover should not be in possession of the simulation trapdoor, hence, they should not know what $\alpha$, $\beta$, $\delta$ and $s$ are. In order to compute this group element, the prover therefore needs the Common Reference String. Using the logarithmic order from \ref{BLS6-G1-log} and the witness, we get the following:
 
 \begin{align*}
-[W]g_1 & = [2](33,34)\oplus [3](26,34)\oplus [4](38,28)\oplus [6](35,28) \\
-      & = [2\cdot 2](13,15)\oplus [3\cdot 5](13,15)\oplus [4\cdot 10](13,15)\oplus [6\cdot 4](13,15) \\        
-      & = [2\cdot 2+ 3\cdot 5+4\cdot 10+ 6\cdot 4](13,15) = [5](13,15)\\
-      & = (26,34)
+[W]g_1 & = [2](33,34)\oplus [3](26,34)\oplus [4](38,28)\oplus [6](27,9) \\
+      & = [2\cdot 2](13,15)\oplus [3\cdot 5](13,15)\oplus [4\cdot 10](13,15)\oplus [6\cdot 7](13,15) \\        
+      & = [2\cdot 2+ 3\cdot 5+4\cdot 10+ 6\cdot 7](13,15) = [10](13,15)\\
+      & = (38,28)
 \end{align*} 
 
 In a next step, we compute $g_1^A$. We sample the random point $r=11$ from $\F_{13}$, using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve. We then have to compute the following expression:
@@ -324,7 +340,7 @@ In a next step, we compute $g_1^A$. We sample the random point $r=11$ from $\F_{
        & \oplus [W_3][A_4(s)]g_1\oplus [W_4][A_5(s)]g_1\oplus [r][\delta]g_1
 \end{align*}
 
-Since we don't know what $\alpha$, $\delta$ and $s$ are, we look up $[\alpha]g_1$ and $[\delta]g_1$ from the common reference string. Recall from XXX\sme{add reference} that we can evaluate $[A_j(s)]g_1$ without knowling the secret evaluation point $s$. According to XXX\sme{add reference}, we have $[A_2(s)]g_1=(35,15)$, $[A_5(s)]g_1=(26,34)$ and $[A_j(s)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
+Since we don't know what $\alpha$, $\delta$ and $s$ are, we look up $[\alpha]g_1$ and $[\delta]g_1$ from the Common Reference String. According to example \ref{ex:3-fac-groth-16-crs}, we have $[A_2(s)]g_1=(35,15)$, $[A_5(s)]g_1=(26,34)$ and $[A_j(s)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
 \begin{align*}
 [A]g_1 &= (27,34) \oplus \mathcal{O} \oplus [11]\mathcal{O}\oplus [2](35,15) \oplus [3]\mathcal{O} \oplus [4]\mathcal{O}\oplus [6](26,34)\oplus [11](38,15)\\
  &=  (27,34)\oplus [2](35,15)\oplus [6](26,34)\oplus [11](38,15)\\
@@ -342,7 +358,7 @@ In order to compute the two curve points $[B]g_1$ and $[B]g_2$, we sample anothe
        & \oplus [W_3][B_4(s)]g_2\oplus [W_4][B_5(s)]g_2\oplus [t][\delta]g_2\\       
 \end{align*}
 
-Since we don't know what $\beta$, $\delta$ and $s$ are, we look up the associated group elements from the common reference string. Recall from XXX\sme{add reference} that we can evaluate $[B_j(s)]g_1$ without knowing the secret evaluation point $s$. Since $B_3=A_2$ and $B_4=A_5$, we have $[B_3(s)]g_1=(35,15)$, $[B_4(s)]g_1=(26,34)$ according to XXX\sme{add reference}, and $[B_j(s)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
+Since we don't know what $\beta$, $\delta$ and $s$ are, we look up the associated group elements from the Common Reference String. Recall from \ref{ex:3-fac-groth-16-crs} that we can evaluate $[B_j(s)]g_1$ without knowing the secret evaluation point $s$. Since $B_3=A_2$ and $B_4=A_5$, we have $[B_3(s)]g_1=(35,15)$, $[B_4(s)]g_1=(26,34)$ according to the computation in \ref{ex:3-fac-groth-16-crs}, and $[B_j(s)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
 \begin{align*}
 [B]g_1 &= (26,34) \oplus \mathcal{O}\oplus [11]\mathcal{O}\oplus [2]\mathcal{O} \oplus [3](35,15) \oplus [4](26,34)\oplus [6]\mathcal{O}\oplus [4](38,15)\\    
        &= (26,34)\oplus [3](35,15) \oplus [4](26,34)\oplus [4](38,15)\\  
@@ -362,40 +378,44 @@ Since we don't know what $\beta$, $\delta$ and $s$ are, we look up the associate
 In a last step, we combine the previous computations to compute the point $[C]g_1$ in the group $\G_1$ as follows:
 \begin{align*}
 [C]g_1 & = [W]g_1\oplus [\frac{H(s)\cdot T(s)}{\delta}]g_1 \oplus [t][A]g_1 \oplus [r][B]g_1 \oplus [-r\cdot t][\delta]g_1\\
-       & = (26,34)\oplus (26,34) \oplus [4](35,15) \oplus [11](13,28) \oplus [-11\cdot 4](38,15)\\       
-       & = [5](13,15)\oplus [5](13,15) \oplus [4\cdot 9](13,15) \oplus [11\cdot 12](13,15) \oplus [-11\cdot 4\cdot 3](13,15)\\    
-       & = [5+5+4\cdot 9+11\cdot 12-11\cdot 4\cdot 3](13,15)=[7](13,15)\\
-       & = (27,9)
+       & = (38,28)\oplus (26,34) \oplus [4](35,15) \oplus [11](13,28) \oplus [-11\cdot 4](38,15)\\       
+       & = [10](13,15)\oplus [5](13,15) \oplus [4\cdot 9](13,15) \oplus [11\cdot 12](13,15) \oplus [-11\cdot 4\cdot 3](13,15)\\    
+       & = [10+5+4\cdot 9+11\cdot 12-11\cdot 4\cdot 3](13,15)=[12](13,15)\\
+       & = (13,28)
 \end{align*}
-Given the instance $I_1=11$, we can now combine these computations and see that the following $3$ curve points are a zk-SNARK for the witness $(W_1,W_2,W_3,W_4)=(2,3,4,6)$:
-$$
-\pi=((35,15),(27,9),(7v^2,27v^3))
-$$
+Given the instance $I_1=<11>$, we can now combine these computations and see that the following $3$ curve points are a zk-SNARK for the witness $<W_1,W_2,W_3,W_4>=<2,3,4,6>$:
+\begin{equation}
+\label{ex:3-fac-groth-16-snark}
+\pi=((35,15),(13,28),(7v^2,27v^3))
+\end{equation}
 
-We ca now publish this zk-SNARK, or send it to a designated verifier. Note that, if we had sampled different values for $r$ and $t$, we would have computed a different SNARK for the same witness. The SNARK, therefore, hides the witness perfectly, which means that it is impossible to reconstruct the witness from the SNARK.
+We can now publish this zk-SNARK, or send it to a designated verifier. Note that, if we had sampled different values for $r$ and $t$, we would have computed a different zk-SNARK for the same witness. The zk-SNARK, therefore, hides the witness perfectly, which means that it is impossible to reconstruct the witness from the zk-SNARK.
 \end{example}
 
-\paragraph{The Verification Phase}Given some rank-1 constraint system $R$, instance $I=(I_1,\ldots, I_n)$ and zk-SNARK $\pi$, the task of the verification phase is to check that $\pi$ is indeed an argument for a constructive proof. Assuming that the simulation trapdoor does not exists anymore and the verification checks the proof, the verifier can be convinced that someone knows a witness $W=(W_1,\ldots,W_m)$ such that  $(I;W)$ is a word in the language of $R$.  
+\paragraph{The Verification Phase}
+\label{sec:groth16-verifier}
+Given some Rank-1 Constraint System $R$, instance $I=<I_1,\ldots, I_n>$ and Groth\_16 zk-SNARK $\pi$ \ref{def:groth16-snark}, the task of the verification phase is to check that $\pi$ is indeed an argument for a constructive proof. Assuming that the simulation trapdoor does not exists anymore and the verification checks the proof, the verifier is then convinced that someone knows a witness $W=<W_1,\ldots,W_m>$ such that  $(I;W)$ is a word in the language of $R$.  
 
-To achieve this in the Groth16 protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently, and has access to the common reference string used to produce the SNARK $\pi$. In order to verify the SNARK with respect to the instance $(I_1,\ldots, I_n)$, the verifier computes the following curve point:
+To achieve this in the Groth\_16 protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently, and has access to the Common Reference String used to produce the zk-SNARK $\pi$. In order to verify the zk-SNARK with respect to the instance $<I_1,\ldots, I_n>$, the verifier computes the following curve point:
 \begin{align*}
 g_1^I & = \Big(g_1^{\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}}\Big)\cdot \Big(g_1^{\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}}\Big)^{I_1} \cdots \Big(g_1^{\frac{\beta\cdot A_{n}(s)+\alpha\cdot B_{n}(s)+C_{n}(s)}{\gamma}}\Big)^{I_n}\\
 \end{align*}
-With this group element, the verifier is able to verify the SNARK $\pi=(g_1^A,g_1^C,g_2^B)$ by checking the following equation using the pairing map:
+With this group element, the verifier is able to verify the zk-SNARK $\pi=(g_1^A,g_1^C,g_2^B)$ by checking the following equation using the pairing map:
 \begin{equation}
+\label{def:groth16-verifier-equation}
 e(g_1^A, e_2^B) = e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)
 \end{equation}
 
-If the equation holds true, the SNARK is accepted. If the equation does not hold, the SNARK is rejected.
+If the equation holds true, the verifier outputs \texttt{accept} andf the equation does not hold, the verifier outputs \texttt{reject}.
 
 \begin{remark}
-We know from chapter \ref{chap:elliptic-curves}\sme{check reference} that computing pairings in cryptographically secure pairing groups is computationally expensive. As we can see, in the Groth16 protocol, $3$ pairings are required to verify the SNARK, because the pairing $e(g_1^\alpha,g_2^\beta)$ is independent of the proof, meaning that can be computed once and then stored as an amendment to the verifier key. 
+We know from \ref{sec:elliptic_curve_pairings} that computing pairings in cryptographically secure pairing groups is computationally expensive. As we can see, in the Groth\_16 protocol, $3$ pairings are required to verify the zk-SNARK, because the pairing $e(g_1^\alpha,g_2^\beta)$ is independent of the proof, meaning that it can be computed once and then stored as an amendment to the verifier key. 
 
 In \cite{Groth16}, the author showed that $2$ is the minimal amount of pairings that any protocol with similar properties has to use. This protocol is therefore close to the theoretical minimum. In the same paper, the author outlined an adaptation that only uses $2$ pairings. However, that reduction comes with the price of much more overhead computation. Having $3$ pairings is therefore a compromise that gives the overall best performance. To date, the Groth16 protocol is the most efficient in its class. 
 \end{remark}
 
-\begin{example}[The $3$-factorization Problem] To see how a verifier might check  
-a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from \ref{ex:3-factorization}\sme{check reference}, our protocol parameters from XXX\sme{add reference}, the common reference string from XXX\sme{add reference} as well as the zk-SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$, which claims to be an argument of knowledge for a witness for the instance $I_1=11$.
+\begin{example}[The $3$-factorization Problem] To see how a verifier might verify  
+a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from \ref{ex:3-factorization}, our protocol parameters from \ref{ex:3-fac-groth-16-params}, the Common Reference String from \ref{ex:3-fac-groth-16-crs} as well as the zk-SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$ from example \ref{ex:3-fac-groth-16-snark}, which claims to be an argument of knowledge for a witness for the instance $I_1=<11>$.
 
 In order to verify the zk-SNARK for that instance, we first compute the curve point $g_1^I$. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[I]g_1$ as follows:
 
@@ -403,7 +423,7 @@ In order to verify the zk-SNARK for that instance, we first compute the curve po
 [I]g_1 = & [\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}]g_1
 \end{align*}
 
-To compute this point, we have to remember that a verifier should not be in possession of the simulation trapdoor, which means that they do not know what $\alpha$, $\beta$, $\gamma$ and $s$ are. In order to compute this group element, the verifier therefore needs the common reference string. Using the logarithmic order from XXX\sme{add reference} and instance $I_1$, we get the following:
+To compute this point, we have to remember that a verifier should not be in possession of the simulation trapdoor, which means that they should not know what $\alpha$, $\beta$, $\gamma$ and $s$ are. In order to compute this group element, the verifier therefore needs the Common Reference String. Using the logarithmic order from \ref{BLS6-G1-log} and instance $I_1$, we get the following:
 
 \begin{align*}
 [I]g_1 & = [\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}]g_1\\
@@ -412,7 +432,7 @@ To compute this point, we have to remember that a verifier should not be in poss
        & = (35,28)
 \end{align*} 
 
-In the next step, we have to compute all the pairings involved in equation XXX\sme{add reference}. Using the logarithmic order on $\G_1$ and $\G_2$ as well as the bilinearity property of the pairing map we get the following:
+In the next step, we have to compute all the pairings involved in equation \ref{def:groth16-verifier-equation}. Using the logarithmic order on $\G_1$ \ref{BLS6-G1-log} and $\G_2$ \ref{BLS6-G2-log} as well as the bilinearity of the pairing map we get the following:
 
 \begin{align*}
 e([A]g_1,[B]g_2) & = e((35,15),(7v^2,27v^3))
@@ -427,41 +447,37 @@ e([I]g_1,[\gamma]g_2) & = e((35,28),(37v^2,27v^3))
                             = e([4](13,15),[4](7v^2,16v^3))\\
                & = e((13,15),(7v^2,16v^3))^{4\cdot 4}\\
                & = e((13,15),(7v^2,16v^3))^{16}\\ 
-e([C]g_1,[\delta]g_2) & = e((27,9),(42v^2,16v^3)) 
-                            = e([7](13,15),[3](7v^2,16v^3))\\
-               & = e((13,15),(7v^2,16v^3))^{7\cdot 3}\\
-               & = e((13,15),(7v^2,16v^3))^{21}
+e([C]g_1,[\delta]g_2) & = e((13,28),(42v^2,16v^3)) 
+                            = e([12](13,15),[3](7v^2,16v^3))\\
+               & = e((13,15),(7v^2,16v^3))^{12\cdot 3}\\
+               & = e((13,15),(7v^2,16v^3))^{36}
 \end{align*}  
 
-In order to check equation XXX\sme{add reference}, observe that the target group $\G_T$ of the Weil pairing is a finite cyclic group of order $13$. Exponentiation is therefore done in modular $13$ arithmetics. Accordingly, since $\Zmod{108}{13}=4$, we evaluate the left side of equation XXX\sme{add reference} as follows:
+In order to check equation \ref{def:groth16-verifier-equation}, observe that the target group $\G_T$ of the Weil pairing is a finite cyclic group of order $13$. Exponentiation is therefore done in modular $13$ arithmetic. Accordingly, since $\Zmod{108}{13}=4$, we evaluate the left side of equation \ref{def:groth16-verifier-equation} as follows:
 
 $$
 e([A]g_1,[B]g_2) = e((13,15),(7v^2,16v^3))^{108} =e((13,15),(7v^2,16v^3))^{4}
 $$
 
-Similarly, we evaluate the right side of equation XXX\sme{add reference} using modular $13$ arithmetics and the exponential law $a^x\cdot a^y = a^{x+y}$:
+Similarly, we evaluate the right side of equation \ref{def:groth16-verifier-equation} using modular $13$ arithmetic and the exponential law $a^x\cdot a^y = a^{x+y}$:
 
 \begin{align*}
 e([\alpha]g_1,[\beta]g_2)\cdot e([I]g_1,[\gamma]g_2)\cdot e([C]g_1,[\delta]g_2) =\\
-e((13,15),(7v^2,16v^3))^{30}\cdot e((13,15),(7v^2,16v^3))^{16}\cdot e((13,15),(7v^2,16v^3))^{21} =\\
-e((13,15),(7v^2,16v^3))^{4}\cdot e((13,15),(7v^2,16v^3))^{3}\cdot e((13,15),(7v^2,16v^3))^{8} =\\
-e((13,15),(7v^2,16v^3))^{4+3+8} = \\
-e((13,15),(7v^2,16v^3))^{2}
+e((13,15),(7v^2,16v^3))^{30}\cdot e((13,15),(7v^2,16v^3))^{16}\cdot e((13,15),(7v^2,16v^3))^{36} =\\
+e((13,15),(7v^2,16v^3))^{4}\cdot e((13,15),(7v^2,16v^3))^{3}\cdot e((13,15),(7v^2,16v^3))^{10} =\\
+e((13,15),(7v^2,16v^3))^{4+3+10} = \\
+e((13,15),(7v^2,16v^3))^{4}
 \end{align*}
 
-As we can see, both the left and the right side of equation XXX\sme{add reference} are identical, which implies that the verification process accepts the simulated proof.
-
-\smelong{NOTE: UNFORTUNATELY NOT! :-(( HENCE THERE IS AN ERROR SOMEWHERE ... NEED TO FIX IT AFTER VACATION}\sme{fix error}
-
+As we can see, both the left and the right side of equation \ref{def:groth16-verifier-equation} are identical, which implies that the verification process accepts the zk-SNARK and the verifier outputs \texttt{accept}.
 \end{example}
 
-\paragraph{Proof Simulation} During the execution of a setup phase, a common reference string is generated, along with a simulation trapdoor, the latter of which must be deleted at the end of the setup-phase. As an alternative, a more complicated multi-party protocol like [XXX\sme{add reference}] can be used to split the knowledge of the simulation trapdoor among many different parties.
-
-In this paragraph, we will show why knowledge of the simulation trapdoor is problematic, and how it can be used to generate zk-SNARKs for a given instance without any knowledge or the existence of associated witness. 
+\paragraph{Proof Simulation}
+\label{sec:proof_simulation} During the execution of a setup phase, a Common Reference String is generated, along with a simulation trapdoor \ref{def:groth16-trapdoor}, the latter of which must be deleted at the end of the setup-phase. In this paragraph, we will show why knowledge of the simulation trapdoor is problematic, and how it can be used to generate zk-SNARKs for a given instance without any knowledge of an associated witness. 
 
 To be more precise, let $I$ be an instance for some R1CS language $L_R$. We call a zk-SNARK for $L_R$ \term{forged} or \term{simulated} if it passes a verification but its generation does not require the existence of a witness $W$ such that  $(I;W)$ is a word in $L_R$. 
 
-To see how simulated zk-SNARKs can be computed, assume that a forger has knowledge of proper Groth\_16 parameters, a quadratic arithmetic program of the problem, a common reference string and its associated simulation trapdoor $\tau $:
+To see how simulated zk-SNARKs can be computed, assume that a forger has knowledge of proper Groth\_16 parameters, a Quadratic Arithmetic Program of the problem, a Common Reference String and its associated simulation trapdoor $\tau $:
 
 \begin{equation}
 \tau = (\alpha,\beta,\gamma,\delta,s)
@@ -469,22 +485,23 @@ To see how simulated zk-SNARKs can be computed, assume that a forger has knowled
 
 Given some instance $I$, the forger's task is to generate a zk-SNARK for this instance that passes the verification process, without having access to any other zk-SNARKs for this instance and without knowledge of a valid witness $W$.
 
-To achieve this in the Groth\_16 protocol, the forger can use the simulation trapdoor in combination with the QAP and two arbitrary field elements $A$ and $B$ from the scalar field $\F_r$ of the pairing groups to $g_1^C$ compute for the instance $(I_1,\ldots,I_n)$ as follows:
+To achieve this in the Groth\_16 protocol, the forger can use the simulation trapdoor in combination with the QAP and two arbitrary field elements $A$ and $B$ from the scalar field $\F_r$ of the pairing groups to compute $g_1^C$ for the instance $<I_1,\ldots,I_n>$ as follows:
 
+\label{def:groth16-simulated-proof}
 \begin{align*}
 g_1^C & = g_1^{\frac{A\cdot B}{\delta}}\cdot g_1^{-\frac{\alpha\cdot \beta}{\delta}}\cdot g_1^{-\frac{\beta A_0(s) + \alpha B_0(s)+ C_0(s)}{\delta}}\cdot \Big(g_1^{-\frac{\beta A_1(s) + \alpha B_1(s)+ C_1(s)}{\delta}}\Big)^{I_1}\cdots \Big(g_1^{-\frac{\beta A_n(s) + \alpha B_n(s)+ C_n(s)}{\delta}}\Big)^{I_n}\
 \end{align*} 
 
-The forger then publishes the zk-SNARK $\pi_{forged} = (g_1^A, g_1^C, g_2^B)$, which will pass the verification process and is computable without the existence of a witness $(W_1,\ldots,W_m)$.
+The forger then publishes the zk-SNARK $\pi_{forged} = (g_1^A, g_1^C, g_2^B)$, which will pass the verification process and is computable without the existence of a witness $<W_1,\ldots,W_m>$.
 
-To see that the simulation trapdoor is necessary and sufficient to compute the simulated proof $\pi_{forged}$, first observe that both generators $g_1$ and $g_2$ are known to the forger, as they are part of the common reference string, encoded as $g_1^{s^0}$ and $g_2^{s^0}$. The forger is therefore able to compute $g_1^{A\cdot B}$. Moreover, since the forger knows $\alpha$, $\beta$, $\delta$ and $s$ from the trapdoor, they are able to compute all factors in the computation of $g_1^C$.
+To see that the simulation trapdoor is necessary and sufficient to compute the simulated proof $\pi_{forged}$, first observe that both generators $g_1$ and $g_2$ are known to the forger, as they are part of the Common Reference String, encoded as $g_1^{s^0}$ and $g_2^{s^0}$. The forger is therefore able to compute $g_1^{A\cdot B}$. Moreover, since the forger knows $\alpha$, $\beta$, $\delta$ and $s$ from the trapdoor, they are able to compute all factors in the computation of $g_1^C$.
 
 If, on the other hand, the simulation trapdoor is unknown, it is not possible to compute $g_1^C$, since, for example, the computational Diffie-Hellman assumption makes the derivation of $g_1^{\alpha\cdot \beta}$ from $g_1^\alpha$ and $g_1^\beta$ infeasible.
 
 \begin{example}[The $3$-factorization Problem] To see how a forger might simulate a  
-zk-SNARK for some given instance $I$, consider the $3$-factorization problem from  \ref{ex:3-factorization}\sme{check reference}, our protocol parameters from XXX\sme{add reference}, the common reference string from XXX\sme{add reference} and the simulation trapdoor $\tau = (6,5,4,3,2)$ of that CRS.
+zk-SNARK for some given instance $I$, consider the $3$-factorization problem from  \ref{ex:3-factorization}, our protocol parameters from \ref{ex:3-fac-groth-16-params}, the Common Reference String from \ref{ex:3-fac-groth-16-crs} and the simulation trapdoor $\tau = (6,5,4,3,2)$ of that CRS.
 
-In order to forge a zk-SNARK for instance $I_1=11$, we don't need a constructive proof for the associated rank-1 constraint system, which implies that we don't have to execute the circuit $C_{3.fac}(\F_{13})$. Instead, we have to choose $2$ arbitrary elements $A$ and $B$ from $\F_{13}$, and compute $g_1^A$, $g_2^B$ and $g_1^C$ as defined in XXX\sme{add reference}. We choose $A=9$ and $B=3$, and, since $\delta^{-1}=3$, we compute as follows:
+In order to forge a zk-SNARK for instance $I_1=<11>$, we don't need a constructive proof for the associated Rank-1 Constraint System, which implies that we don't have to execute the circuit $C_{3.fac}(\F_{13})$ from example \ref{ex:3-fac-zk-circuit}. Instead, we have to choose $2$ arbitrary elements $A$ and $B$ from $\F_{13}$, and compute $g_1^A$, $g_2^B$ and $g_1^C$ as defined in \ref{def:groth16-simulated-proof}. We choose $A=9$ and $B=3$, and, since $\delta^{-1}=3$, we compute as follows:
 
 \begin{align*}
 [A]g_1 =& [9](13,15) = (35,15)\\
@@ -508,13 +525,13 @@ $$
 
 Despite the fact that this zk-SNARK was generated without knowledge of a proper witness, it is indistinguishable from a zk-SNARK that proves knowledge of a proper witness. 
 
-To see that, we show that our forged SNARK passes the verification process. In order to verify $\pi_{fake}$, we proceed as in XXX,\sme{add reference} and compute the curve point $g_1^I$ for the instance $I_1=11$. Since the instance is the same as in example XXX\sme{add reference}, we can parallel the computation from XXX\sme{add reference}:
+To see that, we show that our forged SNARK passes the verification process. In order to verify $\pi_{fake}$, we proceed as in \ref{sec:groth16-verifier} and compute the curve point $g_1^I$ for the instance $I_1=<11>$. Since the instance is the same as in example \ref{ex:3-fac-groth-16-snark}, we can parallel the computation from that example:
 
 \begin{align*}
 [I]g_1 & = [\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(s)+\alpha\cdot B_{1}(s)+C_{1}(s)}{\gamma}]g_1\\
        & = (35,28)
 \end{align*} 
-In a next step we have to compute all the pairings involved in equation XXX\sme{add reference}. Using the logarithmic order on $\G_1$ and $\G_2$ as well as the bilinearity property of the pairing map we get
+In a next step we have to compute all the pairings involved in equation \ref{def:groth16-verifier-equation}. Using the logarithmic order on $\G_1$ \ref{BLS6-G1-log} and $\G_2$ \ref{BLS6-G2-log} as well as the bilinearity of the pairing map we get
 \begin{align*}
 e([A]g_1,[B]g_2) & = e((35,15),(42v^2,16v^3))
                    = e([9](13,15),[3](7v^2,16v^3))\\
@@ -534,11 +551,11 @@ e([C]g_1,[\delta]g_2) & = e((33,9),(42v^2,16v^3))
                & = e((13,15),(7v^2,16v^3))^{33}\\                                             
 \end{align*}  
 
-In order to check equation XXX\sme{add reference}, observe that the target group $\G_T$ of the Weil pairing is a finite cyclic group of order $13$. Exponentiation is therefore done in modular $13$ arithmetics. Using this, we evaluate the left side of equation XXX\sme{add reference} as follows:
+In order to check equation \ref{def:groth16-verifier-equation}, observe that the target group $\G_T$ of the Weil pairing is a finite cyclic group of order $13$. Exponentiation is therefore done in modular $13$ arithmetics. Using this, we evaluate the left side of the verifier equation as follows:
 $$
 e([A]g_1,[B]g_2) = e((13,15),(7v^2,16v^3))^{27} =e((13,15),(7v^2,16v^3))^{1}
 $$
-since $\Zmod{27}{13}=1$. Similarly, we evaluate the right side of equation XXX\sme{add reference} using modular $13$ arithmetics and the exponential law $a^x\cdot a^y = a^{x+y}$. We get
+since $\Zmod{27}{13}=1$. Similarly, we evaluate the right side of the verification equation using modular $13$ arithmetics and the exponential law $a^x\cdot a^y = a^{x+y}$. We get
 \begin{align*}
 e([\alpha]g_1,[\beta]g_2)\cdot e([I]g_1,[\gamma]g_2)\cdot e([C]g_1,[\delta]g_2) =\\
 e((13,15),(7v^2,16v^3))^{30}\cdot e((13,15),(7v^2,16v^3))^{16}\cdot e((13,15),(7v^2,16v^3))^{33} =\\
@@ -547,7 +564,7 @@ e((13,15),(7v^2,16v^3))^{4+3+7} = \\
 e((13,15),(7v^2,16v^3))^{1}
 \end{align*}
 
-As we can see, both the left and the right side of equation XXX\sme{add reference} are identical, which implies that the verification process accepts the simulated proof. $\pi_{fake}$ therefore convinces the verifier that a witness to the $3$-factorization problem exists. However, no such witness was really necessary to generate the proof.
+As we can see, both the left and the right side of the verifier equation are identical, which implies that the verification process accepts the simulated proof. $\pi_{fake}$ therefore convinces the verifier that a witness to the $3$-factorization problem exists. However, no such witness was really necessary to generate the proof.
 \end{example}
 
 %\paragraph{Proof Mutability} As we have seen in the previous paragraph, given some instance $I$, knowledge of the simulation trapdoor allows for the computation of a valid zk-SNARK without knowledge of an actual witness for that instance. 
@@ -582,7 +599,7 @@ As we can see, both the left and the right side of equation XXX\sme{add referenc
 We use our TinyMD5 hash function XXX\sme{add reference} to hash to $\mathbb{G}_2$.
 
 
-We assume that we have a coordinator $Alice$ together with three parties $Bob$, $Carol$ and $Dave$ that want to contribute their randomness to the protocol. Since the degree $n$ of the target polynomial is $2$, we need to compute the common reference string
+We assume that we have a coordinator $Alice$ together with three parties $Bob$, $Carol$ and $Dave$ that want to contribute their randomness to the protocol. Since the degree $n$ of the target polynomial is $2$, we need to compute the Common Reference String
 $$
 CRS= \left\{\right\}
 $$
@@ -896,7 +913,7 @@ MPC_{1,3}= \left\{
 \end{array}
 \right\}
 $$
-Dave does not delete $s$, $\alpha$ and $\beta$, because if this is accepted as phase one of the common reference string computation, Dave controls already $3/4$-th of the cheating key to forge proofs. So Dave is careful to get the proofs of knowledge right. He computes the transcript of Carols contribution as 
+Dave does not delete $s$, $\alpha$ and $\beta$, because if this is accepted as phase one of the Common Reference String computation, Dave controls already $3/4$-th of the cheating key to forge proofs. So Dave is careful to get the proofs of knowledge right. He computes the transcript of Carols contribution as 
 
 \begin{multline*}
 transcript_{1,2}=\\ 
