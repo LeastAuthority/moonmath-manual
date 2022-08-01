@@ -7,7 +7,7 @@ doctest this file with "sage -t main-moonmath_doctest.sage".
 It is always safe to delete this file; it is not used in typesetting your
 document.
 
-Sage commandline, line 47::
+Sage commandline, line 49::
 
 sage: ZZ # A sage notation for the integers
 sage: NN # A sage notation for the natural numbers
@@ -20,7 +20,7 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 
-Sage commandline, line 75::
+Sage commandline, line 78::
 
 sage: n = NN(504)
 sage: factor(n)

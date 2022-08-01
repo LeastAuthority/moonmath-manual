@@ -6,22 +6,24 @@
 
 \subsection{Aims and target audience}
 
-The goal of this chapter is to bring a reader who is starting out with nothing more than basic school-level algebra up to speed in in arithmetics. We start with a brief recapitulation of basic integer arithmetics like long division, the greatest common divisor and Euclidean division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
+The goal of this chapter is to bring a reader with only basic school-level algebra up to speed in arithmetics. We start with a brief recapitulation of basic integer arithmetics, discussing long division, the greatest common divisor and Euclidean division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our \finalcomb{pen-and-paper examples.}{check if this is already introduced in intro} We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
 
 \section{Integer arithmetic}
 \label{integer_arithmetic}
-In a sense, integer arithmetic is at the heart of large parts of modern cryptography. Fortunately, most readers will probably remember integer arithmetic from school. It is, however, important that you can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetic concepts to refresh your memory and fill any knowledge gaps.
+In a sense, integer arithmetic is at the heart of large parts of modern cryptography. Fortunately, most \commscomb{readers}{unify addressing the reader} will probably remember integer arithmetic from school. It is, however, important that \commscomb{you}{unify addressing the reader} can confidently apply those concepts to understand and execute computations in the many pen-and-paper examples that form an integral part of the MoonMath Manual. We will therefore recapitulate basic arithmetic concepts to refresh \commslong{your} memory and fill any knowledge gaps.
 
-Even though the terms and concepts in this chapter might not appear in literature on zero-knowledge proofs directly, understanding them is necessary to follow subsequent chapters introducing terms like \term{groups} or \term{fields}, which crop up very frequently in academic papers on the topic.
+Even though the terms and concepts in this chapter might not appear in the literature on zero-knowledge proofs directly, understanding them is necessary to follow subsequent chapters and beyond: terms like \term{groups} or \term{fields} also crop up very frequently in academic papers on zero-knowledge cryptography.
 
-In this book, we use the symbol $\mathbb{Z}$ as a short description for the set of all \term{integers}, that is, we write:
+\subsection{Integers, natural numbers and rational numbers} 
+
+Integers are also known as \term{whole numbers}, that is, numbers that can be written without fractional parts. Examples of numbers that are \hilight{not} integers are $\frac{2}{3}$, $1.2$ and $-1280.006$.
+
+Throughout this book, we use the symbol $\mathbb{Z}$ as a shorthand for the set of all \term{integers}:
 
 \begin{equation}
 \label{integer_symbol}
 \Z := \{\ldots, -3,-2,-1,0,1,2,3,\ldots\}
 \end{equation}
-
-Integers are also known as \term{whole numbers}, that is, numbers that can be written without fractional parts. Examples of numbers that are \hilight{not} integers are $\frac{2}{3}$, $1.2$ and $-1280.006$.
 
 If $a\in \Z$ is an integer, then we write $|a|$ for the \term{absolute value} of $a$, that is, the the non-negative value of $a$ without regard to its sign:
 
@@ -32,18 +34,18 @@ If $a\in \Z$ is an integer, then we write $|a|$ for the \term{absolute value} of
 |-4|= 4 
 \end{equation}
 
-We use the symbol $\N$ for the set of all positive integers, usually called the set of \term{natural numbers} and $\NN$ for the set of all non negative integers. So whenever you see the symbol $\mathbb{N}$, think of the set of all positive integers excluding the number $0$:
+We use the symbol $\N$ for the set of all positive integers, usually called the set of \term{natural numbers}. Furthermore, we use $\NN$ for the set of all non-negative integers. This means that $\mathbb{N}$ does not contain the number $0$, while $\NN$ does:
 \begin{align*}
 \label{natural_symbol}
 \N := \{1,2,3,\ldots\} & & \NN := \{0,1,2,3,\ldots\}
 \end{align*}
 
-In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}\sme{@jan @anna double check this definition. Is it clear enough? Proper definition requires the concept of equivalance or coprimeness first}, which can be represented as the set of all fractions $\frac{n}{m}$, where $n\in \Z$ is an integer and $m\in \N$ is a natural number, such that there is no other fraction $\frac{n'}{m'}$ and natural number $k\in \N$ with $k\neq 1$ and
+In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}\sme{@jan @anna double check this definition. Is it clear enough? Proper definition requires the concept of equivalance or coprimeness first}, which can be represented as the set of all fractions $\frac{n}{m}$, where $n\in \Z$ is an integer and $m\in \N$ is a natural number, such that there is no other fraction $\frac{n'}{m'}$ and natural number $k\in \N$ with $k\neq 1$ such that the following equation holds:
 \begin{equation}
 \frac{n}{m} = \frac{k\cdot n'}{k\cdot m'}
 \end{equation}
 
-The sets $\N$, $\Z$ and $\Q$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations (We define rings and fields later in this book):
+The sets $\N$, $\Z$ and $\Q$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the SageMath system (\ref{sagemath_setup}) for more complicated computations (We define rings and fields later in this book):\smecomb{SB: I would delete lines 12-18 form the Sage example below, unnecessarily confusing at this point}{simplify Sage ex.}
 \begin{sagecommandline}
 sage: ZZ # A sage notation for the integers
 sage: NN # A sage notation for the natural numbers
@@ -56,32 +58,32 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-One set of numbers that is of particular interest to us is the set of \term{prime numbers}, which are natural numbers $ p \in \N $ with $ p \geq 2 $, which are only divisible by themself and by $1$. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We write $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers. The set of prime numbers $\Prim$ is an infinite set and can be ordered according to size, which means that for any prime number $p\in\Prim$ one can always find another prime number $p'\in\Prim$ with $p<p'$. It follows thar there is no largest prime number. Since prime numbers can be ordered by size, we can write them as follows:
+A set of numbers of particular interest to us is the set of \term{prime numbers}, which are natural numbers $ p \in \N $ with $ p \geq 2 $ that are only divisible by themself and by $1$. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We use $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers. The set of prime numbers $\Prim$ is an infinite set, and it can be ordered according to size. This means that, for any prime number $p\in\Prim$, one can always find another prime number $p'\in\Prim$ with $p<p'$. Consequently, there is no largest prime number. Since prime numbers can be ordered by size, we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
 \end{equation}
-As the \term{fundamental theorem of arithmetic} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed. To see that, let $ n \in \N $ be any natural number with $n>1$. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that
+As the \term{fundamental theorem of arithmetic} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed. \comms{To see that}, let $ n \in \N $ be any natural number with $n>1$. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that the following equation hold:
 \begin{equation}
 \label{def:fundamental_theorem_arithmetic}
-n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;.
+n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;
 \end{equation}
-This representation is unique for each natural number (except for the order of the factors) and is called the \term{prime factorization} of $n$.
-\begin{example}[Prime Factorization]\label{ex-prime-factorization} To see what we mean by prime factorization of a number, let's look at the number $504\in\N$. To get its prime factors, we can successively divide it by all prime numbers in ascending order starting with $2$:
+This representation is unique for each natural number (except for the order of the \term{factors} $ p_1, p_2, \ldots, p_k$) and is called the \term{prime factorization} of $n$.
+
+\begin{example}[Prime Factorization]\label{ex-prime-factorization} To see what we mean by the prime factorization of a number, \comms{let's} look at the number $504\in\N$. To get its prime factors, we can successively divide it by all prime numbers in ascending order starting with $2$:
 \begin{equation*}
 504 = 2\cdot 2\cdot 2\cdot 3\cdot 3\cdot 7
 \end{equation*}
-We can double check our findings invoking Sage, which provides an algorithm to factor natural numbers:
+We can double check our findings invoking Sage, which provides an algorithm for factoring natural numbers:
 \begin{sagecommandline}
 sage: n = NN(504)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-The computation from the previous example reveals an important observation: Computing the factorization of an integer is computationally expensive, because we have to divide repeadly by all prime numbers smaller then the number itself until all factors are prime numbers themself. From this, an important question arises: How fast can we compute the prime factorization of a natural number? This question is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no method known that can factor integers much faster then the naive approach that just divides the given number by all prime numbers in ascending order.
+The computation from the previous example reveals an important observation: computing the factorization of an integer is computationally expensive, because we have to divide repeatedly by all prime numbers smaller than the number itself until all factors are prime numbers \commscomb{themself}{"themselves" is more common?}. From this, an important question arises: how fast can we compute the prime factorization of a natural number? This question is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no known method that can factor integers much faster then the naive approach of just dividing the given number by all prime numbers in ascending order.
 
-On the other hand computing the product of a given set of prime numbers, is fast (just multiply all factors) and this simple observation implies that the two processes "prime number multiplication" on the one side and its inverse process "natural number factorization" have very different computational costs. The factorization problem is therefore an example of a so-called \term{one-way function}: An invertible function that is easy to compute in one direction, but hard to compute in the other direction. 
-
-It should be pointed out, however, that the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factor ization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem, are unsafe as soon as practically usable quantum computers become available \sme{Do we even need this quantum computing excurse? }.
+On the other hand, computing the product of a given set of prime numbers is fast: \comms{you} just multiply all factors. This simple observation implies that the two processes "prime number multiplication" on the one side and its inverse process "natural number factorization" have very different computational costs. The factorization problem is therefore an example of a so-called \term{one-way function}: an invertible function that is easy to compute in one direction, but hard to compute in the other direction. 
+\footnote{It should be pointed out, however, that the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94}, which can calculate the prime factorization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem, are unsafe as soon as practically usable quantum computers become available.}
 
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
@@ -92,27 +94,27 @@ Compute the factorization of $30030$ and double check your results using Sage.
 \begin{exercise}
 Consider the following equation $4\cdot x + 21 = 5$. Compute the set of all solutions for $x$ under the following alternative assumptions: 
 \begin{enumerate}
-\item The equation is defined over the natural numbers. 
-\item The equation is defined over the integers.
+\item The equation is defined over the set of natural numbers. 
+\item The equation is defined over the set of integers.
 \end{enumerate}
 \end{exercise}
 \begin{exercise}
 Consider the following equation $2 x^3 - x^2 - 2 x = - 1$. Compute the set of all solutions $x$ under the following assumptions: 
 \begin{enumerate}
-\item The equation is defined over the natural numbers. 
-\item The equation is defined over the integers.
-\item The equation is defined over the rational numbers.
+\item The equation is defined over the set ofnatural numbers. 
+\item The equation is defined over the set of integers.
+\item The equation is defined over the set of rational numbers.
 \end{enumerate}
 \end{exercise}
 
-\paragraph{Euclidean Division}
+\subsection{Euclidean Division}
 \label{Euclidean_division}
-As we know from high school mathematics, integers can be added, subtracted and multiplied and the result is guranteed to always be an integer again.
-On the contrary division in the commonly understood sense is not defined for integers, as, for example, $7$ divided by $3$ will not be an integer again. However it is always possible to divide any two integers if we consider division with remainder. So for example $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
+As we know from high school mathematics, integers can be added, subtracted and multiplied, and the of these operations result is guaranteed to always be an integer as well.
+On the contrary, division (in the commonly understood sense) is not defined for integers, as, for example, $7$ divided by $3$ will not result in an integer. However, it is always possible to divide any two integers if we consider division with a remainder. For example, $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$. 
 
-It is the content of this section to introduced division with remainder for integers which is usually called \term{Euclidean division}. It is an essential technique underlying many concepts in this book. The precise definition is as follows:
+This section introduces division with a remainder for integers, usually called \term{Euclidean division}. It is an essential technique underlying many concepts in this book. The precise definition is as follows:
 
-Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a natural number $ r \in \N $, with $ 0 \leq r <|b| $ such that
+Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a natural number $ r \in \N $, with $ 0 \leq r <|b| $ such that the following holds:
 \begin{equation}
 \label{eq_euclidean_division}
 a = m \cdot b + r
@@ -120,7 +122,7 @@ a = m \cdot b + r
 This decomposition of $a$ given $b$ is called \term{Euclidean division}, where $ a $ is called the \term{dividend}, $ b $ is called the \term{divisor}, $m$ is called the \term{quotient} and $r$ is called the \term{remainder}. It can be shown that both the quotient and the remainder always exist and are unique, as long as the divisor is different from $0$. \sme{@jan. You wrote: a and b are required to be non-zero in the definition above, so this can just be deleted. ... a can be zero and existence and uniqueness, non-zeroness are not obvious. Do you mean something else?}
 \begin{notation}
 \label{eq_euclidean_division_notation}
-Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euclidean_division}). Then we often write 
+Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euclidean_division}). Then we often  describe the quotient and the remainder of the Euclidean division as follows:
 \begin{equation}
 \label{def_integer_division_and_modulus}
 \begin{array}{lcr}
@@ -128,22 +130,20 @@ Suppose that the numbers $ a, b, m $ and $ r $ satisfy equation (\ref{eq_euclide
 \end{array}
 \end{equation}
 \sme{You wrote: if these should only satisfy the equation, why use definition symbols (:=) and not equality symbols (=)? But this is a definition the symbol a div b IS DEFINED to be the number b... Is that clear?}
-to describe the quotient and the remainder of the Euclidean division. We also say that an integer $ a $ is divisible by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case we also write $ b | a $ and call the integer $\Zdiv{a}{b}$ the \term{cofactor}\label{def:cofactor} of $b$ in $a$.
+
+We also say that an integer $ a $ is \term{divisible} by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case, we also write $ b | a $, and call the integer $\Zdiv{a}{b}$ the \term{cofactor}\label{def:cofactor} of $b$ in $a$.
 \end{notation}
-So, in a nutshell Euclidean division is a process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor. 
-
-A special situation occurs whenever the remainder is zero, because in this case the dividend is divisible by the divisor. Our notation $b | a$ reflects that. 
-
+So, in a nutshell, Euclidean division is the process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor. 
 
 \begin{example}
 \label{example:euclidean_division_1}
- Applying Euclidean division and our previously defined notation \ref{def_integer_division_and_modulus} to the dividend $-17$ and the divisor $4$, we get 
-\begin{equation*}
+ Applying Euclidean division and the notation defined in \ref{def_integer_division_and_modulus} to the dividend $-17$ and the divisor $4$, we get the following:
+\begin{equation}
 \begin{array}{lcr}
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
 \end{array}
-\end{equation*}
-because $ -17 = -5 \cdot 4 + 3 $  is the Euclidean division of $-17$ and $4$ (the remainder is, by definition, a non-negative number). In this case $4$ does not divide $-17$, as the reminder is not zero. The truth value of the expression $4 | -17 $ therefore is FALSE. On the other hand, the truth value of $4 | 12$ is TRUE, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. We can invoke sage to do the computation for us. We get the following:
+\end{equation}
+$ -17 = -5 \cdot 4 + 3 $  is the Euclidean division of $-17$ by $4$. The remainder is, by definition, a non-negative number. In this case, $4$ does not divide $-17$, as the reminder is not zero. The truth value of the expression $4 | -17 $ therefore is \textsc{false}. On the other hand, the truth value of $4 | 12$ is TRUE, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. If we invoke Sage to do the computation for us, we get the following:
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(4) # Integer quotient 
 sage: ZZ(-17) % ZZ(4) # remainder 
@@ -151,7 +151,7 @@ sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 \end{sagecommandline}
 \end{example}
-\begin{remark} In \ref{def_integer_division_and_modulus} we defined the notation of  $\Zdiv{a}{b}$ and $\Zmod{a}{b}$, in terms of Euclidean division. It should be noted however that many programing languages like Phyton and Sage, implement both the operator $(/)$ as well as the operator $(\%)$ differently. Programers should be aware of this, as the discrepancy between the mathematical notation and the implementation in programing languages might become the source of subtle bugs in implementations of cryptographic primitives.   
+\begin{remark} In \ref{def_integer_division_and_modulus}, we defined the notation of  \hilight{$\Zdiv{a}{b}$} and \hilight{$\Zmod{a}{b}$} in terms of Euclidean division. It should be noted, however, that many programing languages (like Python and Sage) implement both the operator $(/)$ amd the operator $(\%)$ differently. Programers should be aware of this, as the discrepancy between the mathematical notation and the implementation in programing languages might become the source of subtle bugs in implementations of cryptographic primitives.   
 
 To give an example consider the the dividend $-17$ and the divisor $-4$. Note that in contrast to the previous example \ref{example:euclidean_division_1}, we have a negative divisor. According to our definition we have
 \begin{equation*}
