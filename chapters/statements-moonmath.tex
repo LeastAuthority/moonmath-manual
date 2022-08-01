@@ -3,151 +3,170 @@
 
 % https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
 % https://docs.zkproof.org/reference.pdf
-As we have seen in the informal introduction XXX\sme{Chapter 1?}, a SNARK is a short non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like ``The proofer knows the prime factorization of a given number'' or ``The proofer knows the preimage to a given SHA2 digest value'' and similar things. However,  human-readable statements like these are imprecise and not very useful from a formal perspective. 
+As we have seen in the informal introduction XXX\sme{Chapter 1?}, a SNARK is a succinct non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like ``The prover knows the prime factorization of a given number'' or ``The prover knows the preimage to a given SHA2 digest value'' and similar things. However,  human-readable statements like these are imprecise and not very useful from a formal perspective. 
 
-In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (section \ref{sec:formal-languages}). We will then look at algebraic circuits and rank-1 constraint systems as two particularly useful ways to define statements in certain formal languages (section\ref{sec:statement-representations}). After that, we will have a look at fundamental building blocks of compilers that compile high-level languages to circuits and associated rank-1 constraint systems.
+In this chapter we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (section \ref{sec:formal-languages}). We will then look at algebraic circuits and Rank-1 Constraint Systems [R1CS] as two particularly useful ways to define statements in certain formal languages (section\ref{sec:statement-representations}). 
 
 Proper statement design should be of high priority in the development of SNARKs, since unintended true statements can lead to potentially severe and almost undetectable security vulnerabilities in the applications of SNARKs.
 
 \section{Formal Languages}\label{sec:formal-languages}
 
-Formal languages provide the theoretical background in which statements can be formulated in a logically \smelong{regious} \sme{"rigorous"?} way and where \smelong{proofing} \sme{"proving"?} the correctness of any given statement can be realized by computing words in that language.
+Formal languages provide the theoretical background in which statements can be formulated in a logically rigorous way and where proving the correctness of any given statement can be realized by computing words in that language.
 
 One might argue that the understanding of formal languages is not very important in SNARK development and associated statement design, but terms from that field of research are standard jargon in many papers on zero-knowledge proofs. We therefore believe that at least some introduction to formal languages and how they fit into the picture of SNARK development is beneficial, mostly to give developers a better intuition about where all this is located in the bigger picture of the logic landscape. In addition, formal languages give a better understanding of what a formal proof for a statement actually is.
 
-Roughly speaking, a formal language (or just language for short) is nothing but a set of words, th. Words, in turn, are strings of letters taken from some alphabet and formed according to some defining rules of the language. 
+Roughly speaking, a formal language (or just language for short) is nothing but a set of words and words, in turn, are strings of letters taken from some alphabet and formed according to some defining rules of the language. 
 
-To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all finite \term{tuples} (ordered lists) $(x_1,\ldots,x_n)$ of elements $x_j$ from $\Sigma$ including the empty tuple $(\;)\in \Sigma^*$. Then, a \term{language} $L$, in its most general definition, is nothing but a subset of $\Sigma^*$. In this context, the set $\Sigma$ is called the \term{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \term{words}. The rules that specify which tuples from $\Sigma^*$ belong to the language and which don't, are called the \term{grammar} of the language. \sme{Add example}\smelong{S: I suggest adding an example based on English, e.g. ``tea'' and ``eat'' are words of English, but ``aet'' and ``tae'' are not}
+To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all \term{strings} of finite length $<x_1,\ldots,x_n>$ of elements $x_j$ from $\Sigma$ including the empty string $<>\in \Sigma^*$. Then, a \term{language} $L$, in its most general definition, is nothing but a subset of the set of all finite strings $\Sigma^*$. In this context, the set $\Sigma$ is called the \term{alphabet} of the language $L$, elements from $\Sigma$ are called letters and elements from $L$ are called \term{words}. If there are rules that specify which strings from $\Sigma^*$ belong to the language and which don't, those rules are called the \term{grammar} of the language. If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \term{equivalent} if they consist of the same set of words.
 
-If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \term{equivalent} if they generate the same set of words. \sme{M: 1:1 correspondence might actually be wrong}
+While the term language might suggest a deeper relation to the well known \term{natural languages} like English, formal languages and natural languages differ in many ways. The following two examples will provide some intuition about formal languages and their differences to natural languages: 
+\begin{example}[The English language] To given a better understanding of formal languages consider the natural language English. The English alphabet is given by the following set
+\begin{multline*}
+\Sigma_{English} = \{A, a, B, b, C, c, D, d, E, e, F, f, G, g, H, h, I, i, J, j, K, k, L, l, M, m, N, n, O,\\ o, P, p, Q, q, R, r, S, s, T, t, U, u, V, v, W, w, X, x, Y, y, Z, z\}
+\end{multline*}
+The natural language English does not define words by abstract rules, but by something we might call historical human convention as a word in the language English is distinguished from any other string from the English alphabet by human convention not by formal rules. In that regard strings like ``tea'' or ``eat'' are words in English, but ``aet'' and ``tae'' are not, because people agree on that. So while the set of all English words is a formal language $L_{English}\subset \Sigma_{English}$ there is no formal grammar that defines what a word in English is and what not. 
 
-\paragraph{Decision Functions} Our previous definition of formal languages is very general and many subclasses of languages are known in the literature. However,  in the context of SNARK development, languages are commonly defined as \term{decision problems} where a so-called \term{deciding relation} $R\subset \Sigma^*$ decides whether a given tuple $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
+It should also be recognized that in such a simple definition, the ''grammar'' of the natural language English is different from the grammar of the formal language English. The grammar of natural English defines how sentences are generated from words, while sentences have no meaning in our simple formal language English. 
+
+In order to express natural English sentences in a formal English language, one has to extend the alphabet by a space character together with the set of all punctuations and then include the grammar of the natural language English into the formal language English. It should be noted however that in such a formal language, sentences like "I drink tea, but I don't eat meat." from the natural language English are actually words in the formal language English.
+\end{example}
+
+\begin{example}[Alternating Binary strings]
+\label{ex:alternating_strings_lang}
+To consider a very basic formal language with an almost trivial grammar, consider the set  of the two letters $0$ and $1$ as our alphabet $\Sigma$:
+$$
+\Sigma = \{0,1\}
+$$
+Also imply the grammar that a proper word must consist of alternating binary letters of arbitrary length including the empty string. The associated language $L_{alt}$ is the set of all finite binary strings, where a $1$ must follow a $0$ and vice versa. So, for example, $<1,0,1,0,1,0,1,0,1>\in L_{alt}$ is a word in this languages as is $<0>\in L_{alt}$ or the empty word $<>\in L_{alt}$. However, the binary string $<1,0,1,0,1,0,1,1,1>\in \{0,1\}^*$ is not a proper word, as it violates the grammar of $L_{alt}$, since the last 3 letters are all $1$. Furthermore, the string $<0,A,0,A,0,A,0>$ is not a proper word, as not all its letters are from the alphabet $\Sigma$. 
+\end{example}
+
+\paragraph{Decision Functions}
+\label{sec:decision_function}
+ Our previous definition of formal languages is very general and many subclasses of languages are known in the literature. However, in the context of SNARK development, languages are commonly defined as \term{decision problems} where a so-called \term{deciding relation} $R\subset \Sigma^*$ decides whether a given string $x\in \Sigma^*$ is a word in the language or not. If $x\in R$ then $x$ is a word in the associated language $L_R$ and if $x\notin R$ then not. The relation $R$ therefore summarizes the grammar of language $L_R$.
 
 Unfortunately, in some literature on proof systems, $x\in R$ is often written as $R(x)$, which is  misleading since in general $R$ is not a function but a relation in $\Sigma^*$. For the sake of this book, we therefore adopt a different point of view and work with what we might call a \term{decision function} instead:
 \begin{equation}\label{eq:decision-function}
 R: \Sigma^* \to \{true, false\}
 \end{equation}
-Decision functions decide if a tuple $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all tuples that are decided by $R$, i.e as the set:
+Decision functions decide if a string $x\in \Sigma^*$ is an element of a language or not. In case a decision function is given, the associated language itself can be written as the set of all strings that are decided by $R$, i.e as the set:
 \begin{equation}
 L_R := \{x\in \Sigma^*\;|\; R(x)=true\}
 \end{equation}
-In the context of formal languages and decision problems, a \term{statement} $S$ is the claim that language $L$ contains a word $x$, i.e a statement claims that there exist some $x\in L$. A constructive \term{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and such a proof is \term{verified} by checking $R(P)=true$. In this case, $P$ is called an \term{instance} of the statement $S$.
+In the context of formal languages and decision problems, a \term{statement} $S$ is the claim that language $L$ contains a word $x$, i.e a statement claims that there exists some $x\in L$. A constructive \term{proof} for statement $S$ is given by some string $P\in \Sigma^*$ and a proof is \term{verified} by checking $R(P)=true$. In this case, $P$ is called an \term{instance} of the statement $S$.
 
-While the term \term{language} might suggest a deeper relation to the well known \term{natural languages} like English, formal languages and natural languages differ in many ways. The following examples will provide some intuition about formal languages, highlighting the concepts of statements, proofs and instances:
-\begin{example}[Alternating Binary strings] To consider a very basic formal language with an almost trivial grammar, consider the set $\{0,1\}$ of the two letters $0$ and $1$ as our alphabet $\Sigma$ and imply the rule that a proper word must consist of alternating binary letters of arbitrary length. 
-
-Then, the associated language $L_{alt}$ is the set of all finite binary tuples, where a $1$ must follow a $0$ and vice versa. So, for example, $(1,0,1,0,1,0,1,0,1)\in L_{alt}$ is a proper word in this languages as is $(0)\in L_{alt}$ or the empty word $(\;)\in L_{alt}$. However,  the binary tuple $(1,0,1,0,1,0,1,1,1)\in \{0,1\}^*$ is not a proper word, as it violates the grammar of $L_{alt}$: the last3 letters are all $1$. Furthermore, the tuple $(0,A,0,A,0,A,0)$ is not a proper word, as not all its letters are not from the proper alphabet: we defined the alphabet $\Sigma$ as the set $\{0,1\}$, and $A$ is not part of that set. 
-
-Attempting to write the grammar of this language in a more formal way, we can define the following decision function:
+\begin{example}[Alternating Binary strings] To consider a very basic formal language with a decision function, consider the language $L_{alt}$ from example \ref{ex:alternating_strings_lang}. Attempting to write the grammar of this language in a more formal way, we can define the following decision function:
 $$
-R: \{0,1\}^* \to \{true,false\}\;;\; (x_0,x_1,\ldots,x_n) \mapsto 
+R: \{0,1\}^* \to \{true,false\}\;;\; <x_0,x_1,\ldots,x_n> \mapsto 
 \begin{cases}
 true & x_{j-1} \neq x_{j} \text{ for all } 1\leq j \leq n \\
 false & \text{ else}
 \end{cases}
 $$
-We can use this function to decide if arbitrary \uterm{binary tuples} are words in $L_{alt}$ or not. Some examples are given below:
-
-\begin{itemize} 
-\item $R(1,0,1)=true$, 
-\item $R(0)=true$, 
-\item $R()=true$, 
-\item but $R(1,1)=false $.
-\end{itemize}
-
-Inside our language $L_{alt}$, it makes sense to claim the following statement: ``There exists an alternating string.'' One way to prove this statement constructively is by providing an actual instance, that is, finding actual alternating string like $x = (1,0,1)$. Constructing string $(1,0,1)$ therefore proves the statement ``There exists an alternating string.", because it is easy to verify that $R(1,0,1)=true$.
+We can use this function to decide if given binary strings are words in $L_{alt}$ or not. Some examples are given below:
+$$
+\begin{array}{cccc}
+R(<1,0,1>)=true , & R(<0>)=true , & R(<>)=true , & R(<1,1>)=false
+\end{array} 
+$$
+Given language $L_{alt}$, it makes sense to claim the following statement: ``There exists an alternating string.'' One way to prove this statement constructively is by providing an actual instance, that is, providing an example of an alternating string like $x = <1,0,1>$. Constructing string $<1,0,1>$ therefore proves the statement ``There exists an alternating string.", because one can verify that $R(<1,0,1>)=true$.
 \end{example}
 \begin{example}[Programming Language]Programming languages are a very important class of formal languages. For these languages, the alphabet is usually (a subset) of the ASCII table, and the grammar is defined by the rules of the programming language's compiler. Words, then, are nothing but properly written computer programs that the compiler accepts. The compiler can therefore be interpreted as the decision function.
 
-To give an unusual example strange enough to highlight the point, consider the programming language \href{https://en.wikipedia.org/wiki/Malbolge}{Malbolge} as defined in XXX\sme{add reference}. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An interesting claim is therefore the statement: ``There exists a computer program in Malbolge". As it turned out, proving this statement constructively, that is, by providing an actual instance of such a program, was not an easy task, as it took two years after the introduction of Malbolge to write a program that its compiler accepts. So, for two years, no one was able to prove the statement constructively.
+To give an unusual example strange enough to highlight the point, consider the programming language \href{https://en.wikipedia.org/wiki/Malbolge}{Malbolge} as defined in XXX\sme{add reference}. This language was specifically designed to be almost impossible to use and writing programs in this language is a difficult task. An interesting claim is therefore the statement: ``There exists a computer program in Malbolge". As it turned out, proving this statement constructively, that is, providing an example instance of such a program, is not an easy task, as it took two years after the introduction of Malbolge to write a program that its compiler accepts. So, for two years, no one was able to prove the statement constructively.
 
-To look at this high-level description more formally, we write $L_{Malbolge}$ for the language that uses the ASCII table as its alphabet and its words are tuples of ASCII letters that the Malbolge compiler accepts. Proving the statement ``There exists a computer program in Malbolge'' is then equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
-$$
-\scriptstyle (=<'\#9]~6ZY327Uv4-QsqpMn\&+Ij"'E\%e\{Ab~w=\_:]Kw\%o44Uqp0/Q?xNvL:'H\%c\#DD2\wedge WV>gY;dts76qKJImZkj
-$$
+To look at the high-level description of Malbolge more formally, we write $L_{Malbolge}$ for the language that uses the ASCII table as its alphabet and its words are strings of ASCII letters that the Malbolge compiler accepts. Proving the statement ``There exists a computer program in Malbolge'' is then equivalent to the task of finding some word $x\in L_{Malbolge}$. The string
+\begin{multline*}
+\scriptstyle (=<':9876Z4321UT.-Q+*)M'\&\%\$H"!~\}|Bzy?=|\{z]KwZY44Eq0/
+\{mlk** \\ 
+\scriptstyle hKs\_dG5[m\_BA\{?-Y;;Vb'rR5431M\}/.zHGwEDCBA@98\backslash 6543W10/.R,+O<
+\end{multline*}
 is an example of such a proof, as it is excepted by the Malbolge compiler and is compiled to an executable binary that displays ``Hello, World.'' (See XXX\sme{add reference}). In this example, the Malbolge compiler therefore serves as the verification process.
 \end{example}
-\begin{example}[The Empty Language] To see that not every language has even one word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetics as derived in example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}\sme{check reference}, together with the following decision function 
+\begin{example}[The Empty Language] To see that not every language has even a single word, consider the alphabet $\Sigma = \Z_6$, where $\Z_6$ is the ring of modular $6$ arithmetic as derived in example \ref{def_residue_ring_z_6}. Distinguishing the set $\Z_6^*$ of all elements in modular $6$ arithmetic that have multiplicative inverses from the set $(\Z_6)^*$ of all finite strings over the alphabet $\Z_6$, we define the following decision function: 
 $$
-R_{\emptyset} : \Z_{6}^* \to \{true, false\}\;;\;
-(x_1,\ldots,x_n) \mapsto
+R_{\emptyset} : (\Z_{6})^* \to \{true, false\}\;;\;
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
-true & n=4 \text{ and } x_1\cdot x_1 = 2\\
-true & else
+true & n=1 \text{ and } x\cdot x = 2\\
+false & else
 \end{cases}
 $$
-We write $L_\emptyset$ for the associated language. As we can see from the multiplication table of $\Z_6$ in example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}\sme{check reference}, the ring $\Z_6$ does not contain any element $x$ such that $x^2 =2$, which implies $R_{\emptyset}(x_1,\ldots,x_n)=false$ for all tuples $(x_1,\ldots,x_n)\in \Sigma^*$. The language therefore does not contain any words. Proving the statement ``There exists a word in $L_\emptyset$'' constructively by providing an instance is therefore impossible. The verification will never check any tuple.
+We write $L_\emptyset$ for the associated language. As we can see from the multiplication table of $\Z_6$ in example \ref{def_residue_ring_z_6}, the ring $\Z_6$ does not contain any element $x$ such that $x\cdot x =2$, which implies $R_{\emptyset}(<x_1,\ldots,x_n>)=false$ for all strings $<x_1,\ldots,x_n>\in \Sigma^*$. The language therefore does not contain any words. Proving the statement ``There exists a word in $L_\emptyset$'' constructively by providing an instance is therefore impossible. The verification will never check any string.
 \end{example}
 \begin{example}[3-Factorization]\label{ex:3-factorization} We will use the following simple example repeatedly throughout this book. The task is to develop a SNARK that proves knowledge of three factors of an element from the finite field $\F_{13}$. There is nothing particularly useful about this example from an application point of view, however, in a sense, it is the most simple example that gives rise to a non trivial SNARK in some of the most common zero-knowledge proof systems. 
 
-Formalizing the high-level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those tuples of field elements from $\F_{13}$ that contain exactly $4$ letters $w_1,w_2,w_3,w_4$ which satisfy the equation $w_1\cdot w_2\cdot w_3 =w_4$. \sme{Are we using $w$ and $x$ interchangeably or is there a difference between them?}
+Formalizing the high-level description, we use $\Sigma := \F_{13}$ as the underlying alphabet of this problem and define the language $L_{3.fac}$ to consists of those strings of field elements from $\F_{13}$ that contain exactly $4$ letters $x_1,x_2,x_3,x_4$ which satisfy the equation $x_1\cdot x_2\cdot x_3 =x_4$.
 
-So, for example, the tuple $(2, 12, 4, 5)$ is a word in $L_{3.fac}$, while neither $(2, 12, 11)$, nor $(2, 12, 4, 7)$ nor $(2, 12, 7, 168)$ are words in $L_{3.fac}$ as they don't satisfy the grammar or are not define over the proper alphabet. 
+So, for example, the string $<2, 12, 4, 5>$ is a word in $L_{3.fac}$, while neither $<2, 12, 11>$, nor $<2, 12, 4, 7>$ nor $<2, 12, 7, UPS>$ are words in $L_{3.fac}$ as they don't satisfy the grammar or are not defined over the alphabet $\F_{13}$. 
 
-We can describe the language $L_{3.fac}$ more formally by introducing a decision function (as described in equation \ref{eq:decision-function}\sme{check reference}):
+Distinguishing the set $\F_{13}^*$ of all elements in the multiplicative group of $\F_{13}$ from the set $(\F_{13})^*$ of all finite strings over the alphabet $\F_{13}$, we can describe the language $L_{3.fac}$ more formally by introducing a decision function:
 $$
-R_{3.fac} : \F_{13}^* \to \{true, false\}\;;\;
-(x_1,\ldots,x_n) \mapsto
+R_{3.fac} : (\F_{13})^* \to \{true, false\}\;;\;
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
 true & n=4 \text{ and } x_1\cdot x_2 \cdot x_3 = x_4\\
 false & else
 \end{cases}
 $$
-Having defined the language $L_{3.fac}$, it then makes sense to claim the statement ``There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement ``There are four elements $w_1,w_2,w_3,w_4$ from the finite field $\F_{13}$ such that the equation $w_1\cdot w_2\cdot w_3 =w_4$ holds.''
+Having defined the language $L_{3.fac}$, it then makes sense to claim the statement ``There is a word in $L_{3.fac}$". The way $L_{3.fac}$ is designed, this statement is equivalent to the statement ``There are four elements $x_1,x_2,x_3,x_4$ from the finite field $\F_{13}$ such that the equation $x_1\cdot x_2\cdot x_3 =w_4$ holds.''
 
-Proving the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the relation $R_{3.fac}$. The tuple $(2,12,4,5)$ is therefore a constructive proof for the statement and the computation $R_{3.fac}(2,12,4,5)=true$ is a verification  of that proof. In contrast, the tuple $(2, 12, 4, 7)$ is not a proof of the statement, since the check $R_{3.fac}(2,12,4,7)=false$ does not verify the proof.
+Proving the correctness of this statement constructively means to actually find some concrete field elements like $x_1= 2$, $x_2 =12$, $x_3=4$ and $x_4 = 5$ that satisfy the decision function $R_{3.fac}$. The string $<2,12,4,5>$ is therefore a constructive proof for the statement that $L_{3.fac}$ contains words and the computation $R_{3.fac}(<2,12,4,5>)=true$ is a verification of that proof. In contrast, the string $<2, 12, 4, 7>$ is not a proof of the statement, since the check $R_{3.fac}(<2,12,4,7>)=false$ does not verify the proof.
 \end{example}
-\begin{example}[Tiny-jubjub Membership]\label{ex:tiny-jubjub} In one of our main examples, we derive a SNARK that proves a pair $(x,y)$ of field elements from $\F_{13}$ to be a point on the tiny-\comms{jubjub} curve in its \term{Edwards form} (see section \ref{sec:edwards})\sme{check reference}.
+\begin{example}[Tiny-jubjub Membership]\label{ex:tiny-jubjub} In one of our main examples, we derive a SNARK that proves a pair $(x,y)$ of field elements from $\F_{13}$ to be a point on the tiny-\comms{jubjub} curve in its twisted Edwards form as derived in example \ref{TJJ13-twisted-edwards}.
 
 In the first step, we define a language such that points on the tiny-jubjub curve are in 1:1 correspondence with words in that language.
 
-Since the tiny-jubjub curve is an elliptic curve over the field $\F_{13}$, we choose the alphabet $\Sigma = \F_{13}$. In this case, the set $\F_{13}^*$ consists of all finite strings of field elements from $\F_{13}$. To define the grammar, recall from \ref{TJJ13}\sme{check reference} that a point on the tiny-jubjub curve is a pair $(x,y)$ of field elements such that $3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2$. We can use this equation to derive the following decision function:
+Since the tiny-jubjub curve is an elliptic curve over the field $\F_{13}$, we choose the alphabet $\Sigma = \F_{13}$. In this case, the set $(\F_{13})^*$ consists of all finite strings of field elements from $\F_{13}$. To define the grammar, recall from \ref{TJJ13-twisted-edwards} that a point on the tiny-jubjub curve is a pair $(x,y)$ of field elements such that $3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2$. We can use this equation to derive the following decision function:
 $$
-R_{tiny.jj} : \F_{13}^* \to \{true, false\}\;;\;
-(x_1,\ldots,x_n) \mapsto
+R_{tiny.jj} : (\F_{13})^* \to \{true, false\}\;;\;
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
 true & n=2 \text{ and } 3\cdot x_1^2 + x_2^2 = 1+ 8\cdot x_1^2\cdot x_2^2\\
 false & else
 \end{cases}
 $$
-The associated language $L_{tiny.jj}$ is then given as the set of all strings from $\F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj}$. We get
+The associated language $L_{tiny.jj}$ is then given as the set of all strings from $(\F_{13})^*$ that are mapped onto $true$ by $R_{tiny.jj}$. We get
 $$
-L_{tiny.jj} = \{(x_1,\ldots,x_n)\in \F_{13}^*\;|\; R_{tiny.jj(x_1,\ldots,x_n)=true}\}
+L_{tiny.jj} = \{<x_1,\ldots,x_n>\in (\F_{13})^*\;|\; R_{tiny.jj(<x_1,\ldots,x_n>)=true}\}
 $$
-We can claim the statement ``There is a word in $L_{tiny.jj}$'' and because $L_{tiny.jj}$ is defined by $R_{tiny.jj}$, this statement is equivalent to the claim ``The tiny-jubjub curve in its Edwards form \smelong{has curve a point}.\sme{check wording}'' 
+We can claim the statement ``There is a word in $L_{tiny.jj}$'' and because $L_{tiny.jj}$ is defined by $R_{tiny.jj}$, this statement is equivalent to the claim ``The tiny-jubjub curve in its twisted Edwards form has a curve point.'' 
 
-A constructive proof for this statement is a pair $(x,y)$ of field elements that satisfies the Edwards equation. Example \ref{TJJ13}\sme{check reference} therefore implies that the tuple $(11,6)$ is a constructive proof and the computation $R_{tiny.jj}(11,6)=true$ is a proof verification. In contrast, the tuple $(1,1)$ is not a proof of the statement, since the check $R_{tiny.jj}(1,1)=false$ does not verify the proof.
+A constructive proof for this statement is a string $<x,y>$ of field elements from $\F_{13}$ that satisfies the twisted Edwards equation. Example \ref{TJJ13-twisted-edwards} therefore implies that the string $<11,6>$ is a constructive proof and the computation $R_{tiny.jj}(<11,6>)=true$ is a proof verification. In contrast, the string $<1,1>$ is not a proof of the statement, since the computation $R_{tiny.jj}(<1,1>)=false$ does not verify the proof.
 \end{example}
-\begin{exercise} Consider exercise XXX again. Define a decision function such that the associated language $L_{Exercise_XXX}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: ``There exist a word in $L_{Exercise_XXX}$ and verify the proof.  
+\begin{exercise}
+\label{ex:decision_function_1} Define a decision function such that the associated language $L_{Exercise_1}$ consist precisely of all solutions to the equation $5x + 4 = 28 + 2x$ over $\F_{13}$. Provide a constructive proof for the claim: ``There exist a word in $L_{Exercise_1}$ and verify the proof.  
 \end{exercise}
-\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from  example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}, the alphabet $\Sigma = \Z_6$ and the decision function
+\begin{exercise} Consider modular $6$ arithmetic $\Z_6$ from  example \ref{def_residue_ring_z_6}, the alphabet $\Sigma = \Z_6$ and the decision function
 \begin{equation*}
 R_{example\_\ref{def_residue_ring_z_6}} : \Sigma^*\to \{true, false\}\;;\;
-x \mapsto
+<x_1,\ldots,x_n> \mapsto
 \begin{cases}
-true & x.len()=1 \text{ and } 3\cdot x + 3 = 0\\
+true & n=1 \text{ and } 3\cdot x_1 + 3 = 0\\
 false & else
 \end{cases}
 \end{equation*}
-Compute all words in the associated language $L_{example\_\ref{def_residue_ring_z_6}}$, provide a constructive proof for the statement ``There exist a word in $L_{example\_ example\_\ref{def_residue_ring_z_6}}$'' and verify the proof.
-\end{exercise}\sme{check references}
+Compute all words in the associated language $L_{example\_\ref{def_residue_ring_z_6}}$, provide a constructive proof for the statement ``There exist a word in $L_{example\_\ref{def_residue_ring_z_6}}$'' and verify the proof.
+\end{exercise}
 \paragraph{Instance and Witness}
 % https://www.claymath.org/sites/default/files/pvsnp.pdf
-As we have seen in the previous paragraph, statements provide membership claims in formal languages, and instances serve as constructive proofs for those claims. However, in the context of \term{zero-knowledge} proof systems, our naive notion of constructive proofs is refined in such a way that  its possible to hide parts of the proof instance and still be able to prove the statement. In this context, it is therefore necessary to split a proof into a \term{public part} called the \term{instance} and a private part called a \term{witness}.
+As we have seen in the previous paragraph, statements provide membership claims in formal languages, and instances serve as constructive proofs for those claims. However, in the context of \term{zero-knowledge} proof systems, our notion of constructive proofs is refined in such a way that  it is possible to hide parts of the proof instance and still be able to prove the statement. In this context, it is therefore necessary to split a proof into an unhidden, public part called the \term{instance} and a hidden, private part called a \term{witness}.
 
-To account for this separation of a proof instance into a public and a private part, our previous definition of formal languages needs a refinement in the context of zero-knowledge proof systems. Instead of a single alphabet, the refined definition considers two alphabets $\Sigma_I$ and $\Sigma_W$, and a decision function defined as follows:
+To account for this separation of a proof instance into an instance and a witness part, our previous definition of formal languages needs a refinement. Instead of a single alphabet, the refined definition considers two alphabets $\Sigma_I$ and $\Sigma_W$, and a decision function defined as follows:
 \begin{equation}
 R: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\; (i\,;w) \mapsto R(i\,;w)
 \end{equation}
-Words are therefore tuples $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ with $R(i\,;w)=true$. The refined definition differentiates between public inputs $i\in \Sigma_I$ and private inputs $w\in \Sigma_W$. The public input $i$ is called an \term{instance} and the private input $w$ is called a \term{witness} of $R$. 
+Words are therefore strings $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ with $R(i\,;w)=true$. The refined definition differentiates between inputs $i\in \Sigma_I$ and inputs $w\in \Sigma_W$. The input $i$ is called an \term{instance} and the input $w$ is called a \term{witness} of $R$. 
 
-If a decision function is given, the associated language is defined as the set of all tuples from the underlying alphabet that are verified by the decision function:
+If a decision function is given, the associated language is defined as the set of all strings from the underlying alphabets that are verified by the decision function:
 \begin{equation}
+\label{def:refined_language}
 L_R := \{(i\,;w)\in \Sigma_I^* \times \Sigma_W^* \;|\; R(i\,;w)=true\}
 \end{equation}
-In this refined context, a \term{statement} $S$ is a claim that, given an instance $i\in\Sigma_I^*$, there is a witness $w\in \Sigma_W^*$ such that language $L$ contains a word $(i\,;w)$. A constructive \term{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \term{verified} by checking $R(P)=true$. 
+In this refined context, a \term{statement} $S$ is a claim that, given an instance $i\in\Sigma_I^*$, there is a witness $w\in \Sigma_W^*$ such that language $L$ contains a word $(i\,;w)$. A constructive \term{proof} for statement $S$ is given by some string $P=(i\,; w) \in \Sigma_I^* \times \Sigma_W^*$ and a proof is \term{verified} by $R(P)=true$. 
 
-It is worth understanding the difference between statements as defined in XXX\sme{add reference} and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen as knowledge-proofs, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX\sme{add reference} sec 1.4]
+At this point, it is important to note that, while constructive proofs in languages that distinguish between instance and witness as in \label{def:refined_language} don't look very different from constructive proofs in languages from \ref{sec:decision_function}, we will see in \ref{chapter:zk-protocols} that given some instance, there are proof systems able to prove the statement (at least with high probability) without revealing anything about the witness. In this sense the witness is often called the \term{private input} and the instance is called the \term{public input}.
+
+It is worth understanding the difference between statements as defined in \ref{sec:decision_function} and the refined notion of statements from this paragraph. While statements in the sense of the previous paragraph can be seen as membership claims, statements in the refined definition can be seen as knowledge-claims, where a prover claims knowledge of a witness for a given instance. For a more detailed discussion on this topic see [XXX\sme{add reference} sec 1.4]
 \begin{example}[SHA256 -- Knowlege of Preimage] One of the most common examples in the context of zero-knowledge proof systems is the \term{knowledge-of-a-preimage proof} for some cryptographic hash function like $SHA256$, where a publicly known $SHA256$ digest value is given, and the task is to prove knowledge of a preimage for that digest under the $SHA256$ function, without revealing that preimage. 
 
 To understand this problem in detail, we have to introduce a language able to describe the knowledge-of-preimage problem in such a way that the claim ``Given digest $i$, there is a preimage $w$ such that $SHA256(w)=i$'' becomes a statement in that language. Since $SHA256$ is a function
@@ -161,82 +180,84 @@ An appropriate alphabet $\Sigma_I$ for the set of all instances and an appropria
 R_{SHA256} : \{0,1\}^* \times \{0,1\}^* \to \{true, false\}\;;\;\\
 (i;w) \mapsto
 \begin{cases}
-true & i.len()=256,\; i = SHA256(w)\\
+true & |i|=256,\; i = SHA256(w)\\
 false & else
 \end{cases}
 \end{multline*}
-We write $L_{SHA256}$ for the associated language and note that it consists of words, which are tuples $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
+We write $L_{SHA256}$ for the associated language and note that it consists of words, which are strings $(i\,;w)$ such that the instance $i$ is the $SHA256$ image of the witness $w$. 
 
-Given some instance $i\in \{0,1\}^{256}$, a statement in $L_{SHA256}$ is the claim ``Given digest $i$, there is a preimage $w$ such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by checking that $SHA256(w)=i$. 
+Given some instance $i\in \{0,1\}^{256}$, a statement in $L_{SHA256}$ is the claim ``Given digest $i$, there is a preimage $w$ such that $SHA256(w)=i$", which is exactly what the knowledge-of-preimage problem is about. A constructive proof for this statement is therefore given by a preimage $w$ to the digest $i$ and proof verification is achieved by verifying that $SHA256(w)=i$. 
 \end{example}
-\begin{example}[3-factorization] To give an intuition about the implication of refined languages, consider $L_{3.fac}$ from example \ref{ex:3-factorization}\sme{check reference} again. As we have seen, a constructive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$ such that the product in modular $13$ arithmetics of the first three elements is equal to the $4$'th element. 
+\begin{example}[3-factorization]
+\label{ex:L-3fac-zk}
+ To give another intuition about the implication of refined languages, consider $L_{3.fac}$ from example \ref{ex:3-factorization} again. As we have seen, a constructive proof in $L_{3.fac}$ is given by $4$ field elements $x_1$, $x_2$, $x_3$ and $x_4$ from $\F_{13}$ such that the product in modular $13$ arithmetic of the first three elements is equal to the $4$'th element. 
 
-Splitting words from $L_{3.fac}$ into private and public parts, we can reformulate the problem and introduce different levels of privacy into the problem. For example, we could reformulate the membership statement of $L_{3.fac}$ into a statement where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are private and only the product $x_4$ is public. A statement for this reformulation is then expressed by the claim: ``Given a publicly known field element $x_4$, there are three private factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any tuple $(x_1,x_2,x_3)$ such that $x_1\cdot x_2\cdot x_3= x_4$. 
+Splitting words from $L_{3.fac}$ into instance and witness parts, we can reformulate the problem and introduce different levels of knowledge-claims into the problem. For example, we could reformulate the membership statement of $L_{3.fac}$ into a statement where all factors $x_1$, $x_2$, $x_3$ of $x_4$ are witnesses and only the product $x_4$ is the instance. A statement for this reformulation is then expressed by the claim: ``Given an instance field element $x_4$, there are three witness factors of $x_4$". Assuming some instance $x_4$, a constructive proof for the associated knowledge claim is then provided by any string $(x_1,x_2,x_3)$ such that $x_1\cdot x_2\cdot x_3= x_4$. 
 
-At this point, it is important to note that, while constructive proofs in the refinement don't look very different from constructive proofs in the original language, we will see in XXX\sme{add reference} that there are proof systems able to prove the statement (at least with high probability) without revealing anything about the factors $x_1$, $x_2$, or $x_3$. This is why the importance of the refinement only becomes clear once more elaborate proofing methods beyond naive constructive proofs are provided.
-
-We can formalize this new language, which we might call $L_{3.fac\_zk}$, by defining the following decision function: 
-\begin{definition}\label{R3-fac-zk}
+We can formalize this new language, which we might call $L_{3.fac\_zk}$, by defining the following decision function:
 \begin{multline*}
-R_{3.fac\_zk} : \F_{13}^* \times \F_{13}^* \to \{true, false\}\;;\;\\
-((i_1,\ldots,i_n);(w_1,\ldots, w_m)) \mapsto
+\label{R3-fac-zk}
+R_{3.fac\_zk} : (\F_{13})^* \times (\F_{13})^* \to \{true, false\}\;;\;\\
+(<i_1,\ldots,i_n>;<w_1,\ldots, w_m>) \mapsto
 \begin{cases}
 true & n=1,\; m=3,\; i_1 = w_1\cdot w_2 \cdot w_3\\
 false & else
 \end{cases}
 \end{multline*}
-\end{definition}
-The associated language $L_{3.fac\_zk}$ is defined by all tuples from $\F_{13}^* \times \F_{13}^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
+The associated language $L_{3.fac\_zk}$ is defined by all strings from $(\F_{13})^* \times (\F_{13})^*$ that are mapped onto $true$ under the decision function $R_{3.fac\_zk}$. 
 
-Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask why we chose the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose another combination? This was an arbitrary choice in the example. Every other combination of private and public factors would be equally valid. For example, it would be possible to declare all variables as private or to declare all variables as public. Actual choices are determined by the application only.
+Considering the distinction we made between the instance and the witness part in $L_{3.fac\_zk}$, one might ask why we chose the factors $x_1$, $x_2$ and $x_3$ to be the witness and the product $x_4$ to be the instance and why we didn't choose another combination? This was an arbitrary choice in the example. Every other combination of instance and witness would be equally valid. For example, it would be possible to declare all variables as witness or to declare all variables as instance. Actual choices are determined by the application only.
 \end{example}
-\begin{example}[The Tiny-Jubjub Curve] Consider the language $L_{tiny.jj}$ from example \ref{ex:tiny-jubjub}\sme{check reference}. As we have seen, a constructive proof in $L_{tiny.jj}$ is given by a pair $(x_1,x_2)$ of field elements from $\F_{13}$ such that the pair is a point of the tiny-jubjub curve in its Edwards representation.
+\begin{example}[The Tiny-Jubjub Curve]
+\label{ex:tiny-jubjub-instance-witness}
+ Consider the language $L_{tiny.jj}$ from example \ref{ex:tiny-jubjub}. As we have seen, a constructive proof in $L_{tiny.jj}$ is given by a pair $(x_1,x_2)$ of field elements from $\F_{13}$ such that the pair is a point of the tiny-jubjub curve in its Edwards representation.
 
-We look at a reasonable splitting of words from $L_{tiny.jj}$ into private and public parts. The two obvious choices are to either choose both coordinates $x_1$ as $x_2$ as public inputs, or to choose both coordinates $x_1$ as $x_2$ as private inputs. 
+We look at a reasonable splitting of words from $L_{tiny.jj}$ into instance and witness parts. The two obvious choices are to either choose both coordinates $x_1$ as $x_2$ as instance inputs, or to choose both coordinates $x_1$ as $x_2$ as witness inputs. 
 
-In case both coordinates are public, we define the grammar of the associated language by introducing the following decision function:
+In case both coordinates are instance, we define the grammar of the associated language by introducing the following decision function:
 \begin{multline*}
-R_{tiny.jj.1} : \F_{13}^*\times \F_{13}^* \to \{true, false\}\;;\;\\
-(I_1,\ldots,I_n;W_1,\ldots,W_m) \mapsto
+R_{tiny.jj.1} : (\F_{13})^*\times (\F_{13})^* \to \{true, false\}\;;\;\\
+(<I_1,\ldots,I_n>;<W_1,\ldots,W_m>) \mapsto
 \begin{cases}
 true & n=2, m=0 \text{ and } 3\cdot I_1^2 + I_2^2 = 1+ 8\cdot I_1^2\cdot I_2^2\\
 false & else
 \end{cases}
 \end{multline*}
-The language $L_{tiny.jj.1}$ is defined as the set of all strings from $\F_{13}^*\times \F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj.1}$. 
+The language $L_{tiny.jj.1}$ is defined as the set of all strings from $(\F_{13})^*\times (\F_{13})^*$ that are mapped onto $true$ by $R_{tiny.jj.1}$. 
 
-In case both coordinates are private, we define the grammar of the associated refined language by introducing the following decision function:
+In case both coordinates are witness inputs, we define the grammar of the associated refined language by introducing the following decision function:
 \begin{multline*}
-R_{tiny.jj\_zk} : \F_{13}^*\times \F_{13}^* \to \{true, false\}\;;\;\\
-(I_1,\ldots,I_n;W_1,\ldots,W_m) \mapsto
+R_{tiny.jj\_zk} : (\F_{13})^*\times (\F_{13})^* \to \{true, false\}\;;\;\\
+(<I_1,\ldots,I_n>;<W_1,\ldots,W_m>) \mapsto
 \begin{cases}
 true & n=0, m=m \text{ and } 3\cdot W_1^2 + W_2^2 = 1+ 8\cdot W_1^2\cdot W_2^2\\
 false & else
 \end{cases}
 \end{multline*}
-The language $L_{tiny.jj\_zk}$ is defined as the set of all strings from $\F_{13}^*\times \F_{13}^*$ that are mapped onto $true$ by $R_{tiny.jj\_zk}$. 
+The language $L_{tiny.jj\_zk}$ is defined as the set of all strings from $(\F_{13})^*\times (\F_{13})^*$ that are mapped onto $true$ by $R_{tiny.jj\_zk}$. 
 \end{example}
-\begin{exercise} Consider the modular $6$ arithmetics $\Z_6$ from example \ref{def_residue_ring_z_6} in chapter \ref{chap:arithmetics}\sme{check reference} as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
+\begin{exercise} Consider the modular $6$ arithmetic $\Z_6$ from example \ref{def_residue_ring_z_6} as alphabets $\Sigma_I$ and $\Sigma_W$ and the following decision function
 \begin{multline*}
 R_{linear} : \Sigma^* \times \Sigma^* \to \{true, false\}\;;\;\\
 (i;w) \mapsto
 \begin{cases}
-true & i.len()=3 \text{ and } w.len()=1 \text{ and } i_1\cdot w_1 + i_2 = i_3\\
+true & |i|=3 \text{ and } |w|=1 \text{ and } i_1\cdot w_1 + i_2 = i_3\\
 false & else
 \end{cases}
 \end{multline*}
-Which of the following instances $(i_1,i_2,i_3)$ has a proof of knowledge in $L_{linear}$? 
-\begin{itemize}
-\item $(3,3,0)$
-\item $(2,1,0)$ 
-\item $(4,4,2)$
-\end{itemize}
+Which of the following instances $(i_1,i_2,i_3)$ has a proof of knowledge in $L_{linear}$?
+$$ 
+\begin{array}{ccc}
+(3,3,0) , & (2,1,0), & (4,4,2)
+\end{array}
+$$
 \end{exercise}
-\begin{exercise}[Edwards Addition on Tiny-Jubjub] Consider the tiny-jubjub curve together with its Edwards addition law from example XXX\sme{add reference}. Define an instance alphabet $\Sigma_I$, a witness alphabet $\Sigma_W$ and a decision function $R_{add}$ with associated language $L_{add}$ such that a string $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ is a word in $L_{add}$ if and only if $i$ is a pair of curve points on the tiny-jubjub curve in Edwards form and $w$ is the Edwards sum of those curve points.
+\begin{exercise}[Edwards Addition on Tiny-Jubjub]
+\label{ex:TJJ-addition-lang} Consider the tiny-jubjub curve together with its twisted Edwards addition law from example \ref{TJJ13}. Define an instance alphabet $\Sigma_I$, a witness alphabet $\Sigma_W$ and a decision function $R_{add}$ with associated language $L_{add}$ such that a string $(i\,;w)\in \Sigma_I^* \times \Sigma_W^*$ is a word in $L_{add}$ if and only if $i$ is a pair of curve points on the tiny-jubjub curve in Edwards form and $w$ is the sum of those curve points.
 
 Choose some instance $i\in \Sigma_I^*$, provide a constructive proof for the statement ``There is a witness $w\in \Sigma_W^*$ such that $(i\,;w)$ is a word in $L_{add}$'' and verify that proof. Then find some instance $i\in \Sigma_I^*$ such that $i$ has no knowledge proof in $L_{add}$.
 \end{exercise}
-\paragraph{Modularity}\label{modularity} From a developers perspective, it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero-knowledge proof systems, those simple building blocks are often called \term{gadgets}, and gadget libraries usually contain representations of atomic types like booleans, integers, various hash functions, elliptic curve cryptography and many more. In order to synthesize statements, developers then combine predefined gadgets into complex logic. We call the ability to combine statements into more complex statements \term{modularity}. 
+\paragraph{Modularity}\label{modularity} From a developers perspective, it is often useful to construct complex statements and their representing languages from simple ones. In the context of zero-knowledge proof systems, those simple building blocks are often called \term{gadgets}, and gadget libraries usually contain representations of atomic types like booleans, integers, various hash functions, elliptic curve cryptography and many more (See chapter \ref{chap:circuit-compilers} for that). In order to synthesize statements, developers then combine predefined gadgets into complex logic. We call the ability to combine statements into more complex statements \term{modularity}. 
 
 To understand the concept of modularity on the level of formal languages defined by decision functions, we need to look at the \term{intersection} of two languages, which exists whenever both languages are defined over the same alphabet. In this case, the intersection is a language that consists of strings which are words in both languages. 
 
@@ -257,14 +278,15 @@ As we have seen in the previous section, formal languages and their definitions 
 
 However, from the perspective of existing zero-knowledge proof systems, not all ways to actually represent decision functions are equally useful. Depending on the proof system, some are more suitable than others. In this section, will describe two of the most common ways to represent decision functions and their statements.
 \subsection{Rank-1 Quadratic Constraint Systems}
-Although decision functions are expressible in various ways, many contemporary proofing systems require the deciding relation to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing-based proofing systems like XXX\sme{add reference}, roughly because it is possible to check solutions to those equations ``in the exponent'' of pairing-friendly cryptographic groups.
+\label{sec:R1CS}
+Although decision functions are expressible in various ways, many contemporary proving systems require the decision function to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing-based proving systems like the once we describe in chapter \ref{chapter:zk-protocols}, roughly because it is possible to separate instance and witness and then check solutions to those equations ``in the exponent'' of pairing-friendly cryptographic groups.
 
-In this section, we will therefore have a closer look at a particular type of quadratic equation called \term{rank-1 quadratic constraints systems}, which are a common standard in zero-knowledge proof systems. We will start with a general introduction to those systems and then look at their relation to formal languages. We will look into a common way to compute solutions to those systems, and then show how a simple compiler might derive rank-1 constraint systems from more high-level programming code. 
+In this section, we will have a closer look at a particular type of quadratic equations called \term{Rank-1 (quadratic) Constraints Systems}, which are a common standard in zero-knowledge proof systems. We will start with a general introduction to those constrain systems and then look at their relation to formal languages. Then we will look into a common way to compute solutions to those systems. 
 
-\paragraph{R1CS representation} To understand what \term{rank-1 (quadratic) constraint systems} are in detail, let $\F$ be a field, $n$, $m$ and $k\in\N$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i\in\F$ constants from $\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a rank-1 constraint system (R1CS) is defined as follows: 
+\paragraph{R1CS representation} To understand what \term{Rank-1 (quadratic) Constraint Systems} [R1CS] are in detail, let $\F$ be a field, $n$, $m$ and $k\in\N$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i\in\F$ constants from $\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a Rank-1 Constraint System is defined as the following set of $k$ many equations: 
 
-\begin{definition}{\deftitle{R1CS representation}}\label{R1CS}
 \begin{align*}
+\label{R1CS}
 \scriptstyle\left(a^1_0 + \sum_{j=1}^n a^1_j \cdot I_j + \sum_{j=1}^m a^1_{n+j} \cdot W_j  \right) \cdot 
 \left(b^1_0 + \sum_{j=1}^n b^1_j \cdot I_j + \sum_{j=1}^m b^1_{n+j} \cdot W_j  \right) &=\, 
 \scriptstyle c^1_0 + \sum_{j=1}^n c^1_j \cdot I_j + \sum_{j=1}^m c^1_{n+j} \cdot W_j\\
@@ -273,32 +295,39 @@ In this section, we will therefore have a closer look at a particular type of qu
 \left(b^k_0 + \sum_{j=1}^n b^k_j \cdot I_j + \sum_{j=1}^m b^k_{n+j} \cdot W_j  \right) &=\, 
 \scriptstyle c^k_0 + \sum_{j=1}^n c^k_j \cdot I_j + \sum_{j=1}^m c^k_{n+j} \cdot W_j       
 \end{align*}
-\end{definition}
-If a rank-1 constraint system is given, the parameter $k$ is called the \term{number of constraints}  If a tuple $(I_1,\ldots, I_n; W_1,\ldots,W_m)$ of field elements satisfies theses equations, $(I_1,\ldots, I_n)$ is called an \term{instance} and $(W_1,\ldots,W_m)$ is called an associated \term{witness} of the system.
 
-\begin{remark}[Matrix notation] The presentation of rank-1 constraint systems can be simplified using the notation of vectors and matrices, which abstracts over the indices. In fact if
-$x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, $C$ are $(n+m+1)\times k$-dimensional matrices and $\odot$ is the \uterm{Schur/Hadamard product}, then a R1CS can be written as
+If a Rank-1 Constraint System is given, the parameter $k$ is called the \term{number of constraints} and each equation is called a \term{constraint}. If a pair of strings $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$ of field elements satisfies theses equations, $<I_1,\ldots, I_n>$ is called an \term{instance} and $<W_1,\ldots,W_m>$ is called a \term{witness} of the system.
+
+\begin{remark}[Matrix notation] The presentation of Rank-1 Constraint Systems can be simplified using the notation of vectors and matrices, which abstracts over the indices. In fact if $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, $C$ are $(n+m+1)\times k$-dimensional matrices and $\odot$ is the \uterm{Schur/Hadamard product}, then a R1CS can be written as
 $$
 Ax \odot Bx = Cx
 $$
-However,  since we did not introduced matrix calculus in the book, we use XXX\sme{add reference} as the defining equation for rank-1 constraints systems. We only highlighted the matrix notation, because it is sometimes used in the literature.
+However,  since we did not introduced vector spaces and matrix calculus in the book, we use XXX\sme{add reference} as the defining equation for rank-1 constraints systems. We only highlighted the matrix notation, because it is sometimes used in the literature.
 \end{remark}
-%It can be shown that every bounded computation is expressable as a rank-1 constraint system. R1CS are therefore universal models for bounded computations. We will derive a common approach of how to compile bounded computation into rank-1 constraint systems in XXX\sme{add reference}. Similar approaches are used in real world systems like XXX\sme{add reference} to build R1CS-compilers for subsets of high-level languages like C, JAVA or Rust.
-Generally speaking, the idea of a rank-1 constraint system is to keep track of all the values that any variable can assume during a computation and to bind the relationships among all those variables that are implied by the computation itself. Enforcing relations between all the steps of a computer program, the execution is then constrained to be computed in exactly the expected way without any opportunity for deviations. In this sense, solutions to rank-1 constraint systems are proofs of proper progam execution.
-\begin{example}[3-Factorization]\label{ex:3-factorization-r1cs} To provide a better intuition of rank-1 constraint systems, consider the language $L_{3.fac\_zk}$ from example \ref{ex:3-factorization}\sme{check reference} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(I_1;W_1,W_2,W_3)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the decision function as a rank-1 constraint system.
 
-Since R1CS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$ which contain products of more than two factors (which are therefore not quadratic) have to be rewritten in a process often called \term{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac\_zk}$ we introcuce a new variable $W_4$, which captures two of the three multiplications in $W_1\cdot W_2\cdot W_3$. We get the following two constraints
+It can be shown that every bounded computation is expressible as a Rank-1 Constraint System and R1CS is therefore a universal model for bounded computations. We will derive some insights into common approaches of how to compile bounded computation into Rank-1 Constraint Systems in chapter \ref{chap:circuit-compilers}. 
+
+Generally speaking, the idea of a Rank-1 Constraint System is to keep track of all the values that any variable can hold during a computation and to bind the relationships among all those variables that are implied by the computation itself. Once relations between all steps of a computer program are constrained, program execution is then enforced to be computed in exactly in the expected way without any opportunity for deviations. In this sense, solutions to Rank-1 Constraint Systems are proofs of proper program execution.
+
+\begin{example}[R1CS for 3-Factorization]\label{ex:3-factorization-r1cs} To provide a better intuition of Rank-1 Constraint Systems, consider the language $L_{3.fac\_zk}$ from example \ref{ex:L-3fac-zk} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the problem as a Rank-1 Constraint System.
+
+Since R1CS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$ which contain products of more than two factors (which are therefore not quadratic) have to be rewritten in a process often called \term{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac\_zk}$ we introduce a new variable $W_4$, which captures two of the three multiplications in $W_1\cdot W_2\cdot W_3$. We get the following two constraints
 \begin{align*}
-W_1 \cdot W_2 & = W_4 & \text{constraint } 1\\
+W_1 \cdot W_2 & = W_4 & \text{constraint } 1 \\
 W_4 \cdot W_3 & = I_1 & \text{constraint } 2
 \end{align*}
 Given some instance $I_1$, any solution $(W_1,W_2,W_3,W_4)$ to this system of equations provides a solution to the original equation $I_1 = W_1\cdot W_2\cdot W_3$ and vice versa. Both equations are therefore equivalent in the sense that solutions are in a 1:1 correspondence.
 
-Looking at both equations, we see how each constraint enforces a step in the computation. In fact, the first constraint forces any computation to multiply the witness $W_1$ and $W_2$ first. Otherwise it would not be possible to compute the witness $W_4$, which is needed to solve the second constraint. Witness $W_4$ therefore expresses the constraining of an intermediate computational state.
+Looking at both equations from this constraints system, we see how each constraint enforces a step in the computation. In fact, constraint $1$ forces any computation to multiply the witness $W_1$ and $W_2$ first. Otherwise it would not be possible to compute the witness $W_4$, which is needed to solve constraint $2$. Witness $W_4$ therefore expresses the constraining of an intermediate computational state.
 
-At this point, one might ask why equation $1$ constrains the system to compute $W_1\cdot W_2$ first, since computing $W_2\cdot W_3$, or $W_1\cdot W_3$ in the beginning and then multiplying with the remaining factor gives the exact same result.  The reason is that  the way we designed the R1CS prohibits any of these alternative computations, which shows that R1CS are in general \term{not unique} descriptions of a language: many different R1CS are able to describe the same problem.
+At this point, one might ask why equation $1$ constrains the system to compute $W_1\cdot W_2$ first. In order to compute $W_1\cdot W_2 \cdot W_3$, calculating $W_2\cdot W_3$, or $W_1\cdot W_3$ in the beginning and then multiplying the result with the remaining factor gives the exact same result.  The reason is purely a matter of choice. For example, the following R1CS would define the exact same language:
+\begin{align*}
+W_2 \cdot W_3 & = W_4 & \text{constraint } 1 \\
+W_4 \cdot W_1 & = I_1 & \text{constraint } 2 
+\end{align*}
+It follows that R1CS are in general \term{not unique} descriptions of any given situation: many different R1CS are able to describe the same problem.
 
-To see that the two quadratic equations qualify as a rank-1 constraint system, choose the parameter $n=1$, $m=4$ and $k=2$ as well as
+To see that the two quadratic equations qualify as a Rank-1 Constraint System, choose the parameter $n=1$, $m=4$ and $k=2$ as well as
 $$
 \begin{array}{llllll}
 a_0^1 = 0 & a_1^1= 0 & a_2^1= 1 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
@@ -311,7 +340,7 @@ c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 0  & c_5^1= 1 \\
 c_0^2 = 0 & c_1^2= 1 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 0 
 \end{array} 
 $$
-With this choice, the rank-1 constraint system of our $3$-factorization problem can be written in its most general form as follows:
+With this choice, the Rank-1 Constraint System of our $3$-factorization problem can be written in its most general form as follows:
 \begin{align*}
 \scriptstyle
 \left(a^1_0 + a_1^1 I_1 + a_2^1 W_1 + a_3^1 W_2 + a_4^1 W_3 + a_5^1 W_4\right)\cdot
@@ -325,22 +354,24 @@ With this choice, the rank-1 constraint system of our $3$-factorization problem 
 \left(c^2_0 + c_1^2 I_1 + c_2^2 W_2 + c_3^2 W_2 + c_4^2 W_3 + c_5^2 W_4\right)
 \end{align*}
 \end{example}
-\begin{example}[The Tiny-Jubjub curve] Consider the languages $L_{tiny.jj.1}$ from example \ref{ex:tiny-jubjub}\sme{check reference}, which consist of words $(I_1,I_2)$ over the alphabet $\F_{13}$ such that $3\cdot I_1^2 + I_2^2 = 1 + 8\cdot I_1^2\cdot I_2^2$. 
+\begin{example}[R1CS for the Tiny-Jubjub curve points]
+\label{ex:TJJ-r1cs}
+ Consider the languages $L_{tiny.jj.1}$ from example \ref{ex:tiny-jubjub-instance-witness}, which consist of words $<I_1,I_2>$ over the alphabet $\F_{13}$ such that $3\cdot I_1^2 + I_2^2 = 1 + 8\cdot I_1^2\cdot I_2^2$. 
 
-We derive a rank-1 constraint system such that its associated language is equivalent to $L_{tiny.jj.1}$.  To achieve this, we first rewrite the defining equation:
+We derive a Rank-1 Constraint System such that its solutions are in a 1:1 correspondence with words in $L_{tiny.jj.1}$.  To achieve this, we first rewrite the defining equation:
 \begin{align*}
 3\cdot I_1^2 + I_2^2  & = 1 + 8\cdot I_1^2\cdot I_2^2 & \Leftrightarrow \\
  0 & = 1 + 8\cdot I_1^2\cdot I_2^2 - 3\cdot I_1^2 - I_2^2  & \Leftrightarrow \\
  0 & = 1 + 8\cdot I_1^2\cdot I_2^2 + 10\cdot I_1^2 +12\cdot I_2^2
 \end{align*}
-Since R1CSs are systems of quadratic equations, we have to reformulate this expression into a system of quadratic equations. To do so, we have to introduce new variables that constrain intermediate steps in the computation and we have to decide if those variables should be public or private. We decide to declare all new variables as private and get the following constraints
+Since R1CSs are systems of quadratic equations, we have to reformulate this expression into a system of quadratic equations. To do so, we have to introduce new variables that constrain intermediate steps in the computation and we have to decide if those variables should be instance or witness variable. We decide to declare all new variables as witness variables and get the following constraints
 \begin{align*}
 I_1 \cdot I_1 & = W_1 & \text{constraint } 1\\
 I_2 \cdot I_2 & = W_2 & \text{constraint } 2\\
 (8 \cdot W_1) \cdot W_2 & = W_3 & \text{constraint } 3\\
 (12\cdot W_2 + W_3 + 10\cdot W_1 + 1)\cdot 1 & = 0 & \text{constraint } 4
 \end{align*}
-To see that these four quadratic equations qualify as a rank-1 constraint system according to definition XXX\sme{add reference}, choose the parameter $n=2$, $m=3$ and $k=4$:
+To see that these four quadratic equations qualify as a Rank-1 Constraint System according to equation \ref{R1CS}, choose the parameter $n=2$, $m=3$ and $k=4$:
 $$
 \begin{array}{llllll}
 a_0^1 = 0 & a_1^1= 1 & a_2^1= 0 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
@@ -359,7 +390,7 @@ c_0^3 = 0 & c_1^3= 0 & c_2^3= 0 & c_3^3 = 0 & c_4^3= 0  & c_5^3= 1 \\
 c_0^4 = 0 & c_1^4= 0 & c_2^4= 0 & c_3^4 = 0 & c_4^4= 0  & c_5^4= 0
 \end{array} 
 $$
-With this choice, the rank-1 constraint system of our tiny-jubjub curve point problem can be written in its most general form as follows:
+With this choice, the Rank-1 Constraint System of our tiny-jubjub curve point problem can be written in its most general form as follows:
 \begin{align*}
 \scriptstyle
 \left(a_0^1 + a_1^1 I_1 + a_2^1 I_2 + a_3^1 W_1 + a_4^1 W_2 + a_5^1 W_3\right)\cdot
@@ -380,69 +411,73 @@ With this choice, the rank-1 constraint system of our tiny-jubjub curve point pr
 \scriptstyle
 \left(c_0^4 + c_1^4 I_1 + c_2^4 I_2 + c_3^4 W_1 + c_4^4 W_2 + c_5^4 W_3\right)\\
 \end{align*}
-In what follows, we write $L_{jubjub}$ for the associated language that consists of solutions to the R1CS.
-
-To see that $L_{jubjub}$ is equivalent to $L_{tiny.jj.1}$, let $(I_1,I_2; W_1, W_2, W_3)$ be a word in $L_{jubjub}$, then $(I_1,I_2)$ is a word in $L_{tiny.jj.1}$, since the defining R1CS of $L_{jubjub}$ implies that $I_1$ and $I_2$ satisfy the Edwards equation of the tiny-jubjub curve. On the other hand, let $(I_1,I_2)$ be a word in $L_{tiny.jj.1}$. Then $(I_1,I_2; I_1^2, I_2^2, 8\cdot I_1^2\cdot I_2^2)$ is a word in $L_{jubjub}$ and both maps are inverses of each other.
+To see that solutions to this constraints system are in 1:1 correspondence with words in $L_{tiny.jj.1}$, let $(<I_1,I_2>; <W_1, W_2, W_3>)$ be a solution, then $<I_1,I_2>$ is a word in $L_{tiny.jj.1}$, since the defining R1CS implies that $I_1$ and $I_2$ satisfy the twisted Edwards equation of the tiny-jubjub curve. On the other hand, let $<I_1,I_2>$ be a word in $L_{tiny.jj.1}$. Then $(<I_1,I_2>; <I_1^2, I_2^2, 8\cdot I_1^2\cdot I_2^2>)$ is a solution to our R1CS.
 \end{example}
-\begin{exercise} Consider the language $L_{tiny.jj\_zk}$ and define a rank-1 constraint relation with a decision function such that the associated language is equivalent to $L_{tiny.jj\_zk}$.
+\begin{exercise} Consider the language $L_{add}$ from exercise \ref{ex:TJJ-addition-lang}. Define an R1CS, such that solutions to this R1CS are in 1:1 correspondence with words in $L_{add}$.
 \end{exercise} 
-\paragraph{R1CS Satisfiability}To understand how rank-1 constraint systems define formal languages, observe that every R1CS over a field $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{R1CS Satisfiability}
+\label{r1cs-constructive-proofs}
+To understand how Rank-1 Constraint Systems define formal languages, observe that every R1CS over a field $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
-R_{R1CS} : \F^* \times \F^* \to \{true, false\}\;;\;
+R_{R1CS} : (\F)^* \times (\F)^* \to \{true, false\}\;;\;
 (I;W) \mapsto
 \begin{cases}
 true & (I;W) \text{ satisfies R1CS}\\
 false & else
 \end{cases}
 \end{equation}
-Every R1CS therefore defines a formal language. The grammar of this language is encoded in the constraints, words are solutions to the equations and  a \term{statement} is a knowledge claim ``Given instance $I$, there is a witness $W$ such that $(I;W)$ is a solution to the rank-1 constraint system". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verified whenever the set of all instance and witness variables solves the R1CS. 
+Every R1CS therefore defines a formal language. The grammar of this language is encoded in the constraints, words are solutions to the equations and  a \term{statement} is a knowledge claim ``Given instance $I$, there is a witness $W$ such that $(I;W)$ is a solution to the Rank-1 Constraint System". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verified whenever the set of all instance and witness variables solves the R1CS. 
 
 \begin{remark}[R1CS satisfiability]\label{r1cs-satisfiability} It should be noted that in our definition, every R1CS defines its own language. However,  in more theoretical approaches, another language usually called \term{R1CS satisfiability} is often considered, which is useful when it comes to more abstract problems like expressiveness or the computational complexity of the class of \term{all} R1CS. From our perspective, the R1CS satisfiability language is obtained by the union of all R1CS languages that are in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
 $$
 L_{R1CS\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a R1CS $R$ such that } R(i;w)=true  \}
 $$
 \end{remark}
-\begin{example}[3-Factorization]Consider the language $L_{3.fac\_zk}$ from example \ref{ex:3-factorization}\sme{check reference} and the R1CS defined in example {ex:3-factorization-r1cs}\sme{check reference}. As we have seen in {ex:3-factorization-r1cs}\sme{check reference}, solutions to the R1CS are in 1:1 correspondence with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages.
+\begin{example}[3-Factorization]
+\label{ex:3-fac-R1CS-constr-proof}
+Consider the language $L_{3.fac\_zk}$ from example \ref{ex:L-3fac-zk} and the R1CS defined in example \ref{ex:3-factorization-r1cs}. As we have seen in \ref{ex:3-factorization-r1cs}, solutions to the R1CS are in 1:1 correspondence with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages.
 
-To give an intuition of what constructive proofs in $L_{3.fac\_zk}$ look like, consider the instance $I_1= 11$. To prove the statement ``There exists a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$'' constructively, a proof has to provide assignments to all witness variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, an example assignment is given by
-$W=(2,3,4,6)$ since $(I_1;W)$ satisfies the R1CS
+To give an intuition of what constructive R1CS based proofs in $L_{3.fac\_zk}$ look like, consider the instance $I_1= 11$. To prove the statement ``There exists a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$'' constructively, a proof has to provide a solution to the R1CS from example \ref{ex:3-factorization-r1cs}, that is an assignments to all witness variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, an example assignment is given by
+$W=<2,3,4,6>$ since $(I_1;W)$ satisfies the R1CS
 \begin{align*}
 W_1 \cdot W_2 &= W_4 & \text{\# } 2\cdot 3 = 6\\
 W_4 \cdot W_3 &= I_1 & \text{\# } 6\cdot 4 = 11
 \end{align*}
-A proper constructive proof is therefore given by $P=(2,3,4,6)$. Of course, $P$ is not the only possible proof for this statement. Since factorization is not unique in a field in general, another constructive proof is given by $P'=(3,5,12,2)$. 
+A proper constructive proof is therefore given by $\pi=<2,3,4,6>$. Of course, $\pi$ is not the only possible proof for this statement. Since factorization is not unique in a field in general, another constructive proof is given by $\pi'=<3,5,12,2>$. 
 \end{example}
-\begin{example}[The tiny-jubjub curve]\label{ex:tiny-jubjub-r1cs} Consider the language $L_{jubjub}$ from example \ref{ex:tiny-jubjub}\sme{check reference} and its associated R1CS. To see how constructive proofs in $L_{jubjub}$ look like, consider the instance $(I_1,I_2)= (11,6)$. To prove the statement ``There exists a witness $W$ such that $(I_1,I_2;W)$ is a word in $L_{jubjub}$'' constructively, a proof has to provide assignments to all witness variables $W_1$, $W_2$ and $W_3$. Since the alphabet is $\F_{13}$, an example assignment is given by
-$W=(4,10,8)$ since $(I_1,I_2;W)$ satisfies the R1CS
+\begin{example}[The tiny-jubjub curve]\label{ex:tiny-jubjub-r1cs} Consider the language $L_{tiny.jj.1}$ from example \ref{ex:tiny-jubjub-instance-witness} and its associated R1CS from example \ref{ex:TJJ-r1cs}. To see how constructive proofs in $L_{tiny.jj.1}$ using the R1CS from example \ref{ex:TJJ-r1cs} look like, consider the instance $<I_1,I_2>= <11,6>$. To prove the statement ``There exists a witness $W$ such that $(<I_1,I_2>;W)$ is a word in $L_{tiny.jj.1}$'' constructively , a proof has to provide a solution to the R1CS \ref{ex:TJJ-r1cs}, which is an assignments to all witness variables $W_1$, $W_2$ and $W_3$. Since the alphabet is $\F_{13}$, an example assignment is given by
+$W=<4,10,8>$ since $(<I_1,I_2>;W)$ satisfies the R1CS
 \begin{align*}
 I_1 \cdot I_1 & = W_1 & 11\cdot 11 = 4\\
 I_2 \cdot I_2 & = W_2 & 6 \cdot 6 = 10 \\
 (8 \cdot W_1) \cdot W_2 & = W_3 & (8\cdot 4)\cdot 10 = 8\\
 (12\cdot W_2 + W_3 + 10\cdot W_1 + 1)\cdot 1 & = 0 & 12\cdot 10 + 8 + 10\cdot 4 + 1 = 0
 \end{align*}
-A proper constructive proof is therefore given by $P=(4,10,8)$, which shows that the instance $(11,6)$ is a point on the tiny-jubjub curve. 
+A proper constructive proof is therefore given by $\pi=<4,10,8>$, which shows that the instance $<11,6>$ is a point on the tiny-jubjub curve. 
 \end{example}
-\paragraph{Modularity} As we discussed on page \pageref{modularity} XXX\sme{check reference}, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 constraint systems are particularly useful for this, as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
+\paragraph{Modularity}
+\label{sec:R1CS_modularity} As we discussed in \ref{modularity}, it is often useful to construct complex statements and their representing languages from simple ones. Rank-1 Constraint Systems are particularly useful for this, as the intersection of two R1CS over the same alphabet results in a new R1CS over that same alphabet. 
 
 To be more precise, let $S_1$ and $S_2$ be two R1CS over $\F$, then a new R1CS $S_3$ is obtained by the intersection $S_3 = S_1\cap S_2$  of $S_1$ and $S_2$. In this context, intersection means that both the equations of $S_1$ \term{and} the equations of $S_2$ have to be satisfied in order to provide a solution for the system $S_3$.
 
-As a consequence, developers are able to construct complex R1CS from simple ones and this modularity provides the theoretical foundation for many R1CS compilers, as we will see in XXX\sme{add reference}.
+As a consequence, developers are able to construct complex R1CS from simple ones and this modularity provides the theoretical foundation for many R1CS compilers, as we will see in chapter \ref{chap:circuit-compilers}.
 
-\subsection{Algebraic Circuits} As we have seen in the previous paragraphs, rank-1 constraint systems are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a proofer, it is therefore important to solve those equations efficiently. 
+\subsection{Algebraic Circuits}
+\label{sec:circuits} As we have seen in the previous paragraphs, Rank-1 Constraint Systems are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a prover, it is therefore important to solve those equations efficiently. 
 
-However,  in contrast to systems of linear equation, no general methods are known that solve systems of quadratic equations efficiently. Rank-1 constraint systems are therefore impractical from a proofers perspective and auxiliary information is needed that helps to compute solutions efficiently.
+However,  in contrast to systems of linear equations, no general methods are known that solve systems of quadratic equations efficiently. Rank-1 Constraint Systems are therefore impractical from a provers perspective and auxiliary information is needed that helps to compute solutions efficiently.
 
 Methods which compute R1CS solutions are sometimes called \term{witness generator functions}.  To provide a common example, we introduce another class of decision functions called \term{algebraic circuits}. As we will see, every algebraic circuit defines an associated R1CS and also provides an efficient way to compute solutions for that R1CS.
 
-It can be shown that every space- and time-bounded computation is expressible as an algebraic circuit. Transforming high-level computer programs into those circuits is a process often called \term{flattening}. 
+It can be shown that every space- and time-bounded computation is expressible as an algebraic circuit. Transforming high-level computer programs into those circuits is a process often called \term{flattening}. We will look at those transformations in chapter \ref{chap:circuit-compilers}.
 
-To understand this in more detail, we will introduce our model for algebraic circuits and look at the concept of circuit execution and valid assignments. After that, we will show how to derive rank-1 constraint systems from circuits and how circuits are useful to compute solutions to their R1CS efficiently.
-\paragraph{Algebraic circuit representation} To see what algebraic circuits are, let $\F$ be a field. An algebraic circuit is then a directed acyclic (multi)graph that computes a polynomial function over $\F$. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the defining field operations \term{addition} as well as \term{multiplication}. Graph edges represent the flow of the computation along the nodes.
+In this section we will introduce our model for algebraic circuits and look at the concept of circuit execution and valid assignments. After that, we will show how to derive Rank-1 Constraint Systems from circuits and how circuits are useful to compute solutions to associated R1CS efficiently.
+\paragraph{Algebraic circuit representation} To see what algebraic circuits are, let $\F$ be a field. An algebraic circuit is then a directed acyclic (multi)graph that computes a polynomial function over $\F$. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the field operations \term{addition} as well as \term{multiplication}. Graph edges are directed and represent the flow of the computation along the nodes.
 
-To be more precise, we call a directed acyclic multi-graph $C(\F)$  an \term{algebraic circuit} over $\F$ in this book if the following conditions hold:
+To be more precise, in this book, we call a directed acyclic multi-graph $C(\F)$  an \term{algebraic circuit} over $\F$ if the following conditions hold:
 
-\begin{definition}{\deftitle{Algebraic circuit}}\label{def:algebraic-circuit}
 \begin{itemize}
+\label{def:algebraic-circuit}
 \item The set of edges has a total order.  
 \item Every source node has a label that represents either a variable or a constant from the field $\F$.
 \item Every sink node has exactly one incoming edge and a label that represents either a variable or a constant from the field $\F$.
@@ -453,24 +488,26 @@ To be more precise, we call a directed acyclic multi-graph $C(\F)$  an \term{alg
 \item All incoming edges to sink nodes have a label.
 \item If an edge has two labels $S_i$ and $S_j$ it gets a new label $S_i = S_j$.
 \item No other edge has a label.
-\item Incoming edges to sink nodes that are labeled with a constant $c\in\F$ are labeled with the same constant. Every other edge label is taken from the set $\{W,I\}$ and indexed compatible with the order of the edge set. 
+\item Incoming edges to labeled sink nodes, where the label is a constant $c\in\F$ are labeled with the same constant. Every other edge label is taken from the set $\{W,I\}$ and indexed compatible with the order of the edge set. 
 \end{itemize} 
-\end{definition}
+
 It should be noted that the details in the definitions of algebraic circuits vary between different sources. We use this definition as it is conceptually straightforward and well-suited for pen-and-paper computations.
 
 To get a better intuition of our definition, let $C(\F)$ be an algebraic circuit. Source nodes are the inputs to the circuit and either represent variables or constants. In a similar way, sink nodes represent termination points of the circuit and are either output variables or constants. Constant sink nodes enforce computational outputs to take on certain values.  
 
 Nodes that are neither source nodes nor sink nodes are called \term{arithmetic gates}. Arithmetic gates that are decorated with the ``$+$"-label are called \term{addition-gates} and arithmetic gates that are decorated with the ``$\cdot$"-label are called \term{multiplication-gates}. Every arithmetic gate has exactly two inputs, represented by the two incoming edges.
 
-Since the set of edges is ordered, we can write it as $\{E_1,E_2,\ldots, E_n\}$ for some $n\in \N$ and we use those indices to index the edge labels, too. Edge labels are therefore either constants or symbols like $I_j$, $W_j$ or $S_j$, where $j$ is an index compatible with the edge order. Labels $I_j$ represent instance variables, labels $W_j$ witness variables. Labels on the outgoing edges of input variables constrain the associated variable to that edge. Every other edge defines a constraining equation in the associated R1CS. We will explain this in more detail in XXX\sme{add reference}.
+Since the set of edges is ordered, we can write it as a string $<E_1,E_2,\ldots, E_n>$ for some $n\in \N$ and we use those indices to index the edge labels, too. Edge labels are therefore either constants or symbols like $I_j$, $W_j$, where $j$ is an index compatible with the edge order. Labels $I_j$ represent instance variables, labels $W_j$ witness variables. Labels on the outgoing edges of input variables constrain the associated variable to that edge. 
+
 \begin{notation}
-In synthesizing algebraic circuits, assigning instance $I_j$ or witness $W_j$ labels to appropriate edges is often the final step. It is therefore convenient to not distinguish these two types of edges in previous steps. To account for that, we often simply write $S_j$ for an edge label, indicating that the private/public property of the label is unspecified and it might represent an instance or a witness label. 
+In synthesizing algebraic circuits, assigning instance $I_j$ or witness $W_j$ labels to appropriate edges is often the final step. It is therefore convenient to not distinguish these two types of edges in previous steps. To account for that, we often simply write $S_j$ for an edge label, indicating that the instance/witness property of the label is unspecified and it might represent both an instance or a witness label. 
 \end{notation}
-\begin{example}[Generalized factorization SNARK] To give a simple example of an algebraic circuit, consider our $3$-factorization problem from example \ref{ex:3-factorization}\sme{check reference} again.  To express the problem in the algebraic circuit model, consider the following function 
+\begin{example}[Generalized factorization SNARK]
+\label{ex:3-fac-zk-circuit} To give a simple example of an algebraic circuit, consider our $3$-factorization problem from example \ref{ex:L-3fac-zk} again.  To express the problem in the algebraic circuit model, consider the following function 
 \[
 f_{3.fac}:\mathbb{F}_{13}\times\mathbb{F}_{13}\times\mathbb{F}_{13}\to\mathbb{F}_{13};(x_{1},x_{2},x_{3})\mapsto x_{1}\cdot x_{2}\cdot x_{3}
 \]
-Using this function, we can describe the zero-knowledge $3$-factorization problem from \ref{ex:3-factorization}\sme{check reference}, in the following way: Given instance $I_1\in \F_{13}$, a valid witness is a preimage of $f_{3.fac}$ at the point $I_1$, i.e., a valid witness consists of three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$ such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
+Using this function, we can describe the zero-knowledge $3$-factorization problem from \ref{ex:L-3fac-zk}, in the following way: Given instance $I_1\in \F_{13}$, a valid witness is a preimage of $f_{3.fac}$ at the point $I_1$, i.e., a valid witness consists of three values $W_1$, $W_2$ and $W_3$ from $\F_{13}$ such that $f_{3.fac}(W_1,W_2,W_3)=I_1$. 
 
 To see how this function can be transformed into an algebraic circuit over $\F_{13}$, it is a common first step to introduce brackets into the function's definition and then write the operations as binary operators, in order to highlight how exactly every field operation acts on its two inputs. Due to the associativity laws in a field, we have several choices. We choose
 \begin{align*}
@@ -478,7 +515,7 @@ f_{3.fac}(x_1,x_2,x_3) & = x_1\cdot x_2 \cdot x_3  & \text{\# bracket choice} \\
                        & = (x_1\cdot x_2 ) \cdot x_3  & \text{\# operator notation} \\
                        & = MUL(MUL(x_1,x_2),x_3)
 \end{align*}
-Using this expression, we can write an associated algebraic circuit by first constraining the variables to edge labels $W_1=x_1$, $W_2=x_2$ and $W_3=x_3$ as well as $I_1=f_{3.fac}(x_1,x_2,x_3)$, taking the distinction between private and public inputs into account. We then rewrite the operator representation of $f_{3.fac}$ into circuit nodes and get the following: 
+Using this expression, we can write an associated algebraic circuit by first constraining the variables to edge labels $W_1=x_1$, $W_2=x_2$ and $W_3=x_3$ as well as $I_1=f_{3.fac}(x_1,x_2,x_3)$, taking the distinction between witness and instance inputs into account. We then rewrite the operator representation of $f_{3.fac}$ into circuit nodes and get the following: 
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G1}{
@@ -508,11 +545,12 @@ Using this expression, we can write an associated algebraic circuit by first con
 %\]
 
 
-In this case, the directed acyclic multi-graph is a binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
+In this case, the directed acyclic multi-graph is a binary tree with three leaves (the source nodes) labeled by $x_1$, $x_2$ and $x_3$, one root (the single sink node) labeled by $f_{3.fac}(x_1,x_2,x_3)$ and two internal nodes, which are labeled as multiplication gates. 
 
-The order we use to label the edges is chosen to make the edge labeling consistent with the choice of $W_4$ as defined in definition \ref{def:algebraic-circuit}\sme{check reference}. This order can be obtained by a depth-first right-to-left-first traversal algorithm.
+The order we use to label the edges is chosen to make the edge labeling consistent with the choice of $W_4$ as defined in definition \ref{def:algebraic-circuit}. This order can be obtained by a depth-first right-to-left-first traversal algorithm.
 \end{example}
-\begin{example} To give a more realistic example of an algebraic circuit, look at the defining equation  of the tiny-jubjub curve (\ref{TJJ13}\sme{check reference}) again. A pair of field elements 
+\begin{example}
+\label{ex:TJJ-circuit_1} To give a more realistic example of an algebraic circuit, look at the defining equation  of the tiny-jubjub curve \ref{TJJ13} again. A pair of field elements 
 $(x,y)\in \F_{13}^2$ is a curve point, precisely if the following equation holds:
 $$
 3\cdot x^2 + y^2 = 1+ 8\cdot x^2\cdot y^2
@@ -528,15 +566,16 @@ $$
 f_{tiny-jj}: \F_{13}\times \F_{13}\to \F_{13}\; ; \;
 (x,y)\mapsto 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12\cdot y^2
 $$
-Every pair of points $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve, and there are no other curve points. The preimage $f_{tiny-jj}^{-1}(0)$ is therefore a complete description of the tiny-jubjub curve.
+Every pair of field elements $(x,y)\in \F_{13}^2$ with $f_{tiny-jj}(x,y)=0$ is a point on the tiny-jubjub curve, and there are no other curve points. The preimage $f_{tiny-jj}^{-1}(0)$ is therefore a complete description of the tiny-jubjub curve.
 
 We can transform this function into an algebraic circuit over $\F_{13}$. We first introduce brackets into potentially ambiguous expressions and then rewrite the function in terms of binary operators. We get the following:
 \begin{align*}
+\label{ex:tiny_circuit_brackets}
 f_{tiny-jj}(x,y) & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2  & \Leftrightarrow\\
  & = ((8\cdot ((x\cdot x)\cdot (y\cdot y))) + (1+ 10\cdot (x\cdot x))) + (12\cdot(y\cdot y))  & \Leftrightarrow\\
   & = \scriptstyle ADD(ADD(MUL(8,MUL(MUL(x,x),MUL(y,y))), ADD(1,MUL(10,MUL(x,x)))),MUL(12,MUL(y,y)))
 \end{align*}
-Since we haven't decided which part of the computation should be public and which part should be private, we use the unspecified symbol $S$ to represent edge labels. Constraining all variables to edge labels $S_1=x$, $S_2=y$ and $S_6=f_{tiny-jj}$, we get the following circuit, representing the function $f_{tiny-jj}$, by inductively replacing binary operators with their associated arithmetic gates:
+Since we haven't decided which part of the computation should be instance and which part should be witness, we use the unspecified symbol $S$ to represent edge labels. Constraining all variables to edge labels $S_1=x$, $S_2=y$ and $S_6=f_{tiny-jj}$, we get the following circuit, representing the function $f_{tiny-jj}$, by inductively replacing binary operators with their associated arithmetic gates:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.4]{G2}{
@@ -583,7 +622,7 @@ Since we haven't decided which part of the computation should be public and whic
 \end{center}
 This circuit is not a graph, but a multigraph, since there is more than one edge between some of the nodes. 
 
-In the process of designing  of circuits from functions, it should be noted that circuit representations are not unique in general. In case of the function $f_{tiny-jj}$, the circuit shape is dependent on our choice of bracketing in XXX\sme{add reference}. An alernative design i,s for example, given by the following circuit, which occurs when the bracketed expression $8\cdot ( (x\cdot x) \cdot (y\cdot y) )$ is replaced by the expression $(x\cdot x) \cdot ( 8 \cdot (y\cdot y) )$. 
+In the process of designing  of circuits from functions, it should be noted that circuit representations are not unique in general. In case of the function $f_{tiny-jj}$, the circuit shape is dependent on our choice of bracketing in \ref{ex:tiny_circuit_brackets}. An alternative design is for example, given by the following circuit, which occurs when the bracketed expression $8\cdot ( (x\cdot x) \cdot (y\cdot y) )$ is replaced by the expression $(x\cdot x) \cdot ( 8 \cdot (y\cdot y) )$. 
 \begin{center}
 \digraph[scale=0.4]{G2A}{
 	forcelabels=true;
@@ -673,7 +712,7 @@ With a circuit that represents the function $f_{tiny-jj}$, we can now proceed to
 	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-The previous circuit enforces input values assigned to the labels $S_1$ and $S_2$ to be points on the tiny-jubjub curve. However,  it does not specify which labels are considered public and which are considered private. The following circuit defines the inputs to be public, while all other labels are private:
+The previous circuit enforces input values assigned to the labels $S_1$ and $S_2$ to be points on the tiny-jubjub curve. However,  it does not specify which labels are considered instance and which are considered witness. The following circuit defines the inputs to be instances, while all other labels represent witnesses:
 \begin{center}
 \digraph[scale=0.4]{G2AJA2}{
 	forcelabels=true;
@@ -720,22 +759,24 @@ The previous circuit enforces input values assigned to the labels $S_1$ and $S_2
 \end{example}
 It can be shown that every space- and time-bounded computation can be transformed into an algebraic circuit. We call any process that transforms a bounded computation into a circuit \term{flattening}.
 
-\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular, every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables can be seen a function that transforms an input tuple $(x_1,\ldots, x_n)$ from $\F^n$ into an output tuple $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gate label and the process is repeated along all edges until a sink node is reached. We call this computation \term{circuit execution}.
+\paragraph{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular, every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables can be seen as a function that transforms an input string $(x_1,\ldots, x_n)$ from $\F^n$ into an output string $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gate label and the process is repeated along all edges until a sink node is reached. We call this computation \term{circuit execution}.
 
-When executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges, and, in particular, for all edge labels in the circuit. The result is a tuple $(S_1,S_2,\ldots, S_n)$ of field elements associated to all labeled edges, which we call a \term{valid assignment} to the circuit. In contrast, any assignment $(S'_1,S'_2,\ldots, S'_n)$ of field elements to edge labels that can not arise from circuit execution is called an \term{invalid assignment}.
+When executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges, and, in particular, for all edge labels in the circuit. The result is a string $<S_1,S_2,\ldots, S_n>$ of field elements associated to all labeled edges, which we call a \term{valid assignment} to the circuit. In contrast, any assignment $<S'_1,S'_2,\ldots, S'_n>$ of field elements to edge labels that can not arise from circuit execution is called an \term{invalid assignment}.
 
 Valid assignments can be interpreted as \term{proofs for proper circuit execution} because they keep a record of the computational result as well as intermediate computational steps. 
-\begin{example}[3-factorization] Consider the $3$-factorization problem from example \ref{ex:3-factorization}\sme{check reference} and its representation as an algebraic circuit from XXX\sme{add reference}. We know that the set of edge labels is given by $S:=\{I_{1};W_{1},W_{2},W_{3}, W_{4}\}$. 
+\begin{example}[3-factorization]
+\label{ex:3-fac-zk-circuit_2}
+Consider the $3$-factorization problem from example \ref{ex:L-3fac-zk} and its representation as an algebraic circuit from example \ref{ex:3-fac-zk-circuit}. We know that the string of edge labels is given by $S:=<I_{1};W_{1},W_{2},W_{3}, W_{4}>$. 
 
 To understand how this circuit is executed, consider the variables $x_1=2$, $x_2=3$ as well as $x_3=4$. Following all edges in the graph, we get the assignments $W_1=2$, $W_2=3$ and $W_3=4$. Then the assignments of $W_1$ and $W_2$ enter a multiplication gate and the output of the gate is $2\cdot 3 = 6$, which we assign to $W_4$, i.e. $W_4=6$. The values $W_4$ and $W_3$ then enter the second multiplication gate and the output of the gate is $6\cdot 4 = 11$, which we assign to $I_1$, i.e. $I_1=11$. 
 
-A valid assignment to the 3-factorization circuit $C_{3.fac}(\F_{13})$ is therefore given by the following set:
+A valid assignment to the 3-factorization circuit $C_{3.fac}(\F_{13})$ is therefore given by the following string of field elements from $\F_{13}$:
 
 \begin{equation}\label{C3fac}
-S_{valid}:=\{11;2,3,4,6\}
+S_{valid}:=<11;2,3,4,6>
 \end{equation}
 
-We can visualise this assignment in the circuit as follows:
+We can visualise this assignment by assigning every computed value to its associated label in the circuit as follows:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G3}{
@@ -756,7 +797,7 @@ We can visualise this assignment in the circuit as follows:
 	n6 [shape=box, label="f_(3.fac_zk)"];
 }
 \end{center}
-To see what an invalid assignment looks like, consider the assignment $S_{err}:=\{8;2,3,4,7\}$. In this assignment, the input values are the same as in the previous case. The associated circuit is:
+To see what an invalid assignment looks like, consider the assignment $S_{err}:=<8;2,3,4,7>$. In this assignment, the input values are the same as in the previous case. The associated circuit is:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.5]{G4}{
@@ -779,9 +820,11 @@ To see what an invalid assignment looks like, consider the assignment $S_{err}:=
 \end{center}
 This assignment is invalid, as the assignments of $I_1$ and $W_4$ cannot be obtained by executing the circuit.
 \end{example}
-\begin{example} To compute a more realistic algebraic circuit execution, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example \ref{ex:tiny-jubjub-r1cs}\sme{check reference} again. We already know from the way this circuit is constructed that any valid assignment with $S_1=x$, $S_2=y$ and $S_6=0$ will ensure that the pair $(x,y)$ is a point on the tiny-jubjub curve  in its Edwards representation (equation \ref{TJJ13-twisted-edwards}\sme{check reference}. 
+\begin{example}
+\label{ex:TJJ-circuit_2} 
+ To compute a more realistic algebraic circuit execution, consider the defining circuit $C_{tiny-jj}(\F_{13})$ from example \ref{ex:TJJ-circuit_1} again. We already know from the way this circuit is constructed that any valid assignment with $S_1=x$, $S_2=y$ and $S_6=0$ will ensure that the pair $(x,y)$ is a point on the tiny-jubjub curve  in its Edwards representation (equation \ref{TJJ13-twisted-edwards}. 
 
-From example \ref{ex:tiny-jubjub-r1cs},\sme{check reference} we know that the pair $(11,6)$ is a proper point on the tiny-jubjub curve and we use this point as input to a circuit execution. We get the following:
+From example \ref{TJJ13-twisted-edwards}, we know that the pair $(11,6)$ is a proper point on the tiny-jubjub curve and we use this point as input to a circuit execution. We get the following:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
 \digraph[scale=0.4]{G2C}{
@@ -826,12 +869,13 @@ From example \ref{ex:tiny-jubjub-r1cs},\sme{check reference} we know that the pa
 	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-Executing the circuit, we indeed compute $S_6=0$ as expected, which proves that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by the following equation:
+Executing the circuit, we indeed compute $S_6=0$ as expected, which proves that $(11,6)$ is a point on the tiny-jubjub curve in its Edwards representation. A valid assignment of $C_{tiny-jj}(\F_{13})$ is therefore given by the following string:
 $$
-S_{tiny-jj} = \{S_1, S_2, S_3, S_4, S_5, S_6\} = \{11, 6, 4, 10, 1, 0\}
+S_{tiny-jj} = <S_1, S_2, S_3, S_4, S_5, S_6> = <11, 6, 4, 10, 1, 0>
 $$
 \end{example}
-\paragraph{Circuit Satisfiability} To understand how algebraic circuits give rise to formal languages, observe that every algebraic circuit $C(\F)$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+\paragraph{Circuit Satisfiability}
+\label{circuit-satisfiability} To understand how algebraic circuits give rise to formal languages, observe that every algebraic circuit $C(\F)$ over a fields $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
 R_{C(\F)} : \F^* \times \F^* \to \{true, false\}\;;\;
 (I;W) \mapsto
@@ -842,47 +886,56 @@ false & else
 \end{equation}
 Every algebraic circuit therefore defines a formal language. The grammar of this language is encoded in the shape of the circuit, words are assignments to edge labels that are derived from circuit execution, and \term{statements} are knowledge claims ``Given instance $I$, there is a witness $W$ such that $(I;W)$ is a valid assignment to the circuit". A constructive proof to this claim is therefore an assignment of a field element to every witness variable, which is verified by executing the circuit to see if the assignment of the execution meets the assignment of the proof. 
 
-In the context of zero-knowledge proof systems, executing circuits is also often called \term{witness generation}, since in applications the instance part is usually public, while its the task of a proofer to compute the witness part.
+In the context of zero-knowledge proof systems, executing circuits is also often called \term{witness generation}, since in applications the instance part is usually public, while its the task of a prover to compute the witness part.
 
-\begin{remark}[Circuit satisfiability]\sme{Should we refer to R1CS satisfiability (p. \pageref{r1cs-satisfiability} here?} It should be noted that, in our definition, every circuit defines its own language. However,  in more theoretical approaches another language usually called \term{circuit satisfiability} is often considered, which is useful when it comes to more abstract problems like expressiveness, or computational complexity of the class of \term{all} algebraic circuits over a given field. From our perspective the circuit satisfiability language is obtained by union of all circuit languages that are in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
+\begin{remark}[Circuit satisfiability] Similar to \ref{r1cs-satisfiability}, it should be noted that, in our definition, every circuit defines its own language. However, in more theoretical approaches another language usually called \term{circuit satisfiability} is often considered, which is useful when it comes to more abstract problems like expressiveness, or computational complexity of the class of \term{all} algebraic circuits over a given field. From our perspective the circuit satisfiability language is obtained by union of all circuit languages that are in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
 $$
 L_{CIRCUIT\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a circuit } C(\F) \text{ such that } (i;w) \text{ is valid assignment}\}
 $$
 \end{remark}
-\begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from equation \ref{C3fac}\sme{check reference} again. We call the associated language $L_{3.fac\_circ}$.
+\begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from example \ref{ex:3-fac-zk-circuit} again. We call the associated language $L_{3.fac\_circ}$.
 
-To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement ``There exist a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$'' a proof therefore has to consists of proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Any proofer therefore has to find input values for $W_1$, $W_2$ and $W_3$ and then execute the circuit to compute $W_4$ under the assumption $I_1=11$. 
+To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement ``There exist a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$'' a proof therefore has to consists of proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Any prover therefore has to find input values for $W_1$, $W_2$ and $W_3$ and then execute the circuit to compute $W_4$ under the assumption $I_1=11$. 
 
-Example XXX\sme{add reference} implies that $(2,3,4,6)$ is a proper constructive proof and in order to verify the proof a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
+Example \ref{ex:3-fac-zk-circuit_2}implies that $<2,3,4,6>$ is a proper constructive proof and in order to verify the proof a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
 \end{example}
-\paragraph{Associated Constraint Systems} As we have seen in \ref{R1CS}\sme{check reference}, rank-1 constraint systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a proofer to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
+\begin{exercise}
+Consider the circuit $C_{tiny-jj}(\F_{13})$ from example \ref{ex:TJJ-circuit_1}, with its associated language $L_{tiny-jj}$. Construct a proof $\pi$ for the instance $<11,6>$ and verify the proof.
+\end{exercise}
 
-In this paragraph, we show how to transform any algebraic circuit into a rank-1 constraint system such that valid circuit assignments are in 1:1 correspondence with solutions to the associated R1CS. 
+\paragraph{Associated Constraint Systems}
+\label{sec:circuits_associated_R1CS} As we have seen in \ref{sec:R1CS}, Rank-1 Constraint Systems define a way to represent statements in terms of a system of quadratic equations over finite fields, suitable for pairing-based zero-knowledge proof systems. However,  those equations provide no practical way for a prover to actually compute a solution. On the other hand, algebraic circuits can be executed in order to derive valid assignments efficiently. 
 
-To see this, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with a set of edge labels $\{S_1,S_2,\ldots, S_n\}$. Then one of the following steps is executed for every edge label $S_j$ from that set:
-\begin{definition}\label{algebraic-gates}
+In this paragraph, we show how to transform any algebraic circuit into a Rank-1 Constraint System such that valid circuit assignments are in 1:1 correspondence with solutions to the associated R1CS. 
+
+To see this, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with a string of edge labels $<S_1,S_2,\ldots, S_n>$. Then we start with an empty R1CS and one of the following steps is executed for every edge label $S_j$ from that set:
 \begin{itemize}
+\label{algebraic-gates}
 \item If the edge label $S_j$ is an outgoing edge of a multiplication gate, the R1CS gets a new quadratic constraint
 \begin{equation}
 (\text{left input})\cdot (\text{right input}) = S_j
-\end{equation}  
-where $(\text{left input})$ respectively $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the left respectively right input edge of this gate, and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
+\end{equation} 
+In this expression $(\text{left input})$ is the output from the symbolic execution of the subgraph that consists of the left input edge of this gate and all edges and nodes that have  this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes. 
+
+In the same way $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
 \item If the edge label $S_j$ is an outgoing edge of an addition gate, the R1CS gets a new quadratic constraint
 \begin{equation}
 (\text{left input} + \text{right input})\cdot 1 = S_j
 \end{equation}  
-where $(\text{left input})$ respectively $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the left respectively right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
+In this expression $(\text{left input})$ is the output from the symbolic execution of the subgraph that consists of the left input edge of this gate and all edges and nodes that have  this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes. 
+
+In the same way $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
 \item No other edge label adds a constraint to the system.
 \end{itemize}
-\end{definition}
-The result of this method is a rank-1 constraint system, and, in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a tuple of field elements $(S_1,S_2,\ldots, S_n)$ is a valid assignment to a circuit if and only if the same tuple is a solution to the associated R1CS. Circuit executions therefore compute solutions to rank-1 constraints systems efficiently. 
+
+If an algebraic circuit $C(\F)$ is constructed according to the rules from \ref{def:algebraic-circuit}, the result of this method is a Rank-1 Constraint System, and, in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a string of field elements $<S_1,S_2,\ldots, S_n>$ is a valid assignment to a circuit if and only if the same string is a solution to the associated R1CS. Circuit executions therefore compute solutions to Rank-1 constraint Systems efficiently. 
 
 To understand the contribution of algebraic gates to the number of constraints, note that,
-by definition, multiplication gates have labels on their outgoing edges if and only if
-there is at least one labeled edge in both input paths, or if the outgoing edge is an input to a sink node. This implies that multiplication with a constant is essentially free in the sense that it doesn't add a new constraint to the system, as long as that multiplication gate is not am input to an output node. 
+according to construction \ref{def:algebraic-circuit}, multiplication gates have labels on their outgoing edges if and only if there is at least one labeled edge in both input paths, or if the outgoing edge is an input to a sink node. This implies that multiplication with a constant is essentially free in the sense that it doesn't add a new constraint to the system, as long as that multiplication gate is not am input to an output node. 
 
 Moreover, addition gates have labels on their outgoing edges if and only if they are inputs to sink nodes. This implies that addition is essentially free in the sense that it doesn't add a new constraint to the system, as long as that addition gate is not an input to an output node. 
-\begin{example}[$3$-factorization] Consider our $3$-factorization problem from equation \ref{C3fac}\sme{check reference} and the associated circuit $C_{3.fac}(\F_{13})$. Our task is to transform this circuit into an equivalent rank-1 constraint system.
+
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example \ref{ex:L-3fac-zk} and the associated circuit $C_{3.fac}(\F_{13})$ from example \ref{ex:3-fac-zk-circuit}. Our task is to transform this circuit into an equivalent Rank-1 Constraint System.
 \begin{center}
 \digraph[scale=0.5]{G1}{
 	forcelabels=true;
@@ -902,14 +955,14 @@ Moreover, addition gates have labels on their outgoing edges if and only if they
 	n6 [shape=box, label="f_(3.fac_zk)"];
 }
 \end{center}
-We start with an empty R1CS, and, in order to generate all constraints, we have to iterate over the set of edge labels $\{I_1;W_1,W_2,W_3,W_4\}$. 
+We start with an empty R1CS, and, in order to generate all constraints, we have to iterate over the set of edge labels $<I_1;W_1,W_2,W_3,W_4>$.  
 
 Starting with the edge label $I_1$, we see that it is an outgoing edge of a multiplication gate, and, since both input edges are labeled, we  have to add the following constraint to the system:
 \begin{align*}
 (\text{left input})\cdot (\text{right input})  &= I_1 & \Leftrightarrow\\
 W_4\cdot W_3  &= I_1
 \end{align*}
-Next, we consider the edge label $W_1$ and, since, it's not an outgoing edge of a multiplication or addition label, we don't add a constraint to the system. The same holds true for the labels $W_2$ and $W_3$. 
+Next, we consider the edge label $W_1$ and, since, it's not an outgoing edge of a multiplication or addition gate, we don't add a constraint to the system. The same holds true for the labels $W_2$ and $W_3$. 
 
 For edge label $W_4$ , we see that it is an outgoing edge of a multiplication gate, and, since both input edges are labeled, we have to add the following constraint to the system:
 \begin{align*}
@@ -921,9 +974,10 @@ Since there are no more labeled edges, all constraints are generated, and we hav
  W_4\cdot W_3 & = I_1\\
  W_2\cdot W_1 & = W_4
 \end{align*}
-This system is equivalent to the R1CS we derived in example \ref{ex:3-factorization-r1cs}\sme{check reference}. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways of expressing the same language.
+This system is equivalent to the R1CS we derived in example \ref{ex:3-factorization-r1cs}. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways of expressing the same language.
 \end{example}
-\begin{example} To consider a more general transformation, we consider the tiny-jubjub circuit from example \ref{ex:tiny-jubjub-r1cs}\sme{check reference}  again. A proper circuit is given by
+\begin{example}
+\label{ex:tjj-circuit-2-tjj-R1CS} To consider a more general transformation, we consider the tiny-jubjub circuit from example \ref{ex:TJJ-circuit_2} again. A proper circuit is given by the following graph, where we highlighted all nodes that contribute a constraint to the R1CS:
 \begin{center}
 \digraph[scale=0.4]{G2D}{
 	forcelabels=true;
@@ -969,7 +1023,7 @@ This system is equivalent to the R1CS we derived in example \ref{ex:3-factorizat
 \end{center}
 To compute the number of constraints, observe that we have $3$ multiplication gates that have labels on their outgoing edges and $1$ addition gate that has a label on its outgoing edge. We therefore have to compute $4$ quadratic constraints. 
 
-In order to derive the associated R1CS, we have start with an empty R1CS and then iterate over the set $\{S_1,S_2,S_3,S_4,S_5,S_6=0\}$ of all edge labels, in order to generate the constraints. 
+In order to derive the associated R1CS, we have start with an empty R1CS and then iterate over the set $<S_1,S_2,S_3,S_4,S_5,S_6=0>$ of all edge labels, in order to generate the constraints. 
 
 Considering edge label $S_1$, we see that the associated edges are not outgoing edges of any algebraic gate, and we therefore have to add no new constraint to the system. The same holds true for edge label $S_2$. Looking at edge label $S_3$, we see that the associated edges are outgoing edges of a multiplication gate and that the associated subgraph is given by:
 \begin{center}
@@ -1067,7 +1121,7 @@ Both the left and the right input to this multiplication gate are labeled by $S_
 $$
 S_2 \cdot S_2 = S_4
 $$
-Edge label $S_5$ is more interesting. To see if it implies a constraint, we have to construct the associated subgraph first, which consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get  
+Edge label $S_5$ is more interesting. To see how it implies a constraint, we have to construct the associated subgraph first, which consists of all edges, nodes, and paths, starting either at a constant input or a labeled edge. We get  
 \begin{center}
 \digraph[scale=0.4]{G2G}{
 	forcelabels=true;
@@ -1111,11 +1165,11 @@ Edge label $S_5$ is more interesting. To see if it implies a constraint, we have
 	n16 [shape=box, label="0", color=lightgray];		
 }
 \end{center}
-The right input to the associated multiplication gate is given by the labeled edge $S_3$. However,  the left input is not a labeled edge, but has a labeled edge in one of its path. This implies that we have to add a constraint to the system. To compute the left factor of that constraint, we have to compute the output of subgraph associated to the left edge, which is $8\cdot W_2$. This gives the constraint
+The right input to the associated multiplication gate is given by the labeled edge $S_3$. However,  the left input is not a labeled edge, but has a labeled edge in one of its path. To compute the left factor of that constraint, we have to compute the output of the subgraph associated to the left edge, which is $S_4\cdot 8$. This gives the constraint
 $$
 (S_4 \cdot 8) \cdot S_3 = S_5
 $$ 
-The last edge label is the constant $S_6=0$. To see if it implies a constraint, we have to construct the associated subgraph, which consists of all edges and all nodes in all path starting either at a constant input or a labeled edge. We get
+The last edge label is the constant $S_6=0$. To see how it implies a constraint, we have to construct the associated subgraph, which consists of all edges, nodes, and paths, starting either at a constant input or a labeled edge. We get
 \begin{center}
 \digraph[scale=0.4]{G2H}{
 	forcelabels=true;
@@ -1159,10 +1213,11 @@ The last edge label is the constant $S_6=0$. To see if it implies a constraint, 
 	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-Both the left and the right input are  unlabeled, but have a labeled edges in their path. This implies that we have to add a constraint to the system. Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in sub-circuit. We get
+Both the left and the right input are  unlabeled, but have a labeled edges in their path. Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in the sub-circuit. We get
 $$
 (12\cdot S_4 + S_5 + 10\cdot S_3 + 1)\cdot 1 = 0
 $$
+
 Since there are no more labeled outgoing edges, we are done deriving the constraints. Combining all constraints together, we get the following R1CS:
 \begin{align*}
  S_1 \cdot S_1 &= S_3\\
@@ -1170,35 +1225,44 @@ Since there are no more labeled outgoing edges, we are done deriving the constra
  (S_4\cdot 8)\cdot S_3 &= S_5\\
  (12\cdot S_4 + S_5 + 10\cdot S_3 + 1)\cdot 1 &= 0
 \end{align*}
-which is equivalent to the R1CS we derived in example \ref{ex:tiny-jubjub-r1cs}\sme{check reference}. The languages $L_{3.fac\_zk}$ and $L_{3.fac\_circ}$ are therefore equivalent and both the circuit as well as the R1CS are just two different ways to express the same language.
+which is equivalent to the R1CS we derived in example \ref{ex:TJJ-r1cs} both the circuit as well as the R1CS are just two different ways to express the same language.
 \end{example}
-\subsection{Quadratic Arithmetic Programs} We have introduced algebraic circuits and their associated rank-1 constraints systems as two particular models able to represent space- and time-bounded computation. Both models define formal languages, and associated membership as well as knowledge claims can be constructively proofed by executing the circuit in order to compute solutions to its associated R1CS. 
+\subsection{Quadratic Arithmetic Programs}
+\label{sec:QAP}
+ We have introduced algebraic circuits and their associated Rank-1 Constraint Systems as two particular models able to represent bounded computation. Both models define formal languages, and associated membership as well as knowledge claims can be proofed in a constructive way by executing the circuit in order to compute solutions to its associated R1CS. 
 
-One reason why those systems are useful in the context of succinct zero-knowledge proof systems is because any R1CS can be transformed into another computational model called \term{quadratic arithmetic programs} (QAP), which serve as the basis for some of the most efficient succinct non-interactive zero-knowledge proof generators that currently exist. 
+One reason why those systems are useful in the context of succinct zero-knowledge proof systems is because any R1CS can be transformed into another computational model called a \term{Quadratic Arithmetic Program} [QAP], which serves as the basis for some of the most efficient succinct non-interactive zero-knowledge proof generators that currently exist. 
 
-As we will see, proving statements for languages that have checking relations defined by quadratic arithmetic programs can be achieved by providing certain polynomials, and those proofs can be verified by checking a particular divisibility property. 
-\paragraph{QAP representation} To understand what quadratic arithmetic programs are in detail, let $\F$ be a field and $R$ a rank-1 constraints system over $\F$ such that the number of non-zero elements in $\F$ is strictly larger then the number $k$ of constraints in $R$. Moreover, let $a_j^i$, $b_j^i$ and $c_j^i\in\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$, be the defining constants of the R1CS and $m_1$, $\ldots$, $m_k$ be arbitrary, invertible and distinct elements from $\F$.
+As we will see, proving statements for languages that have decision functions defined by Quadratic Arithmetic Programs can be achieved by providing certain polynomials, and those proofs can be verified by checking a particular divisibility property of those polynomials.
+ 
+\paragraph{QAP representation} To understand what Quadratic Arithmetic Programs are in detail, let $\F$ be a field and $R$ a Rank-1 Constraint System over $\F$ such that the number of non-zero elements in $\F$ is strictly larger then the number $k$ of constraints in $R$. Moreover, let $a_j^i$, $b_j^i$ and $c_j^i\in\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$, be the defining constants of the R1CS and $m_1$, $\ldots$, $m_k$ be arbitrary, invertible and distinct elements from $\F$.
   
-Then a \term{quadratic arithmetic program} [QAP] of the R1CS is the following set of polynomials over $\F$:
+Then a \term{Quadratic Arithmetic Program} associated to the R1CS $R$ is the following set of polynomials over $\F$:
 \begin{equation}
+\label{def:QAP-target-poly}
 QAP(R) = \left\{T\in \F[x],\left\{A_j,B_j,C_j\in \F[x]\right\}_{h=0}^{n+m}\right\}
 \end{equation}
-
-In the equation above, $T(x) := \Pi_{l=1}^k (x- m_l)$ is a polynomial of degree $k$, called the \term{target polynomial} of the QAP and $A_j$, $B_j$ as well as $C_j$ are the unique degree $k-1$ polynomials defined by the following equation:
+Here $T(x) := \Pi_{l=1}^k (x- m_l)$ is a polynomial of degree $k$, called the \term{target polynomial} of the QAP and $A_j$, $B_j$ as well as $C_j$ are the unique degree $k-1$ polynomials defined by the following equation:
 \begin{equation}
+\label{def:QAP-polynomials}
 \begin{array}{lllr}
-A_j(m_i)=a_j^i & B_j(m_i)=b_j^i & C_j(m_i)=C_j^i & j= 1, \ldots , n+m+1, i=1,\ldots,k 
+A_j(m_i)=a_j^i, & B_j(m_i)=b_j^i, & C_j(m_i)=C_j^i & \text{ for all } j= 1, \ldots , n+m+1, i=1,\ldots,k 
 \end{array}
 \end{equation}
-Given some rank-1 constraint system, an associated quadratic arithmetic program is therefore nothing but a set of polynomials, computed from the constants in the R1CS. To see that the polynomials $A_j$, $B_j$ and $C_j$ are uniquely defined by the equations in XXX\sme{add reference}, recall that a a polynomial of degree $k-1$ is completely determined \smelong{on}\sme{"by"?} $k$ evaluation points and the equation \ref{alg_lagrange_interplation}\sme{check reference} precisely determines those $k$ evaluation points.
+Given some Rank-1 Constraint System, an associated Quadratic Arithmetic Program is therefore nothing but a set of polynomials, computed from the constants in the R1CS. To see that the polynomials $A_j$, $B_j$ and $C_j$ are uniquely defined by the equations \ref{def:QAP-polynomials}, recall that a polynomial of degree $k-1$ is completely determined by $k$ evaluation points and it can be computed for example by Lagrange interpolation \ref{alg_lagrange_interplation}.
 
-Since we only consider polynomials over fields, Lagrange's interpolation method from \ref{def_lagrange_interpolation_set} in chapter \ref{chap:arithmetics}\sme{check reference} can be used to derive the polynomials $A_j$, $B_j$ and $C_j$ from their defining equations XXX\sme{add reference}. A practical method to compute a QAP from a given R1CS therefore consists of two steps. If the R1CS consists of $k$ constraints, first choose $k$ invertible and mutually different points from the underlaying field. Every choice defines a different QAP for the same R1CS. Then use Lagrange's method and equation XXX\sme{add reference} to compute the polynomials $A_j$, $B_j$ and $C_j$ for every $1\leq j \leq k$. 
-\begin{example}[Generalized factorization SNARK]  To provide a better intuition of quadratic arithmetic programs and how they are computed from their associated rank-1 constraint systems, consider the language $L_{3.fac\_zk}$ from example \ref{ex:3-factorization}\sme{check reference} and its associated R1CS:
+Computing a QAP from any given R1CS can be achieved in the following three steps. If the R1CS consists of $k$ constraints, first choose $k$ different, invertible element from the field $\F$. Every choice defines a different QAP for the same R1CS. Then compute the target polynomial $T$ according to its definition \ref{def:QAP-target-poly}. After that use Lagrange's method \ref{alg_lagrange_interplation} to compute the polynomials $A_j$ for every $1\leq j \leq k$ from the set 
+\begin{equation}
+S_{A_j} = \{(m_1,a^1_j),\ldots,(m_k,a^k_j)\}
+\end{equation}
+After that is done, execute the analog computation for the polynomials $B_j$ and $C_j$ for every $1\leq j \leq k$. 
+\begin{example}[Generalized factorization SNARK]
+\label{ex:3-fac-QAP}  To provide a better intuition of Quadratic Arithmetic Programs and how they are computed from their associated Rank-1 Constraint Systems, consider the language $L_{3.fac\_zk}$ from example \ref{ex:L-3fac-zk} and its associated R1CS from example \ref{ex:3-factorization-r1cs}:
 \begin{align*}
 W_1 \cdot W_2 & = W_4 & \text{constraint } 1\\
 W_4 \cdot W_3 & = I_1 & \text{constraint } 2
 \end{align*}
-In this example we want to transform this R1CS into an associated QAP. In a first step, we have to compute the defining constants $a_j^i$, $b_j^i$ and $c_j^i$ of the R1CS. According to XXX\sme{add reference}, we have
+In this example we want to transform this R1CS into an associated QAP. According to example \ref{ex:3-factorization-r1cs} the defining constants $a_j^i$, $b_j^i$ and $c_j^i$ of the R1CS are given as follows:
 $$
 \begin{array}{llllll}
 a_0^1 = 0 & a_1^1= 0 & a_2^1= 1 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
@@ -1211,7 +1275,7 @@ c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 0  & c_5^1= 1 \\
 c_0^2 = 0 & c_1^2= 1 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 0 
 \end{array} 
 $$
-Since the R1CS is defined over the field $\F_{13}$ and has two constraining equations, we need to choose two arbitrary but distinct elements $m_1$ and $m_2$ from $\F_{13}$. We choose $m_{1}=5$, and $m_{2}=7$ and with this choice we get the target polynomial
+Since the R1CS is defined over the field $\F_{13}$ and since it has two constraints, we need to choose two arbitrary but invertible and distinct elements $m_1$ and $m_2$ from $\F_{13}$. We choose $m_{1}=5$, and $m_{2}=7$ and with this choice we get the target polynomial
 \begin{align*}
 T(x) & = (x-m_1)(x-m_2) & \text{\# Definition of T}\\
      & = (x-5)(x-7)  & \text{\# Insert our choice}\\
@@ -1220,7 +1284,7 @@ T(x) & = (x-m_1)(x-m_2) & \text{\# Definition of T}\\
 \end{align*}
 Then we have to compute the polynomials $A_j$, $B_j$ and $C_j$ by their defining equation from the R1CS coefficients. Since the R1CS has two constraining equations, those polynomials are of degree $1$ and they are defined by their evaluation at the point $m_1=5$ and the point $m_2=7$. 
 
-At point $m_1$, each polynomial $A_j$ is defined to be $a_j^1$ and at point $m_2$, each polynomial $A_j$ is defined to be $a_j^2$. The same holds true for the polynomials $B_j$ as well as $C_j$. Writing all these equations now, we get:
+At point $m_1$, each polynomial $A_j$ is defined to be $a_j^1$ and at point $m_2$, each polynomial $A_j$ is defined to be $a_j^2$. The same holds true for the polynomials $B_j$ as well as $C_j$. Writing all these equations down, we get:
 $$
 \begin{array}{llllll}
 A_0(5)=0, & A_1(5)=0, & A_2(5)=1, & A_3(5)=0, & A_4(5)=0, & A_5(5)=0 \\
@@ -1233,22 +1297,20 @@ C_0(5)=0, & C_1(5)=0, & C_2(5)=0, & C_3(5)=0, & C_4(5)=0, & C_5(5)=1 \\
 C_0(7)=0, & C_1(7)=1, & C_2(7)=0, & C_3(7)=0, & C_4(7)=0, & C_5(7)=0
 \end{array}
 $$
-Lagrange's interpolation implies that a polynomial of degree $k$, that is, that zero on $k+1$ points has to be the zero polynomial. Since our polynomials are of degree $1$ and determined on $2$ points, we therefore know that the only non-zero polynomials in our QAP are $A_2$, $A_5$, $B_3$, $B_4$, $C_1$ and $C_5$, and that we can use Lagrange's interpolation to compute them. 
+Lagrange's interpolation implies that a polynomial of degree $k$, that is zero on $k+1$ points has to be the zero polynomial. Since our polynomials are of degree $1$ and determined on $2$ points, we therefore know that the only non-zero polynomials in our QAP are $A_2$, $A_5$, $B_3$, $B_4$, $C_1$ and $C_5$, and that we can use Lagrange's interpolation to compute them. 
 
-To compute $A_2$ we note that the set $S$ in our version of Lagrange's method  is given by $S=\{(x_0,y_0), (x_1,y_1)\} = \{(5,1), (7,0)\}$. Using this set we get:
+To compute $A_2$ we note that the set $S_{A_2}$ in our version of Lagrange's interpolation  is given by $S_{A_2}=\{(m_1,a^1_2), (m_2,a_2^2)\} = \{(5,1), (7,0)\}$. Using this set we get:
 \begin{align*}
-A_2(x) & = y_0\cdot l_0 + y_1\cdot l_1 \\
-    & = y_0\cdot(\frac{x-x_1}{x_0-x_1}) + y_1\cdot(\frac{x-x_0}{x_1-x_0})
+A_2(x) & = a^1_2\cdot(\frac{x-m_2}{m_1-m_2}) + a^2_2\cdot(\frac{x-m_1}{m_2-m_2})
       = 1\cdot(\frac{x-7}{5-7}) + 0\cdot(\frac{x-5}{7-5}) \\
     & = \frac{x-7}{-2}
       = \frac{x-7}{11} & \text{\# } 11^{-1}=6 \\
     & = 6(x-7) 
       = 6x + 10 & \text{\# } -7 = 6 \text{ and } 6\cdot 6 = 10
 \end{align*}
-To compute $A_5$, we note that the set $S$ in our version of Lagrange's method  is given by $S=\{(x_0,y_0), (x_1,y_1)\} = \{(5,0), (7,1)\}$. Using this set we get:
+To compute $A_5$, we note that the set $S_{A_5}$ in our version of Lagrange's method  is given by $S_{A_5}=\{(m_1,a^1_5), (m_2,a^2_5)\} = \{(5,0), (7,1)\}$. Using this set we get:
 \begin{align*}
-A_5(x) & = y_0\cdot l_0 + y_1\cdot l_1 \\
-    & = y_0\cdot(\frac{x-x_1}{x_0-x_1}) + y_1\cdot(\frac{x-x_0}{x_1-x_0})
+A_5(x) & = a^1_5\cdot(\frac{x-m_2}{m_1-m_2}) + a^2_5\cdot(\frac{x-m_1}{m_2-m_1})
       = 0\cdot(\frac{x-7}{5-7}) + 1\cdot(\frac{x-5}{7-5}) \\
     & = \frac{x-5}{2} & \text{\# } 2^{-1}=7 \\
     & = 7(x-5) 
@@ -1277,49 +1339,48 @@ sage: A2 == F13t(6*t + 10)
 sage: A5 == F13t(7*t + 4)
 \end{sagecommandline}
 
-Combining this computation with the target polynomial we derived earlier, a quadratic arithmetic program associated to the rank-1 constraint system $R_{3.fac\_zk}$ is given as follows:
+Combining this computation with the target polynomial we derived earlier, a Quadratic Arithmetic Program associated to the Rank-1 Constraint System $R_{3.fac\_zk}$ is given as follows:
 
-\begin{equation}\label{QAP-R3-fac-zk}
-\begin{split}
-QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
+\begin{multline}
+\label{QAP-R3-fac-zk}
+QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\notag\\
  \{0,0,6x+10,0,0,7x+4\},\{0,0,0,6x+10,7x+4,0\},\{0,7x+4,0,0,0,6x+10\}\}
-\end{split}
-\end{equation}
+\end{multline}
 \end{example}
-\paragraph{QAP Satisfiability} One of the major points of quadratic arithmetic programs in proofing systems is that solutions of their associated rank-1 constraints systems are in 1:1 correspondence with certain polynomials $P$ such that $P$ is divisible by the target polynomial $T$ of the QAP if and only if \smelong{the solution id a solution}\sme{clarify language}. Verifying solutions to the R1CS and hence, checking proper circuit execution is then achievable by polynomial division of $P$ by $T$.
+\begin{exercise}
+Consider the Rank-1 Constraint System for points on the tiny-jubjub curve from example \ref{ex:TJJ-r1cs}. Compute an associated QAP for this R1CS and double check your computation using sage.
+\end{exercise}
+\paragraph{QAP Satisfiability} One of the major points of Quadratic Arithmetic Programs in proving systems is that solutions of their associated Rank-1 Constraint Systems are in 1:1 correspondence with certain polynomials $P$ divisible by the target polynomial $T$ of the QAP. Verifying solutions to the R1CS and hence, checking proper circuit execution is then achievable by polynomial division of $P$ by $T$.
 
-To be more specific, let $R$ be some rank-1 constraints system with associated assignment variables $(I_1,\ldots,I_n; W_1,\ldots, W_m)$ and let $QAP(R)$ be a quadratic arithmetic program of $R$. Then the tuple $(I_1,\ldots,I_n; W_1,\ldots, W_m)$ is a solution to the R1CS if and only if the following polynomial is divisible by the target polynomial $T$:
+To be more specific, let $R$ be some Rank-1 Constraint System with associated variables $(<I_1,\ldots,I_n>; <W_1,\ldots, W_m>)$ and let $QAP(R)$ be a Quadratic Arithmetic Program of $R$. Then the string $(<I_1,\ldots,I_n>; <W_1,\ldots, W_m>)$ is a solution to the R1CS if and only if the following polynomial is divisible by the target polynomial $T$:
 \begin{equation}\label{polynomial-P-IW}
 P_{(I;W)} = \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j\cdot A_{n+j} \right) \cdot \left(B_0 + \sum_{j}^n I_j\cdot B_j + \sum_{j}^m W_j\cdot B_{n+j} \right) 
 -\left(C_0 + \sum_{j}^n I_j\cdot C_j + \sum_{j}^m W_j\cdot C_{n+j} \right)
 \end{equation}
-Every tuple $(I;W)$ defines a polynomial $P_{(I;W)}$, and, since each polynomial $A_j$, $B_j$ and $C_j$ is of degree $k-1$, $P_{(I;W)}$ is of degree $(k-1)\cdot (k-1)= k^2 -2k +1$. 
 
-To understand how quadratic arithmetic programs define formal languages, observe that every QAP over a field $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
+To understand how Quadratic Arithmetic Programs define formal languages, observe that every QAP over a field $\F$ defines a decision function over the alphabet $\Sigma_I \times \Sigma_W = \F \times \F$ in the following way:
 \begin{equation}
-R_{QAP} : \F^* \times \F^* \to \{true, false\}\;;\;
+R_{QAP} : (\F)^* \times (\F)^* \to \{true, false\}\;;\;
 (I;W) \mapsto
 \begin{cases}
 true & P_{(I;W)} \text{ is divisible by } T\\
 false & else
 \end{cases}
 \end{equation}
-This means that every QAP defines a formal language, and, if the QAP is associated to an R1CS, it can be shown that the two languages are equivalent. A \term{statement} is a membership claim ``There is a word $(I;W)$ in $L_{QAP}$''. A proof to this claim is therefore a polynomial $P_{(I;W)}$, which is verified by dividing $P_{(I;W)}$ by $T$.
+This means that every QAP defines a formal language $L_{QAP}$, and, if the QAP is associated to an R1CS, the language generated by the QAP and the language generated by the R1CS are equivalent. In the context of languages generated by Quadratic Arithmetic Programs, a \term{statement} is then a membership claim ``There is a word $(I;W)$ in $L_{QAP}$''. A proof to this claim is therefore given by a polynomial $P_{(I;W)}$, which is verified by dividing $P_{(I;W)}$ by $T$.
 
-Note the structural similarity to the definition of an R1CS in \ref{R1CS}\sme{check reference} and the different ways of computing proofs in both systems. For circuits and their associated rank-1 constraints systems, a constructive proof consists of a valid assignment of field elements to the edges of the circuit, or the variables in the R1CS. However,  in the case of QAPs, a valid proof consists of a polynomial $P_{(I;W)}$.
+Note the structural similarities and differences in the definition of an R1CS and its associated language in \ref{R1CS}, of circuits and their associated languages in \ref{sec:circuits} and of QAPs and their associated languages as explained in this part. For circuits and their associated Rank-1 Constraint Systems, a constructive proof consists of a valid assignment of field elements to the edges of the circuit, or the variables in the R1CS. However, in the case of QAPs, a valid proof consists of a polynomial $P_{(I;W)}$.
 
-To compute a proof for a statement in $L_{QAP}$ given some instance $I$, a proofer first needs to compute a constructive proof $W$, e.g. by executing the circuit. With $(I;W)$ at hand, the proofer can then compute the polynomial $P_{(I;W)}$ and publish it as proof.
+To compute a constructive proof for a statement in $L_{QAP}$ given some instance $I$, a prover first needs to compute a constructive proof $W$ of the associated R1CS, e.g. by executing the circuit of the R1CS. With $(I;W)$ at hand, the prover can then compute the polynomial $P_{(I;W)}$ and publish the polynomial as proof.
 
-Verifying a constructive proof in the case of a circuit is achieved by executing the circuit, comparing the result to the given proof, and verifying the same proof in the R1CS picture means checking if the elements of the proof satisfy all equation. 
+Verifying a constructive proof in the case of a circuit is achieved by executing the circuit and then by comparing the result against the given proof. Verifying the same proof in the R1CS picture means checking if the elements of the proof satisfy the R1CS equations. In contrast, verifying a proof in the QAP picture is done by polynomial division of the proof $P$ by the target polynomial $T$. The proof is verified if and only if $P$ is divisible by $T$.
 
-In contrast, verifying a proof in the case of a QAP is done by polynomial division of the proof $P$ by the target polynomial $T$ of the QAP. The proof checks out if and only if $P$ is divisible by $T$.
+\begin{example} Consider the Quadratic Arithmetic Program $QAP(R_{3.fac\_zk})$ from example \ref{ex:3-fac-QAP} and its associated R1CS from equation \ref{ex:3-factorization-r1cs}. To give an intuition of how proofs in the language $L_{QAP(R_{3.fac\_zk})}$ look like, lets consider the instance $I_1=11$. As we know from example \ref{ex:3-fac-zk-circuit_2}, $(W_1,W_2,W_3,W_5)=(2,3,4,6)$ is a proper witness, since 
+$(<I_1>;<W_1,W_2,W_3,W_5>)=(<11>;<2,3,4,6>)$ is a valid circuit assignment and hence, a solution to $R_{3.fac\_zk}$ and a constructive proof for language $L_{R_{3.fac\_zk}}$. 
 
-\begin{example} Consider the quadratic arithmetic program $QAP(R_{3.fac\_zk})$ from example XXX\sme{add reference} and its associated R1CS from equation \ref{R3-fac-zk}\sme{check reference}. To give an intuition of how proofs in the language $L_{QAP(R_{3.fac\_zk})}$ lets consider the instance $I_1=11$. As we know from example XXX\sme{add reference}, $(W_1,W_2,W_3,W_5)=(2,3,4,6)$ is a proper witness, since 
-$(I_1;W_1,W_2,W_3,W_5)=(11;2,3,4,6)$ is a valid circuit assignment and hence, a solution to $R_{3.fac\_zk}$ and a constructive proof for language $L_{R_{3.fac\_zk}}$. 
+In order to transform this constructive proof into a knowledge proof in language $L_{QAP(R_{3.fac\_zk})}$, a prover has to use the elements of the constructive proof, to compute the polynomial $P_{(I;W)}$. 
 
-In order to transform this constructive proof into a membership proof in language $L_{QAP(R_{3.fac\_zk})}$, a proofer has to use the elements of the constructive proof, to compute the polynomial $P_{(I;W)}$. 
-
-In the case of $(I_1;W_1,W_2,W_3,W_5)=(11;2,3,4,6)$,  the associated proof is computed as follows: 
+In the case of $(<I_1>;<W_1,W_2,W_3,W_5>)=(<11>;<2,3,4,6>)$,  the associated proof is computed as follows: 
 \begin{align*}
 P_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j\cdot A_{n+j} \right) \cdot \left(B_0 + \sum_{j}^n I_j\cdot B_j + \sum_{j}^m W_j\cdot B_{n+j} \right) 
 -\left(C_0 + \sum_{j}^n I_j\cdot C_j + \sum_{j}^m W_j\cdot C_{n+j} \right)\\
@@ -1330,7 +1391,7 @@ P_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j
 = & (x^{2}+x+9x+9)-(9x) \\
 = & x^{2}+x+9
 \end{align*}
-Given instance $I_1=11$ a proofer therefore provides the polynomial $x^2+x+9$ as proof. To verify this proof, any verifier can then look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example, $P_{(I;W)}$ is equal to the target polynomial $T$, and hence, it is divisible by $T$ with $P/T=1$. The verification therefore checks the proof.
+Given instance $I_1=11$ a prover therefore provides the polynomial $x^2+x+9$ as proof. To verify this proof, any verifier can then look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example, $P_{(I;W)}$ is equal to the target polynomial $T$, and hence, it is divisible by $T$ with $P/T=1$. The verifer therefore verifies the proof.
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -1340,18 +1401,18 @@ sage: P == T
 sage: P % T # remainder
 \end{sagecommandline}
 
-To give an example of a false proof, consider the tuple $(I_1;W_1,W_2,W_3,W_4)=(11, 2, 3, 4, 8)$. Executing the circuit, we can see that this is not a valid assignment and not a solution to the R1CS, and hence, not a constructive knowledge proof in $L_{3.fac\_zk}$. However,  a proofer might use these values to construct a false proof $P_{(I;W)}$:
+To give an example of a false proof, consider the string $(<I_1>;<W_1,W_2,W_3,W_4>)=(<11>, <2, 3, 4, 8>)$. Executing the circuit, we can see that this is not a valid assignment and not a solution to the R1CS, and hence, not a constructive knowledge proof in $L_{3.fac\_zk}$. However,  a prover might use these values to construct a false proof $P_{(I;W)}$:
 \begin{align*}
 P'_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j\cdot A_{n+j} \right) \cdot \left(B_0 + \sum_{j}^n I_j\cdot B_j + \sum_{j}^m W_j\cdot B_{n+j} \right) 
 -\left(C_0 + \sum_{j}^n I_j\cdot C_j + \sum_{j}^m W_j\cdot C_{n+j} \right)\\
 = & (2(6x+10)+8(7x+4))\cdot(3(6x+10)+4(7x+4))-(8(6x+10)+11(7x+4)) \\
 = & 8x^{2}+6
 \end{align*}
-Given instance $I_1=11$, a proofer therefore provides the polynomial $8x^2+6$ as proof. To verify this proof, any verifier can look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. However,  polynomial division has the following remainder:
+Given instance $I_1=11$, a prover therefore provides the polynomial $8x^2+6$ as proof. To verify this proof, any verifier can look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. However, polynomial division has the following remainder:
 $$
 (8x^{2}+6)/(x^{2}+x+9) =8+\frac{5x+12}{x^{2}+x+9} 
 $$
-This implies that $P_{(I;W)}$ is not divisible by $T$, and hence, the verification does not check the proof. Any verifier can therefore show that the proof is false.
+This implies that $P_{(I;W)}$ is not divisible by $T$, and hence, the verifier does not verify the proof. Any verifier can therefore show that the proof is false.
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
