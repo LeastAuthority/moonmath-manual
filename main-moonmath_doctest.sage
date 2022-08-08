@@ -174,4 +174,95 @@ sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
 
+Sage commandline, line 489::
+
+sage: import hashlib
+sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+sage: empty_string = ``"
+sage: binary_string = empty_string.encode()
+sage: hasher = hashlib.sha256(binary_string)
+sage: result = hasher.hexdigest()
+sage: type(result) # sage represents digests as strings
+sage: d = ZZ('0x'+ result) # conversion to an integer
+sage: d.str(16) == test # hash is equal to test vector
+sage: d.str(16) # hexadecimal representation
+sage: d.str(2) # binary representation
+sage: d.str(10) # decimal representation
+
+Sage commandline, line 574::
+
+sage: import hashlib
+sage: def SHA256_H(x):
+....:     Z5 = Integers(5) # define the group type
+....:     hasher = hashlib.sha256(x) # Compute SHA256
+....:     digest = hasher.hexdigest()
+....:     z = ZZ(digest, 16) # cast into integer
+....:     z_bin = z.digits(base=2, padto=256) # cast to 256bits
+....:     return Z5(2)^z_bin[0] * Z5(3)^z_bin[1]
+sage: SHA256_H(b"") # evaluate on empty string
+sage: SHA256_H(b"SHA") # possible images are {1,2,3}
+sage: SHA256_H(b"Math")
+
+Sage commandline, line 636::
+
+sage: ZZ
+
+Sage commandline, line 701::
+
+sage: ZZ['x']
+
+Sage commandline, line 708::
+
+sage: Integers(6)
+
+Sage commandline, line 779::
+
+sage: import hashlib
+sage: def Hash5(x):
+....:     Z16 = Integers(16)
+....:     hasher = hashlib.sha256(x) # compute SHA56
+....:     digest = hasher.hexdigest()
+....:     d = ZZ(digest, base=16) # cast to integer
+....:     d = d.str(2)[-4:] # keep 5 least significant bits
+....:     d = ZZ(d, base=2) # cast to integer
+....:     return Z16(d) # cast to Z16
+sage: Hash5(b'')
+
+Sage commandline, line 836::
+
+sage: import hashlib
+sage: Z23 = Integers(23)
+sage: def Hash_mod23(x, k2):
+....:     hasher = hashlib.sha256(x.encode('utf-8')) # Compute SHA256
+....:     digest = hasher.hexdigest()
+....:     d = ZZ(digest, base=16) # cast to integer
+....:     d = d.str(2)[-k2:] # keep k2+1 LSB
+....:     d = ZZ(d, base=2) # cast to integer
+....:     return Z23(d) # cast to Z23
+
+Sage commandline, line 918::
+
+sage: QQ
+
+Sage commandline, line 938::
+
+sage: F2 = GF(2)
+sage: F2(1) # Get an element from GF(2)
+sage: F2(1) + F2(1) # Addition
+sage: F2(1) / F2(1) # Division
+
+Sage commandline, line 1225::
+
+sage: Z3 = GF(3) # prime field
+sage: Z3t.<t> = Z3[] # polynomials over Z3
+sage: P = Z3t(t^2+1)
+sage: P.is_irreducible()
+sage: F3_2.<t> = GF(3^2, name='t', modulus=P) # Extension field F_3^2
+sage: F3_2
+sage: F3_2(t+2)*F3_2(2*t+2) == F3_2(2)
+sage: F3_2(2*t+2)^(-1) # multiplicative inverse
+sage: # verify our solution to (t+1)(x^2 + (2t+2)) = 2
+sage: F3_2(t+1)*(F3_2(t)**2 + F3_2(2*t+2)) == F3_2(2)
+sage: F3_2(t+1)*(F3_2(2*t)**2 + F3_2(2*t+2)) == F3_2(2)
+
 """
