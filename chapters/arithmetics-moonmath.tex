@@ -4,7 +4,7 @@
 
 \section{Introduction}
 
-The goal of this chapter is to bring a reader with only basic school-level algebra up to speed in arithmetics. We start with a brief recapitulation of basic integer arithmetics, discussing long division, the greatest common divisor and Euclidean Division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our \finalcomb{pen-and-paper examples.}{check if this is already introduced in intro} We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of Lagrange interpolation.
+The goal of this chapter is to bring a reader with only basic school-level algebra up to speed in arithmetics. We start with a brief recapitulation of basic integer arithmetics, discussing long division, the greatest common divisor and Euclidean Division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our \finalcomb{pen-and-paper examples.}{check if this is already introduced in intro} We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of \concept{Lagrange interpolation}.
 
 \section{Integer arithmetic}
 \label{integer_arithmetic}
@@ -53,7 +53,7 @@ In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}, 
 \frac{n}{m} = \frac{k\cdot n'}{k\cdot m'}
 \end{equation}
 
-The sets $\N$, $\Z$ and $\Q$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently invoke the  SageMath system (\ref{sagemath_setup}) for more complicated computations (we define rings and fields later in this book):\smecomb{SB: I would delete lines 12-18 form the  Sage example below, unnecessarily confusing at this point}{simplify  Sage ex.}
+The sets $\N$, $\Z$ and $\Q$ have a notion of addition anduse multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently use the  SageMath system (\ref{sagemath_setup}) for more complicated computations (we define rings and fields later in this book):\smecomb{SB: I would delete lines 12-18 form the  Sage example below, unnecessarily confusing at this point}{simplify  Sage ex.}
 \begin{sagecommandline}
 sage: ZZ #  Sage notation for the set of integers
 sage: NN # Sage notation for the set of natural numbers
@@ -66,12 +66,14 @@ sage: ZZ(27713).str(2) # Binary string representation
 sage: NN(27713).str(2) # Binary string representation
 sage: ZZ(27713).str(16) # Hexadecimal string representation
 \end{sagecommandline}
-A set of numbers of particular interest to us is the set of \term{prime numbers}, which are natural numbers $ p \in \N $ with $ p \geq 2 $ that are only divisible by themself and by $1$. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We use $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers. The set of prime numbers $\Prim$ is an infinite set, and it can be ordered according to size. This means that, for any prime number $p\in\Prim$, one can always find another prime number $p'\in\Prim$ with $p<p'$. Consequently, there is no largest prime number. Since prime numbers can be ordered by size, we can write them as follows:
+A set of numbers of particular interest to us is the set of \term{prime numbers}. A prime number is a natural number $ p \in \N $ with $ p \geq 2 $ that is only divisible by itself and by $1$. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We use $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers. 
+
+The set of prime numbers $\Prim$ is an infinite set, and it can be ordered according to size. This means that, for any prime number $p\in\Prim$, one can always find another prime number $p'\in\Prim$ with $p<p'$. As a result, there is no largest prime number. Since prime numbers can be ordered by size, we can write them as follows:
 \begin{equation}
 \label{eq: primenumber_sequence}
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, \ldots
 \end{equation}
-As the \term{fundamental theorem of arithmetic} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed. \comms{To see that}, let $ n \in \N $ be any natural number with $n>1$. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that the following equation holds:
+As the \term{fundamental theorem of arithmetic} tells us, prime numbers are, in a certain sense, the basic building blocks from which all other natural numbers are composed: every natural number can be derived by multiplying prime numbers with each other. To see that, let $ n \in \N $ be any natural number with $n>1$. Then there are always prime numbers $ p_1, p_2, \ldots, p_k \in \Prim $, such that the following equation holds:
 \begin{equation}
 \label{def:fundamental_theorem_arithmetic}
 n = p_1 \cdot p_2 \cdot \ldots \cdot p_k \;
@@ -88,10 +90,10 @@ sage: n = NN(504)
 sage: factor(n)
 \end{sagecommandline}
 \end{example}
-The computation from the previous example reveals an important observation: computing the factorization of an integer is computationally expensive, because we have to divide repeatedly by all prime numbers smaller than the number itself until all factors are prime numbers \commscomb{themself}{``themselves'' is more common?}. From this, an important question arises: how fast can we compute the prime factorization of a natural number? This question is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no known method that can factor integers much faster then the naive approach of just dividing the given number by all prime numbers in ascending order.
+The computation from the previous example reveals an important observation: computing the factorization of an integer is computationally expensive, because we have to divide repeatedly by all prime numbers smaller than the number itself until all factors are prime numbers themselves. From this, an important question arises: how fast can we compute the prime factorization of a natural number? This question is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no known method that can factor integers much faster than the naive approach of just dividing the given number by all prime numbers in ascending order.
 
-On the other hand, computing the product of a given set of prime numbers is fast: \comms{you} just multiply all factors. This simple observation implies that the two processes ``prime number multiplication'' on the one side and its inverse process ``natural number factorization'' have very different computational costs. The factorization problem is therefore an example of a \commscomb{so-called}{a bit overused in the text?} \term{one-way function}: an invertible function that is easy to compute in one direction, but hard to compute in the other direction.
-\footnote{It should be pointed out, however, that the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94}, which can calculate the prime factorization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem, are unsafe as soon as practically usable quantum computers become available.}
+On the other hand, computing the product of a given set of prime numbers is fast: \comms{you} just multiply all factors. This simple observation implies that the two processes, ``prime number multiplication'' on the one side and its inverse process ``natural number factorization'' have very different computational costs. The factorization problem is therefore an example of a \commscomb{so-called}{a bit overused in the text?} \term{one-way function}: an invertible \href{https://en.wikipedia.org/wiki/Function_(mathematics)}{function} that is easy to compute in one direction, but hard to compute in the other direction (see this description of time complexity and \href{https://en.wikipedia.org/wiki/Time_complexity#Polynomial_time}{polynomial time}). 
+\footnote{It should be noted that what is ``easy'' and ``hard'' to compute depends on the computational power available to us. Currently available computers cannot easily compute the prime factorization of natural numbers (in formal terms, the cannot compute it in polynomial time). However, the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factorization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem being computationally hard on currently available computers, become unsafe as soon as practically usable quantum computers become available.}
 
 \begin{exercise}
 What is the absolute value of the integers $-123$, $27$ and $0$?
@@ -121,7 +123,7 @@ Compute the set of all solutions $x$ under the following assumptions:
 
 \subsection{Euclidean Division}
 \label{Euclidean_division}
-As we know from high school mathematics, integers can be added, subtracted and multiplied, and the of these operations result is guaranteed to always be an integer as well.
+As we know from high school mathematics, integers can be added, subtracted and multiplied, and the result of these operations is guaranteed to always be an integer as well.
 On the contrary, division (in the commonly understood sense) is not defined for integers, as, for example, $7$ divided by $3$ will not result in an integer. However, it is always possible to divide any two integers if we consider \term{division with a remainder}. For example, $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$.
 
 This section introduces division with a remainder for integers, usually called \term{Euclidean Division}. It is an essential technique underlying many concepts in this book. The precise definition is as follows:
@@ -154,7 +156,7 @@ So, in a nutshell, Euclidean Division is the process of dividing one integer by 
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
 \end{array}
 \end{equation}
-$ -17 = -5 \cdot 4 + 3 $  is the Euclidean Division of $-17$ by $4$. The remainder, by definition, is a non-negative number. In this case, $4$ does not divide $-17$, as the remainder is not zero. The truth value of the expression $4 | -17 $ therefore is \textsc{false}. On the other hand, the truth value of $4 | 12$ is \textsc{true}, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. If we invoke  Sage to do the computation for us, we get the following:
+$ -17 = -5 \cdot 4 + 3 $  is the Euclidean Division of $-17$ by $4$. The remainder, by definition, is a non-negative number. In this case, $4$ does not divide $-17$, as the remainder is not zero. The truth value of the expression $4 | -17 $ therefore is \textsc{false}. On the other hand, the truth value of $4 | 12$ is \textsc{true}, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. If we use  Sage to do the computation for us, we get the following:
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
@@ -185,7 +187,7 @@ In a nutshell, the long division algorithm loops through the digits of the divid
 
 As long division is the standard method used for pen-and-paper division of multi-digit numbers expressed in decimal notation, we use it throughout this book when we do simple pen-and-paper computations, so \comms{readers} should become familiar with it. However, instead of defining the algorithm formally, we  provide some examples instead, as this will hopefully make the process more clear.
 
-\begin{example}[Integer Long Division] To give an example of integer long division algorithm, let's divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euclidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in \comms{Commonwealth countries}, we compute as follows:\smecomb{SB: I think a more detailed explanation is needed for those unfamiliar with this notation/algorithm}{Add explanation}
+\begin{example}[Integer Long Division] To give an example of integer long division algorithm, let's divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euclidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in English-speaking countries, we compute as follows:\smecomb{SB: I think a more detailed explanation is needed for those unfamiliar with this notation/algorithm}{Add explanation}
 \begin{equation}
 \intlongdivision{143785}{17}
 \end{equation}
@@ -215,7 +217,7 @@ Using the programming language of your choice, write an algorithm that computes 
 \end{exercise}
 
 \subsection{The Extended Euclidean Algorithm}
-One of the most critical parts of this book is the modular arithmetic, defined in section \ref{modular_arithmetic}, and its application in the computations of \term{prime fields}, defined in section\ref{prime_fields}. To be able to do computations in modular arithmetic, we have to get familiar with the so-called \term{Extended Euclidean Algorithm}, used to calculate the \term{greatest common divisor} (GCD) of integers.
+One of the most critical parts of this book is the modular arithmetic, defined in section \ref{modular_arithmetic}, and its application in the computations of \term{prime fields}, defined in section \ref{prime_fields}. To be able to do computations in modular arithmetic, we have to get familiar with the so-called \term{Extended Euclidean Algorithm}, used to calculate the \term{greatest common divisor} (GCD) of integers.
 
 The {greatest common divisor} of two non-zero integers $a$ and $b$ is defined as the largest non-zero natural number $d$ such that $d$ divides both $a$ and $b$, that is, $d|a$ as well as $d|b$ are true. We use the notation $ gcd (a, b):=d $ for this number. Since the natural number $1$ divides any other integer, $1$ is always a common divisor of any two non-zero integers, but it is not necessarily the greatest.
 
@@ -270,7 +272,7 @@ To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=
     4 & 0 & &  & &  &     $r_4 \gets \Zmod{r_2}{r_3} =\newline \Zmod{2}{1}= 0 $&  &  & \\
   \end{tabularx}
 \end{center}
-From this we can see that the greatest common divisor of $12$ and $5$ is $ gcd (12, 5) = 1 $ and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ holds. We can also invoke  Sage to double check our findings:
+From this we can see that the greatest common divisor of $12$ and $5$ is $ gcd (12, 5) = 1 $ and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ holds. We can also use  Sage to double check our findings:
 \begin{sagecommandline}
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 \end{sagecommandline}
@@ -310,7 +312,7 @@ The naive way to decide if two integers are coprime would be to divide both numb
 
 The number at which the wrap occurs is called the \term{modulus}. Modular arithmetic generalizes the clock example to arbitrary moduli, and studies equations and phenomena that arise in this new kind of arithmetic. It is of central importance for understanding most modern cryptographic systems, in large parts because modular arithmetic provides the computational infrastructure for algebraic types that have cryptographically useful examples of one-way functions.\
 
-Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage \comms{the interested reader} to work through the examples and discover that, once they get used to the idea that this is a new kind of calculation, it will seem much less daunting.
+Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage you to work through the examples and discover that, once they get used to the idea that this is a new kind of calculation, it will seem much less daunting.
 
 \subsection{Congruence}
 In what follows, let $n\in\N$ with $n\geq 2$ be a fixed natural number that we will call the \term{modulus} of our modular arithmetic system. With such an $n$ given, we can then group integers into classes: two integers are in the same class whenever their Euclidean Division (\ref{Euclidean_division}) by $n$ will give the same remainder. We two numbers that are in the same class are called \term{congruent}.
@@ -325,7 +327,7 @@ We can formalize this intuition of what congruence should be into a proper defin
 
 If, on the other hand, two numbers are not congruent with respect to a given modulus $n$, we call them \term{incongruent} w.r.t. $n$.
 
-In other words, \term{congruence} is an equation ``up to congruence'', which means that the equation only needs to hold if we take the modulus of both sides. In which case we write
+In other words, \term{congruence} is an equation ``up to congruence'', which means that the equation only needs to hold if we take the modulus of both sides. This is expressed with the following notation:
 \begin{equation}
 \kongru{a}{b}{n}
 \end{equation}
@@ -395,7 +397,7 @@ In the next step, we want to shift all instances of $x$ to the left and every ot
 \kongru{14x-x +158-158}{x-x-102-158}{6} \Leftrightarrow \\
 \kongru{13x}{-260}{6}
 \end{multline*}
-If our congruence was just a regular integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruence, we need to make sure that the modulus and the number we want to divide by are coprime to ensure that get an equivalent expression (see rule \ref{eq_fermat_lt_2}\sme{check reference}). Consequently, we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute as follows:
+If our congruence was just a regular integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruence, we need to make sure that the modulus and the number we want to divide by are coprime to ensure that get an equivalent expression (see rule \ref{eq_fermat_lt_2}\sme{check reference}). This means that we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute as follows:
 $$
 \kongru{13x}{-260}{6} \Leftrightarrow \kongru{x}{-20}{6}
 $$
@@ -491,9 +493,9 @@ $$
  1 = & 2 \cdot 105  & + &  -19 \cdot 11 \\
 \end{array}
 $$
-Consequently, we get $x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
+As a result, we get $x = 4 \cdot 2 \cdot 165 + 1 \cdot 1 \cdot 385 + 3 \cdot 1 \cdot 231 + 0 \cdot 2 \cdot 105 = 2398$
 as one solution. Because $ \Zmod{2398}{1155} = 88, $ the set of all solutions is
-$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. We can invoke  Sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
+$ \{\ldots, -2222, -1067,88,1243, 2398, \ldots \} $. We can use  Sage's computation of the Chinese Remainder Theorem (CRT) to double check our findings:
 \begin{sagecommandline}
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 \end{sagecommandline}
@@ -522,7 +524,7 @@ $$
 5: = \{\ldots, -1,5,11,17, \ldots \}
 \end{array}
 $$
-To compute the new addition law of those remainder class representatives, say $2+5$, \comms{one chooses} an arbitrary element from each class, say $14$ and $-1$, adds those numbers in the usual way, and then looks at the remainder class of the result.
+To compute the new addition law of those remainder class representatives, say $2+5$, we choose an arbitrary element from each class, say $14$ and $-1$, adds those numbers in the usual way, and then looks at the remainder class of the result.
 
 Adding $14$ and $(-1)$, we get $13$, and $13$ is in the remainder class (of) $1$. Hence, we find that $2+5=1$ in modular $6$ arithmetic, which is a more readable way to write the congruence $\kongru{2+5}{1}{6}$.
 
@@ -549,7 +551,7 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
 \end{equation}
 This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. We call it \term{modular 6 arithmetic} and write the associated \uterm{type} as $\Z_6$.
 
-To see why identifying a remainder class with its remainder is useful and actually simplifies congruence computations significantly, \comms{let's} go back to the congruence from example \ref{example_first_congruence}:
+To see why identifying a remainder class with its remainder is useful and actually simplifies congruence computations significantly, let's go back to the congruence from example \ref{example_first_congruence}:
 \begin{equation}
 \label{example_congruence_two_1}
 \kongru{7\cdot(2x+21) + 11}{x-102}{6}
@@ -574,7 +576,7 @@ x &= 4 &
 
 As we can see, despite the somewhat unfamiliar rules of addition and multiplication, solving congruences this way is very similar to solving normal equations. And, indeed, the solution set is identical to the solution set of the original congruence, since $4$ is identified with the set $\{4+6\cdot k\;|\; k\in\Z\}$.
 
-We can invoke  Sage to do computations in our modular $6$ arithmetic type. This is particularly useful to double-check our computations:
+We can use  Sage to do computations in our modular $6$ arithmetic type. This is particularly useful to double-check our computations:
 \begin{sagecommandline}
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
@@ -632,7 +634,7 @@ This raises the question of which numbers have multiplicative inverses in modula
 1 = s\cdot n + t\cdot r
 \end{equation}
 If we take the modulus $n$ on both sides, the term $s\cdot n$ vanishes, which tells us that $\Zmod{t}{n}$ is the multiplicative inverse of $r$ in modular $n$ arithmetic.\sme{expand on this}
-\begin{example}[Multiplicative inverses in $\Z_6$] In the previous example, we looked up multiplicative inverses in $\Z_6$ from the lookup table in \eqref{eq:Z6_tables}. In real-world examples, it is  usually impossible to write down those lookup tables, as the modulus is \comms{way} too large, and the sets occasionally contain more elements than there are atoms in the observable universe.
+\begin{example}[Multiplicative inverses in $\Z_6$] In the previous example, we looked up multiplicative inverses in $\Z_6$ from the lookup table in \eqref{eq:Z6_tables}. In real-world examples, it is  usually impossible to write down those lookup tables, as the modulus is too large, and the sets occasionally contain more elements than there are atoms in the observable universe.
 
 Now, trying to determine that $2\in \Z_6$ has no multiplicative inverse in $\Z_6$ without using the lookup table, we immediately observe that $2$ and $6$ are not coprime, since their greatest common divisor is $2$. It follows that equation \ref{eq_compute_multiplicative_inverse} has no solutions $s$ and $t$, which means that $2$ has no multiplicative inverse in $Z_6$.
 
@@ -695,7 +697,7 @@ Calling the set of remainder classes in modular $5$ arithmetic with this additio
 
 To use Fermat's Little Theorem in $\Z_5$ for computing multiplicative inverses (instead of using the multiplication table), let's consider $3\in\Z_5$. We know that the multiplicative inverse is given by the remainder class that contains $3^{5-2}=3^3=3\cdot 3\cdot 3= 4\cdot 3 = 2$. And indeed $3^{-1}=2$, since $3\cdot 2 =1$ in $\Z_5$.
 
-We can invoke  Sage to do computations in our modular $5$ arithmetic type to double-check our computations:
+We can use  Sage to do computations in our modular $5$ arithmetic type to double-check our computations:
 \begin{sagecommandline}
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
@@ -775,7 +777,7 @@ Q_3(x) &=2^x
 
 $Q_1$ is not an integer polynomial because the expression $x^{-2}$ has a negative exponent. $Q_2$ is not an integer polynomial because the coefficient $0.5$ is not an integer. $Q_3$ is not an integer polynomial because the variable appears in the exponent of a coefficient.
 
-We can invoke  Sage to do computations with polynomials. To do so, we have to specify the symbol for the variable and the type for the coefficients. \smecomb{(For the definition of rings see \ref{sec:rings}.)}{why is this ref here?} \smecomb{Note, however, that  Sage defines the degree of the zero polynomial to be $-1$.}{what does this imply?}
+We can use  Sage to do computations with polynomials. To do so, we have to specify the symbol for the variable and the type for the coefficients. \smecomb{(For the definition of rings see \ref{sec:rings}.)}{why is this ref here?} \smecomb{Note, however, that  Sage defines the degree of the zero polynomial to be $-1$.}{what does this imply?}
 \begin{sagecommandline}
 sage: Zx = ZZ['x'] # integer polynomials with variable x
 sage: Zt.<t> = ZZ[] # integer polynomials with variable t
@@ -802,7 +804,7 @@ P_5(x) &= 1 & \text{ \# with }  deg(P_5)=0 \text{ and } Lc(P_5)=1\\
 P_6(x) &= 0 & \text{ \# with }  deg(P_5)=-\infty \text{ and } Lc(P_6)=0\\
 P_7(x) &= (x-2)(x+3)(x-5)
 \end{align*}
-Just like in the previous example, $P_7$ is a polynomial. However, since we are working with coefficients from $\Z_6$ now, the expansion of $P_7$ is computed differently, as we have to invoke addition and multiplication in $\Z_6$ as defined in \eqref{eq:Z6_tables}\sme{check reference}. We get the following:
+Just like in the previous example, $P_7$ is a polynomial. However, since we are working with coefficients from $\Z_6$ now, the expansion of $P_7$ is computed differently, as we have to use addition and multiplication in $\Z_6$ as defined in \eqref{eq:Z6_tables}\sme{check reference}. We get the following:
 \begin{align*}
 (x-2)(x+3)(x-5) &= (x+4)(x+3)(x+1) & \text{\# additive inverses in } \Z_6 \\
                 &= (x^2+4x+3x+3\cdot 4)(x+1) & \text{\# bracket expansion} \\
@@ -829,11 +831,11 @@ To be more precise, let $P\in R[x]$, with $P(x)=\sum_{j=0}^m a_j x^j$ be a polyn
 \begin{equation}
 P(b) = \sum_{j=0}^m a_j b^j
 \end{equation}
-\begin{example}Consider the integer polynomials from example \ref{example:integer_polynomials} again. To evaluate them at given points, we have to insert the point for all occurences of $x$ in the polynomial expression. Inserting arbitrary values from $\Z$, we get the following:
+\begin{example}Consider the integer polynomials from example \ref{example:integer_polynomials} again. To evaluate them at given points, we have to insert the point for all occurences of $x$ in the polynomial expression. Inserting arbitrary values from $\Z$, we get the following:\sme{is this right?}
 \begin{align*}
  &P_1(2)    = 2\cdot 2^2 -4\cdot 2 +17 = 17 \\
  &P_2(3)    = 3^{23}=94143178827 \\
- &P_3(-4)   = -4 = -4 \\
+ &P_3(-4)   =\smelong{ -4 = -4 }\\
  &P_4(15)   = 174 \\
  &P_5(0)    = 1 \\
  &P_6(1274) =0 \\
@@ -978,7 +980,7 @@ This algorithm works only when there is a notion of division by the leading coef
 \begin{equation}
 \polylongdiv{X^5+2X^3-9}{X^2+4X-1}
 \end{equation}
-We therefore get $Q(x)=x^3-4x^2+19x-80$ and $P(x)=339x-89$, and indeed, the equation $ A=  Q \cdot B + P$ is true with these valude, since $x^5+2x^3-9 = (x^3-4x^2+19x-80)\cdot (x^2+4x-1) + (339x-89)$. We can double check this invoking  Sage:
+We therefore get $Q(x)=x^3-4x^2+19x-80$ and $P(x)=339x-89$, and indeed, the equation $ A=  Q \cdot B + P$ is true with these values, since $x^5+2x^3-9 = (x^3-4x^2+19x-80)\cdot (x^2+4x-1) + (339x-89)$. We can double check this invoking  Sage:
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -1040,7 +1042,7 @@ Consider the integer polynomial $P_7(x)=x^3 - 4 x^2 - 11 x + 30$ from example \r
 On the other hand, we know from example \ref{example:irreducible_integer_polynomial_1} that the integer polynomial $x^2-3$ is irreducible. It follows that it has no roots, since every root defines a prime factor.
 \end{example}
 \begin{example}To give another example, consider the integer polynomial
-$P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1$. We can invoke  Sage to compute the roots and prime factors of $P$:
+$P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1$. We can use  Sage to compute the roots and prime factors of $P$:
 \begin{sagecommandline}
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
@@ -1053,12 +1055,12 @@ P= (x - 1)(x + 1)^4(x^2 + 1)
 $$
 \end{example}
 \begin{exercise}
-Show that if a polynomial $P\in R[x]$ of degree $deg(P)=m$ has less then $m$ roots, it must have a prime factor $F$ of degree $deg(F)>1$.
+Show that if a polynomial $P\in R[x]$ of degree $deg(P)=m$ has less than $m$ roots, it must have a prime factor $F$ of degree $deg(F)>1$.
 \end{exercise}
 \begin{exercise}
 Consider the polynomial $P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1\in \Z_6[x]$. Compute the set of all roots of $R_0(P)$ and then compute the prime factorization of $P$.
 \end{exercise}
-\subsection{Lagrange interpolation}
+\subsection{\concept{Lagrange interpolation}}
 One particularly useful property of polynomials is that a polynomial of degree $m$ is completely determined on $m+1$ evaluation points, which implies that we can uniquely derive a polynomial of degree $m$ from a set $S$:
 \begin{equation}
 \label{def_lagrange_interpolation_set}
@@ -1066,7 +1068,7 @@ S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m)\;|\; x_i\neq x_j\text{ for all indice
 \end{equation}
 Polynomials therefore have the property that $m+1$ pairs of points $(x_i,y_i)$ for $x_i\neq x_j$ are enough to determine the set of pairs $(x,P(x))$ for all $x\in R$. This ``few too many'' property of polynomials is widely used, including in SNARKs. Therefore, we need to understand the method to actually compute a polynomial from a set of points.
 
-If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial using a method called \term{Lagrange interpolation}, which works as follows. Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by the following algorithm:
+If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial using a method called \term{\concept{Lagrange interpolation}}, which works as follows. Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by the following algorithm:
 \final{check algorithm floating}
 
 \begin{algorithm}\caption{Lagrange Interpolation}
@@ -1086,7 +1088,7 @@ If the coefficients of the polynomial we want to find have a notion of multiplic
 \end{algorithmic}
 \end{algorithm}
 
-\begin{example} Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of Lagrange interpolation from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
+\begin{example} Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of \concept{Lagrange interpolation} from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
 \begin{align*}
 l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
