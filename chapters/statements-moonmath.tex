@@ -5,7 +5,7 @@
 % https://docs.zkproof.org/reference.pdf
 As we have seen in the informal introduction XXX\sme{Chapter 1?}, a SNARK is a succinct non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like ``The prover knows the prime factorization of a given number'' or ``The prover knows the preimage to a given SHA2 digest value'' and similar things. However,  human-readable statements like these are imprecise and not very useful from a formal perspective. 
 
-In this chapter, we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (\secname{} \ref{sec:formal-languages}). We then look at algebraic circuits and Rank-1 Constraint Systems [R1CS] as two particularly useful ways to define statements in certain formal languages (\secname{} \ref{sec:statement-representations}). 
+In this chapter, we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (\secname{} \ref{sec:formal-languages}). For a detailed introduction of formal languages, see \cite{moll-2012}, for example. We then look at algebraic circuits and Rank-1 Constraint Systems [R1CS] as two particularly useful ways to define statements in certain formal languages (\secname{} \ref{sec:statement-representations}). Rank-1 Constraint Systems and algebraic circuits are introduced for example in appendix E of \cite{sasson-2013}.
 
 Proper statement design should be of high priority in the development of SNARKs, since unintended true statements can lead to potentially severe and almost undetectable security vulnerabilities in the applications of SNARKs.
 
@@ -18,8 +18,7 @@ One might argue that the understanding of formal languages is not very important
 Roughly speaking, a formal language (or just language for short) is a set of words. Words, in turn, are strings of letters taken from some alphabet, and formed according to some defining rules of the language. 
 
 To be more precise, let $\Sigma$ be any set and $\Sigma^*$ the set of all \term{strings} of finite length $<x_1,\ldots,x_n>$ of elements $x_j$ from $\Sigma$ including the empty string $<>\in \Sigma^*$. Then, a \term{language} $L$, in its most general definition, is a subset of the set of all finite strings $\Sigma^*$. In this context, the set $\Sigma$ is called the \term{alphabet} of the language $L$, elements from $\Sigma$ are called \term{letters}, and elements from $L$ are called \term{words}. 
-
-If there are rules that specify which strings from $\Sigma^*$ belong to the language and which don't, those rules are called the \term{grammar} of the language. If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \term{equivalent} if they consist of the same set of words.
+If there are rules that specify which strings from $\Sigma^*$ belong to the language and which don't, those rules are called the \term{grammar} of the language. If $L_1$ and $L_2$ are two formal languages over the same alphabet, we call $L_1$ and $L_2$ \term{equivalent} if they consist of the same set of words.\footnote{A more detailed explanation of this definition can be found for example in \secname{} 1.2 of \cite{moll-2012}.}\final{check floating of this footnote}
 
 While the term language might suggest a deeper relation to well-known \term{natural languages} like English, formal languages and natural languages differ in many ways. The following two examples  provide some intuition about formal languages and their differences to natural languages: 
 \begin{example}[The English language] The English alphabet is given by the following set:
@@ -288,7 +287,7 @@ However, from the perspective of existing zero-knowledge proof systems, not all 
 \label{sec:R1CS}
 Although decision functions are expressible in various ways, many contemporary proving systems require the decision function to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing-based proving systems like the once we describe in chapter \ref{chapter:zk-protocols}, roughly because it is possible to separate instance and witness and then check solutions to those equations ``in the exponent'' of pairing-friendly cryptographic groups.
 
-In this section, we will have a closer look at a particular type of quadratic equations called \term{Rank-1 (quadratic) Constraints Systems}, which are a common standard in zero-knowledge proof systems. We will start with a general introduction to those constrain systems and then look at their relation to formal languages. Then we will look into a common way to compute solutions to those systems. 
+In this section, we will have a closer look at a particular type of quadratic equations called \term{Rank-1 (quadratic) Constraints Systems}, which are a common standard in zero-knowledge proof systems (cf. appendix E of \cite{sasson-2013}). We will start with a general introduction to those constrain systems and then look at their relation to formal languages. Then we will look into a common way to compute solutions to those systems. 
 
 \subsubsection{R1CS representation} To understand what \term{Rank-1 (quadratic) Constraint Systems} [R1CS] are in detail, let $\F$ be a field, $n$, $m$ and $k\in\N$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i\in\F$ constants from $\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a Rank-1 Constraint System is defined as the following set of $k$ many equations: 
 
@@ -301,7 +300,7 @@ In this section, we will have a closer look at a particular type of quadratic eq
 \scriptstyle\left(a^k_0 + \sum_{j=1}^n a^k_j \cdot I_j + \sum_{j=1}^m a^k_{n+j} \cdot W_j  \right) \cdot 
 \left(b^k_0 + \sum_{j=1}^n b^k_j \cdot I_j + \sum_{j=1}^m b^k_{n+j} \cdot W_j  \right) &=\, 
 \scriptstyle c^k_0 + \sum_{j=1}^n c^k_j \cdot I_j + \sum_{j=1}^m c^k_{n+j} \cdot W_j       
-\end{align*}
+\end{align*}\tbds{this needs to be numbered}
 
 If a Rank-1 Constraint System is given, the parameter $k$ is called the \term{number of constraints} and each equation is called a \term{constraint}. If a pair of strings $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$ of field elements satisfies theses equations, $<I_1,\ldots, I_n>$ is called an \term{instance} and $<W_1,\ldots,W_m>$ is called a \term{witness} of the system.
 
@@ -371,13 +370,13 @@ We derive a Rank-1 Constraint System such that its solutions are in a 1:1 corres
  0 & = 1 + 8\cdot I_1^2\cdot I_2^2 - 3\cdot I_1^2 - I_2^2  & \Leftrightarrow \\
  0 & = 1 + 8\cdot I_1^2\cdot I_2^2 + 10\cdot I_1^2 +12\cdot I_2^2
 \end{align*}
-Since R1CSs are systems of quadratic equations, we have to reformulate this expression into a system of quadratic equations. To do so, we have to introduce new variables that constrain intermediate steps in the computation and we have to decide if those variables should be instance or witness variable. We decide to declare all new variables as witness variables and get the following constraints
+Since R1CSs are systems of quadratic equations, we have to reformulate this expression into a system of quadratic equations. To do so, we have to introduce new variables that constrain intermediate steps in the computation and we have to decide if those variables should be instance or witness variable. We decide to declare all new variables as witness variables and get the following constraints:
 \begin{align*}
 I_1 \cdot I_1 & = W_1 & \text{constraint } 1\\
 I_2 \cdot I_2 & = W_2 & \text{constraint } 2\\
 (8 \cdot W_1) \cdot W_2 & = W_3 & \text{constraint } 3\\
 (12\cdot W_2 + W_3 + 10\cdot W_1 + 1)\cdot 1 & = 0 & \text{constraint } 4
-\end{align*}
+\end{align*}\tbds{this needs to be numbered}
 To see that these four quadratic equations qualify as a Rank-1 Constraint System according to equation \ref{R1CS}, choose the parameter $n=2$, $m=3$ and $k=4$:
 $$
 \begin{array}{llllll}
@@ -474,7 +473,7 @@ As a consequence, developers are able to construct complex R1CS from simple ones
 
 However,  in contrast to systems of linear equations, no general methods are known that solve systems of quadratic equations efficiently. Rank-1 Constraint Systems are therefore impractical from a provers perspective and auxiliary information is needed that helps to compute solutions efficiently.
 
-Methods which compute R1CS solutions are sometimes called \term{witness generator functions}.  To provide a common example, we introduce another class of decision functions called \term{algebraic circuits}. As we will see, every algebraic circuit defines an associated R1CS and also provides an efficient way to compute solutions for that R1CS.
+Methods which compute R1CS solutions are sometimes called \term{witness generator functions}.  To provide a common example, we introduce another class of decision functions called \term{algebraic circuits}. As we will see, every algebraic circuit defines an associated R1CS and also provides an efficient way to compute solutions for that R1CS. This method is introduced, for example, in \cite{sasson-2013}.
 
 It can be shown that every space- and time-bounded computation is expressible as an algebraic circuit. Transforming high-level computer programs into those circuits is a process often called \term{flattening}. We will look at those transformations in chapter \ref{chap:circuit-compilers}.
 
@@ -581,7 +580,7 @@ We can transform this function into an algebraic circuit over $\F_{13}$. We firs
 f_{tiny-jj}(x,y) & = 1+ 8\cdot x^2\cdot y^2 + 10\cdot x^2 +12 y^2  & \Leftrightarrow\\
  & = ((8\cdot ((x\cdot x)\cdot (y\cdot y))) + (1+ 10\cdot (x\cdot x))) + (12\cdot(y\cdot y))  & \Leftrightarrow\\
   & = \scriptstyle ADD(ADD(MUL(8,MUL(MUL(x,x),MUL(y,y))), ADD(1,MUL(10,MUL(x,x)))),MUL(12,MUL(y,y)))
-\end{align*}
+\end{align*}\tbds{this needs to be numbered}
 Since we haven't decided which part of the computation should be instance and which part should be witness, we use the unspecified symbol $S$ to represent edge labels. Constraining all variables to edge labels $S_1=x$, $S_2=y$ and $S_6=f_{tiny-jj}$, we get the following circuit, representing the function $f_{tiny-jj}$, by inductively replacing binary operators with their associated arithmetic gates:
 \begin{center}
 % https://www.graphviz.org/pdf/dotguide.pdf
@@ -1376,7 +1375,7 @@ false & else
 \end{equation}
 This means that every QAP defines a formal language $L_{QAP}$, and, if the QAP is associated to an R1CS, the language generated by the QAP and the language generated by the R1CS are equivalent. In the context of languages generated by Quadratic Arithmetic Programs, a \term{statement} is then a membership claim ``There is a word $(I;W)$ in $L_{QAP}$''. A proof to this claim is therefore given by a polynomial $P_{(I;W)}$, which is verified by dividing $P_{(I;W)}$ by $T$.
 
-Note the structural similarities and differences in the definition of an R1CS and its associated language in \ref{R1CS}, of circuits and their associated languages in \ref{sec:circuits} and of QAPs and their associated languages as explained in this part. For circuits and their associated Rank-1 Constraint Systems, a constructive proof consists of a valid assignment of field elements to the edges of the circuit, or the variables in the R1CS. However, in the case of QAPs, a valid proof consists of a polynomial $P_{(I;W)}$.
+Note the structural similarities and differences in the definition of an R1CS and its associated language in \ref{R1CS},\tbds{this needs to be numbered} of circuits and their associated languages in \ref{sec:circuits} and of QAPs and their associated languages as explained in this part. For circuits and their associated Rank-1 Constraint Systems, a constructive proof consists of a valid assignment of field elements to the edges of the circuit, or the variables in the R1CS. However, in the case of QAPs, a valid proof consists of a polynomial $P_{(I;W)}$.
 
 To compute a constructive proof for a statement in $L_{QAP}$ given some instance $I$, a prover first needs to compute a constructive proof $W$ of the associated R1CS, e.g. by executing the circuit of the R1CS. With $(I;W)$ at hand, the prover can then compute the polynomial $P_{(I;W)}$ and publish the polynomial as proof.
 

@@ -1,7 +1,7 @@
 \chapter{Elliptic Curves}\label{chap:elliptic-curves}
 \label{chap:elliptic_curves}
 %references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
-Generally speaking, elliptic curves are geometric objects in projective planes (see \secname{} \ref{sec:planes}) over a given field, made up of points that satisfy certain equations. One of their key features from the point of view of cryptography is that, if the underlying field is of positive characteristic, elliptic curves are finite, cyclic groups (\secname{} \ref{sec:finite-groups}). Further, it is believed that the \concept{discrete logarithm problem} (\secname{} \ref{def:DL-secure}) on many elliptic curve groups is hard, given that the underlying characteristic is large enough. 
+Generally speaking, elliptic curves are geometric objects in projective planes (see \secname{} \ref{sec:planes}) over a given field, made up of points that satisfy certain equations. One of their key features from the point of view of cryptography is that, if the underlying field is of positive characteristic, elliptic curves are finite, cyclic groups (\secname{} \ref{sec:finite-groups}). Further, it is believed that the \concept{discrete logarithm problem} (\secname{} \ref{def:DL-secure}) on many elliptic curve groups is hard, given that the underlying characteristic is large enough.\footnote{An in-depth introduction to elliptic curves is given, for example, in \cite{silverman-1994}. An introduction from a cryptographic point of view is given in \cite{hoffstein-2008}.}
 
 A special class of elliptic curves are so-called pairing-friendly curves, which have a notation of a group pairing (\secname{} \ref{pairing-map}) attached to them, which has cryptographically advantageous properties. 
 
@@ -11,7 +11,7 @@ In this chapter, we introduce elliptic curves as they are used in pairing-based 
 \label{sec:short_weierstrass_curve}
 In this section, we introduce \term{\concept{short Weierstrass} curves}, which are the most general types of curves over finite fields of characteristics greater than $3$ (see \chaptname{} \ref{def:characteristic}), and start with their so-called \term{affine representation}.\sme{do we still need the explanation of projective planes from the previous chapter? or can they be moved to this one?}\footnote{Introducing elliptic curves in their affine representation is probably not the most common and conceptually cleanest way, but we believe that such an introduction makes elliptic curves more understandable to beginners, since an elliptic curve in the affine representation is just a set of pairs of numbers, so it is more accessible to readers unfamiliar with projective coordinates. However, the affine representation has the disadvantage that a special ``point at infinity'' that is not a point on the curve, is necessary to describe the curve's group structure.}
 
-We then introduce the elliptic curve group law, and describe elliptic curve scalar multiplication, which is an instantiation of the exponential map of general cyclic groups \ref{scalarmultiplication}. After that, we look at the projective representation of elliptic curves, which has the advantage that no special symbol is necessary to represent the point at infinity.\footnote{As this representation is conceptually more straightforward, this is how elliptic curves are usually introduced in math classes. We believe that the major drawback from a beginner's point of view is that in the projective representation, points are elements from projective planes, which are classes of numbers.}
+We then introduce the elliptic curve group law, and describe elliptic curve scalar multiplication, which is an instantiation of the exponential map of general cyclic groups \ref{scalarmultiplication}. After that, we look at the projective representation of elliptic curves, which has the advantage that no special symbol is necessary to represent the point at infinity.\footnote{As this representation is conceptually more straightforward, this is how elliptic curves are usually introduced in math classes. We believe a the major drawback from a beginner's point of view is that in the projective representation, points are elements from projective planes, which are classes of numbers.}
 
 We finish this section with an explicit equivalence that transforms the affine representations into projective representations and vice versa.
 
@@ -1032,7 +1032,7 @@ Choose some element $x\in \mathit{TE\_TJJ\_13}$, and test if $x$ is a generator 
 %\end{example}
 \section{Elliptic Curve Pairings}
 \label{sec:elliptic_curve_pairings}
-As introduced in \eqref{pairing-map}, some groups come with the notion of a pairing map. In this section, we discuss \term{pairings on elliptic curves}, which form the basis of several zk-SNARKs and other zero-knowledge proof schemes, essentially because they allow computations ``in the exponent'' (see \examplename{} \ref{ex:in-the-exponent}) to be split into different parts computable by different parties. 
+As introduced in \eqref{pairing-map}, some groups come with the notion of a pairing map. In this section, we discuss \term{pairings on elliptic curves}, which form the basis of several zk-SNARKs and other zero-knowledge proof schemes, essentially because they allow computations ``in the exponent'' (see \examplename{} \ref{ex:in-the-exponent}) to be split into different parts computable by different parties.\footnote{A more detailed introduction to elliptic curve pairings can be found, for example, in \chaptname{} 6, \secname{} 6.8 and 6.9 in \cite{hoffstein-2008}.}
 
 We start out by defining some important subgroups of the so-called full torsion group of an elliptic curve. We then introduce the Weil pairing of an elliptic curve, and describe Miller's algorithm, which makes these pairings efficiently computable.
 
@@ -1399,7 +1399,7 @@ The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ in the definit
 \end{algorithmic}
 \end{algorithm}
 
-Understanding the details of how and why this algorithm works requires the concept of \term{divisors}, which is outside of the scope this book. The interested reader might look at XXX.\sme{add references} As we can see the algorithm is more efficient on prime numbers $r$, that have a low Hamming weight \ref{def:binary_representation_integer}.
+Understanding the details of how and why this algorithm works requires the concept of \term{divisors}, which is outside of the scope this book. The interested reader might look at \chaptname{} 6, \secname{} 6.8.3 in \cite{hoffstein-2008}, or at \href{https://static1.squarespace.com/static/5fdbb09f31d71c1227082339/t/5ff394720493bd28278889c6/1609798774687/PairingsForBeginners.pdf}{Craig Costello’s great tutorial on elliptic curve pairings}.\tbds{add this to references}  As we can see, the algorithm is more efficient on prime numbers $r$, that have a low Hamming weight \ref{def:binary_representation_integer}.
 
 We call an elliptic curve $E(\F_p)$ \term{pairing-friendly} if there is a prime factor of the groups order such that the Weil pairing is efficiently computable with respect to that prime factor. In real-world applications of pairing-friendly elliptic curves, the embedding degree is usually a small number like $2$, $4$, $6$ or $12$, and the number $r$ is the largest prime factor of the curve's order. 
 
@@ -1536,11 +1536,11 @@ For example, in the context of SNARK development, it became necessary to design 
 
 Another requirement in the context of many so-called \term{pairing-based zero-knowledge proofing systems} is the existence of a suitable, pairing-friendly curve with a specified security level and a low embedding degree as defined in \ref{def:embedding-degree}. Famous examples are the BLS\_12 and the NMT curves.\sme{add references}
 
-The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{complex multiplication method}. We will apply this method in section \label{BLS6} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our \curvename{Tiny-jubjub} curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
+The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{\concept{complex multiplication method}} (cf. \chaptname{} 6 of \cite{silverman-1994}). We will apply this method in section \label{BLS6} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our \curvename{Tiny-jubjub} curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
  
-Before we introduce the complex multiplication method, we have to explain a few properties of elliptic curves that are of key importance in understanding that method. 
+Before we introduce the \concept{complex multiplication method}, we have to explain a few properties of elliptic curves that are of key importance in understanding that method. 
 
-\subsection{The Trace of Frobenius} To understand the complex multiplication method of elliptic curves, we have to define the so-called \term{trace} of an elliptic curve first.
+\subsection{The Trace of Frobenius} To understand the \concept{complex multiplication method} of elliptic curves, we have to define the so-called \term{trace} of an elliptic curve first.
 
 We know that elliptic curves are cyclic groups of finite order. Therefore, an interesting question is whether it is possible to estimate the number of elements that this curve contains. Since an affine \concept{short Weierstrass} curve consists of pairs $(x,y)$ of elements from a finite field $\F_q$ plus the point at infinity, and the field $\F_q$ contains $q$ elements, the number of curve points cannot be arbitrarily large, since it can contain at most $q^2+1$ many elements. 
 
@@ -1599,7 +1599,7 @@ j(E(\F_q)) = \Zmod{1728\cdot \frac{4\cdot a^3}{4\cdot a^3+ 27\cdot b^2}}{q}
 
 A detailed description of the $j$-invariant is beyond the scope of this book. For our present purposes, it is sufficient to note that two elliptic curves $E_1(\F)$ and $E_2(\F')$ are isomorphic over the \uterm{algebraic closures} of $\F$ and $\F'$, if and only if $\overline{\F}=\overline{\F'}$ and $j(E_1)=j(E_2)$.
 
-So, the $j$-invariant is an important tool to classify elliptic curves and it is needed in the complex multiplication method to decide on an actual curve instantiation that implements abstractly chosen properties.
+So, the $j$-invariant is an important tool to classify elliptic curves and it is needed in the \concept{complex multiplication method} to decide on an actual curve instantiation that implements abstractly chosen properties.
 
 \begin{example} Consider the elliptic curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}\sme{check reference}. We compute its $j$-invariant as follows:
 \begin{align*}
@@ -1628,8 +1628,9 @@ sage: j == F(0)
 \end{sagecommandline}
 \end{example} 
 
-\subsection{The Complex Multiplication Method}\label{complex-multiplication-method}
-As we have seen in the previous sections, elliptic curves have various defining properties, like their order, their prime factors, the embedding degree, or the cardinality (number of elements) of the base field. The \term{complex multiplication} (CM) method provides a practical way of constructing elliptic curves with pre-defined restrictions on the order and the base field.
+\subsection{The \concept{complex multiplication method}}\label{complex-multiplication-method}
+As we have seen in the previous sections, elliptic curves have various defining properties, like their order, their prime factors, the embedding degree, or the cardinality (number of elements) of the base field. The \term{\concept{complex multiplication method}} (CM)  provides a practical way of constructing elliptic curves with pre-defined restrictions on the order and the base field.\footnote{A detailed explanation of the complex multiplication
+method and its derivation can be found, for example, in \cite{grech-2012}.}
 
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
 % http://users.uoa.gr/~kontogar/files/ElisavetDaras.pdf
@@ -1638,13 +1639,13 @@ As we have seen in the previous sections, elliptic curves have various defining 
 % https://graui.de/code/elliptic2/ //draw curves
 % https://hal.inria.fr/inria-00075302/PDF/RR-1256.pdf proposition 2.1
 
-The complex multiplication method starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct such that $q = p^m$ for some prime number $p$, and  $m\in \N$. We assume $p>3$ to simplify things in what follows. 
+The \concept{complex multiplication method} starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct such that $q = p^m$ for some prime number $p$, and  $m\in \N$. We assume $p>3$ to simplify things in what follows. 
 
-Next, the trace of Frobenius $t\in \Z$ of the curve is chosen such that $p$ and $t$ are coprime, that is, $gcd(p,t)=1$ holds true and $|t|\leq 2\sqrt{q}$. The choice of $t$ also defines the curve's order $r$, since $r=p+1-t$ by the Hasse bound \ref{hasse-bound}, so choosing $t$ will determine the large order subgroup as well as all small cofactors. The resulting $r$ must be such that the curve meets the application's security requirements. 
+Next, the trace of Frobenius $t\in \Z$ of the curve is chosen such that $p$ and $t$ are coprime, that is, $gcd(p,t)=1$ holds true and $|t|\leq 2\sqrt{q}$. The choice of $t$ also defines the curve's order $r$, since $r=p+1-t$ by the Hasse bound \eqref{hasse-bound}, so choosing $t$ will determine the large order subgroup as well as all small cofactors. The resulting $r$ must be such that the curve meets the application's security requirements. 
 
 Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of any prime-order subgroup of the curve, since $k$ is defined as the smallest number such that the prime order $n$ divides the number $q^k-1$.
 
-In order for the complex multiplication method to work, neither $q$ nor $t$ can be arbitrary, but must be chosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist and the following conditions hold:
+In order for the \concept{complex multiplication method} to work, neither $q$ nor $t$ can be arbitrary, but must be chosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist and the following conditions hold:
 
 \begin{equation}\label{eq:D-criteria}
 \begin{split}
@@ -1656,7 +1657,7 @@ D<0\\
 
 If such numbers exist, we call $D$ the \term{CM-discriminant}, and we know that we can construct a curve $E(\F_q)$ over a finite field $\F_q$ such that the order of the curve is $|E(\F_q)|= q+1-t$. 
 
-It is the goal of the complex multiplication method to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weierstrass equation such that the curve has the desired order $r$. 
+It is the goal of the \concept{complex multiplication method} to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weierstrass equation such that the curve has the desired order $r$. 
 
 Finding solutions to equation \ref{eq:D-criteria} can be achieved in different ways. In general, it can be said that there are well-known constraints for elliptic curve families (e.g. the BLS families REFERENCES) that provides families of solutions. In what follows, we will look at one type curve in the BLS-family, which gives an entire range of solutions.\sme{disambiguate}\smelong{Are we looking at a subtype of BLS or is BLS the specific type we're referring to?}
 
@@ -1666,7 +1667,7 @@ Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to comp
 S(D)=\{(A,B,C)\;|\; A,B,C\in\Z,\; D = B^2-4AC,\; gcd(A,B,C)=1, \\
 |B|\leq A \leq \sqrt{\frac{|D|}{3}},\; A\leq C, 
 \text{ if } B< 0 \text{ then } |B| < A < C\}
-\end{multline*} 
+\end{multline*}\tbds{this needs to be numbered}
 One way to compute this set is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $0\leq A\leq A_{max}$, as well as through all the integers $-A\leq B \leq A$ and check if there is an integer $C$ that satisfies the equation $D = B^2-4AC$ and the rest of the requirements from \ref{def:hilbert_class_domain}.
 
 To compute the Hilbert class polynomial, the so-called \term{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as follows:
@@ -1745,11 +1746,11 @@ y^2 = x^3 + c_2^2x & \text{\;\; or \;\; } y^2 = x^3 + c_2^3x
 
 To decide the proper defining \concept{short Weierstrass} equation, we therefore have to compute the order of any of the potential curves above, and then choose the one that fits our initial requirements. 
 
-To summarize, using the complex multiplication method, it is possible to synthesize elliptic curves with predefined order over predefined base fields from scratch. However, the curves that are constructed this way are just some representatives of a larger class of curves, all of which have the same order. Therefore, in real-world applications, it is sometimes more advantageous to choose a different representative from that class. To do so recall from \ref{sec:isomorphic_curves} that any curve defined by the \concept{short Weierstrass} equation $y^2 = x^3 + ax + b$ is isomorphic to a curve of the form $y^2 = x^3 + ad^4 x + bd^6$ for some invertible field element $d\in \F^*_q$. 
+To summarize, using the \concept{complex multiplication method}, it is possible to synthesize elliptic curves with predefined order over predefined base fields from scratch. However, the curves that are constructed this way are just some representatives of a larger class of curves, all of which have the same order. Therefore, in real-world applications, it is sometimes more advantageous to choose a different representative from that class. To do so recall from \ref{sec:isomorphic_curves} that any curve defined by the \concept{short Weierstrass} equation $y^2 = x^3 + ax + b$ is isomorphic to a curve of the form $y^2 = x^3 + ad^4 x + bd^6$ for some invertible field element $d\in \F^*_q$. 
 
 In order to find a suitable representative (e.g. with small parameters $a$ and $b$) in the last step, the curve designer might choose an invertible field element $d$ such that the transformed curve has the properties they wanted.
 
-\begin{example} Consider curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}. We want to use the complex multiplication method to derive that curve from scratch. Since $E_{1,1}(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from \examplename{} \ref{ex:E1F5-frobenius}\sme{check reference} that its trace of Frobenius is $t=-3$, which also implies that $q$ and $|t|$ are coprime. 
+\begin{example} Consider curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}. We want to use the \concept{complex multiplication method} to derive that curve from scratch. Since $E_{1,1}(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from \examplename{} \ref{ex:E1F5-frobenius}\sme{check reference} that its trace of Frobenius is $t=-3$, which also implies that $q$ and $|t|$ are coprime. 
 
 We then have to find parameters $D,v\in\Z$ such that the criteria in \ref{eq:D-criteria} hold. We get the following:
 \begin{align*}
@@ -1791,11 +1792,11 @@ $$
 y^2 = x^3 + x +1
 $$
 
-This is the curve $E_{1,1}(\F_5)$ that we used extensively throughout this book. Thus, using the complex multiplication method, we were able to derive a curve with specific properties from scratch.
+This is the curve $E_{1,1}(\F_5)$ that we used extensively throughout this book. Thus, using the \concept{complex multiplication method}, we were able to derive a curve with specific properties from scratch.
 \end{example}
 
 \begin{example}
- Consider the \curvename{Tiny-jubjub} curve \TJJ{} from \examplename{} \ref{TJJ13}\sme{check reference}. We want to use the complex multiplication method to derive that curve from scratch. Since \TJJ{} is a curve of order $r=20$ over the prime field of order $q=13$, we know from \examplename{} \ref{ex:TJJ13-frobenius}\sme{check reference} that its trace of Frobenius is $t=-6$, which also implies that $q$ and $|t|$ are coprime. 
+ Consider the \curvename{Tiny-jubjub} curve \TJJ{} from \examplename{} \ref{TJJ13}\sme{check reference}. We want to use the \concept{complex multiplication method} to derive that curve from scratch. Since \TJJ{} is a curve of order $r=20$ over the prime field of order $q=13$, we know from \examplename{} \ref{ex:TJJ13-frobenius}\sme{check reference} that its trace of Frobenius is $t=-6$, which also implies that $q$ and $|t|$ are coprime. 
 
 We then have to find parameters $D,v\in\Z$ such that \ref{eq:D-criteria} holds. We get the following:
 \begin{align*}
@@ -1854,10 +1855,10 @@ $$
 y^2 = x^3 + 8x +8
 $$
 
-This is the \curvename{Tiny-jubjub} curve that we used extensively throughout this book. So using the complex multiplication method, we were able to derive a curve with specific properties from scratch.
+This is the \curvename{Tiny-jubjub} curve that we used extensively throughout this book. So using the \concept{complex multiplication method}, we were able to derive a curve with specific properties from scratch.
 \end{example}
 
-\begin{example} To consider a real-world example, we want to use the complex multiplication method in combination with Sage to compute \curvename{secp256k1} from scratch. So based on \examplename{} \ref{secp256k1}\sme{check reference}, we decided to compute an elliptic curve over a prime field $\F_p$ of order $r$ for the following security parameters:
+\begin{example} To consider a real-world example, we want to use the \concept{complex multiplication method} in combination with Sage to compute \curvename{secp256k1} from scratch. So based on \examplename{} \ref{secp256k1}\sme{check reference}, we decided to compute an elliptic curve over a prime field $\F_p$ of order $r$ for the following security parameters:
 \begin{align*}
 p &= \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663\\
 r &= \scriptstyle 115792089237316195423570985008687907852837564279074904382605163141518161494337
@@ -1950,7 +1951,7 @@ Indeed, the smallest possible value is $b_2=7$ and the defining \concept{short W
 $
 y^2 = x^3 + 7
 $,
-which we might call \curvename{secp256k1}. As we have just seen, the complex multiplication method is powerful enough to derive cryptographically secure curves like \curvename{secp256k1} from scratch.
+which we might call \curvename{secp256k1}. As we have just seen, the \concept{complex multiplication method} is powerful enough to derive cryptographically secure curves like \curvename{secp256k1} from scratch.
 \end{example}
 %\section{twists}
 %I think this has to wait for Volume 2, due to timing constraints...
@@ -1962,11 +1963,11 @@ which we might call \curvename{secp256k1}. As we have just seen, the complex mul
 
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
-In this paragraph, we summarize our understanding of elliptic curves to derive our main pen-and-paper example for the rest of the book. To do so, we want to use the complex multiplication method to derive a pairing-friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen-and-paper examples, which mostly means that the curve should contain only a few points so that we are able to derive exhaustive addition and pairing tables.
+In this paragraph, we summarize our understanding of elliptic curves to derive our main pen-and-paper example for the rest of the book. To do so, we want to use the \concept{complex multiplication method} to derive a pairing-friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen-and-paper examples, which mostly means that the curve should contain only a few points so that we are able to derive exhaustive addition and pairing tables. Specifically, we use construction 6.6 in \cite{freeman-2020}.
 
 A well-understood family of pairing-friendly curves is the the group of BLS curves \smelong{(STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION)}\sme{write up this part}, which are derived in [XXX\sme{add reference}]. BLS curves are particularly useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. Of course, the smallest embedding degree $k$ that satisfies this congruency is $k=6$ and we therefore aim for a BLS6 curve as our main pen-and-paper example. 
 
-To apply the complex multiplication method from page \pageref{complex-multiplication-method} ff.\sme{check reference}, recall that this method starts with a definition of the base field $\F_{p^m}$, as well as the trace of Frobenius $t$ and the order of the curve. If the order $p^m+1-t$ is not a prime number, then the order $r$ of the largest prime factor group needs to be controlled. 
+To apply the \concept{complex multiplication method} from page \pageref{complex-multiplication-method} ff.\sme{check reference}, recall that this method starts with a definition of the base field $\F_{p^m}$, as well as the trace of Frobenius $t$ and the order of the curve. If the order $p^m+1-t$ is not a prime number, then the order $r$ of the largest prime factor group needs to be controlled. 
 
 In the case of BLS\_6 curves, the parameter $m$ is chosen to be $1$, which means that the curves are defined over prime fields. All relevant parameters $p$, $t$ and $r$ are then themselves parameterized by the following three polynomials:
 \begin{equation}
@@ -1977,7 +1978,7 @@ q(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
 \end{split}
 \end{equation}
 
-In the equations above, $\Phi_6$ is the $6$-th \uterm{cyclotomic polynomial} and  $x\in\N$ is a parameter that the designer has to choose in such a way that the evaluation of $p$, $t$ and $r$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve that they want to design. It is then guaranteed that the complex multiplication method can be used in combination with those parameters to define an elliptic curve with CM-discriminant $D=-3$, embedding degree $k=6$, and curve equation $y^2 = x^3 +b$ for some $b\in\F_p$. 
+In the equations above, $\Phi_6$ is the $6$-th \uterm{cyclotomic polynomial} and  $x\in\N$ is a parameter that the designer has to choose in such a way that the evaluation of $p$, $t$ and $r$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve that they want to design. It is then guaranteed that the \concept{complex multiplication method} can be used in combination with those parameters to define an elliptic curve with CM-discriminant $D=-3$, embedding degree $k=6$, and curve equation $y^2 = x^3 +b$ for some $b\in\F_p$. 
 
 For example, if the curve should target the $128$-bit security level, due to the \uterm{Pholaard-rho attack} (TODO)\sme{todo} the parameter $r$ should be prime number of at least $256$ bits.
 
@@ -2006,7 +2007,7 @@ sage: for k in range(1,42): # Fermat's little theorem
 sage: k
 \end{sagecommandline}
 
-In order to compute the defining equation $y^2=x^3 + ax + b$ of BLS6-6, we use the complex multiplication method as described in \ref{complex-multiplication-method}\sme{check reference}. The goal is to find $a,b\in\F_{43}$ representations that are particularly \smelong{nice to work with}\sme{what does this mean?}. The authors of XXX\sme{add reference} showed that the CM-discriminant of every BLS curve is $D=-3$ and, indeed, the following equation has the four solutions $(D,v)\in\{(-3,-7),(-3,7),(-49,-1),(-49,1)\}$ if $D$ is required to be negative, as expected: 
+In order to compute the defining equation $y^2=x^3 + ax + b$ of BLS6-6, we use the \concept{complex multiplication method} as described in \ref{complex-multiplication-method}\sme{check reference}. The goal is to find $a,b\in\F_{43}$ representations that are particularly \smelong{nice to work with}\sme{what does this mean?}. The authors of XXX\sme{add reference} showed that the CM-discriminant of every BLS curve is $D=-3$ and, indeed, the following equation has the four solutions $(D,v)\in\{(-3,-7),(-3,7),(-49,-1),(-49,1)\}$ if $D$ is required to be negative, as expected: 
 
 \begin{align*}
 4p & = t^2 + |D|v^2 & \Rightarrow \\ 
@@ -2364,7 +2365,7 @@ $$TinyMD5_{\mathbb{G}_2}("")= H_2(MD5(s)_{11},\ldots MD5(s)_{0}) = H_2(001001111
 %\subsubsection{MNT4}
 %For our MNT4 curve, we can choose $x=2$. Then $q=7$ and if we choose $t= x+1 $ then $r = q + 1 - t = 7 + 1 -3 = 5$. Therefore our MNT4 curve is a curve $y^2=x^3+ax+b$ defined over $\F_7$ that consists of $5$ points. 
 
-%To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_7$ there are only $48$ possibilities so we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $5$ rational points. We get
+%To construct the actual curve we could use the \concept{complex multiplication method} again, but since the parameters $a$ and $b$ are from $\F_7$ there are only $48$ possibilities so we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $5$ rational points. We get
 %$$
 %y^2 = x^3 + 4x + 1
 %$$
@@ -2465,7 +2466,7 @@ $$TinyMD5_{\mathbb{G}_2}("")= H_2(MD5(s)_{11},\ldots MD5(s)_{0}) = H_2(001001111
 %\subsubsection{MNT6}
 %For our MNT6 curve, we can choose $x=1$. Then $q=5$ and if we choose $t= 1 + 2x $ then $r= q + 1 - t = 5 + 1 + 1 = 7$. Therefore our MNT6 curve is a curve $y^2=x^3+ax+b$ defined over $\F_5$ that consists of $7$ points. 
 
-%To construct the actual curve we could use the complex multiplication method again, but since the parameters $a$ and $b$ are from $\F_5$ there are only $24$ possibilities, we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $7$ rational points. We get
+%To construct the actual curve we could use the \concept{complex multiplication method} again, but since the parameters $a$ and $b$ are from $\F_5$ there are only $24$ possibilities, we simply loop through all possible $a$'s and $b$'s and count the curve points until we find a curve that has $7$ rational points. We get
 %$$
 %y^2 = x^3 + 2x + 1
 %$$
