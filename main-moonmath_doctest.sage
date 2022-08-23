@@ -43,11 +43,11 @@ Sage commandline, line 195::
 sage: ZZ(143785).quo_rem(ZZ(17))
 sage: ZZ(143785) == ZZ(8457)*ZZ(17) + ZZ(16) # check
 
-Sage commandline, line 276::
+Sage commandline, line 277::
 
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
 
-Sage commandline, line 370::
+Sage commandline, line 371::
 
 sage: ZZ(137).gcd(ZZ(64))
 sage: ZZ(64)^ ZZ(137) % ZZ(137) == ZZ(64) % ZZ(137)
@@ -56,33 +56,33 @@ sage: ZZ(1918).gcd(ZZ(137))
 sage: ZZ(1918)^ ZZ(137) % ZZ(137) == ZZ(1918) % ZZ(137)
 sage: ZZ(1918)^ ZZ(137-1) % ZZ(137) == ZZ(1) % ZZ(137)
 
-Sage commandline, line 413::
+Sage commandline, line 414::
 
 sage: (ZZ(7)* (ZZ(2)*ZZ(4) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(4) - ZZ(102))  % ZZ(6)
 sage: (ZZ(7)* (ZZ(2)*ZZ(76) + ZZ(21)) + ZZ(11))  % ZZ(6) == (ZZ(76) - ZZ(102))  % ZZ(6)
 
-Sage commandline, line 499::
+Sage commandline, line 500::
 
 sage: CRT_list([4,1,3,0], [7,3,5,11])
 
-Sage commandline, line 580::
+Sage commandline, line 581::
 
 sage: Z6 = Integers(6)
 sage: Z6(2) + Z6(5)
 sage: Z6(7)*(Z6(2)*Z6(4)+Z6(21))+Z6(11) == Z6(4) - Z6(102)
 
-Sage commandline, line 653::
+Sage commandline, line 654::
 
 sage: ZZ(6).xgcd(ZZ(5))
 
-Sage commandline, line 701::
+Sage commandline, line 702::
 
 sage: Z5 = Integers(5)
 sage: Z5(3)**(5-2)
 sage: Z5(3)**(-1)
 sage: Z5(3)**(5-2) == Z5(3)**(-1)
 
-Sage commandline, line 781::
+Sage commandline, line 782::
 
 sage: Zx = ZZ['x'] # integer polynomials with variable x
 sage: Zt.<t> = ZZ[] # integer polynomials with variable t
@@ -97,7 +97,7 @@ sage: p2
 sage: p6 = Zx([0])
 sage: p6.degree()
 
-Sage commandline, line 816::
+Sage commandline, line 817::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -108,7 +108,7 @@ sage: p1 = Z6x([17,-4,2])
 sage: p1
 sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 
-Sage commandline, line 845::
+Sage commandline, line 846::
 
 sage: Zx = ZZ['x']
 sage: p1 = Zx([17,-4,2])
@@ -116,14 +116,14 @@ sage: p7 = Zx(x-2)*Zx(x+3)*Zx(x-5)
 sage: p1(ZZ(2))
 sage: p7(ZZ(-6)) == ZZ(-264)
 
-Sage commandline, line 862::
+Sage commandline, line 863::
 
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
 sage: p1 = Z6x([5,-4,2])
 sage: p1(Z6(2)) == Z6(5)
 
-Sage commandline, line 903::
+Sage commandline, line 904::
 
 sage: Zx = ZZ['x']
 sage: P = Zx([2,-4,5])
@@ -131,7 +131,7 @@ sage: Q = Zx([5,0,-2,1])
 sage: P+Q == Zx(x^3 +3*x^2 -4*x +7)
 sage: P*Q == Zx(5*x^5 -14*x^4 +10*x^3+21*x^2-20*x +10)
 
-Sage commandline, line 923::
+Sage commandline, line 924::
 
 sage: Z6x = Integers(6)['x']
 sage: P = Z6x([2,-4,5])
@@ -139,7 +139,7 @@ sage: Q = Z6x([5,0,-2,1])
 sage: P+Q == Z6x(x^3 +3*x^2 +2*x +1)
 sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 
-Sage commandline, line 984::
+Sage commandline, line 985::
 
 sage: Zx = ZZ['x']
 sage: A = Zx([-9,0,0,2,0,1])
@@ -148,26 +148,26 @@ sage: Q = Zx([-80,19,-4,1])
 sage: P = Zx([-89,339])
 sage: A == Q*B + P
 
-Sage commandline, line 1022::
+Sage commandline, line 1023::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^2-3)
 sage: p.factor()
 
-Sage commandline, line 1046::
+Sage commandline, line 1047::
 
 sage: Zx = ZZ['x']
 sage: p = Zx(x^7 + 3*x^6 + 3*x^5 + x^4 - x^3 - 3*x^2 - 3*x - 1)
 sage: p.roots()
 sage: p.factor()
 
-Sage commandline, line 1110::
+Sage commandline, line 1111::
 
 sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 
-Sage commandline, line 1139::
+Sage commandline, line 1140::
 
 sage: F5 = GF(5)
 sage: F5x = F5['x']
@@ -715,7 +715,7 @@ sage: g1 = BLS6([13,15])
 sage: g2 = BLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 
-Sage commandline, line 1331::
+Sage commandline, line 1338::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -726,7 +726,7 @@ sage: T == F13t(t^2 + t + 9)
 sage: A2 == F13t(6*t + 10)
 sage: A5 == F13t(7*t + 4)
 
-Sage commandline, line 1395::
+Sage commandline, line 1402::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -735,7 +735,7 @@ sage: P = F13t((2*(6*t+10)+6*(7*t+4))*(3*(6*t+10)+4*(7*t +4))-(11*(7*t+4)+6*(6*t
 sage: P == T
 sage: P % T # remainder
 
-Sage commandline, line 1416::
+Sage commandline, line 1423::
 
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
