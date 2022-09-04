@@ -1,67 +1,76 @@
-\chapter{Algebra}
-In the previous chapter, we gave an introduction to the basic computational tools needed for a pen-and-paper approach to SNARKs and in this chapter we provide a more abstract clarification of relevant mathematical terminology such as \term{groups}, \term{rings} and \term{fields}.
+\chapter{Algebra}\label{chap:algebra}
 
-Scientific literature on cryptography frequently contain such terms, and it is necessary to get at least some understanding of these terms to be able to follow the literature.
+In the previous chapter, we gave an introduction to the basic computational tools needed for a pen-and-paper approach to SNARKs. In this chapter, we provide a more abstract clarification of relevant mathematical terminology such as \term{groups}, \term{rings} and \term{fields}.
+
+Scientific literature on cryptography frequently contains such terms, and it is necessary to get at least some understanding of these terms to be able to follow the literature.
 
 \section{Commutative Groups}
 \label{sec:groups}
 Commutative groups are abstractions that capture the essence of mathematical phenomena, like addition and subtraction, or multiplication and division.
 
-To understand commutative groups, let us think back to when we learned about the addition and subtraction of integers in school. We have learned that, whenever we add two integers, the result is guaranteed to be an integer as well. We have also learned that adding zero to any integer means that ``nothing happens'', that is, the result of the addition is the same integer we started with. Furthermore, we have learned that the order in which we add two (or more) integers does not matter, that brackets have no influence on the result of addition, and that, for every integer, there is always another integer (the negative) such that we get zero when we add them together.
+To understand commutative groups, let us think back to when we learned about the addition and subtraction of integers in school. We have learned that, whenever we add two integers, the result is guaranteed to be an integer as well. We have also learned that adding zero to any integer means that ``nothing happens'' since the result of the addition is the same integer we started with. Furthermore, we have learned that the order in which we add two (or more) integers does not matter, that brackets have no influence on the result of addition, and that, for every integer, there is always another integer (the negative) such that we get zero when we add them together.
 
-These conditions are the defining properties of a commutative group, and mathematicians have realized that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to abstract from integers and to give a formal definition of what a group should be, detached from any concrete examples. This lets us handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond.
+These conditions are the defining properties of a commutative group, and mathematicians have realized that the exact same set of rules can be found in very different mathematical structures. It therefore makes sense to give an abstract, formal definition of what a group should be, detached from any concrete examples such as integers. This lets us handle entities of very different mathematical origins in a flexible way, while retaining essential structural aspects of many objects in abstract algebra and beyond.
 
 Distilling these rules to the smallest independent list of properties and making them abstract, we arrive at the following definition of a commutative group:
 
-\tbds{Sylvia: I would like to have a separate counter for definitions}
+\tbds{revise the counter for definitions, current one too long}
 
 \begin{definition}
 \label{def:commutative_group}
-A \term{commutative group} $(\G,\cdot) $ is a set $\G$, together with a \term{map} $\cdot:\G \times \G \to \G $ called the \term{group law}, that combines two elements of the set $ \G$ into a third one such that the following properties hold:
+A \term{commutative group} $(\G,\cdot) $ consists of a set $\G$ and a \term{map} $\cdot:\G \times \G \to \G $. The map is called the \term{group law}, and it combines two elements of the set $ \G$ into a third one such that the following properties hold:
 \begin{itemize}
 \item \hilight{Commutativity}: For all $g_1,g_2\in\G$, the equation $g_1\cdot g_2=g_2\cdot g_1$ holds.
 \item \hilight{Associativity}: For every $g_1,g_2,g_3\in\G$ the equation
 $g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
-\item \hilight{Existence of a neutral element}: There is a $e\in\G$ for all $g\in\G$, such that $e\cdot g=g$.
-\item \hilight{Existence of an inverse}: For every $g\in\G$ there is a $g^{-1}\in\G$, such that $g\cdot g^{-1}=e$.
+\item \hilight{Existence of a neutral element}:  For every $g\in\G$, there is an $e\in\G$ such that $e\cdot g=g$.
+\item \hilight{Existence of an inverse}: For every $g\in\G$, there is a $g^{-1}\in\G$ such that $g\cdot g^{-1}=e$.
 \end{itemize}
-If $(\G,\cdot)$ is a group and $\G'\subset\G$ is a subset of $\G$, such that the restriction of the group law $\cdot: \G'\times \G' \to \G'$ is a group law on $\G'$, then $(\G',\cdot)$ is called a \term{subgroup} of $(\G,\cdot)$.
+If $(\G,\cdot)$ is a group, and $\G'\subset\G$ is a subset of $\G$ such that the \term{restriction} of the group law $\cdot: \G'\times \G' \to \G'$ is a group law on $\G'$, then $(\G',\cdot)$ is called a \term{subgroup} of $(\G,\cdot)$.
 \end{definition}
 
 Rephrasing the abstract definition in layman's terms, a group is something where we can do computations in a way that resembles the behavior of the addition of integers. Specifically, this means we can combine some element with another element into a new element in a way that is reversible and where the order of combining elements doesn't matter.
-\begin{notation}Since we are exclusively concerned with commutative groups in this book, we often just call them groups, keeping the notation of commutativity implicit. Commutative groups are also called \term{Abelian groups}. A set $\G$ with a map $\cdot$ that satisfies all previously mentioned rules, except for the commutativity law is called a non-commutative group. 
 
-If there is no risk of ambiguity (about what the group law of that group is), we frequently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as notation for the group, keeping the group law implicit. In this case we also say that $\G$ is of group type, indicating that $\G$ is not simply a set but a set together with a group law.
+\begin{notation}Since we are exclusively concerned with commutative groups in this book, we often just call them groups, keeping the notation of commutativity implicit.\footnote{Commutative groups are also called \term{Abelian groups}. A set $\G$ with a map $\cdot$ that satisfies all previously mentioned rules except for the commutativity law is called a \term{non-commutative group.}} 
 
-For commutative groups $(\G,\cdot)$, we sometimes use the so-called \term{additive notation}\label{def:additive_notation} $(\G,+)$, that is, we write $+$ instead of $\cdot$ for the group law, $0$ for the neutral element and $-g:=g^{-1}$ for the inverse of an element $g\in\G$.
+If there is no risk of ambiguity (about what the group law of a group is), we frequently drop the symbol $\cdot$ and simply write $\mathbb{G}$ as notation for the group, keeping the group law implicit. In this case we also say that $\G$ is of group type, indicating that $\G$ is not simply a set but a set together with a group law.
 \end{notation}
-As we will see in the following chapters, groups are heavily used in cryptography and in SNARKs. But let us look at some more familiar examples fist:
+
+\begin{notation}[\deftitle{Additive notation}]\label{def:additive_notation}
+For commutative groups $(\G,\cdot)$, we sometimes use the so-called \term{additive notation} $(\G,+)$, that is, we write $+$ instead of $\cdot$ for the group law, $0$ for the neutral element and $-g:=g^{-1}$ for the inverse of an element $g\in\G$.
+\end{notation}
+As we will see in the following chapters, groups are heavily used in cryptography and in SNARKs.\footnote{A more in-depth introduction to commutative groups can be found for example in \chaptname{} 1, \secname{} 1 of \cite{nieder-1986} or in \chaptname{} 1 of \cite{fuchs-2015}. An introduction more tailored to the needs in cryptography can be found for example in \chaptname{} 3, \secname{} 8.1.3 of \cite{katz-2007}.} But let us look at some more familiar examples fist.
+
 \begin{example}[Integer Addition and Subtraction]
 \label{example:group_of_integers}
-The set $(\Z,+)$ of integers with integer addition is the archetypical example of a commutative group, where the group law is traditionally written in additive notation \ref{def:additive_notation}. 
+The set $(\Z,+)$ of integers with integer addition is the archetypical example of a commutative group, where the group law is traditionally written in additive notation (\notationname{} \ref{def:additive_notation}). 
 
-To compare integer addition against the abstract axioms of a commuative group, we first see that integer addition is commutative and associative, since $a+b = b+a$ as well as $(a+b)+c=a+(b+c)$ for all integers $a,b,c\in \Z$. The neutral element $e$ is the number $0$, since $a+0=a$ for all integers $a\in \Z$. Furthermore, the inverse of a number is its negative counterpart, since $a+(-a)=0$, for all $a\in\Z$. This implies that integers with addition are indeed a commutative group in the abstract sense.
+To compare integer addition against the abstract axioms of a commuative group, we first note that integer addition is \hilight{commutative and associative}, since $a+b = b+a$ as well as $(a+b)+c=a+(b+c)$ for all integers $a,b,c\in \Z$. The \hilight{neutral element} $e$ is the number $0$, since $a+0=a$ for all integers $a\in \Z$. Furthermore, the \hilight{inverse} of a number is its negative counterpart, since $a+(-a)=0$ for all $a\in\Z$. This implies that integers with addition are indeed a commutative group in the abstract sense.
 
-To given an example of a subgroup for the group of integers, consider the set $\Z_{even}:=\{\ldots,-4,-2,0,2,4,\ldots\}$ of even numbers, including $0$. We can see that this set is a subgroup of $(\Z,+)$, since the sum of two even numbers is always an even number again, since the neutral element $0$ is a member of $\Z_{even}$ and sice the negative of an even number is itself an even number. 
+To give an example of a subgroup of the group of integers, consider the set of even numbers, including $0$. 
+
+$$\Z_{even}:=\{\ldots,-4,-2,0,2,4,\ldots\}$$
+
+We can see that this set is a subgroup of $(\Z,+)$, since the sum of two even numbers is always an even number again, since the neutral element $0$ is a member of $\Z_{even}$ and sice the negative of an even number is itself an even number. 
 \end{example}
 \begin{example}[The trivial group]\label{example:trivial_group}
 The most basic example of a commutative group is the group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=\bullet$. We call it the \term{trivial group}.
 
-The trivial group is a subgroup of any group. To see that let $(\G,\cdot)$ be a group with neutral element $e\in\G$. Then $e\cdot e = e$ as well as $e^{-1}=e$ and it follows that the set $\{e\}$ is a subgroup of $\G$. In particular $\{0\}$ is a subgroup of $(\Z,+)$, since $0+0=0$.
+The trivial group is a subgroup of any group. To see that, let $(\G,\cdot)$ be a group with the neutral element $e\in\G$. Then $e\cdot e = e$ as well as $e^{-1}=e$ both hold. Consequently, the set $\{e\}$ is a subgroup of $\G$. In particular, $\{0\}$ is a subgroup of $(\Z,+)$, since $0+0=0$.
 \end{example}
 
-\begin{example} Consider the addition in modulo $6$ arithmetics $(\Z_6,+)$ as defined in in example \ref{def_residue_ring_z_6}. As we see, the remainder $0$ is the neutral element in modulo $6$ addition and the inverse of a remainder $r$ is given by $6-r$, because $r+(6-r)=6$, which is congruent to $0$, since $\Zmod{6}{6}=0$. Moreover, $r_1+r_2 = r_2 + r_1$ as well as $(r_1+r_2)+r_3=r_1+(r_2+r_3)$ are inherited from integer addition. We therefore see that $(\Z_6,+)$ is a group.
+\begin{example} Consider addition in modulo $6$ arithmetics $(\Z_6,+)$, as defined in in example \ref{def_residue_ring_z_6}. As we see, the remainder $0$ is the neutral element in modulo $6$ addition, and the inverse of a remainder $r$ is given by $6-r$, because $r+(6-r)=6$. $6$ is congruent to $0$ since $\Zmod{6}{6}=0$. Moreover, $r_1+r_2 = r_2 + r_1$ as well as $(r_1+r_2)+r_3=r_1+(r_2+r_3)$ are inherited from integer addition. We therefore see that $(\Z_6,+)$ is a group.
 \end{example}
 The previous example of a commutative group is a very important one for this book. Abstracting from this example and considering residue classes $(\Z_n,+)$ for arbitrary moduli $n$, it can be shown that $(\Z_n,+)$ is a commutative group with the neutral element $0$ and the additive inverse $n-r$ for any element $r\in\Z_n$. We call such a group the \term{remainder class group} of modulus $n$.
-\begin{exercise}\label{fstar} Consider example \ref{primfield_z_5} again and let $\Z_5^*$ be the set of all remainder classes from $\Z_5$ without the class $0$. Then $\Z_5^*=\{1,2,3,4\}$. Show that $(\Z_5^*,\cdot)$ is a commutative group.
+\begin{exercise}\label{fstar} Consider example \ref{primfield_z_5} again, and let $\Z_5^*$ be the set of all remainder classes from $\Z_5$ without the class $0$. Then $\Z_5^*=\{1,2,3,4\}$. Show that $(\Z_5^*,\cdot)$ is a commutative group.
 \end{exercise}
 \begin{exercise}\label{ex:Zn*} Generalizing the previous exercise, consider the general modulus $n$, and let $\Z_n^*$ be the set of all remainder classes from $\Z_n$ without the class $0$. Then $\Z_n^*=\{1,2,\ldots,n-1\}$. Provide a counter-example to show that $(\Z^*_n,\cdot)$ is not a group in general.
 
 Find a condition such that $(\Z^*_n,\cdot)$ is a commutative group, compute the neutral element, give a closed form for the inverse of any element and prove the commutative group axioms.
 \end{exercise}
-\paragraph{Finite groups}
+\subsection{Finite groups}
 \label{sec:finite-groups}
- As we have seen in the previous examples, groups can either contain infinitely many elements (such as integers) or finitely many elements (as for example the remainder class groups $(\Z_n,+)$). To capture this distinction, a group is called a \term{finite group} if the underlying set of elements is finite. In that case, the number of elements of that group is called its \term{order}.
+ As we have seen in the previous examples, groups can either contain infinitely many elements (such as integers) or finitely many elements (as for example the remainder class groups $(\Z_n,+)$). To capture this distinction, a group is called a \term{finite group} if the underlying set of elements is finite. In that case, the number of elements of that group is called its \term{order}.\footnote{An introduction to finite groups is given in \chaptname{} 1 of \cite{fuchs-2015}. An introduction from the perspective of cryptography can be found in \chaptname{} 3, \secname{} 8.3.1 of \cite{katz-2007}.}
 \begin{notation}
 Let $\mathbb{G}$ be a finite group. We write $ord(\mathbb{G})$ or  $|\mathbb{G}|$ for the order of $\mathbb{G}$.
 \end{notation}
@@ -69,45 +78,51 @@ Let $\mathbb{G}$ be a finite group. We write $ord(\mathbb{G})$ or  $|\mathbb{G}|
 Consider the remainder class groups $(\Z_6,+)$ from example \ref{def_residue_ring_z_6}, the group $(\Z_5,+)$ from example \ref{primfield_z_5}, and the group $(\Z_5^*,\cdot)$ from exercise \ref{fstar}. We can easily see that the order of $(\Z_6,+)$ is $6$, the order of $(\Z_5,+)$ is 5 and the order of $(\Z_5^*,\cdot)$ is $4$.
 \end{example}
 \begin{exercise}
-\label{Zn} Let $n\in\N$ with $n\geq 2$ be some modulus. What is the order of the remainder class group $(\Z_n,+)$.
+\label{Zn} Let $n\in\N$ with $n\geq 2$ be some modulus. What is the order of the remainder class group $(\Z_n,+)$?
 \end{exercise}
-\paragraph{Generators}\label{generators} The set of elements of a group can be complicated and it is not always obvious how to actually compute elements of a given group. From a practical point of view it is therefore desireable, if a group has a small subset of elements, such that all other elements can be generated by applying the group law repeatedly to the elements of that subset or their inverses only. Sets with these properties are called \term{generator sets}.
+\subsection{Generators}\label{generators} Listing the set of elements of a group can be {complicated}, and it is not always obvious how to actually compute elements of a given group. From a practical point of view, it is therefore desirable to have groups with a \term{generator set}. This is a small subset of elements from which all other elements can be generated by applying the group law repeatedly to only the elements of the generator set and/or their inverses. 
 
-Of course, every group $\G$ has a trivial set of generators, when we just consider every element of the group to be in the generator set. The more interesting question is to find smallest possible sets of generators for a given group. Of particular interest in this regard are groups that have a generator set that contains a single element only. In this case, there exists a (not necessarily unique) element $g\in\G$ such that every other element from $\G$ can be computed by the repeated combination of $g$ and its inverse $g^{-1}$ only. Groups with single, not necessarily unique, generators are called \term{cyclic groups}\label{cyclic-groups} and any element $g\in \G$ that is able to generate $\G$ is called a \term{generator}.
+Of course, every group $\G$ has a trivial set of generators, when we just consider every element of the group to be in the generator set. The more interesting question is to find smallest possible generator set for a given group. Of particular interest in this regard are groups that have a generator set that contains a single element only. In this case, there exists a (not necessarily unique) element $g\in\G$ such that every other element from $\G$ can be computed by the repeated combination of $g$ and its inverse $g^{-1}$ only. 
+
+\begin{definition}[\deftitle{Cyclic groups}]\label{cyclic-groups}
+Groups with single, not necessarily unique, generators are called \term{cyclic groups} and any element $g\in \G$ that is able to generate $\G$ is called a \term{generator}.
+\end{definition}
 
 \begin{example}
-\label{example:cyclic_group_of_integers} The most basic example of a cyclic group is the group of integers $(\Z,+)$ with integer addition. In this case, the number $1$ is a generator of $\Z$, since every integer can be obtained by repeatedly adding either $1$ or its inverse $-1$ to itself. For example $-4$ is generated by $1$, since $-4=-1+(-1)+(-1)+(-1)$. Another generator of $\Z$ is the number $-1$.
+\label{example:cyclic_group_of_integers} The most basic example of a cyclic group is the group of integers with integer addition $(\Z,+)$. In this case, the number $1$ is a generator of $\Z$, since every integer can be obtained by repeatedly adding either $1$ or its inverse $-1$ to itself. For example, $-4$ is generated by $1$, since $-4=-1+(-1)+(-1)+(-1)$. Another generator of $\Z$ is the number $-1$.
 \end{example}
 \begin{example}
-\label{example:cyclic_group_F5*} Consider the group $(\Z_5^*,\cdot)$ from exercise \ref{fstar}. Since $2^1=2$, $2^2=4$, $2^3=3$ and $2^4=1$, the element $2$ is a generator of $(\Z_5^*,\cdot)$. Moreover since $3^1=3$, $3^2=4$, $3^3=2$ and $3^4=1$, the element $3$ is another generator of $(\Z_5^*,\cdot)$. Cyclic groups can therefore have more then one generator. However since $4^1=4$, $4^2=1$, $4^3=4$ and in general $4^k=4$ for $k$ odd and $4^k=1$ for $k$ even the element $4$ is not a generator of $(\Z_5^*,\cdot)$. It follows that in general not every element of a finite cyclic group is a generator.
+\label{example:cyclic_group_F5*} Consider the group $(\Z_5^*,\cdot)$ from exercise \ref{fstar}. Since $2^1=2$, $2^2=4$, $2^3=3$ and $2^4=1$, the element $2$ is a generator of $(\Z_5^*,\cdot)$. Moreover, since $3^1=3$, $3^2=4$, $3^3=2$ and $3^4=1$, the element $3$ is another generator of $(\Z_5^*,\cdot)$. Cyclic groups can therefore have more than one generator. However since $4^1=4$, $4^2=1$, $4^3=4$ and in general $4^k=4$ for $k$ odd and $4^k=1$ for $k$ even the element $4$ is not a generator of $(\Z_5^*,\cdot)$. It follows that in general not every element of a finite cyclic group is a generator.
 \end{example}
 \begin{example} Consider a modulus $n$ and the remainder class groups $(\Z_n,+)$ from exercise \ref{Zn}. These groups are cyclic, with generator $1$, since every other element of that group can be constructed by repeatedly adding the remainder class $1$ to itself. Since $\Z_n$ is also finite, we know that $(\Z_n,+)$ is a finite cyclic group of order $n$.
 \end{example}
 \begin{exercise}
 \label{example:cyclic_group_F6}
-Consider the group $(\Z_6,+)$ of modular 6 addition from example \ref{def_residue_ring_z_6}. Show that $5\in \Z_6$ is a generator and then show that $2\in \Z_6$ is not a generator.
+Consider the group $(\Z_6,+)$ of modular 6 addition from example \ref{def_residue_ring_z_6}. Show that $5\in \Z_6$ is a generator, and then show that $2\in \Z_6$ is not a generator.
 \end{exercise}
 \begin{exercise}\label{ex:modulus-prime-group} Let $p\in\mathbb{P}$ be prime number and $(\Z_p^*,\cdot)$ the finite group from exercise \ref{ex:Zn*}. Show that $(\Z_p^*,\cdot)$ is cyclic.
 \end{exercise}
 
-\paragraph{The exponential map}
-Observe that, when $\G$ is a cyclic group of order $n$ and $g\in \G$ is a generator of $\G$, then there is the following map with respect to the generator $g$:
+\subsection{The exponential map}
+Observe that, when $\G$ is a cyclic group of order $n$ and $g\in \G$ is a generator of $\G$, then there exists a so-called \textbf{exponential map}, which maps the additive group law of the remainder class group $(\Z_n,+)$ onto the group law of $\G$ in a one-to-one correspondence. The exponential map can be formalized as in \eqref{exponentialmap} below (where $g^x$ means ``multiply $g$ by itself $x$ times'' and $g^0=e_{\G}$).
+
 \begin{equation}\label{exponentialmap}
 g^{(\cdot)}: \Z_n \to \G\; x \mapsto g^x
 \end{equation}
 
-In the map above,  $g^x$ means ``multiply $g$ $x$-times by itself'' and $g^0=e_{\G}$. This map, called the \textbf{exponential map}, has the remarkable property that it maps the additive group law of the remainder class group $(\Z_n,+)$ in a one-to-one correspondence to the group law of $\G$.
+To see how the exponential map works, first observe that, since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$. Furthermore, since $g^{x+y}=g^x\cdot g^y$, the map respects the group law.
 
-To see this, first observe that, since $g^0:=e_{\G}$ by definition, the neutral element of $\Z_n$ is mapped to the neutral element of $\G$, and, since $g^{x+y}=g^x\cdot g^y$, the map respects the group law.
-\begin{remark}[Scalar multiplication]
-\label{def:scalar_multiplication} If a group $(\G,+)$ is written in additive notation \ref{def:additive_notation}, then the exponential map is often called \term{scalar multiplication} and written as
+\begin{notation}[\deftitle{Scalar multiplication}]
+\label{def:scalar_multiplication} If a group $(\G,+)$ is written in additive notation (\notationname{} \ref{def:additive_notation}), then the exponential map is often called \term{scalar multiplication}, and written as follows:
+
 \begin{equation}\label{scalarmultiplication}
 (\cdot)\cdot g: \Z_n \to \G\;;\; x \mapsto x\cdot g
 \end{equation}
-In this notation the symbol $x\cdot g$  is defined as ``add the generator $g$ $x$-times to itself'' and the symbol $0\cdot g$ is defined to be the neutral element in $\G$.
-\end{remark}
+In this notation, the symbol $x\cdot g$  is defined as ``add the generator $g$ to itself $x$ times'' and the symbol $0\cdot g$ is defined to be the neutral element in $\G$.
+\end{notation}
 
-Cryptographic applications often utilize finite cyclic groups of very large order $n$ and computing the exponential map by repeaded multiplication of the generator with itself is infeasible, for very large remainder classes. The following so called \term{square and multiply} algorithm solves this problem as it computes the exponential map in approximately $k$ steps, where $k$ is the bit length of the exponent \ref{def:binary_representation_integer}:
+Cryptographic applications often utilize finite cyclic groups of a very large order $n$, which means that computing the exponential map by repeated multiplication of the generator with itself is infeasible for very large remainder classes.\footnote{However, methods for fast exponentiations have been known for a long time. A detailed introduction can be found, for example, in \chaptname{} 1, \secname{} 7 of \cite{mignotte-1992}. }
+ Algorithm \ref{alg_square-and-mul}, called \term{square and multiply},\sme{unify title of Alg with text} solves this problem by computing the exponential map in approximately $k$ steps, where $k$ is the bit length of the exponent (\ref{def:binary_representation_integer}):\smecomb{SB: I think moving the explanation of bit length here would work better}{move \ref{def:binary_representation_integer} here}
 
 \begin{algorithm}\caption{Cyclic Group Exponentiation}
 \label{alg_square-and-mul}
@@ -130,20 +145,22 @@ Cryptographic applications often utilize finite cyclic groups of very large orde
 \end{algorithmic}
 \end{algorithm}
 
-Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. This is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
-\begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\Z_{5}^*,\cdot)$ from exercise \ref{fstar}. We know from \ref{ex:modulus-prime-group} that $\Z_{5}^*$ is a cyclic group of order $4$, and that the element $3\in\Z_5^*$ is a generator. We then know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
+\final{check algorithm floating}
+
+Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. The latter mehtod is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
+\begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\Z_{5}^*,\cdot)$ from exercise \ref{fstar}. We know from \ref{ex:modulus-prime-group} that $\Z_{5}^*$ is a cyclic group of order $4$, and that the element $3\in\Z_5^*$ is a generator. This means that we also know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
 $$
 3^{(\cdot)}: \Z_4 \to \Z_5^* \;;\; x \mapsto 3^x
 $$
 
-To do an example computation "in the exponent" of $3$ , let's perform the calculation  $1+3+2$ in the exponent of the generator $3$:
-\begin{align*}
-3^{1+3+2} &=3^{2}\\
-          & = 4
-\end{align*}
-What we did is, we first performed the computation $1+3+2=1$ in the remainder class group $(\Z_4,+)$ and then applied the exponential map $3^{(\cdot)}$ to the result. 
+To do an example computation ``in the exponent'' of $3$ , let's perform the calculation  $1+3+2$ in the exponent of the generator $3$:
+\begin{align}
+3^{1+3+2} &=3^{2}\label{3_Z4_exponent}\\
+          & = 4\label{3_Z4_exp_map}
+\end{align}
+In \eqref{3_Z4_exponent} above, we first performed the computation $1+3+2=$\smecomb{$1$}{should be 2?} in the remainder class group $(\Z_4,+)$ and then applied the exponential map $3^{(\cdot)}$ to the result in \eqref{3_Z4_exp_map}. 
 
-However since the exponental map \ref{exponentialmap} "respects the group law" we also could map each summand into $(\F_5^*,\cdot)$ first and then apply the group law of $(\F_5^*,\cdot)$. The result is guranteed to be the same:
+However, since the exponential map \eqref{exponentialmap} respects the group law, we also could map each summand into $(\Z_5^*,\cdot)$ first and then apply the group law of $(\Z_5^*,\cdot)$. The result is guranteed to be the same:
 
 \begin{align*}
 3^1 \cdot 3^3 \cdot 3^{2}
@@ -152,17 +169,17 @@ However since the exponental map \ref{exponentialmap} "respects the group law" w
           & = 4
 \end{align*}
 \end{example}
-Since the exponential map is a one-to-one correspondence that respects the group law, it can be shown that this map has an inverse with respect to the base $g$, called the \term{base g discrete logarithm map}:
+Since the exponential map \eqref{exponentialmap} is a one-to-one correspondence that respects the group law, it can be shown that this map has an inverse with respect to the base $g$, called the \term{base g discrete logarithm map}:
 \begin{equation}
 \label{logarithm_map}
 log_g(\cdot): \G \to \Z_n\; x \mapsto log_g(x)
 \end{equation}
 Discrete logarithms are highly important in cryptography, because there are finite cyclic groups where the exponential map and its inverse, the discrete logarithm map, are believed to be one-way functions, which informally means that computing the exponential map is fast, while computing the logarithm map is slow (We will look into a more precise definition in \ref{crypto_groups}).
-\begin{example}Consider the exponential map $3^{(\cdot)}$ from example \ref{ex:in-the-exponent}. Its inverse is the discrete logarithm to the base $3$ and it is given by the map 
+\begin{example}Consider the exponential map $3^{(\cdot)}$ from example \ref{ex:in-the-exponent}. Its inverse is the discrete logarithm to the base $3$, given by the map below:
 $$
 log_3(\cdot): \Z_5^* \to \Z_4\; x \mapsto log_3(x)
 $$ 
-In contrast to the exponential map $3^{(\cdot)}$, we have no way to actually compute this map, other then by trying all elements of the group until we find the correct one. For example in order to compute $log_3(4)$, we have to find some $x\in \Z_4$, such that $3^x=4$ and all we can do is repeadly insert elements $x$ into the exponent of $3$ until the result is $4$. To do this let's write down all the images of $3^{(\cdot)}$: 
+In contrast to the exponential map $3^{(\cdot)}$, we have no way to actually compute this map, other than by trying all elements of the group until we find the correct one. For example, in order to compute $log_3(4)$, we have to find some $x\in \Z_4$ such that $3^x=4$, and all we can do is repeatedly insert elements $x$ into the exponent of $3$ until the result is $4$. To do this, let's write down all the \uterm{images} of $3^{(\cdot)}$: 
 $$
 \begin{array}{cccc}
 3^0 = 1, & 3^1 = 3, & 3^2 = 4, & 3^3 = 2
@@ -174,118 +191,140 @@ $$
 log_3(1) = 0, & log_3(2) = 3, & log_3(3) = 1, & log_3(4) = 2
 \end{array}
 $$
-Note that this computation was only possible, because we were able to write down all images of the exponential map. However, in real world applications the groups in consideration are too large to write down the images of the exponential map. 
+Note that this computation was only possible because we were able to write down all images of the exponential map. However, in real world applications the groups in consideration are too large to write down the images of the exponential map. 
 \end{example}
 \begin{exercise}[Efficient Scalar Multiplication]
-\label{alg_double-and-add} Let $(\G,+)$ be a finite cyclic group of order $n$. Consider algorithm \ref{alg_square-and-mul} and define it's analog for groups in additive notation.
+\label{alg_double-and-add} Let $(\G,+)$ be a finite cyclic group of order $n$. Consider algorithm \ref{alg_square-and-mul} and define its analog for groups in additive notation.
 \end{exercise}
-\paragraph{Factor Groups}
-As we know from the fundamental theorem of arithmetics \ref{def:fundamental_theorem_arithmetic}, every natural number $n$ is a product of factors, the most basic of which are prime numbers. This reflects into subgroups of a finite cyclic group in an interesting way: If $\G$, is a finite cyclic group of order $n$, then every subgroup $\G'$ of $\G$, is finite and cyclic and the order of $\G'$, is a factor of $n$. Moreover for each factor $k$ of $n$, $\G$ has exactly one subgroup of order $k$. This is known as the \term{fundamental theorem of finite cyclic groups}\label{def:fundamental_theorem_groups}.
-\begin{notation}If $\G$ is a finite cyclic group of order $n$ and $k$ is a factor of $n$, then we write $\G[k]$ for the unique finite cyclic group, which is the order $k$ subgroup of $\G$ and call it a \term{factor group} of $\G$.
+
+
+\subsection{Factor Groups}
+As we know from the fundamental theorem of arithmetic (\ref{def:fundamental_theorem_arithmetic}), every natural number $n$ is a product of factors, the most basic of which are prime numbers. This parallels subgroups of finite cyclic groups in an interesting way.
+
+\begin{definition}[\deftitle{The fundamental theorem of finite cyclic groups}]\label{def:fundamental_theorem_groups}
+If $\G$ is a finite cyclic group of order $n$, then every subgroup $\G'$ of $\G$ is finite and cyclic, and the order $\G'$ is a factor of $n$. Moreover for each factor $k$ of $n$, $\G$ has exactly one subgroup of order $k$. This is known as the \term{fundamental theorem of finite cyclic groups}.
+\end{definition}
+
+\begin{notation}If $\G$ is a finite cyclic group of order $n$ and $k$ is a factor of $n$, then we write $\G[k]$ for the unique finite cyclic group which is the order $k$ subgroup of $\G$, and call it a \term{factor group} of $\G$.
 \end{notation}
 
-One particular interesting situation occures if the order of a given finite cyclic group is a prime number. As we know from the fundamental theorem of arithmetics \ref{def:fundamental_theorem_arithmetic}, prime numbers have only two factors, given by the number $1$ and the prime number itself. It then follows from the fundamental theorem of finite cyclic groups \ref{def:fundamental_theorem_groups}, that those groups have no subgroups other then the trivial group \ref{example:trivial_group} and the group itself.
+One particularly interesting situation occurs if the order of a given finite cyclic group is a prime number. As we know from the fundamental theorem of arithmetics (\ref{def:fundamental_theorem_arithmetic}), prime numbers have only two factors: the number $1$ and the prime number itself. It then follows from the fundamental theorem of finite cyclic groups (definition \ref{def:fundamental_theorem_groups}) that those groups have no subgroups other than the trivial group (\examplename{} \ref{example:trivial_group}) and the group itself.
 
-Cryptographic protocols often assume the existence of finite cyclic groups of prime order but sometimes real world implementations of those protocols are not defined on prime order groups, but on groups where the order consist of a (usually large) prime number that has small cofactors \ref{def:cofactor}. In this case a method called \term{cofactor clearing} has to be applied to ensure that the computations are not done in the group itself but in its (large) prime order subgroup.
+Cryptographic protocols often assume the existence of finite cyclic groups of prime order. However  some real-world implementations of those protocols are not defined on prime order groups, but on groups where the order consist of a (usually large) prime number that has small cofactors (see \notationname{} \ref{def:cofactor}). In this case, a method called \term{cofactor clearing} has to be applied to ensure that the computations are not done in the group itself but in its (large) prime order subgroup.
 
-To understand cofactor clearing in detail, let $\G$ be a finite cyclic group of order $n$ and let $k$ be a factor of $n$ with associated factor group $\G[k]$. We can project any element $g\in\G[k]$ onto the neutral element $e$ of $\G$ by multiplying $g$ $k$-times with itself:
+To understand cofactor clearing in detail, let $\G$ be a finite cyclic group of order $n$, and let $k$ be a factor of $n$ with associated factor group $\G[k]$. We can project any element $g\in\G[k]$ onto the neutral element $e$ of $\G$ by multiplying $g$ $k$-times with itself:
+
 \begin{equation}
 g^k = e
 \end{equation}
-From this follows that if $c:=\Zdiv{n}{k}$ is the cofactor \ref{def:cofactor} of $k$ in $n$ then any element from the full group $g\in \G$ can be projected into the factor group $\G[k]$ by multiplying $g$ $c$-times with itself. This defines the following map, which is often called \term{cofactor clearing} in the cryptographic literature:
+
+Consequently, if $c:=\Zdiv{n}{k}$ is the cofactor of $k$ in $n$, then any element from the full group $g\in \G$ can be projected into the factor group $\G[k]$ by multiplying $g$ $c$-times with itself. This defines the following map, which is often called \term{cofactor clearing} in cryptographic literature:
 \begin{equation}
 \label{def:cofactor_clearing}
 (\cdot)^c: \G \to \G[k]\; : \; g \mapsto g^c
 \end{equation}
 
-\begin{example}\label{example:factor_groupds_of_F*5} Consider the finite cyclic group $(\Z_5^*,\cdot)$ from example \ref{example:cyclic_group_F5*}. Since the order of $\Z^*_5$ is $4$ and $4$ has the factors $1$, $2$ and $4$, it follows from the fundamental theorem of finite cyclic groups, that $\Z^*_5$ has $3$ unique subgroups. In fact the unique subgroup $\Z^*_5[1]$ of order $1$ is given by the trivial group $\{1\}$ that contains only the multiplicative neutral element $1$ and the unique subgroup $\Z^*_5[4]$ of order $4$ is $\Z^*_5$ itself, since by definition every group is trivially a subgroup of itself. The unique subgroup $\Z^*_5[2]$ of order $2$ is more interesting and is given by the set $\Z^*_5[2]=\{1,4\}$.
+\begin{example}\label{example:factor_groupds_of_F*5} Consider the finite cyclic group $(\Z_5^*,\cdot)$ from example \ref{example:cyclic_group_F5*}. Since the order of $\Z^*_5$ is $4$, and $4$ has the factors $1$, $2$ and $4$, it follows from the fundamental theorem of finite cyclic groups (\defname{} \ref{def:fundamental_theorem_groups}) that $\Z^*_5$ has $3$ unique subgroups. In fact, the unique subgroup $\Z^*_5[1]$ of order $1$ is given by the trivial group $\{1\}$ that contains only the multiplicative neutral element $1$. The unique subgroup $\Z^*_5[4]$ of order $4$ is $\Z^*_5$ itself, since, by definition, every group is trivially a subgroup of itself. The unique subgroup $\Z^*_5[2]$ of order $2$ is more interesting, and is given by the set $\Z^*_5[2]=\{1,4\}$.
 
-Since $\Z^*_5$ is not a prime order group and since the only prime factor of $4$ is $2$, the "large" prime order subgroup of $\Z^*_5$ is $\Z^*_5[2]$. Moreover since the cofactor of $2$ in $4$ is also $2$, we have the cofactor clearing map $(\cdot)^2:\Z^*_5 \to \Z^*_5[2]$ and indeed apllying this map to all elements from $\Z^*_5$ we see that it maps onto the elements of $\Z^*_5[2]$ only:
-$$
-\begin{array}{cccc}
-1^2 = 1, & 2^2 = 4, & 3^2 = 4, & 4^2 = 1
-\end{array}
-$$
-We can therefore use this map to "clear the cofactor" of any element from $\Z^*_5$ which means that the elemnt is projected into the "large" prime order subgroup $\Z^*_5[2]$.
+Since $\Z^*_5$ is not a prime order group, and, since the only prime factor of $4$ is $2$, the ``large'' prime order subgroup of $\Z^*_5$ is $\Z^*_5[2]$. Moreover, since the cofactor of $2$ in $4$ is also $2$, we get the cofactor clearing map $(\cdot)^2:\Z^*_5 \to \Z^*_5[2]$.  As expected, when we apply this map to all elements of $\Z^*_5$, we see that it maps onto the elements of $\Z^*_5[2]$ only:
+
+\begin{equation}
+1^2 = 1\quad{}  2^2 = 4\quad{}  3^2 = 4\quad{}  4^2 = 1
+\end{equation}
+
+We can therefore use this map to ``clear the cofactor'' of any element from $\Z^*_5$, which means that the element is projected onto the ``large'' prime order subgroup $\Z^*_5[2]$.
 \end{example}
-\begin{exercise}Consider the previous example \ref{example:factor_groupds_of_F*5} and show that $\Z^*_5[2]$ is a commutative group.
+\begin{exercise}Consider the previous \examplename{} \ref{example:factor_groupds_of_F*5}, and show that $\Z^*_5[2]$ is a commutative group.
 \end{exercise}
 \begin{exercise}
-Consider the finite cyclic group $(\Z_6,+)$ of modular 6 addition from example \ref{example:cyclic_group_F6}. Describe all subgroups of $(\Z_6,+)$. Identify the large prime order subgroup of $\Z_6$, define its cofactor clearing map and apply that map to all elements of $\Z_6$.
+Consider the finite cyclic group $(\Z_6,+)$ of modular 6 addition from \examplename{} \ref{example:cyclic_group_F6}. Describe all subgroups of $(\Z_6,+)$. Identify the large prime order subgroup of $\Z_6$, define its cofactor clearing map and apply that map to all elements of $\Z_6$.
 \end{exercise}
-\begin{exercise}Let $(\Z_p^*,\cdot)$ be the cyclic group from exercise \ref{ex:modulus-prime-group}. Show that for $p\geq 5$, not every element $x\in \F_p^*$ is a generator of $\F_p^*$.
+\begin{exercise}Let $(\Z_p^*,\cdot)$ be the cyclic group from \exercisename{} \ref{ex:modulus-prime-group}. Show that, for $p\geq 5$, not every element $x\in \F_p^*$ is a generator of $\F_p^*$.
 \end{exercise}
-\paragraph{Pairings}
-Of particular importance for the development of SNARKs are so-called pairing maps on commutative groups. To see the definition, let $\G_1$, $\G_2$ and $\G_3$ be three commutative groups. Then a \textbf{pairing map} is a function
+\subsection{Pairings}
+Of particular importance for the development of SNARKs are so-called \term{pairing maps} on commutative groups, defined below.
+
+\begin{definition}[\deftitle{Pairing map}]\label{def:pairing-map} 
+Let $\G_1$, $\G_2$ and $\G_3$ be three commutative groups. Then a \textbf{pairing map} is a function
 \begin{equation}\label{pairing-map}
 e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3
 \end{equation}
-This function takes pairs $(g_1,g_2)$ of elements from $\G_1$ and $\G_2$, and maps them to elements from $\G_3$, such that the \term{bilinearity} property holds, which means that for all $g_1,g_1'\in \G_1$ and $g_2, g_2'\in \G_2$ the following two identities are satisfied:
-\begin{equation}
+
+This function takes pairs $(g_1,g_2)$ of elements from $\G_1$ and $\G_2$, and maps them to elements from $\G_3$ such that the \term{bilinearity} property holds, which means that for all $g_1,g_1'\in \G_1$ and $g_2, g_2'\in \G_2$ the following two identities are satisfied:
+\begin{equation}\label{eq:bilinearity}
 \begin{array}{lcr}
 e(g_1 \cdot g_1',g_2)= e(g_1,g_2)\cdot e(g_1',g_2) &\text{and}&
 e(g_1,g_2 \cdot g_2')= e(g_1,g_2)\cdot e(g_1,g_2')\\
 \end{array}
 \end{equation}
+\end{definition}
+
 Informally speaking, bilinearity means that it doesn't matter if we first execute the group law on one side and then apply the bilinear map, or if we first apply the bilinear map and then apply the group law in $\G_3$. 
 
 A pairing map is called \term{non-degenerate} if, whenever the result of the pairing is the neutral element in $\G_3$, one of the input values is the neutral element of $\G_1$ or $\G_2$. To be more precise, $e(g_1,g_2)=e_{\G_3}$ implies $g_1=e_{\G_1}$ or $g_2=e_{\G_2}$.
+
 \begin{example}
 \label{example:integer_addition_pairing}
-One of the most basic examples of a non-degenerate pairing involves $\G_1$, $\G_2$ and $\G_3$ all to be the group of integers with addition $(\Z,+)$. Then the following map defines a non-degenerate pairing:
-$$
+One of the most basic examples of a non-degenerate pairing involves the groups $\G_1$, $\G_2$ and $\G_3$ all being groups of integers with addition $(\Z,+)$. In this case, the following map defines a non-degenerate pairing:
+\begin{equation}
 e(\cdot,\cdot): \Z \times \Z \to \Z \; (a,b)\mapsto a\cdot b
-$$
-Note that bilinearity follows from the distributive law of integers, since for $a,b,c\in \Z$, we have $e(a+b,c)=(a+b)\cdot c = a\cdot c + b\cdot c = e(a,c)+ e(b,c)$ and the same reasoning is true for the second argument.
+\end{equation}
 
-To see that $e(\cdot,\cdot)$ is non-degenrate, assume that $e(a,b)=0$. Then $a\cdot b =0$ implies that $a$ or $b$ must be zero.
+Note that bilinearity follows from the distributive law of integers, meaning that, for $a,b,c\in \Z$, the equation $e(a+b,c)=(a+b)\cdot c = a\cdot c + b\cdot c = e(a,c)+ e(b,c)$ holds (and the same reasoning is true for the second argument \smecomb{$b$}{$b$}).
+
+To see that $e(\cdot,\cdot)$ is non-degenerate, assume that $e(a,b)=0$. Then $a\cdot b =0$ implies that $a$ or $b$ must be zero.
 \end{example}
-\begin{exercise}[Arithmetic laws for pairing maps] Let $\G_1$, $\G_2$ as well as $\G_3$ be finite cyclic groups of the same order $n$ and let $e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3$ be a pairing map. Show that for given $g_1\in \G_1$ and $g_2\in \G_2$ and all $a,b\in \Z_n$ the following identity holds:
+\begin{exercise}[Arithmetic laws for pairing maps] Let $\G_1$, $\G_2$ and $\G_3$ be finite cyclic groups of the same order $n$, and let $e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3$ be a pairing map. Show that, for given $g_1\in \G_1$, $g_2\in \G_2$ and all $a,b\in \Z_n$, the following identity holds:
 \begin{equation}
 e(g_1^a, g_2^b) = e(g_1,g_2)^{a\cdot b}
 \end{equation}
 \end{exercise}
-\begin{exercise} Consider the remainder class groups $(\Z_n,+)$ from example \ref{Zn} for some modulus $n$. Show that the map
-$$
+\begin{exercise} Consider the remainder class groups $(\Z_n,+)$ from \examplename{} \ref{Zn} for some modulus $n$. Show that the following map is a pairing map. 
+\begin{equation}
 e(\cdot,\cdot): \Z_n \times \Z_n \to \Z_n \; (a,b)\mapsto a\cdot b
-$$
-is a pairing map. Why is the pairing not non-degenrate in general and what condition must be imposed on $n$, such that the pairing will be non-degenerate?
+\end{equation}
+
+Why is the pairing not non-degenerate in general, and what condition must be imposed on $n$ such that the pairing will be non-degenerate?
 \end{exercise}
 
 \subsection{Cryptographic Groups}
-\label{crypto_groups} In this section, we will look at classes of groups that are believed to satisfy certain \term{computational hardness assumptions}, namely that it is not feasible to solve a particular problem. 
+\label{crypto_groups} In this section, we look at classes of groups that are believed to satisfy certain \term{computational hardness assumptions}, meaning that it is not feasible to compute them in polynomial time.\footnote{A more detailed introduction to computational hardness assumptions and their applications in cryptography can be found in \chaptname{} 3, \secname{} 8 in \cite{katz-2007}.}
 
-\begin{example}
+\begin{example}\label{ex:computational-hardness}
 
-To give an example for a well-known computational hardness assumption, consider the problem of factorization, i.e. computing the prime factors of a composite integer. If the prime factors are very large, this is infeasible to do, and is expected to remain infeasible. We assume the problem is \term{computationally hard} or \term{infeasible}.
+To give an example for a well-known computational hardness assumption, consider the problem of factorization, i.e. computing the prime factors of a composite integer (see \examplename{} \ref{ex-prime-factorization}). If the prime factors are very large, this is infeasible to do, and is expected to remain infeasible. We assume the problem is \term{computationally hard} or \term{infeasible}.
 
 \end{example}
 
-Note that in the example, we say that the problem is infeasible to solve \textit{if the prime factors are large enough}. In the cryptographic standard model we have a security parameter and we say that "there exists a security parameter, such that it is not feasible to compute a solution to the problem". In the following examples, the security parameter roughly correlates with the order of the group in consideration. In this book, we do not include the security parameter in our definitions, since we only aim to provide an intuitive understanding of the cryptographic assumptions, not teach the ability to perform rigorous analysis.
+Note that, in  \examplename{} \ref{ex:computational-hardness}, {we say that} the problem is infeasible to solve \hilight{if the prime factors are large enough}. Naturally, this is made more precise in the cryptographic standard model, where we have a security parameter, and we say that ``there exists a security parameter such that it is not feasible to compute a solution to the problem''. In the following examples, the security parameter roughly correlates with the order of the group in consideration. In this book, we do not include the security parameter in our definitions, since we only aim to provide an intuitive understanding of the cryptographic assumptions, not teach the ability to perform rigorous analysis.
 
-Furthermore, understand that these are \textit{assumptions}. Academics have been looking for efficient prime factorization algorithms for a long time, and they have been getting better and better and computers have become faster and faster - but there always was a higher security parameter for which the problem still was infeasible.% This is also why new RSA keys are 4096 bits long, in contrast to the 1024 bits 20 years ago.
+Furthermore, understand that these are \hilight{assumptions}. Academics have been looking for efficient prime factorization algorithms for a long time, and they have been getting better and better while computers have become faster and faster -- but there always was a higher security parameter for which the problem still was infeasible.% This is also why new RSA keys are 4096 bits long, in contrast to the 1024 bits 20 years ago.
 
-In what follows, we will describe a few problems that are assumed to be infeasible that arise in the context of groups in cryptography. We will refer to them throughout the book.
+In what follows, we describe a few problems arising in the context of groups in cryptography that are assumed to be infeasible. We will refer to them throughout the book.
 
 
-\paragraph{The discrete logarithm assumption}
+\subsubsection{The \capitalisewords{discrete logarithm problem}}
 \label{def:DL-secure}
-The so-called \term{discrete logarithm problem (DLP)} is one of the most fundamental assumptions in cryptography. To define it, let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$. We know from \ref{exponentialmap} that there is an exponential map $g^{(\cdot)}: \Z_r \to \G\; ;\; x\mapsto g^x$ that maps the residue classes from modulo $r$ arithmetic onto the group in a $1:1$ correspondence.
-The \textbf{discrete logarithm problem} is the task of finding an inverse to this map, that is, to find a solution $x\in\Z_r$ to the following equation for some given $h, g \in \G$:
+The so-called \term{\capitalisewords{discrete logarithm problem} (DLP)}, also called the \term{\capitalisewords{discrete logarithm assumption}}, is one of the most fundamental assumptions in cryptography. 
+
+\begin{definition}[]
+Let $\G$ be a finite cyclic group of order $r$ and let $g$ be a generator of $\G$. We know from \eqref{exponentialmap} that there is an exponential map $g^{(\cdot)}: \Z_r \to \G\; ;\; x\mapsto g^x$ that maps the residue classes from modulo $r$ arithmetic onto the group in a $1:1$ correspondence.
+The \textbf{\capitalisewords{discrete logarithm problem}} is the task of finding an inverse to this map, that is, to find a solution $x\in\Z_r$ to the following equation for some given $h, g \in \G$:
 
 \begin{equation}
 h = g^x
 \end{equation}
+\end{definition}
 
 There are groups in which the DLP is assumed to be infeasible to solve, and there are groups in which it isn't. We call the former group \term{DL-secure} groups.
 
-Rephrasing the previous definition, it is believed that in DL-secure groups there is a number $n$ (as that corresponds to the security parameter), such that it is infeasible to compute some number $x$ that solves the equation $h=g^x$ for a given $h$ and $g$, assuming that the order of the group $n$ is large enough.
+Rephrasing the previous definition, it is believed that, in DL-secure groups, there is a number $n$  such that it is infeasible to compute some number $x$ that solves the equation $h=g^x$ for a given $h$ and $g$, assuming that the order of the group $n$ is large enough. The number $n$ here corresponds to the security parameter discussed above.
 
-\begin{example}[Public key cryptography]
+\begin{example}[Public key cryptography]\label{ex:publ-key}
 
-One the most basic examples of an application for DL-secure groups is in public key cryptography, where the parties publicly agree on some pair $(\G,g)$  such that $\G$ is a finite cyclic group of appropriate order $n$, where $\G$ is believed to be a DL-secure group, and $g$ is a generator of $\G$.
+One the most basic examples of an application for DL-secure groups is in public key cryptography, where the parties publicly agree on some pair $(\G,g)$  such that $\G$ is a finite cyclic group of appropriate order $n$, believed to be a DL-secure group, and $g$ is a generator of $\G$.
 
-In this setting, a secret key is some number $sk \in \Z_r$ and the associated public key $pk$ is the group element $pk=g^{sk}$. Since discrete logarithms are assumed to be hard, it is infeasible for an attacker to compute the secret key from the public key, since it is believed to be infeasible to find solutions $x$ to the following equation:
+In this setting, a secret key is some number $sk \in \Z_r$ and the associated public key $pk$ is the group element $pk=g^{sk}$. Since discrete logarithms are assumed to be hard, it is infeasible for an attacker to compute the secret key from the public key, as this would involve finding solutions $x$ to the following equation (which is believed to be infeasible):
 
 \begin{equation}
 pk = g^{x}
@@ -293,16 +332,16 @@ pk = g^{x}
 
 \end{example}
 
-As the previous example shows, identifying DL-secure groups is an important practical problem. Unfortunately, it is easy to see that it does not make sense to assume the hardness of the discrete logarithm problem in all finite cyclic groups: Counterexamples are common and easy to construct.
+As \examplename{} \ref{ex:publ-key} shows, identifying DL-secure groups is an important practical problem. Unfortunately, it is easy to see that it does not make sense to assume the hardness of the \capitalisewords{discrete logarithm problem} in all finite cyclic groups: counterexamples are common and easy to construct.\sme{mention a few examples}
 
 \begin{comment}
 \begin{example}[Modular arithmetics for Fermat's primes]
 
-It is widely believed that the discrete logarithm problem is hard in multiplicative groups $\Z_p^*$ of prime number modular arithmetics. However, not all such groups are DL-secure. To see that, consider any so-called Fermat's prime, which is a prime number $p\in\Prim$, such that $p=2^n+1$ for some number $n$.
+It is widely believed that the \capitalisewords{discrete logarithm problem} is hard in multiplicative groups $\Z_p^*$ of prime number modular arithmetics. However, not all such groups are DL-secure. To see that, consider any so-called Fermat's prime, which is a prime number $p\in\Prim$ such that $p=2^n+1$ for some number $n$.
 
 We know from exercise \ref{ex:Zn*}\sme{check reference} that in this case $\Z_p^* = \{1,2,\ldots, p-1\}$ is a group with respect to integer multiplication in modular $p$ arithmetics and since $p=2^n+1$, the order of $\Z_p^*$ is $2^n$, which implies that the associated security parameter is given by $log_2(2^n)=n$.
 
-We show that, in this case, $\Z_p^*$ is not a DL-secure group, by constructing an algorithm, which is able compute some $x\in\Z_{2^n}$ for any given generator $g$ and arbitrary element $h$ of $\F_p^*$, such that equation \ref{eq:hgx} holds, and the runtime complexity of the constructed algorithm is $\mathcal{O}(n^2)$, which is quadratic in the security parameter $n=log_2(2^n)$.
+We show that, in this case, $\Z_p^*$ is not a DL-secure group, by constructing an algorithm, which is able compute some $x\in\Z_{2^n}$ for any given generator $g$ and arbitrary element $h$ of $\F_p^*$ such that equation \ref{eq:hgx} holds, and the runtime complexity of the constructed algorithm is $\mathcal{O}(n^2)$, which is quadratic in the security parameter $n=log_2(2^n)$.
 
 \begin{equation}
 h = g^x
@@ -347,21 +386,26 @@ From this, it follows that whenever $p$ is a Fermat's prime, the discrete logari
 \end{example}
 \end{comment}
 
-\paragraph{The decisional Diffie--Hellman assumption}
+\subsubsection{The decisional Diffie--Hellman assumption}
 \label{def:DDH-secure}
-Let $\G$ be a finite cyclic group of order $n$ and let $g$ be a generator of $\G$. The decisional Diffie--Hellman (DDH) problem is to distinguish $(g^a,g^b, g^{ab})$ from the triple $(g^a,g^b,g^c)$ for uniformly random values $a,b,c\in \Z_r$. If we assume the DDH problem is infeasible to solve in $\G$, we call $\G$ a \term{DDH-secure} group.
 
-DDH-security is a stronger assumption than DL-security \ref{def:DL-secure}, in the sense that if the DDH problem is infeasible, so is the DLP, but not necessarily the other way around.
+\begin{definition}
+Let $\G$ be a finite cyclic group of order $n$ and let $g$ be a generator of $\G$. The decisional Diffie--Hellman (DDH) problem is to distinguish $(g^a,g^b, g^{ab})$ from the triple $(g^a,g^b,g^c)$ for uniformly random values $a,b,c\in \Z_r$. 
+\end{definition}
+
+If we assume the DDH problem is infeasible to solve in $\G$, we call $\G$ a \term{DDH-secure} group.
+
+DDH-security is a stronger assumption than DL-security (\ref{def:DL-secure}), in the sense that if the DDH problem is infeasible, so is the DLP, but not necessarily the other way around.
 
 To see why this is the case, assume that the discrete logarithm assumption does not hold. In that case, given a generator $g$ and a group element $h$, it is easy to compute some element $x\in\Z_p$ with $h=g^x$. Then the decisional Diffie--Hellman assumption cannot hold, since given some triple $(g^a , g^b , z )$, one could efficiently decide whether $z = g^{ab}$ is true by first computing the discrete logarithm $b$ of  $g^b$, then computing $g^{ab}= (g^a)^b$ and deciding whether or not $z=g^{ab}$.
 
-On the other hand, the following example shows that there are groups where the discrete logarithm assumption holds but the decisional  Diffie--Hellman assumption does not.
+On the other hand, the following example shows that there are groups where the discrete logarithm assumption holds but the \capitalisewords{decisional  Diffie--Hellman assumption} does not.
 
 \begin{example}[Efficiently computable bilinear pairings]
 
-Let $\G$ be a DL-secure, finite, cyclic group of order $r$ with generator $g$ and $\G_T$ another group, such that there is an efficiently computable pairing map $e(\cdot,\cdot): \G \times \G \to \G_T$ that is bilinear and non degenerate \ref{pairing-map}.
+Let $\G$ be a DL-secure, finite, cyclic group of order $r$ with generator $g$, and $\G_T$ another group such that there is an efficiently computable pairing map $e(\cdot,\cdot): \G \times \G \to \G_T$ that is bilinear and non degenerate (\ref{pairing-map}).
 
-In a setting like this, it is easy to show that solving DDH cannot be infeasible, since given some  triple $(g^a, g^b, z)$, it is possible to efficiently check whether $z = g^{ab}$ by making use of the pairing:
+In a setting like this, it is easy to show that solving DDH cannot be infeasible, since, given some  triple $(g^a, g^b, z)$, it is possible to efficiently check whether $z = g^{ab}$ by making use of the following pairing:
 
 \begin{equation}
 e(g^a,g^b) \checkeq e(g,z)
@@ -381,21 +425,23 @@ Let $p$ be a prime number and $\F_p^*=\{1,2,\ldots,p-1\}$ the multiplicative gro
 \end{example}
 \end{comment}
 
-\paragraph{The computational  Diffie--Hellman assumption}
+\subsubsection{The \capitalisewords{computational  Diffie--Hellman assumption}}
 %
-Let $\G$ be a finite cyclic group of order $n$ and let $g$ be a generator of $\G$. The computational Diffie--Hellman assumption stipulates that, given randomly and independently  chosen elements $a,b\in\Z_r$, it is not possible to compute $g^{ab}$ if only $g$, $g^a$ and $g^b$ (but not $a$ and $b$) are known. If this is the case for $\G$, we call $\G$ a \term{CDH-secure} group.
+\begin{definition}
+Let $\G$ be a finite cyclic group of order $n$ and let $g$ be a generator of $\G$. The \term{computational Diffie--Hellman assumption} stipulates that, given randomly and independently  chosen elements $a,b\in\Z_r$, it is not possible to compute $g^{ab}$ if only $g$, $g^a$ and $g^b$ (but not $a$ and $b$) are known. If this is the case for $\G$, we call $\G$ a \term{CDH-secure} group.
+\end{definition}
 
-In general, we don't know if CDH-security is a stronger assumption than DL-security, or if both assumptions are equivalent. We know that DL-security is necessary for CDH-security, but the other direction is currently not well understood. In particular, there are no DL-security groups known that are not also CDH-secure %\citep{Fifield12theequivalence}.% https://web.stanford.edu/class/cs259c/finalpapers/dlp-cdh.pdf
+In general, we don't know if CDH-security is a stronger assumption than DL-security, or if both assumptions are equivalent. We know that DL-security is necessary for CDH-security, but the other direction is currently not well understood. In particular, there are no known DL-secure groups  that are not also CDH-secure. %\citep{Fifield12theequivalence}.% https://web.stanford.edu/class/cs259c/finalpapers/dlp-cdh.pdf
 
-To see why the discrete logarithm assumption is necessary, assume that it does not hold. So, given a generator $g$ and a group element $h$, it is easy to compute some element $x\in\Z_p$ with $h=g^x$. In that case, the computational Diffie--Hellman assumption cannot hold, since, given $g$, $g^a$ and $g^b$, one can efficiently compute $b$ and hence is able to compute $g^{ab}=(g^a)^b$ from this data.
+To see why the discrete logarithm assumption is necessary, assume that it does not hold. Then, given a generator $g$ and a group element $h$, it is easy to compute some element $x\in\Z_p$ with $h=g^x$. In that case, the computational Diffie--Hellman assumption cannot hold, since, given $g$, $g^a$ and $g^b$, it is possible to efficiently compute $b$, meaning that $g^{ab}=(g^a)^b$ can be computed from this data.
 
-The computational Diffie--Hellman assumption is a weaker assumption than the decisional  Diffie--Hellman assumption. This means that there are groups where CDH holds and DDH does not hold, while there cannot be groups in which DDH holds but CDH does not hold. To see that, assume that it is efficiently possible to compute $g^{ab}$ from $g$, $g^a$ and $g^b$. Then, given $(g^a,g^b,z)$ it is easy to decide whether $z=g^{ab}$ holds or not.
+The computational Diffie--Hellman assumption is a weaker assumption than the \capitalisewords{decisional  Diffie--Hellman assumption}. This means that there are groups where CDH holds and DDH does not hold, while there cannot be groups in which DDH holds but CDH does not hold. To see that, assume that it is efficiently possible to compute $g^{ab}$ from $g$, $g^a$ and $g^b$. Then, given $(g^a,g^b,z)$ it is easy to decide whether $z=g^{ab}$ holds or not.
 
-Several variations and special cases of CDH exist. For example, the \term{square computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^2}$. The \term{inverse computational  Diffie--Hellman assumption} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^{-1}}$.
+Several variations and special cases of CDH exist. For example, the \term{square \capitalisewords{computational  Diffie--Hellman assumption}} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^2}$. The \term{inverse \capitalisewords{computational  Diffie--Hellman assumption}} assumes that, given $g$ and $g^x$, it is computationally hard to compute $g^{x^{-1}}$.
 
 \subsection{Hashing to Groups}\label{sec:hashing-to-groups}
 % https://crypto.stackexchange.com/questions/78017/simple-hash-into-a-prime-field
-\paragraph{Hash functions} Generally speaking, a hash function is any function that can be used to map data of arbitrary size to fixed-size values. Since binary strings of arbitrary length are a way to represent data in general, we can understand a \textbf{hash function} as the following map where $\{0,1\}^*$ represents the set of all binary strings of arbitrary but finite length and $\{0,1\}^k$ represents the set of all binary strings that have a length of exactly $k$ bits:
+\subsubsection{Hash functions}\label{sec:hash-functions} Generally speaking, a hash function is any function that can be used to map data of arbitrary size to fixed-size values. Since binary strings of arbitrary length are a way to represent data in general, we can understand a \textbf{hash function} as the following map where $\{0,1\}^*$ represents the set of all binary strings of arbitrary but finite length and $\{0,1\}^k$ represents the set of all binary strings that have a length of exactly $k$ bits:
 \begin{equation}
 \label{def:hash_function}
 H: \{0,1\}^* \to \{0,1\}^k
@@ -404,52 +450,55 @@ The \term{images} of $H$, that is, the values returned by the hash function $H$,
 
 \begin{notation}
 \label{string_and_hash_notations}
-In what follows we call an element $b\in\{0,1\}$ a \term{bit}. If $s\in\{0,1\}^*$ is a binary string, we write $|s|=k$ for its \term{length}, that is for the number of bits in $s$. We write $<>$ for the empty binary string and $s=<b_1,b_2,\ldots,b_k>$ for a binary string of length $k$.
+In what follows, we call an element $b\in\{0,1\}$ a \term{bit}. If $s\in\{0,1\}^*$\sme{check footnote} is a binary string, we write $|s|=k$ for its \term{length}, that is, for the number of bits in $s$. We write $<>$ for the empty binary string, and $s=<b_1,b_2,\ldots,b_k>$ for a binary string of length $k$.\footnote{The difference between the notations $b\in\{0,1\}$ and $s\in\{0,1\}^*$ is the following: $b\in\{0,1\}$ means that $b$ is equal to either $0$ or $1$, whereas $s$ is a string composed of an arbitrary number of $0$s and $1$s (and $s$ can also be an empty string).}
 
-If two binary strings $s=<b_1,b_2,\ldots,b_k>$ and $s'=<b'_1,b'_2,\ldots,b'_l>$ are given then we write $s||s'$ for the \term{concatenation} that is the string 
+If two binary strings $s=<b_1,b_2,\ldots,b_k>$ and $s'=<b'_1,b'_2,\ldots,b'_l>$ are given, then we write $s||s'$ for the \term{concatenation} that is the string 
 $s||s'=<b_1,b_2,\ldots,b_k,b'_1,b'_2,\ldots,b'_l>$.
 
-If $H$ is a hash function that maps binary strings of arbitrary length onto binary strings of length $k$ and if $s\in\{0,1\}^*$ is a binary string, we write $H(s)_j$ for the bit at position $j$ in the image $H(s)$.
+If $H$ is a hash function that maps binary strings of arbitrary length onto binary strings of length $k$, and $s\in\{0,1\}^*$ is a binary string, we write $H(s)_j$ for the bit at position $j$ in the image $H(s)$.
 \end{notation}
 
 \begin{example}[$k$-truncation hash]\label{ex:k-truncation-hash} One of the most basic hash functions $H_k:\{0,1\}^*\to \{0,1\}^k$ is given by simply truncating every binary string $s$ of size $|s|> k$ to a string of size $k$ and by filling any string $s'$ of size $|s'|<k$ with zeros. To make this hash function deterministic, we define that both truncation and filling should happen ``on the left''.
 
-For example, if the parameter $k$ is given by $k=3$ and $s_1=<0,0,0,0,1,0,1,0,1,1,1,0>$ as well as $s_2=1$, then $H_3(x_1)=<1,1,0>$ and $H_3(x_2)=<0,0,1>$.
+For example, if the parameter $k$ is given by $k=3$, $s_1=<0,0,0,0,1,0,1,0,1,1,1,0>$ and $s_2=1$, then \smecomb{$H_3(x_1)=<1,1,0>$ and $H_3(x_2)=<0,0,1>$}{should be $H_3(s_1)$ and $H_3(s_2)$?}.
 \end{example}
 
-A desireable property of a hash function is \term{uniformity}, which means that it should map input values as evenly as possible over its output range. In mathematical terms, every string of length $k$  from $\{0,1\}^k$ should be generated with roughly the same probability.
+A desirable property of a hash function is \term{uniformity}, which means that it should map input values as evenly as possible over its output range. In mathematical terms, every string of length $k$  from $\{0,1\}^k$ should be generated with roughly the same probability.
 
 Of particular interest are so-called \term{cryptographic} hash functions, which are hash functions that are also \term{one-way functions}, which essentially means that, given a string $y$ from $\{0,1\}^k$ it is infeasible to find a string $x\in\{0,1\}^*$ such that $H(x)=y$ holds. This property is usually called \term{preimage-resistance}.
 
 Moreover, if a string $x_1\in\{0,1\}^*$ is given, then it should be infeasible to find another string $x_2\in\{0,1\}^*$ with $x_1\neq x_2$ and $H(x_1)=H_(x_2)$
 
-In addition, it should be infeasible to find two strings $x_1,x_2 \in\{0,1\}^*$, such that $H(x_1)=H(x_2)$, which is called \term{collision resistance}. It is important to note, though, that collisions always exist, since a function $H: \{0,1\}^* \to \{0,1\}^k$ inevitably maps infinitely many values onto the same hash. In fact, for any hash function with digests of length $k$, finding a preimage to a given digest can always be done using a brute force search in $2^k$ evaluation steps. It should just be practically impossible to compute those values, and statistically very unlikely to generate two of them by chance.
+In addition, it should be infeasible to find two strings $x_1,x_2 \in\{0,1\}^*$ such that $H(x_1)=H(x_2)$, which is called \term{collision resistance}. It is important to note, though, that collisions always exist, since a function $H: \{0,1\}^* \to \{0,1\}^k$ inevitably maps infinitely many values onto the same hash. In fact, for any hash function with digests of length $k$, finding a preimage to a given digest can always be done using a brute force search in $2^k$ evaluation steps. It should just be practically impossible to compute those values, and statistically very unlikely to generate two of them by chance.
 
-A third property of a cryptographic hash function is that small changes in the input string, like changing a single bit, should generate hash values that look completely different from each other. This is called \term{diffusion} or the avalance effect.
+A third property of a cryptographic hash function is that small changes in the input string, like changing a single bit, should generate hash values that look completely different from each other. This is called \term{diffusion} or the avalanche effect.
 
 Because cryptographic hash functions map tiny changes in input values onto large changes in the output, implementation errors that change the outcome are usually easy to spot by comparing them to expected output values. The definitions of cryptographic hash functions are therefore usually accompanied by some test vectors of common inputs and expected digests. Since the empty string $<>$ is the only string of length $0$, a common test vector is the expected digest of the empty string.
-\begin{example}[$k$-truncation hash] Consider the $k$-truncation hash from example \ref{ex:k-truncation-hash}. Since the empty string has length $0$, it follows that the digest of the empty string is the string of length $k$ that only contains $0$'s:
+\begin{example}[$k$-truncation hash] Consider the $k$-truncation hash from example \ref{ex:k-truncation-hash}. Since the empty string has length $0$, it follows that the digest of the empty string is the string of length $k$ that only contains $0$s:
 \begin{equation}
 H_k(<>)= <0,0,\ldots, 0,0>
 \end{equation}
 It is pretty obvious from the definition of $H_k$ that this simple hash function is not a cryptographic hash function. In particular, every digest is its own preimage, since $H_k(y)=y$ for every string of size exactly $k$. Finding preimages is therefore easy, so the property of preimage resistance does not hold.
 
-In addition, it is easy to construct collisions as all strings $s$ of size $|s|>k$ that share the same $k$-bits ``on the right'' are mapped to the same hash value, so this function is not collision resistant, either.
+In addition, it is easy to construct collisions, as all strings $s$ of size $|s|>k$ that share the same $k$-bits ``on the right'' are mapped to the same hash value. This means that this function is not collision resistant, either.
 
-Finally, this hash function does not have a lot of diffusion, as changing bits that are not part of the $k$ right-most bits don't change the digest at all.
+Finally, this hash function does not have a lot of diffusion, as changing bits that are not part of the $k$ right-most bits won't change the digest at all.
 \end{example}
-Computing cryptographically secure hash functions in pen-and-paper style is possible but tedious. Fortunately, Sage can import the \term{hashlib} library, which is intended to provide a reliable and stable base for writing Python programs that require cryptographic functions. The following examples explain how to use hashlib in Sage.
+
+Computing cryptographically secure hash functions in pen-and-paper style is possible but tedious. Fortunately, Sage can import the \term{\code{hashlib}} library, which is intended to provide a reliable and stable base for writing Python programs that require cryptographic functions. The following examples explain how to use \code{hashlib} in Sage.
+
 \begin{example}\label{ex:SHA256}An example of a hash function that is generally believed to be a cryptographically secure hash function is the so-called \term{SHA256} hash, which, in our notation, is a function that maps binary strings of arbitrary length onto binary strings of length $256$:
 \begin{equation}
 SHA256: \{0,1\}^* \to \{0,1\}^{256}
 \end{equation}
 
- To evaluate a proper implementation of the $SHA256$ hash function, the digest of the empty string is supposed to be
+ To evaluate a proper implementation of the $SHA256$ hash function, the digest of the empty string is supposed to be the following:
+ 
 \begin{equation}
 SHA256(<>)= {\scriptstyle e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855}
 \end{equation}
 
-For better human readability, it is common practice to represent the digest of a string not in its binary form, but in a hexadecimal representation. We can use Sage to compute $SHA256$ and freely transit between binary, hexadecimal and decimal representations. To do so, we import hashlib's implementation of SHA256:
+For better human readability, it is common practice to represent the digest of a string not in its binary form, but in a hexadecimal representation. We can use Sage to compute $SHA256$ and freely transit between binary, hexadecimal and decimal representations. To do so, we import \code{hashlib}'s implementation of SHA256:
 \begin{sagecommandline}
 sage: import hashlib
 sage: test = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' 
@@ -457,7 +506,7 @@ sage: empty_string = ""
 sage: binary_string = empty_string.encode()
 sage: hasher = hashlib.sha256(binary_string) 
 sage: result = hasher.hexdigest()
-sage: type(result)	# sage represents digests as strings
+sage: type(result)	# Sage represents digests as strings
 sage: d = ZZ('0x'+ result) # conversion to an integer
 sage: d.str(16) == test	# hash is equal to test vector
 sage: d.str(16) # hexadecimal representation
@@ -466,7 +515,7 @@ sage: d.str(10) # decimal representation
 \end{sagecommandline}
 \end{example}
 
-\paragraph{Hashing to cyclic groups} As we have seen in the previous paragraph, general hash functions map binary strings of arbitrary length onto binary strings of some fixed length. However, it is desirable in various cryptographic primitives to not simply hash to binary strings of fixed length but to hash into algebraic structures like groups, while keeping (some of) the properties like preimage resistance or collision resistance.
+\subsubsection{Hashing to cyclic groups} As we have seen in the previous section, general hash functions map binary strings of arbitrary length onto binary strings of some fixed length. However, it is desirable in various cryptographic primitives to not simply hash to binary strings of fixed length, but to hash into algebraic structures like groups, while keeping (some of) the properties of the hash function, like preimage resistance or collision resistance.
 
 
 Hash functions like this can be defined for various algebraic structures, but, in a sense, the most fundamental ones are hash functions that map into groups, because they can be easily extended to map into other structures like rings or fields.
@@ -477,9 +526,10 @@ H : \{0,1\}^* \to \G
 \end{equation}
 
 As the following example shows, hashing to finite cyclic groups can be trivially achieved for the price of some undesirable properties of the hash function:
+
 \begin{example}[Naive cyclic group hash]\label{naive-cyclic-group-hash} Let $\G$ be a finite cyclic group of order $n$. If the task is to implement a hash-to-group function, one immediate approach can be based on the observation that binary strings of size $k$ can be interpreted as integers $z\in\Z$ in the range $0\leq z < 2^k$ using equation \ref{def:binary_representation_integer}.
 
-To be more precise, let $H:\{0,1\}^*\to \{0,1\}^k$ be a hash function for some parameter $k$, $g$ a generator of $\G$ and $s\in\{0,1\}^*$ a binary string. Using equation \ref{def:binary_representation_integer} and notation \ref{string_and_hash_notations} the following expression is a non negative integer:
+To be more precise, let $H:\{0,1\}^*\to \{0,1\}^k$ be a hash function for some parameter $k$, $g$ a generator of $\G$, and $s\in\{0,1\}^*$ a binary string. Using equation \ref{def:binary_representation_integer} and notation \ref{string_and_hash_notations}, the following expression is a non-negative integer:
 
 \begin{equation}
 z_{H(s)}= H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_k \cdot 2^k
@@ -491,9 +541,9 @@ A hash-to-group function for the group $\G$ can then be defined as a composition
 H_{g} : \{0,1\}^* \to \G:\; s \mapsto g^{z_{H(s)}}
 \end{equation}
 
-Constructing a hash-to-group function like this is easy for cyclic groups, and it might be good enough in certain applications.\sme{a few examples?} It is, however, almost never adequate in cryptographic applications, as a discrete log relation might be constructible between some hash values $H_g(s)$ and $H_g(t)$, regardless of whether or not $\G$ is DL-secure \ref{def:DL-secure}.
+Constructing a hash-to-group function like this is easy for cyclic groups, and it might be good enough in certain applications.\sme{a few examples?} It is, however, almost never adequate in cryptographic applications, as a discrete log relation might be constructible between some hash values $H_g(s)$ and $H_g(t)$, regardless of whether or not $\G$ is DL-secure (see \secname \ref{def:DL-secure}).
 
-To be more precise a discrete log relation between the group elements $H_g(s)$ and $H_g(t)$ is any element $x\in \Z_n$, such that $H_g(s) = H_g(t)^x$. To see how such an $x$ can be constructed, assume that $z_{H(s)}$ has a multiplicative inverse in $\Z_n$. In this case, the element $x=z_{H(t)}\cdot z_{H(s)}^{-1}$ from $\Z_n$ is a discrete log relation between $H_g(s)$ and $H_g(t)$ since:
+To be more precise, a discrete log relation between the group elements $H_g(s)$ and $H_g(t)$ is any element $x\in \Z_n$ such that $H_g(s) = H_g(t)^x$. To see how such an $x$ can be constructed, assume that $z_{H(s)}$ has a multiplicative inverse in $\Z_n$. In this case, the element $x=z_{H(t)}\cdot z_{H(s)}^{-1}$ from $\Z_n$ is a discrete log relation between $H_g(s)$ and $H_g(t)$:
 \begin{align*}
 g^{z_{H(t)}} & = g^{z_{H(t)}} & \Leftrightarrow\\
 g^{z_{H(t)}} & = g^{z_{H(t)}\cdot z_{H(s)}\cdot z_{H(s)}^{-1}} & \Leftrightarrow \\
@@ -501,45 +551,47 @@ g^{z_{H(t)}} & = g^{z_{H(s)}\cdot x} & \Leftrightarrow \\
 H_g(t) & = (H_g(s))^x
 \end{align*}
 \end{example}
-Therefore applications where discrete log relations between hash values are undesirable need different approaches. Many of these approaches start with a way to hash into the set $\Z_r$ of modular $r$ arithmetics.
+Therefore, applications where discrete log relations between hash values are undesirable need different approaches. Many of these approaches start with a way to hash into the set $\Z_r$ of modular $r$ arithmetics.
 
-\paragraph{Pedersen Hashes}
+\subsubsection{\capitalisewords{Pedersen hash}es}
 \label{def:Pedersen_hash}
 % T. P. Pedersen. “Non-interactive and information-theoretic secure verifiable secret shar- ing”. In: Annual International Cryptology Conference. Springer. 1991, pp. 129–140.
 % https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
-The so-called \term{Pedersen hash function} \citep{Pedersen92} provides a way to map fixed size tuples of elements from modular arithmetics onto elements of finite cyclic groups in such a way that discrete log relations \ref{naive-cyclic-group-hash} between different images are avoidable. Compositions of a Pedersen hash with a general hash function \ref{def:hash_function}, then provide hash-to-group functions that maps strings of arbitrary length onto group elements.
+The so-called \term{\capitalisewords{Pedersen hash function}} \citep{Pedersen92} provides a way to map fixed size tuples of elements from modular arithmetics onto elements of finite cyclic groups in such a way that discrete log relations (see \examplename{} \ref{naive-cyclic-group-hash}) between different images are avoidable. Compositions of a \capitalisewords{Pedersen hash} with a general hash function \eqref{def:hash_function} then provide hash-to-group functions that map strings of arbitrary length onto group elements.
 
-To be more precise, let $j$ be an integer, $\G$ a finite cyclic group of order $n$ and $\{g_1, \ldots, g_j\} \subset \G$ a uniform and randomly generated set of generators of $\G$. Then \term{Pedersen’s hash function} is defined as follows:
-\begin{equation}
+To be more precise, let $j$ be an integer, $\G$ a finite cyclic group of order $n$, and $\{g_1, \ldots, g_j\} \subset \G$ a uniform and randomly generated set of generators of $\G$. Then \term{Pedersen’s hash function} is defined as follows:
+\begin{equation}\label{def:Pedersen_hash}
 H_{\{g_1,\ldots,g_j\}} : \left(\Z_r\right)^j \to \G:\; (x_1,\ldots,x_j)\mapsto \Pi_{i=1}^k g_j^{x_j}
 \end{equation}
-It can be shown that Pedersen’s  hash  function  is  collision-resistant under the assumption that $\G$ is DL-secure \ref{def:DL-secure}. It is important to note though, that the following familie of functions does not qualify as a \uterm{pseudorandom function family}.
+
+It can be shown that Pedersen’s  hash  function  is  collision-resistant under the assumption that $\G$ is DL-secure (see \secname \ref{def:DL-secure}). It is important to note though, that the following family of functions does not qualify as a \uterm{pseudorandom function family}.
 
 \begin{equation}
 \label{Pedersen_not_pseudorandom}
 \{H_{\{g_1,\ldots,g_j\}}\;|\;g_1,\ldots,g_j\in \G\}
 \end{equation}
 
-From an implementation perspective, it is important to derive the set of generators $\{g_1,\ldots,g_k\}$ in such a way that they are as uniform and random as possible. In particular, any known discrete log relation between two generators, that is, any known $x\in \Z_n$ with $g_h = (g_i)^x$ must be avoided.
+From an implementation perspective, it is important to derive the set of generators $\{g_1,\ldots,g_k\}$ in such a way that they are as uniform and random as possible. In particular, any known discrete log relation between two generators, that is, any known $x\in \Z_n$ with $g_h = (g_i)^x$, must be avoided.
 
-\begin{example} To compute an actual Pedersen’s  hash, consider the cyclic group $\Z^*_{5}$ from example \ref{example:cyclic_group_F5*}. We know from example \ref{example:factor_groupds_of_F*5}, that the elements $2$ and $3$ are generators of  $\Z^*_{5}$ and it follows that the following map is a Pedersen's hash function:
-$$
+\begin{example} To compute an actual Pedersen’s  hash, consider the cyclic group $\Z^*_{5}$ from \examplename{} \ref{example:cyclic_group_F5*}. We know from \examplename{} \ref{example:factor_groupds_of_F*5} that the elements $2$ and $3$ are generators of  $\Z^*_{5}$, and it follows that the following map is a Pedersen's hash function:
+\begin{equation}
 H_{\{2,3\}}: \Z_4 \times Z_4 \to \Z^*_{5}\;;\; (x,y)\mapsto 2^x \cdot 3^y
-$$
-To see how this map can be calculated, we choose the imput value $(1,3)$ from $\Z_4 \times Z_4$. Then $H_{\{2,3\}}(1,3)= 2^1\cdot 3^3= 2\cdot 2 =4$. 
+\end{equation}
+
+To see how this map can be calculated, we choose the input value $(1,3)$ from $\Z_4 \times Z_4$. Then, using the multiplication table from \eqref{Z5_tables}, we calculate $H_{\{2,3\}}(1,3)= 2^1\cdot 3^3= 2\cdot 2 =4$. 
 
 To see how the composition of a hash function with $H_{\{2,3\}}$ defines a hash-to-group function, consider the $SHA256$ hash function from example \ref{ex:SHA256}. Given some binary string $s\in\{0,1\}^*$, we can insert the two least significant bits $SHA256(s)_0$ and $SHA256(s)_1$ from the image $SHA256(s)$ into $H_{\{2,3\}}$ to get an element in $\F_5^*$. This defines the following hash-to-group function
 $$
 SHA256\_H_{\{2,3\}}: \{0,1\}^* \to \Z_5^*\;;\; s \mapsto 2^{SHA256(s)_0}\cdot 3^{SHA256(s)_1}
 $$
-To see how this hash function can be calculated, consider the empty string $<>$. Since we know from the sage computation in example \ref{ex:SHA256}, that $SHA256(<>)_0=1$ as well as $SHA256(<>)_1=0$, we get $SHA\_256H_{\{2,3\}}(<>)= 2^1 \cdot 3^0 = 2$. 
+To see how this hash function can be calculated, consider the empty string $<>$. Since we know from the Sage computation in \examplename{} \ref{ex:SHA256}, that $SHA256(<>)_0=1$ and that $SHA256(<>)_1=0$, we get $SHA\_256H_{\{2,3\}}(<>)= 2^1 \cdot 3^0 = 2$. 
 
-Of course computing $SHA256\_H_{\{2,3\}}$ in a pen and paper style is difficult. However we can easily implement this function in sage in the following way:
+Of course, computing $SHA256\_H_{\{2,3\}}$ in a pen-and-paper style is difficult. However, we can easily implement this function in Sage in the following way:
 \begin{sagecommandline}
 sage: import hashlib
 sage: def SHA256_H(x):
 ....:     Z5 = Integers(5) # define the group type
-....:     hasher = hashlib.sha256(x) # Compute SHA256
+....:     hasher = hashlib.sha256(x) # compute SHA256
 ....:     digest = hasher.hexdigest()
 ....:     z = ZZ(digest, 16) # cast into integer
 ....:     z_bin = z.digits(base=2, padto=256) # cast to 256bits
@@ -551,22 +603,22 @@ sage: SHA256_H(b"Math")
 \end{example}
 \begin{exercise}
 \label{exercise:Pedersen_hash_1}
-Consider the multiplicative group $\Z_{13}^*$ of modular $13$ arithmetic from example \ref{ex:Zn*}. Choose a set of $3$ generators of $\Z_{13}^*$, define its associated Pedersen hash function and compute the Pedersen hash of $(3,7,11)\in \Z_{12}$.
+Consider the multiplicative group $\Z_{13}^*$ of modular $13$ arithmetic from \examplename{} \ref{ex:Zn*}. Choose a set of $3$ generators of $\Z_{13}^*$, define its associated \capitalisewords{Pedersen hash function}, and compute the \capitalisewords{Pedersen hash} of $(3,7,11)\in \Z_{12}$.
 \end{exercise}
 \begin{exercise}
-Consider the Pedersen hash from exercise \ref{exercise:Pedersen_hash_1}. Compose it with the $SHA256$ hash function from example \ref{ex:SHA256} to define a hash-to-group function. Implement that function in sage.
+Consider the \capitalisewords{Pedersen hash} from \exercisename{} \ref{exercise:Pedersen_hash_1}. Compose it with the $SHA256$ hash function from \examplename{} \ref{ex:SHA256} to define a hash-to-group function. Implement that function in Sage.
 \end{exercise}
 
 %\citep{cryptoeprint:2016:492}
-\paragraph{Pseudorandom Function Families in DDH-secure groups}
+\subsubsection{Pseudorandom Function Families in DDH-secure groups}
 % https://fmouhart.epheme.re/Crypto-1617/TD08.pdf
 % Proper description in https://eprint.iacr.org/2016/492.pdf sec 3.3
-As noted in \ref{def:Pedersen_hash}, the family of Pederson's hash functions, parameterized by a set of generators $\{g_1,\ldots,g_j\}$ does not qualify as a family of pseudorandom functions and should therefore not be instantiated as such. To see an example of a proper family of pseudorandom functions in groups where the decisional Diffie--Hellman assumtion \ref{def:DDH-secure} is assumed to hold true, let $\G$ be a DDH-secure cyclic group of order $n$ with generator $g$ and $\{a_0,a_1,\ldots,a_k\}\subset \Z_{n}^*$ a uniform randomly generated set of numbers invertible in modular $n$ arithmetics. Then a family of pseudorandom functions, parameterized by the seed $\{a_0,a_1,\ldots,a_k\}$ is given as follows:
+As noted in \ref{def:Pedersen_hash}, the family of Pederson's hash functions, parameterized by a set of generators $\{g_1,\ldots,g_j\}$ does not qualify as a family of pseudorandom functions, and should therefore not be instantiated as such. To see an example of a proper family of pseudorandom functions in groups where the decisional Diffie--Hellman assumption (see \secname \ref{def:DDH-secure}) is assumed to hold true, let $\G$ be a DDH-secure cyclic group of order $n$ with generator $g$, and let $\{a_0,a_1,\ldots,a_k\}\subset \Z_{n}^*$ be a uniform randomly generated set of numbers invertible in modular $n$ arithmetics. Then a family of pseudorandom functions, parameterized by the \uterm{seed} $\{a_0,a_1,\ldots,a_k\}$ is given as follows:
 \begin{equation}
 \label{prf_in_cyclic_group}
 F_{\{a_0,a_1,\ldots,a_k\}}: \{0,1\}^{k+1} \to \G:\; (b_0,\ldots,b_k)\mapsto g^{b_0\cdot \Pi_{i=1}^k a_i^{b_i}}
 \end{equation}
-\begin{exercise} Consider the multiplicative group $\Z_{13}^*$ of modular $13$ arithmetic from example \ref{ex:Zn*} and the parameter $k=3$. Choose a generator of $\Z_{13}^*$, a seed and instantiate a member of the familie \ref{prf_in_cyclic_group} for that seed. Evaluate that member on the binary string $<1,0,1>$.
+\begin{exercise} Consider the multiplicative group $\Z_{13}^*$ of modular $13$ arithmetic from \examplename{} \ref{ex:Zn*} and the parameter $k=3$. Choose a generator of $\Z_{13}^*$, a seed and \uterm{instantiate} a member of the family given in \eqref{prf_in_cyclic_group} for that seed. Evaluate that member on the binary string $<1,0,1>$.
 \end{exercise}
 %\begin{example}[p\&{}p-$\F_{13}$-drop-hash]We can consider the same pen\&paper hash function from XXX and define another hash into $\F_{13}$, by deleting the first leading bit from the hash. The result is then a $3$-digit number and therefore guaranteed to be smaller then $13$, since $13$ is equal to $(1101)$ in base $2$.
 
@@ -576,25 +628,25 @@ F_{\{a_0,a_1,\ldots,a_k\}}: \{0,1\}^{k+1} \to \G:\; (b_0,\ldots,b_k)\mapsto g^{b
 %\end{example}
 
 \section{Commutative Rings}\label{sec:rings}
-In the previous section we have seen that integers are a commutative group with respect to integer addition, but as we know there are in fact two arithmetic operations defined on integers: addition and multiplication. However, in contrast to addition, multiplication does not define a group structure, given that integers generally don't have multiplicative inverses. Configurations like these constitute so-called \term{commutative rings with unit} and the following definition will make the structure explicit: 
+In the previous section, we have seen that integers are a commutative group with respect to integer addition. However, as we know, there are two arithmetic operations defined on integers: addition and multiplication. However, in contrast to addition, multiplication does not define a group structure, given that integers generally don't have multiplicative inverses. Configurations like these constitute so-called \term{commutative rings with unit}, and are defined as follows: 
 
 \begin{definition}[Commutative ring with unit]\label{def:comm-ring-unit}
-A \term{commutative ring with unit} $ (R, +, \cdot, 1) $ is a set $R$ provided with two maps $ +: R \times R \to R $ and $ \cdot: R \times R \to R $, called \term{addition} and \term{multiplication} and an element $1\in R$, called the \term{unit}, such that the following conditions hold:
+A \term{commutative ring with unit} $ (R, +, \cdot, 1) $ is a set $R$ with two maps, $ +: R \times R \to R $ and $ \cdot: R \times R \to R $, called \term{addition} and \term{multiplication}, and an element $1\in R$, called the \term{unit}, such that the following conditions hold:
 \begin{itemize}
-\item $ (R, +) $ is a commutative group, where the neutral element is denoted  with $ 0 $.
+\item $ (R, +) $ is a commutative group where the neutral element is denoted  with $ 0 $.
 \item \hilight{Commutativity of multiplication}: $r_1\cdot r_2 = r_2\cdot r_1$ for all $r_1, r_2\in R$.
 \item \hilight{Multiplicative neutral unit }: $1\cdot g=g$ for all $g\in R$.
-\item \hilight{Associativity}: For every $g_1,g_2,g_3\in\G$ the equation
-$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
-\item \hilight{Distributivity}: For all $ g_1, g_2, g_3 \in R $ the distributive law
+\item \hilight{Associativity}: For every $g_1,g_2,g_3\in\G$, the equation
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.\sme{what are the gs here? copy+paste error from \ref{def:commutative_group}?}
+\item \hilight{Distributivity}: For all $ g_1, g_2, g_3 \in R $, the distributive law
 $ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
-If $(R,+,\cdot,1)$ is a commutative ring with unit and $R'\subset R$ is a subset of $R$, such that the restriction of addition and multiplication to $R'$ define a commutative ring with addition $+: R'\times R' \to R'$, multiplication $\cdot: R'\times R' \to R'$ and unit $1$ on $R'$, then $(R',+,\cdot,1)$ is called a \term{subring} of $(R,+,\cdot,1)$.
+If $(R,+,\cdot,1)$ is a commutative ring with unit, and $R'\subset R$ is a subset of $R$ such that the restriction of addition and multiplication to $R'$ define a commutative ring with addition $+: R'\times R' \to R'$, multiplication $\cdot: R'\times R' \to R'$ and unit $1$ on $R'$, then $(R',+,\cdot,1)$ is called a \term{subring} of $(R,+,\cdot,1)$.
 \end{definition}
 \begin{notation}Since we are exclusively concerned with commutative rings in this book, we often just call them rings, keeping the notation of commutativity implicit.
-A set $R$ with two maps $+$ and $\cdot$ that satisfies all previously mentioned rules, except for the commutativity law of the multiplication is called a non-commutative ring. 
+A set $R$ with two maps, $+$ and $\cdot$, which satisfies all previously mentioned rules except for the commutativity law of multiplication, is called a non-commutative ring. 
 
-If there is no risk of ambiguity (about what the addition and multiplication maps  of a ring are), we frequently drop the symbols $+$ and $\cdot$ and simply write $R$ as notation for the ring, keeping those maps implicit. In this case we also say that $R$ is of ring type, indicating that $R$ is not simply a set but a set together with an addition and a multiplication map.
+If there is no risk of ambiguity (about what the addition and multiplication maps  of a ring are), we frequently drop the symbols $+$ and $\cdot$ and simply write $R$ as notation for the ring, keeping those maps implicit. In this case we also say that $R$ is of ring type, indicating that $R$ is not simply a set but a set together with an addition and a multiplication map.\footnote{Commutative rings are a large field of research in mathematics, and countless books on the topic exist. For our purposes, an introduction is given in \chaptname{} 1, \secname{} 2 of \cite{nieder-1986}.}
 \end{notation}
 \begin{example}[The ring of integers] The set $\Z$ of integers with the usual addition and multiplication is the archetypical example of a commutative ring with unit $1$. 
 \begin{sagecommandline}
@@ -603,9 +655,9 @@ sage: ZZ
 \end{example}
 \begin{example}[Underlying commutative group of a ring] Every commutative ring with unit $(R,+,\cdot,1)$ gives rise to a group, if we disregard multiplication.
 \end{example}
-The following example is somewhat unusual, but we encourage you to think through it because it helps to detach the mind from familiar styles of computation and concentrate on the abstract algebraic explanation.
+The following example is somewhat unusual, but we encourage you to think through it because it helps to detach the mind from familiar styles of computation, and concentrate on the abstract algebraic explanation.
 \begin{example} Let $S:=\{\bullet,\star,\odot,\otimes\}$ be a set that contains four elements, and let addition and multiplication on $S$ be defined as follows:
-\begin{center}
+\begin{equation}\label{moon-table}
   \begin{tabular}{c | c c c c c c}
     $\cup$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\\hline
     $\bullet$ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ \\
@@ -620,13 +672,13 @@ $ \circ $ & $\bullet$ & $\star$ & $\odot$ & $\otimes$ & \\\hline
         $\odot$ & $\bullet$ & $\odot$ & $\bullet$ & $\odot$ &\\
         $\otimes$ & $\bullet$ & $\otimes$ & $\odot$ & $\star$ &\\
   \end{tabular}
-\end{center}
-Then $(S,\cup,\circ, \star)$ is a ring with unit $\star$ and zero $\bullet$. It therefore makes sense to ask for solutions to equations like this one:
-Find $x\in S$ such that
-$$
+\end{equation}
+Then $(S,\cup,\circ, \star)$ is a ring with unit $\star$ and zero $\bullet$. It therefore makes sense to ask for solutions to equations like the following one:
+\begin{equation}\label{eq:moon}
 \otimes \circ (x \cup \odot ) = \star
-$$
-To see how such a ``moonmath equation'' can be solved, we have to keep in mind that rings behaves mostly like normal numbers when it comes to bracketing and computation rules. The only differences are the symbols, and the actual way to add and multiply them. With this in mind, we solve the equation for $x$ in the``usual way'' \footnote{Note that there are more efficient ways to solve this equation. The point of our computation is to show how the axioms of a ring can be used to solve the equation}:
+\end{equation}
+
+The task here is to find $x\in S$ such that \eqref{eq:moon} holds. To see how such a ``moonmath equation'' can be solved, we have to keep in mind that rings behave mostly like normal numbers when it comes to bracketing and computation rules. The only differences are the symbols, and the actual way to add and multiply them. With this in mind, we solve the equation for $x$ in the ``usual way'': \footnote{Note that there are more efficient ways to solve this equation. The point of our computation is to show how the axioms of a ring can be used to solve the equation.}
 \begin{align*}
 \otimes \circ (x \cup \odot ) &= \star & \text{ \# apply the distributive law}\\
 \otimes \circ x \cup \otimes \circ \odot  &= \star &\# \otimes \circ \odot = \odot\\
@@ -640,15 +692,15 @@ To see how such a ``moonmath equation'' can be solved, we have to keep in mind t
 \star \circ x &= \star\\
 x &= \star
 \end{align*}
-So, even though this equation looked really alien at first glance, we could solve it basically exactly the way we solve ``normal'' equations containing numbers.
+Even though this equation looked really alien at first glance, we could solve it basically exactly the way we solve ``normal'' equations containing numbers.
 
-Note, however, that whenever a multiplicative inverse would be needed to solve an equation in the usual way in a ring, things can be very different than most of us are used to.  For example, the following equation cannot be solved for $x$ in the usual way, since there is no multiplicative inverse for $\odot$ in our ring.
+Note, however, that whenever a multiplicative inverse is needed to solve an equation in the usual way in a ring, things can be very different than most of us are used to.  For example, the following equation cannot be solved for $x$ in the usual way, since there is no multiplicative inverse for $\odot$ in our ring.
 
 \begin{equation}
 \odot \circ x = \otimes
 \end{equation}
 
-We can confirm this by looking at the multiplication table to see that no such $x$ exits.
+We can confirm this by looking at the multiplication table in \eqref{moon-table} to see that no such $x$ exits.
 
 As another example, the following equation does not have a single solution but two: $x\in\{\star, \otimes\}$.
 
@@ -656,90 +708,94 @@ As another example, the following equation does not have a single solution but t
 \odot \circ x = \odot
 \end{equation}
 
-Having no solution or two solutions is certainly not something to expect from types like the rational numbers $\mathbb{Q}$.
+Having no solution or two solutions is certainly not something we are used to from types like the rational numbers $\mathbb{Q}$.
 \end{example}
 
-\begin{example}[Ring of Polynomials] Considering the definition of polynomials from \ref{sec:polynomial_arithmetics} again, we notice that what we have informally called the type $R$ of the coefficients must in fact be a commutative ring with a unit, since we need addition, multiplication, commutativity and the existence of a unit for $R[x]$ to have the properties we expect.
+\begin{example}[Ring of Polynomials] Considering the definition of polynomials from section \ref{sec:polynomial_arithmetics} again, we notice that what we have informally called the type $R$ of the coefficients must in fact be a commutative ring with a unit, since we need addition, multiplication, commutativity and the existence of a unit for $R[x]$ to have the properties we expect.
 
-In fact if we consider $R$ to be a ring and we define addition and multiplication of polynomials as in \ref{def:polynomial_arithmetic}, the set $R[x]$ is a commutative ring with a unit, where the polynomial $1$ is the multiplicative unit. We call this ring the \term{ring of polynomials with coefficients in} $R$.
+In fact, if we consider $R$ to be a ring and we define addition and multiplication of polynomials as in \eqref{def:polynomial_arithmetic}, the set $R[x]$ is a commutative ring with a unit, where the polynomial $1$ is the multiplicative unit. We call this ring the \term{ring of polynomials with coefficients in} $R$.
 \begin{sagecommandline}
 sage: ZZ['x']
 \end{sagecommandline}
 \end{example}
 \begin{example}[Ring of modular $n$ arithmetic]
 \label{def:ring_of_mod_n_arithmetics}
- Let $n$ be a modulus and $(\Z_n,+,\cdot)$ the set of all remainder classes of integers modulo $n$, with the projection of integer addition and multiplication as defined in \ref{def:remainder_class_representation}. Then $(\Z_n,+,\cdot)$ is a commutative ring with unit $1$.
+ Let $n$ be a modulus and $(\Z_n,+,\cdot)$ the set of all remainder classes of integers modulo $n$, with the projection of integer addition and multiplication as defined in \secname \ref{def:remainder_class_representation}. Then $(\Z_n,+,\cdot)$ is a commutative ring with unit $1$.
 \begin{sagecommandline}
 sage: Integers(6)
 \end{sagecommandline}
 \end{example}
 \begin{example}[Binary Representations in Modular Arithmetic]
-TODO (Non unique)
+\smecomb{TODO}{add example} (Non unique)
 \end{example}
 
-\begin{example}[Polynomial evaluation in the exponent of group generators] As we show in \ref{sec:QAP}, a key insights in many zero knowlege protocols is the ability to encode computations as polynomials and then to hide the information of that computation by evaluating the polynomial "in the exponent" of certain cryptographic groups \ref{sec:gorth_16}.
+\begin{example}[Polynomial evaluation in the exponent of group generators] As we show in \secname{} \ref{sec:QAP}, a key insight in many zero-knowlege protocols is the ability to encode computations as polynomials and then to hide the information of that computation by evaluating the polynomial ``in the exponent'' of certain cryptographic groups (\secname{} \ref{sec:gorth_16}).
 
-To understand the underlying principle of this idea, consider the exponential map \pageref{exponentialmap} again. If $\G$ is a finite cyclic group of order $n$ with generator $g\in\G$, then the ring structure of $(\Z_n,+,\cdot)$ corresponds to the group structure of $\G$ in the following way:
+To understand the underlying principle of this idea, consider the exponential map \eqref{exponentialmap} again. If $\G$ is a finite cyclic group of order $n$ with generator $g\in\G$, then the ring structure of $(\Z_n,+,\cdot)$ corresponds to the group structure of $\G$ in the following way:
 \begin{align}
 \label{def:ring_exponential_laws}
 g^{x+y} &= g^x\cdot g^y & 
 g^{x\cdot y} &= \left( g^x\right)^y & \text{for all } x,y\in\Z_n
 \end{align}
-This correspondense allows polynomials with coefficients in $\Z_n$ to be evaluated ``in the exponent'' of a group generator. To see what this means, let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$ and let $s\in\Z_n$ be an evaluation point. Then the previously defined exponential laws \ref{def:ring_exponential_laws} imply the following identity:
+This correspondense allows polynomials with coefficients in $\Z_n$ to be evaluated ``in the exponent'' of a group generator. To see what this means, let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$, and let $s\in\Z_n$ be an evaluation point. Then the previously defined exponential laws \ref{def:ring_exponential_laws} imply the following identity:
 \begin{align}
 \label{def:polynomial_ring_exponential_laws}
 g^{p(s)} & = g^{a_m\cdot s^m+a_{m-1}s^{m-1}+\ldots + a_1s +a_0}\\
          & = \left(g^{s^m}\right)^{a_m}\cdot \left(g^{s^{m-1}}\right)^{a_{m-1}}\cdot \ldots\cdot \left(g^{s}\right)^{a_1}\cdot g^{a_0}\notag
 \end{align}
-Utilizing these identities, it is possible to evaluate any polynomial $p$ of degree $deg(p)\leq m$ at a "secret" evaluation point $s$ in the exponent of $g$ without any knowledge about $s$, assuming that $\G$ is a DL-group. To see this assume that the set $\{g,g^s, g^{s^2},\ldots, g^{s^m}\}$ is given, but $s$ is unknown. Then 
-$g^{p(s)}$ can be computed using \ref{def:polynomial_ring_exponential_laws}, however it is not feasible to compute $s$.   
+Utilizing these identities, it is possible to evaluate any polynomial $p$ of degree $deg(p)\leq m$ at a ``secret'' evaluation point $s$ in the exponent of $g$ without any knowledge about $s$, assuming that $\G$ is a DL-group. To see this, assume that the set $\{g,g^s, g^{s^2},\ldots, g^{s^m}\}$ is given, but $s$ is unknown. Then 
+$g^{p(s)}$ can be computed using \eqref{def:polynomial_ring_exponential_laws}, but it is not feasible to compute $s$.   
 \end{example}
 
-\begin{example} To give an example of the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map from example \ref{ex:in-the-exponent}:
-$$
+\begin{example} To give an example of the evaluation of a polynomial in the exponent of a finite cyclic group, consider the exponential map from \examplename{} \ref{ex:in-the-exponent}:
+
+\begin{equation}
 3^{(\cdot)}: \Z_4 \to \Z_5^* \;;\; x \mapsto 3^x
-$$
-Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we first evaluate the polynomial at the point $s=2$ and then write the result into the exponent $3$ as follows:
+\end{equation}
+
+Choosing the polynomial $p(x)= 2x^2 +3x +1$ from $\Z_4[x]$, we first evaluate the polynomial at the point $s=2$, and then write the result into the exponent $3$ as follows:
 \begin{align*}
 3^{p(2)} &=3^{2\cdot 2^2+3\cdot 2 +1}\\
           & = 3^{2\cdot 0 +2 +1}\\
           & = 3^{3}\\
           & = 2
 \end{align*}
-This was possible, because we had access to the evaluation point $2$. On the other hand, if we only had access to the set $\{3, 4, 1\}$ and we knew that this set represents the set $\{3,3^s, 3^{s^2}\}$ for some secret value $s$, we could evaluate
-$p$ at the point $s$ in the exponent of $3$ as
+This was possible because we had access to the evaluation point $2$. On the other hand, if we only had access to the set $\{3, 4, 1\}$ and we knew that this set represents the set $\{3,3^s, 3^{s^2}\}$ for some secret value $s$, we could evaluate
+$p$ at the point $s$ in the exponent of $3$ as follows:
 \begin{align*}
 3^{p(s)} &= 1^2 \cdot 4^3\cdot 3^1\\
          &= 1\cdot 4\cdot 3\\
          &= 2
 \end{align*}
-Both computations agree, since the secret point $s$ was equal to $2$ in this example. However the second evaluation was possible without any knowledge about $s$.
+Both computations \comms{agree}, since the secret point $s$ was equal to $2$ in this example. However the second evaluation was possible without any knowledge about $s$.
 \end{example}
-\paragraph{Hashing into Modular Arithmetic}
+\subsection{Hashing into Modular Arithmetic}
 \label{hash-to-modular-arithmetics}
-As we have seen in \ref{sec:hashing-to-groups}, various constructions for hashing-to-groups are known and used in applications. As commutative rings are commutative groups, when we disregard the multiplicative structure, hash-to-group constructions can be applied for hashing into commutative rings. 
+As we have seen in \secname{} \ref{sec:hashing-to-groups}, various constructions for hashing to groups are known and used in applications. As commutative rings are commutative groups when we disregard the multiplication, hash-to-group constructions can be applied for hashing into commutative rings.  We review some frequently used applications below.
 
-One of the most widely used applications of hash-into-ring constructions are hash functions that map into the ring $\Z_n$ of modular $n$ arithmetics for some modulus $n$. Different approaches to construct such a function are known, but probably the most widely used ones are based on the insight that the images of general hash functions can be interpreted as binary representations of integers, as explained in example \ref{naive-cyclic-group-hash}.
+\sme{put subsubsection title here}
 
-It follows from this interpretation that one simple method of hashing into $\Z_n$ is constructed by observing that if $n$ is a modulus with a bit-length \ref{def:binary_representation_integer} of $k=|n|$, then every binary string $<b_0,b_1,\ldots,b_{k-2}>$ of length $k-1$ defines an integer $z$ in the rage $0\leq z \leq 2^{k-1}-1< n $:
+One of the most widely used applications of hash-into-ring constructions are hash functions that map into the ring $\Z_n$ of modular $n$ arithmetics for some modulus $n$. Different approaches of constructing such a function are known, but probably the most widely used ones are based on the insight that the images of general hash functions can be interpreted as binary representations of integers, as explained in \examplename{} \ref{naive-cyclic-group-hash}.
+
+It follows from this interpretation that one simple method of hashing into $\Z_n$ is constructed by observing that if $n$ is a modulus with a bit length \eqref{def:binary_representation_integer} of $k=|n|$, then every binary string $<b_0,b_1,\ldots,b_{k-2}>$ of length $k-1$ defines an integer $z$ in the rage $0\leq z \leq 2^{k-1}-1< n $:
 \begin{equation}
 z = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{k-2}\cdot 2^{k-2}
 \end{equation}
-Now, since $z<n$, we know that $z$ is guaranteed to be in the set $\{0,1,\ldots,n-1\}$, and hence it can be interpreted as an element of $\Z_n$. From this it follows that if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-ring function can be constructed as follows:
+Now, since $z<n$, we know that $z$ is guaranteed to be in the set $\{0,1,\ldots,n-1\}$, and hence it can be interpreted as an element of $\Z_n$. Consequently, if $H:\{0,1\}^*\to\{0,1\}^{k-1}$ is a hash function, then a hash-to-ring function can be constructed as follows:
 \begin{equation}\label{eq:hash-Zr}
 H_{|n|_2-1}: \{0,1\}^* \to \Z_r: \; s \mapsto
 H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-2}\cdot 2^{k-2}
 \end{equation}
 
-A drawback of this hash function is that the distribution of the hash values in $\Z_n$ is not necessarily uniform. In fact, if $n$ is larger then $2^{k-1}$, then by design $H_{|n|_2-1}$ will never hash onto values $z\geq 2^{k-1}$. Using this hashing method therefore generates approximately uniform hashes only, if $n$ is very close to $2^{k-1}$. In the worst case, when $n=2^k-1$, it misses almost half of all elements from $\Z_n$.
+A drawback of this hash function is that the distribution of the hash values in $\Z_n$ is not necessarily uniform. In fact, if $n$ is larger than $2^{k-1}$, then by design $H_{|n|_2-1}$ will never hash onto values $z\geq 2^{k-1}$. Using this hashing method therefore generates approximately uniform hashes only if $n$ is very close to $2^{k-1}$. In the worst case, when $n=2^k-1$, it misses almost half of all elements from $\Z_n$.
 
-An advantage of this approach is that properties like preimage resistance or collision resistance of the original hash function $H(\cdot)$ are preserved.
-\begin{example} To analyze a particular implementation of a $H_{|n|_2-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from example \ref{ex:SHA256} and define a hash into $\Z_{16}$ as follows:
+An advantage of this approach is that properties like preimage resistance or collision resistance (see \secname{} \ref{sec:hash-functions}) of the original hash function $H(\cdot)$ are preserved.
+\begin{example} To analyze a particular implementation of a $H_{|n|_2-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from \examplename{} \ref{ex:SHA256} and define a hash into $\Z_{16}$ as follows:
 $$
 H_{|16|_2-5}: \{0,1\}^* \to \Z_{16}:\; s\mapsto
 SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_4\cdot 2^4
 $$
-Since $k=|16|_2=5$ and $16-2^{k-1}=0$, this hash maps uniformly onto $\Z_{16}$. We can invoke Sage to implement it:
+Since $k=|16|_2=5$ and $16-2^{k-1}=0$, this hash maps uniformly onto $\Z_{16}$. We can use Sage to implement it:
 \begin{sagecommandline}
 sage: import hashlib
 sage: def Hash5(x):
@@ -783,20 +839,22 @@ H3 = list_plot(arr, ymin=0,ymax=10000)
 \end{center}
 \end{example}
 
-A second widely used method of hashing into $\Z_n$ is constructed by observing the following: If $n$ is a modulus with a bit-length of $|n|_2=k_1$ and $H:\{0,1\}^*\to \{0,1\}^{k_2}$ is a hash function that produces digests of size $k_2$, with $k_2\geq k_1$, then a hash-to-ring function can be constructed by interpreting the image of $H$ as a binary representation of an integer and then taking the modulus by $n$ to map into $\Z_n$:.
+\sme{put subsubsection title here}
+
+A second widely used method of hashing into $\Z_n$ is constructed by observing the following: If $n$ is a modulus with a bit-length of $|n|_2=k_1$, and $H:\{0,1\}^*\to \{0,1\}^{k_2}$ is a hash function that produces digests of size $k_2$, and $k_2\geq k_1$, then a hash-to-ring function can be constructed by interpreting the image of $H$ as a binary representation of an integer, and then taking the modulus by $n$ to map into $\Z_n$:.
 \begin{equation}
 H'_{mod_n}: \{0,1\}^* \to \Z_n: \; s \mapsto
 \Zmod{\left(H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k_2}\cdot 2^{k_2}\right)}{n}
 \end{equation}
 
-A drawback of this hash function is that computing the modulus requires some computational effort. In addition, the distribution of the hash values in $\Z_n$ might not be uniform, depending on the number $\Zmod{2^{k_2+1}}{n}$. An advantage of it is that potential properties of the original hash function $H(\cdot)$ (like preimage resistance or collision resistance) are preserved, and the distribution can be made almost uniform, with only negligible bias depending on what modulus $n$ and images size $k_2$ are chosen.
-\begin{example} To give an implementation of the $H_{mod_n}$ hash function, we use  $k_2$-bit truncation of the $SHA256$ hash from example \ref{ex:SHA256}, and define a hash into $\Z_{23}$ as follows:
+A drawback of this hash function is that computing the modulus requires some computational effort. In addition, the distribution of the hash values in $\Z_n$ might not be uniform, depending on the number $\Zmod{2^{k_2+1}}{n}$. An advantage of this function is that potential properties of the original hash function $H(\cdot)$ (like preimage resistance or collision resistance) are preserved, and the distribution can be made almost uniform, with only negligible bias depending on what modulus $n$ and images size $k_2$ are chosen.
+\begin{example} To give an implementation of the $H_{mod_n}$ hash function, we use  $k_2$-bit truncation of the $SHA256$ hash from \examplename{} \ref{ex:SHA256}, and define a hash into $\Z_{23}$ as follows:
 \begin{multline*}
 H_{mod_{23},k_2}: \{0,1\}^* \to \Z_{23}:\; \\
 s\mapsto
 \Zmod{\left(SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_{k_2}\cdot 2^{k_2}\right)}{23}
 \end{multline*}
-We want to use various instantiations of $k_2$ to visualize the impact of truncation length on the distribution of the hashes in $\Z_{23}$. We can invoke Sage to implement it as follows:
+We want to use various instantiations of $k_2$ to visualize the impact of truncation length on the distribution of the hashes in $\Z_{23}$. We can use Sage to implement it as follows:
 \begin{sagecommandline}
 sage: import hashlib
 sage: Z23 = Integers(23)
@@ -837,10 +895,15 @@ H6 = list_plot(arr4, ymin=0,ymax=10000,color='black', legend_label='k2=16')
 \end{center}
 \end{example}
 
-A third method that can sometimes be found in implementations is the so-called \term{``try-and-increment'' method}\label{def:try_and_increment_hash}. To understand this method, we define an integer $z\in\Z$ from any hash value $H(s)$ as we did in the previous methods, that is, we define 
-$$z = H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k}$$
+\subsubsection{The ``try-and-increment'' method}\label{def:try_and_increment_hash}
 
-Hashing into $\Z_n$ is then achievable by first computing $z$, and then trying to see if $z\in\Z_n$. If it is, then the hash is done; if not, the string $s$ is modified in a deterministic way and the process is repeated until a suitable element $z\in\Z_n$ is found. A suitable, deterministic modification could be to concatenate the original string by some bit counter. A ``try-and-increment'' algorithm would then work like in algorithm \ref{alg_try_and_increment}.
+A third method that can sometimes be found in implementations is the so-called \term{``try-and-increment'' method}. To understand this method, we define an integer $z\in\Z$ from any hash value $H(s)$ as we did in the previous methods:
+
+\begin{equation}
+z = H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-1}\cdot 2^{k}
+\end{equation}
+
+Hashing into $\Z_n$ is then achievable by first computing $z$, and then trying to see if $z\in\Z_n$. If it is, then the hash is done; if not, the string $s$ is modified in a deterministic way and the process is repeated until a suitable element $z\in\Z_n$ is found. A suitable, deterministic modification could be to concatenate the original string by some bit counter. A ``try-and-increment'' algorithm would then work like in \algname{} \ref{alg_try_and_increment}.
 \begin{algorithm}\caption{Hash-to-$\Z_n$}
 \label{alg_try_and_increment}
 \begin{algorithmic}[0]
@@ -858,35 +921,36 @@ Hashing into $\Z_n$ is then achievable by first computing $z$, and then trying t
 \end{algorithmic}
 \end{algorithm}
 
-Depending on the parameters, this method can be very efficient. In fact, if $k$ is sufficiently large and $n$ is close to $2^{k+1}$, the probability for $z<n$ is very high and the repeat loop will almost always be executed a single time only. A drawback is, however, that the probability of having to execute the loop multiple times is not zero.
+Depending on the parameters, this method can be very efficient. In fact, if $k$ is sufficiently large and $n$ is close to $2^{k+1}$, the probability for $z<n$ is very high, and the repeat loop will almost always be executed a single time only. A drawback is, however, that the probability of having to execute the loop multiple times is not zero.
 
 \section{Fields}\label{sec:fields}
-We started this chapter with the definition of a group \ref{sec:groups}, which we then expanded into the definition of a commutative ring with a unit \ref{sec:rings}. Such rings generalize the behavior of integers. In this section, we will look at those special cases of commutative rings where every element other than the neutral element of addition has a multiplicative inverse. Those structures behave very much like the rational numbers $\mathbb{Q}$. Rational numbers are, in a sense, an extension of the ring of integers, that is, they are constructed by including newly defined multiplicative inverses (fractions) to the integers. The following definition makes the definition of a ield precise:
+We started this chapter with the definition of a group (\secname{} \ref{sec:groups}), which we then expanded into the definition of a commutative ring with a unit (\secname \ref{sec:rings}). These types of rings generalize the behavior of integers. In this section, we look at those special cases of commutative rings where every element other than the neutral element of addition has a multiplicative inverse. Those structures behave very much like the set of rational numbers $\mathbb{Q}$. Rational numbers are, in a sense, an extension of the ring of integers, that is, they are constructed by including newly defined multiplicative inverses (fractions) to the integers. Fields are defined as follows:
+
 \begin{definition}[Field]\label{def:field}
-A \term{field} $ (\F, +, \cdot) $ is a set $\F$ provided with two maps $ +: \F \times \F \to \F $ and $ \cdot: \F \times \F \to \F $, called \term{addition} and \term{multiplication}, such that the following conditions hold:
+A \term{field} $ (\F, +, \cdot) $ is a set $\F$  with two maps $ +: \F \times \F \to \F $ and $ \cdot: \F \times \F \to \F $ called \term{addition} and \term{multiplication}, such that the following conditions hold:
 \begin{itemize}
 \item $ \left (\F, + \right) $ is a commutative group, where the neutral element is denoted by $ 0 $.
 \item $ \left (\F \setminus \left \{0 \right \}, \cdot \right) $ is a commutative group, where the neutral element is denoted by $ 1 $.
 \item (Distributivity) The equation $g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$  holds for all $ g_1, g_2, g_3 \in \F $.
 \end{itemize}
-If $(\F,+,\cdot)$ is a field and $\F'\subset \F$ is a subset of $\F$, such that the restriction of addition and multiplication to $\F'$ define a field with addition $+: \F'\times \F' \to \F'$ and multiplication $\cdot: \F'\times \F' \to \F'$ on $\F'$, then $(\F',+,\cdot)$ is called a \term{subfield} of $(\F,+,\cdot)$ and $(\F,+,\cdot)$ is called an \term{extension field} of $(\F',+,\cdot)$.
+If $(\F,+,\cdot)$ is a field and $\F'\subset \F$ is a subset of $\F$ such that the restriction of addition and multiplication to $\F'$ define a field with addition $+: \F'\times \F' \to \F'$ and multiplication $\cdot: \F'\times \F' \to \F'$ on $\F'$, then $(\F',+,\cdot)$ is called a \term{subfield} of $(\F,+,\cdot)$ and $(\F,+,\cdot)$ is called an \term{extension field} of $(\F',+,\cdot)$.
 \end{definition}
 
-\begin{notation} If there is no risk of ambiguity (about what the addition and multiplication maps  of a field are), we frequently drop the symbols $+$ and $\cdot$ and simply write $\F$ as notation for the field, keeping those maps implicit. In this case we also say that $\F$ is of field type, indicating that $\F$ is not simply a set but a set together with an addition and a multiplication map that satisfy the field axioms \ref {def:field}.
+\begin{notation} If there is no risk of ambiguity (about what the addition and multiplication maps  of a field are), we frequently omit the symbols $+$ and $\cdot$, and simply write $\F$ as notation for a field, keeping  maps implicit. In this case, we also say that $\F$ is of field type, indicating that $\F$ is not simply a set but a set with an addition and a multiplication map that satisfies the definition of a field (\ref {def:field}).\footnote{Since fields are of great importance in cryptography and number theory, many books exists on that topic. For a general introduction, see, for example, \chaptname{} 6, \secname{} 1 in \cite{mignotte-1992}, or \chaptname{} 1, \secname{} 2 in \cite{nieder-1986}.}
 
-We call $(\F,+)$ the \term{additive group} of the field, write $\F^*:= \F \setminus \left \{0 \right \}$ for the set of all elements excluding the neutral element of addition and call the group $(\F^*,\cdot)$ the \term{multiplicative group} of the field.
+We call $(\F,+)$ the \term{additive group} of the field. We use the notation $\F^*:= \F \setminus \left \{0 \right \}$ for the set of all elements excluding the neutral element of addition, called  $(\F^*,\cdot)$ the \term{multiplicative group} of the field.
 \end{notation}
 
-The \term{characteristic}\label{def:characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of the multiplicative neutral element  $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is also said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
-\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no natural number $n\in \N$, such that $\sum_{j=0}^n 1 =0$ in the set of rational numbers, the characteristic of the field $\mathbb{Q}$ is given by $char(\mathbb{Q})=0$. 
+The \term{characteristic}\label{def:characteristic} of a field $ \F $, represented as $char(\F)$, is the smallest natural number $ n \geq 1 $ for which the $n$-fold sum of the multiplicative neutral element  $ 1 $ equals zero, i.e. for which $ \sum_{i = 1} ^ n 1 = 0 $. If such an $ n> 0 $ exists, the field is  said to have a \term{finite characteristic}. If, on the other hand, every finite sum of $1$ is such that it is not equal to zero, then the field is defined to have characteristic $ 0 $.\sme{Check change of wording} \smelong{S: Tried to disambiguate the scope of negation between 1. ``It is true of every finite sum of $1$ that it is not equal to 0''  and 2. ``It is not true of every finite sum of $1$ that it is  equal to 0'' From the example below, it looks like 1. is the intended meaning here, correct?}
+\begin{example}[Field of rational numbers] Probably the best known example of a field is the set of rational numbers $\mathbb{Q}$ together with the usual definition of addition, subtraction, multiplication and division. Since there is no natural number $n\in \N$ such that $\sum_{j=0}^n 1 =0$ in the set of rational numbers, the characteristic of the field $\mathbb{Q}$ is given by $char(\mathbb{Q})=0$. 
 \begin{sagecommandline}
 sage: QQ
 \end{sagecommandline}
 \end{example}
-\begin{example}[Field with two elements]\label{ex:field-2-elements} It can be shown that, in any field, the neutral element of addition $0$ must be different from the neutral element of multiplication $1$, that is, $0\neq 1$ always holds in a field. From this, it follows that the smallest field must contain at least two elements. As the following addition and multiplication tables show, there is indeed a field with two elements, which is usually called $\F_2$:
+\begin{example}[Field with two elements]\label{ex:field-2-elements} It can be shown that, in any field, the neutral element of addition $0$ must be different from the neutral element of multiplication $1$, that is, $0\neq 1$ always holds in a field. This means that the smallest field must contain at least two elements. As the following addition and multiplication tables show, there is indeed a field with two elements, which is usually called $\F_2$:
 
-Let $\F_2:=\{0,1 \}$ be a set that contains two elements and let addition and multiplication on $\F_2$ be defined as follows:
-\begin{center}
+Let $\F_2:=\{0,1 \}$ be a set that contains two elements, and let addition and multiplication on $\F_2$ be defined as follows:
+\begin{equation}
   \begin{tabular}{c | c c c}
     + & 0 & 1 \\\hline
     0 & 0 & 1\\
@@ -897,8 +961,8 @@ $\cdot$ & 0 & 1 \\\hline
       0 & 0 & 0 \\
       1 & 0 & 1 \\
   \end{tabular}
-\end{center}
-Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ given by $char(\F_2)=2$ and the multiplicative subgroup $\F_2^*$ of $\F_2$ is given by the trivial group $\{1\}$.
+\end{equation}
+Since $1+1=0$ in the field $\F_2$, we know that the characteristic of $\F_2$ given by $char(\F_2)=2$.  The multiplicative subgroup $\F_2^*$ of $\F_2$ is given by the trivial group $\{1\}$.
 \begin{sagecommandline}
 sage: F2 = GF(2)
 sage: F2(1) # Get an element from GF(2)
@@ -907,37 +971,40 @@ sage: F2(1) / F2(1) # Division
 \end{sagecommandline}
 \end{example}
 \begin{exercise}
-Consider the ring of modular $5$ arithmetics $(\Z_5,+,\cdot)$ from example \ref{primfield_z_5}. Show that $(\Z_5,+,\cdot)$ is a field. What is the characteristic of $\Z_5$? Proof that the equation $a\cdot x = b$ has only a single solution $x\in \Z_5$  for any given $a,b\in \Z_5^*$. 
+Consider the ring of modular $5$ arithmetics $(\Z_5,+,\cdot)$ from \examplename{} \ref{primfield_z_5}. Show that $(\Z_5,+,\cdot)$ is a field. What is the characteristic of $\Z_5$? Prove that the equation $a\cdot x = b$ has only a single solution $x\in \Z_5$  for any given $a,b\in \Z_5^*$. 
 \end{exercise}
 \begin{exercise}
-Consider the ring of modular $6$ arithmetics $(\Z_6,+,\cdot)$ from example \ref{def_residue_ring_z_6}. Show that $(\Z_6,+,\cdot)$ is not a field.
+Consider the ring of modular $6$ arithmetics $(\Z_6,+,\cdot)$ from \examplename{} \ref{def_residue_ring_z_6}. Show that $(\Z_6,+,\cdot)$ is not a field.
 \end{exercise}
 
 \subsection{Prime fields}
 \label{prime_fields}
-As we have seen in the various examples of the previous sections, modular arithmetics behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units \ref{def:ring_of_mod_n_arithmetics}.
+As we have seen in many of the examples in previous sections, modular arithmetic behaves similarly to the ordinary arithmetics of integers  in many ways. This is due to the fact that remainder class sets $\Z_n$ are commutative rings with units (see \examplename{} \ref{def:ring_of_mod_n_arithmetics}).
 
-However, we have also seen in \ref{ex:modulus-prime-group} that, whenever the modulus is a prime number, every remainder class other than the zero class has a modular multiplicative inverse. This is an important observation, since it immediately implies that, in case the modulus is a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \term{field}. Moreover, since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have the finite characteristic $n$.
+However, we have also seen in \examplename{} \ref{ex:modulus-prime-group} that, whenever the modulus is a prime number, every remainder class other than the zero class has a modular multiplicative inverse. This is an important observation, since it immediately implies that, in case the modulus is a prime number, the remainder class set $\Z_n$ is not just a ring but actually a \term{field}. Moreover, since $\sum_{j=0}^n 1 = 0$ in $\Z_n$, we know that those fields have the finite characteristic $n$.
 
 \begin{notation}[Prime Fields]
 \label{def:prime_fields}
-Let $p \in \Prim$ be a prime number and $(\Z_p,+,\cdot)$ the ring of modular $p$ arithmetics \ref{def:ring_of_mod_n_arithmetics}. To distinguish prime fields from arbitrary modular arithmetic rings, we write  $ (\F_p, +, \cdot) $ for the ring of modular $p$ arithmetics and call it the \term{prime field} of characteristic $p$.
+Let $p \in \Prim$ be a prime number and $(\Z_p,+,\cdot)$ the ring of modular $p$ arithmetics (see \examplename{} \ref{def:ring_of_mod_n_arithmetics}). To distinguish prime fields from arbitrary modular arithmetic rings, we write  $ (\F_p, +, \cdot) $ for the ring of modular $p$ arithmetics and call it the \term{prime field} of characteristic $p$.
 \end{notation}
 
-Prime fields are the foundation for many of the contemporary algebra-based cryptographic systems, as they have some desirable properties. One of them is that any prime field of characteristic $p$ contain exactly $p$ elements which can be represented on a computer with not more then $log_2(p)$ many bits. On the other hand fields like the rational numbers, require a potentially unbounded amount of bits for any full-precision representation.
+Prime fields are the foundation of many of the contemporary algebra-based cryptographic systems, as they have a number of desirable properties. One of these is that any prime field of characteristic $p$ contains exactly $p$ elements, which can be represented on a computer with not more than $log_2(p)$ many bits. On the other hand, fields like rational numbers require a potentially unbounded amount of bits for any full-precision representation.\footnote{For a detailed introduction to the theory of prime fields, see, for example, \chaptname{} 2 in \cite{nieder-1986}, or \chaptname{} 6 in \cite{mignotte-1992}.}
 
-Since prime fields are special cases of modular arithmetic rings, addition and multiplication can be computed by first doing normal integer addition and multiplication, and then considering the remainder in Eucliden division by $p$ as the result. For any prime field element $x\in \F_p$, its additive inverse (the negative) is given by $-x=\Zmod{p-x}{p}$. For $x\neq 0$ the multiplicative inverse always exists and is given by $x^{-1}=x^{p-2}$. Division is then defined by multiplication with the multiplicative inverse as explained in \ref{sec:modular_inverses}. Alternative the multiplicative inverse can be computed using the Extended Euclidean Algorithm as explained in \ref{eq_compute_multiplicative_inverse}.
+Since prime fields are special cases of modular arithmetic rings, addition and multiplication can be computed by first doing normal integer addition and multiplication, and then considering the remainder in Euclidean division by $p$ as the result. For any prime field element $x\in \F_p$, its additive inverse (the negative) is given by $-x=\Zmod{p-x}{p}$. For $x\neq 0$, the multiplicative inverse always exists, and is given by $x^{-1}=x^{p-2}$. Division is then defined by multiplication with the multiplicative inverse, as explained in \secname{} \ref{sec:modular_inverses}. Alternatively, the multiplicative inverse can be computed using the Extended Euclidean Algorithm as explained in \eqref{eq_compute_multiplicative_inverse}.
 
 \begin{example}
-The smallest field is the field $\F_2$ of characteristic $2$ as we have seen in example \ref{ex:field-2-elements}. It is the prime field of the prime number $2$.
+The smallest possible field is the field $\F_2$ of characteristic $2$, as we have seen in \examplename{}  \ref{ex:field-2-elements}. It is the prime field of the prime number $2$.
 \end{example}
 \begin{example}
-The field $\F_5$ from example \ref{primfield_z_5} as defined by its addition and multipliction table is a prime field. 
+The field $\F_5$ from \examplename{} \ref{primfield_z_5} is a prime field, as defined by its addition and multiplication table \eqref{Z5_tables}. 
 \end{example}
+
 \begin{example}\label{prime-field-F5}
-To summarize the basic aspects of computation in prime fields, let us consider the prime field $\F_5$ and simplify the following expression:
-$$\left(\frac{2}{3} - 2\right)\cdot 2 $$
-A first thing to note is that since $\F_5$ is a field, all rules are identical to the rules we learned in school when we where dealing with rational, real or complex numbers. This means we can use e.g.  bracketing (distributivity) or addition as usual:
+To summarize the basic aspects of computation in prime fields, let us consider the prime field $\F_5$ (\examplename{} \ref{primfield_z_5}) and simplify the following expression:
+\begin{equation}
+\left(\frac{2}{3} - 2\right)\cdot 2
+\end{equation}
+The first thing to note is that, since $\F_5$ is a field, all rules are identical to the rules we learned in school when we where dealing with rational, real or complex numbers. This means we can use methods like bracketing (distributivity) or addition as usual. For ease of computation, we can consult the addition and multiplication tables in \eqref{Z5_tables}.
 \begin{align*}
 \left(\frac{2}{3} - 2\right)\cdot 2 &=
  \frac{2}{3}\cdot 2 - 2\cdot 2 & \text{\# distributive law}\\
@@ -948,9 +1015,9 @@ A first thing to note is that since $\F_5$ is a field, all rules are identical t
  &= 3 +1 & \Zmod{4}{5}=4\\
  &= 4
 \end{align*}
-In this computation, we computed the multiplicative inverse of $3$ using the identity
-$x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean Algorithm (see \ref{eq: erw_Eukl_algo}).  To refresh our memory, the algorithm solves the equation $x^{-1}\cdot 3 + t \cdot 5 =1$, for $x^{-1}$, even though in this case $t$ is irrelevant. We get:
-\begin{center}
+In this example, we computed the multiplicative inverse of $3$ using the identity
+$x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. Recall that another way of computing the multiplicative inverse is the Extended Euclidean Algorithm (see \ref{eq: erw_Eukl_algo}).  To refresh our memory, the algorithm solves the equation $x^{-1}\cdot 3 + t \cdot 5 =1$, for $x^{-1}$ (even though $t$ is irrelevant  in this case). We get the following:
+\begin{equation}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ x^{-1}_k $ & $ t_k $ \\\hline
     0 & 3 & 1 & $\cdot$\ \\
@@ -959,40 +1026,50 @@ $x^{-1}=x^{p-2}$ in a prime field. This is impractical for large prime numbers. 
     3 & 2 &-1 & $\cdot$ \\
     4 & 1 & 2  & $\cdot$ \\
   \end{tabular}
-\end{center}
-So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if we compute the product of $3$ with its multiplicative inverse $2$ we get the neutral element $1$ in $\F_5$.
+\end{equation}
+So the multiplicative inverse of $3$ in $\Z_5$ is $2$, and, indeed, if we compute the product of $3$ with its multiplicative inverse $2$, we get the neutral element $1$ in $\F_5$.
 \end{example}
 \begin{exercise}[Prime field $\F_3$]\label{exercise:F3} Construct the addition and multiplication table of the prime field $\F_3$.
 \end{exercise}
 \begin{exercise}[Prime field $\F_{13}$]\label{prime_field_F13} Construct the addition and multiplication table of the prime field $\F_{13}$.
 \end{exercise}
-\begin{exercise} Consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the equation
-$$
+\begin{exercise} Consider the prime field $\F_{13}$ from \exercisename{} \ref{prime_field_F13}. Find the set of all pairs $(x,y)\in \F_{13}\times \F_{13}$ that satisfy the following equation:
+\begin{equation}
 x^2+y^2 = 1 + 7\cdot x^2\cdot y^2
-$$
+\end{equation}
 \end{exercise}
-\paragraph{Square Roots} As we know from integer arithmetics some integers like $4$ or $9$ are squares of other integers, as for example $4=2^2$ and $9=3^2$. However we also know that not all integers are squares of other integers, as for example there is no integers $x\in\Z$ such that $x^2=2$. If an integer $a$ is square of another integer $b$, then it make sense to define the square-root of $a$ to be $b$.
+\subsection{Square Roots} As we know from integer arithmetics, some integers, like $4$ or $9$, are squares of other integers:  for example, $4=2^2$ and $9=3^2$. However, we also know that not all integers are squares of other integers:  for example, there is no integers $x\in\Z$ such that $x^2=2$. If an integer $a$ is square of another integer $b$, then it make sense to define the square root of $a$ to be $b$.
 
-In the context of prime fields an element that is a square of another element is also called a \term{quadratic residue} and an element that is not a square of another element is called a \term{quadratic non-residue}. Those notations are of particular importance in our studies on elliptic curves in chapter \ref{chap:elliptic_curves}, as only square numbers can actually be points on an elliptic curve.
+In the context of prime fields, an element that is a square of another element is also called a \term{quadratic residue}, and an element that is not a square of another element is called a \term{quadratic non-residue}. This distinction is of particular importance in our studies on elliptic curves (\chaptname{} \ref{chap:elliptic_curves}), as only square numbers can actually be points on an elliptic curve.
 
-To make the intuition of quadratic residues and their roots precise, let $p \in \Prim $ be a prime number and $\F_p $ its associated prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the following equation:
+To make the intuition of quadratic residues and their roots precise, we give the following definition:
+
+\begin{definition}
+ let $p \in \Prim $ be a prime number and $\F_p $ its associated prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the following equation:
 \begin{equation}
 x^2 = y
 \end{equation}
-In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ a \term{quadratic non-residue}. For any $ y \in \F_p $, we denote the set of all square roots of $ y $ in the prime field $ \F_p $ as follows:
+In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ a \term{quadratic non-residue}.\footnote{A more detailed introduction to quadratic residues and their square roots in addition with an introduction to algorithms that compute square roots can be found, for example, in \chaptname{} 1, \secname{} 1.5 of \cite{cohen-2010}.}
+\end{definition}
+
+For any $ y \in \F_p $, we denote the set of all square roots of $ y $ in the prime field $ \F_p $ as follows:
 \begin{equation}
 \label{ded:square_root}
 \sqrt{y}: = \{x \in \F_p \; | \; x^2 = y \}
 \end{equation}
-Informally speaking, quadratic residues are numbers such that we can take the square root of them, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have square roots and others like $2$ or $3$ don't (as integers).
+Informally speaking, quadratic residues are numbers that have a square root, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have a square root, and others like $2$ or $3$ don't (within the set of integers).
 
-If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. Moreover if $y\neq 0$ is a quadratic residue then it has precisely two roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$. We adopt the convention to call the smaller one (when interpreted as an integer) as the \textbf{positive} square root and the larger one as the \textbf{negative} square root. If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quardratic residues and $(p-1)/2$ quadratic non residues.
+If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. 
+
+Moreover if $y\neq 0$ is a quadratic residue, then it has precisely two roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$. We adopt the convention to call the smaller one (when interpreted as an integer) the \term{positive square root} and the larger one the \term{negative square root}. 
+
+If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quardratic residues and $(p-1)/2$ quadratic non-residues.
 
 \begin{example} [Quadratic residues and roots in $ \F_5 $]
 \label{example:quadratic_residue_F5}
-Let us consider the prime field $\F_5$ \ref{primfield_z_5} again. All square numbers can be found on the main diagonal of the multiplication table in example \ref{primfield_z_5}. As you can see, in $ \F_5 $ only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots and we get $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
+Let us consider the prime field $\F_5$ from \examplename{} \ref{primfield_z_5} again. All square numbers can be found on the main diagonal of the multiplication table in  \eqref{Z5_tables}. As you can see, in $ \F_5 $, only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots: $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
 \end{example}
-In order to describe whether an element of a prime field is a square number  or not, the so-called \term{Legendre symbol} can sometimes be found in the literature, which is why we will summerize it here:
+In order to describe whether an element of a prime field is a square number  or not, the so-called \term{Legendre symbol} can sometimes be found in the literature (e.g. \chaptname{} 1, \secname{} 1.5. of \cite{cohen-2010}), defined as follows:
 
 Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element from the associated prime field. Then the \textit{Legendre symbol} of $ y $ is defined as follows:
 \begin{equation}
@@ -1005,7 +1082,7 @@ Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element from the ass
 \end{cases}
 \end{equation}
 \begin{example}
-Looking at the quadratic residues and non residues in $\F_5$ from example \ref{primfield_z_5} again, we can deduce the following Legendre symbols, from example \ref{example:quadratic_residue_F5}.
+Looking at the quadratic residues and non-residues in $\F_5$ from \examplename{} \ref{primfield_z_5} again, we can deduce the following Legendre symbols based on \examplename{} \ref{example:quadratic_residue_F5}.
 
 $$
 \begin{array}{ccccc}
@@ -1017,13 +1094,13 @@ $$
 \end{array}
 $$
 \end{example}
-The Legendre symbol provides a criterion to decide whether or not an element from a prime field has a quadratic root or not. This, however, is not just of theoretical use: The  so-called \term{Euler criterion} provides a compact way to actually compute the Legendre symbol. To see that, let $ p \in \Prim_{\geq 3} $ be an odd prime number and $ y \in \F_p $. Then the Legendre symbol can be computed as follows:
+The Legendre symbol provides a criterion to decide whether or not an element from a prime field has a quadratic root or not. This, however, is not just of theoretical use: the  so-called \term{Euler criterion} provides a compact way to actually compute the Legendre symbol. To see that, let $ p \in \Prim_{\geq 3} $ be an odd prime number and $ y \in \F_p $. Then the Legendre symbol can be computed as follows:
 \begin{equation}
 \label{eq: Euler_criterion}
-\left (\frac{y}{p} \right) = y^{\frac{p-1}{2}} \;.
+\left (\frac{y}{p} \right) = y^{\frac{p-1}{2}} 
 \end{equation}
 \begin{example}
-Looking at the quadratic residues and non residues in $\F_5$ from example \ref{example:quadratic_residue_F5} again, we can compute the following Legendre symbols using the Euler criterion:
+Looking at the quadratic residues and non-residues in $\F_5$ from \examplename{} \ref{example:quadratic_residue_F5} again, we can compute the following Legendre symbols using the Euler criterion:
 \begin{align*}
 \left (\frac{0}{5} \right) &= 0^{\frac{5-1}{2}}= 0^2=0\\
 \left (\frac{1}{5} \right) &= 1^{\frac{5-1}{2}}= 1^2=1\\
@@ -1033,7 +1110,7 @@ Looking at the quadratic residues and non residues in $\F_5$ from example \ref{e
 \end{align*}
 \end{example}
 \begin{exercise}
-Consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. Compute the Legendre symbol $\left(\frac{x}{13} \right)$ and the set of roots $\sqrt{x}$ for all elements $x\in \F_{13}$. 
+Consider the prime field $\F_{13}$ from \exercisename{} \ref{prime_field_F13}. Compute the Legendre symbol $\left(\frac{x}{13} \right)$ and the set of roots $\sqrt{x}$ for all elements $x\in \F_{13}$. 
 \end{exercise}
 % I think this isn't needed. Will just leave it here in case this changes
 %
@@ -1063,13 +1140,14 @@ Consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. Compute 
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
 \subsubsection{Hashing into prime fields}\label{hashing-prime-fields}
-An important problem in cryptography is the ability to hash to (various subsets) of elliptic curves. As we will see in chapter \ref{chap:elliptic_curves}, those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
+An important problem in cryptography is the ability to hash to (various subsets) of elliptic curves. As we will see in \chaptname{} \ref{chap:elliptic_curves}, those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
 
-In \ref{hash-to-modular-arithmetics}, we looked at a few methods of hashing into the modular arithmetic rings $\Z_n$ for arbitrary $n>1$. As prime fields are just special instances of those rings, all methods for hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
+In \secname{} \ref{hash-to-modular-arithmetics}, we looked at a few methods of hashing into the modular arithmetic rings $\Z_n$ for arbitrary $n>1$. As prime fields are just special instances of those rings, all methods for hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
+
 \begin{comment}
-\paragraph{MiMC Hash functions} As we will see in XXX, 
+\subsection{MiMC Hash functions} As we will see in XXX, 
 
-To define a MiMC hash function, let $\F_p$ be a prime field with prime modulus $p\in\Prim$, let $n$ be the smallest natural number, such that  $gcd(n, p-1) = 1$. Let $r$ be the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and let $C=\{c_i\in \F_p \;|\; 0\leq i \leq r\}$ be a set of randomly generated field elements. The definition of the MiMC hash function then starts with an invertible map
+To define a MiMC hash function, let $\F_p$ be a prime field with prime modulus $p\in\Prim$, let $n$ be the smallest natural number such that  $gcd(n, p-1) = 1$. Let $r$ be the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and let $C=\{c_i\in \F_p \;|\; 0\leq i \leq r\}$ be a set of randomly generated field elements. The definition of the MiMC hash function then starts with an invertible map
 \begin{equation}
 E(\cdot) : \F_p \to \F_p\; x \mapsto F_{r-1}(\cdots F_1(F_0(x))\ldots)
 \end{equation}
@@ -1078,38 +1156,38 @@ where $F_i(x)= (x+c_i)^n$
 
 \subsection{Prime Field Extensions}\label{field-extension}
 % references https://blog.plover.com/math/se/finite-fields.html
-Prime fields, as defined in the previous section, are basic building blocks in cryptography. However, as we will see in chapter \ref{chapter:zk-protocols} so-called pairing-based SNARK systems are crucially dependent on certain group pairings \ref{pairing-map} defined on elliptic curves over \term{prime field extensions}. In this section we therefore introduce those extensions.
+Prime fields, as defined in the previous section, are basic building blocks of cryptography. However, as we will see in \chaptname{} \ref{chapter:zk-protocols}, so-called pairing-based SNARK systems are crucially dependent on certain group pairings \eqref{pairing-map} defined on elliptic curves over \term{prime field extensions}. In this section, we therefore introduce those extensions.\footnote{A more detailed introduction can be found for example in \chaptname{} 2 of \cite{nieder-1986}.}
 
-Given some prime number $p\in \Prim$, a natural number $m\in\N$ and an irreducible polynomial $P\in \F_p[x]$ of degree $m$ with coefficients from the prime field $\F_p$, then a prime field extension $(\F_{p^m},+,\cdot)$ is defined as follows:
+Given some prime number $p\in \Prim$, a natural number $m\in\N$, and an irreducible polynomial $P\in \F_p[x]$ of degree $m$ with coefficients from the prime field $\F_p$,  a prime field extension $(\F_{p^m},+,\cdot)$ is defined as follows.
 
-The set $\F_{p^m}$ of the prime field extension is given by the set of all polynomials with a degree less then $m$:
+The set $\F_{p^m}$ of the prime field extension is given by the set of all polynomials with a degree less than $m$:
 \begin{equation}
 \label{eq:prime-extension-field}
 \F_{p^m}:= \{a_{m-1} x^{m-1}+a_{k-2}x^{k-2}+\ldots+a_1 x+a_0\;|\; a_i\in \F_p\}
 \end{equation}
-The addition law of the prime field extension $\F_{p^m}$ is given by the usual addition of polynomials as defined in \ref{def:polynomial_arithmetic}: 
+The addition law of the prime field extension $\F_{p^m}$ is given by the usual addition of polynomials as defined in \eqref{def:polynomial_arithmetic}: 
 \begin{equation}
 +:\; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; , \textstyle (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \sum_{j=0}^m (a_j+b_j) x^j
 \end{equation}
-The multiplication law of the prime field extension $\F_{p^m}$ is given by first multiplying the two polynomials as defined in \ref{def:polynomial_arithmetic_mul} and then divided the result by the irreducible polynomial $p$ and keep the remainder:
+The multiplication law of the prime field extension $\F_{p^m}$ is given by first multiplying the two polynomials as defined in \eqref{def:polynomial_arithmetic_mul},  then dividing the result by the irreducible polynomial $p$ and keeping the remainder:
 \begin{equation}
 \cdot : \; \F_{p^m}\times \F_{p^m} \to \F_{p^m}\; , \textstyle\; (\sum_{j=0}^m a_j x^j,\sum_{j=0}^m b_j x^j)\mapsto \Zmod{\left(\sum _{n = 0} ^{2m} \sum _{i = 0} ^{n}{a} _{i }{{b} _{n-i}}{x} ^{n}\right)}{P}
 \end{equation}
-The neutral element of the additive group $(\F_{p^m},+)$ is given by the zero polynomial $0$ and the additive inverse is given by the polynomial with all negative coefficients. The neutral element of the multiplicative group $(\F^*_{p^m},\cdot)$ is given by the unit polynomial $1$ and the multiplicative inverse can be computed by the extended Euclidean algorithm.
+The neutral element of the additive group $(\F_{p^m},+)$ is given by the zero polynomial $0$. The additive inverse is given by the polynomial with all negative coefficients. The neutral element of the multiplicative group $(\F^*_{p^m},\cdot)$ is given by the unit polynomial $1$. The multiplicative inverse can be computed by the Extended Euclidean Algorithm (see \ref{eq: erw_Eukl_algo})\sme{check reference}.
 
 We can see from the definition of $\F_{p^m}$ that the field is of characteristic $p$, since the multiplicative neutral element $1$ is equivalent to the multiplicative element $1$ from the underlying prime field, and hence $\sum_{j=0}^p 1=0$. Moreover, $\F_{p^m}$ is finite and contains $p^m$ many elements, since elements are polynomials of degree $<m$, and every coefficient $a_j$ can have $p$ many different values. In addition, we see that the prime field $\F_p$ is a subfield of $\F_{p^m}$ that occurs when we restrict the elements of $\F_{p^m}$ to polynomials of degree zero.
 
 One key point is that the construction of $\F_{p^m}$ depends on the choice of an irreducible polynomial, and, in fact, different choices will give different multiplication tables, since the remainders from dividing a polynomial product by those polynomials will be different.
 
-It can, however, be shown that the fields for different choices of $P$ are \term{isomorphic}, which means that there is a one-to-one correspondence between all of them. Consequently, from an abstract point of view, they are the same thing. From an implementations point of view, however, some choices are preferable to others because they allow for faster computations.
+It can, however, be shown that the fields for different choices of $P$ are \term{isomorphic}, which means that there is a one-to-one correspondence between all of them. As a result, from an abstract point of view, they are the same thing. From an implementations point of view, however, some choices are preferable to others because they allow for faster computations.
 
 \begin{remark}
-Similar to the way prime fields $\F_p$ are generated by starting with the ring of integers and then dividing by a prime number $p$ and keeping the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then dividing them by an irreducible polynomial of degree $m$ and keeping the remainder.
+Similarly to the way prime fields $\F_p$ are generated by starting with the ring of integers and then dividing by a prime number $p$ and keeping the remainder, prime field extensions $\F_{p^m}$ are generated by starting with the ring $\F_p[x]$ of polynomials and then dividing them by an irreducible polynomial of degree $m$ and keeping the remainder.
 
-In fact it can be shown that $\F_{p^m}$ is the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by an rireducible polynomial $P$ of degree $m$. This is analogous to how $\F_p$ is the set of all remainders when dividing integers by $p$.
+In fact, it can be shown that $\F_{p^m}$ is the set of all remainders when dividing any polynomial $Q\in \F_p[x]$ by an irreducible polynomial $P$ of degree $m$. This is analogous to how $\F_p$ is the set of all remainders when dividing integers by $p$.
 \end{remark}
 
-Any field $\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general, a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$, if and only if $m_1$ divides $m_2$. From this, we can deduce that, for any given fixed prime number, there are nested sequences of subfields whenever the power $m_j$ divides the power $m_{j+1}$:
+Any field $\F_{p^m}$ constructed in the above manner is a field extension of $\F_p$. To be more general, a field $\F_{p^{m_2}}$ is a field extension of a field $\F_{p^{m_1}}$ if and only if $m_1$ divides $m_2$. From this, we can deduce that, for any given fixed prime number, there are nested sequences of subfields whenever the power $m_j$ divides the power $m_{j+1}$:
 
 \begin{equation}
 \F_p \subset \F_{p^{m_1}} \subset \cdots \subset \F_{p^{m_k}}
@@ -1118,19 +1196,20 @@ Any field $\F_{p^m}$ constructed in the above manner is a field extension of $\F
 To get a more intuitive picture of this, we construct an extension field of the prime field  $\F_3$ in the following example, and we can see how $\F_3$ sits inside that extension field.
 \begin{example}[The Extension field $\F_{3^2}$]
 \label{finite_field_F3_2}
-In exercise \ref{exercise:F3} we have constructed the prime field $\F_3$. In this example, we apply the definition of a field extension \ref{eq:prime-extension-field} to construct the extension field $\F_{3^2}$. We start by choosing an irreducible polynomial of degree $2$ with coefficients in $\F_3$. We try
+In \exercisename{} \ref{exercise:F3}, we have constructed the prime field $\F_3$. In this example, we apply the definition of a field extension \eqref{eq:prime-extension-field} to construct the extension field $\F_{3^2}$. We start by choosing an irreducible polynomial of degree $2$ with coefficients in $\F_3$. We try
 $P(t)=t^2+1$. Possibly the fastest way to show that $P$ is indeed irreducible is to just insert all elements from $\F_3$ to see if the result is ever zero. We compute as follows:
 \begin{align*}
 P(0) = 0^2+1 &= 1\\
 P(1) = 1^2+1 &= 2\\
 P(2) = 2^2+1 &=  1+1  = 2
 \end{align*}
-This implies that $P$ is irreducible, since all factors must be of the form $(t-a)$ for $a$ being a root of $P$. The set $\F_{3^2}$ contains all polynomials of degrees lower than two, with coefficients in $\F_3$, which are precisely as listed below:
-$$
+This implies that $P$ is irreducible, since all factors must be of the form $(t-a)$ for $a$ being a root of $P$. The set $\F_{3^2}$ contains all polynomials of degrees lower than two with coefficients in $\F_3$, which are precisely as listed below:
+\begin{equation}
 \F_{3^2}=\{0,1,2,t,t+1,t+2,2t,2t+1,2t+2\}
-$$
+\end{equation}
+
 As expected, our extension field contains $9$ elements. Addition is  defined as addition of polynomials; for example $(t+2) + (2t+2)= (1+2)t +(2+2)= 1$. Doing this computation for all elements gives the following addition table
-\begin{center}
+\begin{equation}\label{F32-add-table}
   \begin{tabular}{c | c c c c c c c c c}
     + & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
     0 & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\
@@ -1143,19 +1222,20 @@ As expected, our extension field contains $9$ elements. Addition is  defined as 
  2t+1 & 2t+1 & 2t+2 & 2t   & 1    & 2    & 0    & t+1  & t+2  & t    \\
  2t+2 & 2t+2 & 2t   & 2t+1 & 2    & 0    & 1    & t+2  & t    & t+1
   \end{tabular}
-\end{center}
+\end{equation}
+
 As we can see, the group $(\F_3,+)$ is a subgroup of the group $(\F_{3^2},+)$, obtained by only considering the first three rows and columns of this table.
 
-We can use the addition table to deduce the additive inverse (the negative) of any element from $\F_{3^2}$. For example, in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$
+We can use the addition table \eqref{F32-add-table} to deduce the additive inverse (the negative) of any element from $\F_{3^2}$. For example, in $\F_{3^2}$ we have $-(2t+1)= t+2$, since $(2t+1) + (t+2)=0$.
 
-Multiplication needs a bit more computation, as we first have to multiply the polynomials, and whenever the result has a degree $\geq 2$, we have to apply a polynomial division algorithm like \ref{alg_polynom_euclid_alg} to divide the product by the polynomial $P$ and keep the remainder. To see how this works, let us compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$:
+Multiplication needs a bit more computation, as we first have to multiply the polynomials, and whenever the result has a degree $\geq 2$, we have to apply a polynomial division algorithm  (\algname{} \ref{alg_polynom_euclid_alg}) to divide the product by the polynomial $P$ and keep the remainder. To see how this works, let us compute the product of $t+2$ and $2t+2$ in $\F_{3^2}$:
 \begin{align*}
 (t+2) \cdot (2t+2) &= \Zmod{(2t^2 + 2t + t + 1)}{(t^2+1)} \\
                    &= \Zmod{(2t^2+1)}{(t^2+1)} & \#\; 2t^2+1:t^2+1= 2 + \frac{2}{t^2+1} \\
                    &= 2
 \end{align*}
 This means that the product of $t+2$ and $2t+2$ in $\F_{3^2}$ is $2$. Performing this computation for all elements gives the following multiplication table:
-\begin{center}
+\begin{equation}\label{F32-mult-table}
   \begin{tabular}{c | c c c c c c c c c}
 $\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
       0 & 0    & 0    & 0    & 0    & 0    & 0    & 0    & 0    & 0 \\
@@ -1168,13 +1248,13 @@ $\cdot$ & 0    & 1    & 2    & t    & t+1  & t+2  & 2t   & 2t+1 & 2t+2 \\\hline
    2t+1 & 0    & 2t+1 & t+2  & t+1  & 2    & 2t   & 2t+2 & t    & 1    \\
    2t+2 & 0    & 2t+2 & t+1  & 2t+1 & t    & 2    & t+2  & 1     & 2t
   \end{tabular}
-\end{center}
-As it was the case in previous examples, we can use the table to deduce the multiplicative inverse of any non-zero element from $\F_{3^2}$. For example, in $\F_{3^2}$ we have $(2t+1)^{-1}= 2t+2 $, since $(2t+1) \cdot (2t+2)=1$.
+\end{equation}
+As was the case in previous examples, we can use the table \eqref{F32-mult-table} to deduce the multiplicative inverse of any non-zero element from $\F_{3^2}$. For example, in $\F_{3^2}$ we have $(2t+1)^{-1}= 2t+2 $, since $(2t+1) \cdot (2t+2)=1$.
 
-From the multiplication table, we can also see that the only quadratic residues in $\F_{3^2}$ are from the set $\{0,1,2, t, 2t\}$, with
+Looking at the multiplication table \eqref{F32-mult-table}, we can also see that the only quadratic residues in $\F_{3^2}$ are from the set $\{0,1,2, t, 2t\}$, with
 $\sqrt{0}=\{0\}$, $\sqrt{1}=\{1,2\}$, $\sqrt{2}=\{t, 2t\}$, $\sqrt{t}=\{t+2,2t+1\}$ and $\sqrt{2t}=\{t+1,2t+2\}$.
 
-Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields, (such as rational numbers). To see that, let us find all $x\in\F_{3^2}$ that solve the quadratic equation $(t+1)(x^2 + (2t+2)) = 2$. We compute as follows:
+Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields (such as rational numbers). To see that, let us find all $x\in\F_{3^2}$ that solve the quadratic equation $(t+1)(x^2 + (2t+2)) = 2$. We compute as follows:
 \begin{align*}
 (t+1)(x^2 + (2t+2))    &= 2 &\text{\# 2 distributive law}\\
 (t+1)x^2 + (t+1)(2t+2) &= 2 \\
@@ -1185,7 +1265,7 @@ Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields
 x^2                    &= 2 & \text{\# 2 is quadratic residue. Take the roots.}\\
 x &\in \{t, 2t\}
 \end{align*}
-Computations in extension fields are arguably on the edge of what can reasonably be done with pen and paper. Fortunately, Sage provides us with a simple way to do the computations.
+Computations in extension fields are arguably on the edge of what can reasonably be done with pen and paper. Fortunately, Sage provides us with a simple way to do these computations.
 \begin{sagecommandline}
 sage: Z3 = GF(3) # prime field
 sage: Z3t.<t> = Z3[] # polynomials over Z3
@@ -1211,40 +1291,40 @@ y^2 = x^3 + 4
 \begin{exercise} Show that the polynomial $Q=x^2+x+2$ from $\F_3[x]$ is irreducible. Construct the multiplication table of $\F_{3^2}$ with respect to $Q$ and compare it to the multiplication table of $\F_{3^2}$ from example \ref{finite_field_F3_2}.
 \end{exercise}
 
-\begin{exercise} Show that the polynomial $P=t^3+t+1$ from $\F_5[t]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the extended Euclidean algorithm. Then find all $x\in\F_{5^3}$ that solve the following equation:
+\begin{exercise} Show that the polynomial $P=t^3+t+1$ from $\F_5[t]$ is irreducible. Then consider the extension field $\F_{5^3}$ defined relative to $P$. Compute the multiplicative inverse of $(2t^2+4)\in\F_{5^3}$ using the Extended Euclidean Algorithm. Then find all $x\in\F_{5^3}$ that solve the following equation:
 \begin{equation}
 (2t^2+4)(x-(t^2+4t+2))= (2t+3)
 \end{equation}
 \end{exercise}
 
 \begin{exercise}
-\label{exercise:finite_fieldF5_2} Consider the prime field $\F_5$. Show that the polynomial $P=x^2+2$ from $\F_5[x]$ is irreducible. Implement the finite field $\F_{5^2}$ in sage.
+\label{exercise:finite_fieldF5_2} Consider the prime field $\F_5$. Show that the polynomial $P=x^2+2$ from $\F_5[x]$ is irreducible. Implement the finite field $\F_{5^2}$ in Sage.
 \end{exercise}
 
 \begin{comment}
-\paragraph{Hashing into extension fields} On page \pageref{hashing-prime-fields},\sme{check reference} we have seen how to hash into prime fields. As elements of extension fields can be seen as polynomials over prime fields, hashing into extension fields is therefore possible if every coefficient of the polynomial is hashed independently.
+\subsection{Hashing into extension fields} On page \pageref{hashing-prime-fields},\sme{check reference} we have seen how to hash into prime fields. As elements of extension fields can be seen as polynomials over prime fields, hashing into extension fields is therefore possible if every coefficient of the polynomial is hashed independently.
 \end{comment}
 \section{Projective Planes}\label{sec:planes}
-Projective planes are particular geometric constructs defined over a given field. In a sense, projective planes extend the concept of the ordinary Euclidean plane by including ``points at infinity.''
+Projective planes are particular geometric constructs defined over a given field. In a sense, projective planes extend the concept of the ordinary Euclidean plane by including ``points at infinity.''\footnote{A detailed explanation of the ideas that lead to the definition of projective planes can be found, for example, in \chaptname{} 2 of \cite{ellis-1992} or in appendix A of \cite{silverman-1994}.}
 
-To understand the idea of constructing of projective planes, note that in an ordinary Euclidean plane, two lines either intersect in a single point or are parallel. In the latter case, both lines are either the same, that is, they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with additional ``point at infinity'' such that two different lines always intersect in a single point. Parallel lines intersect ``at infinity''.
+To understand the idea of constructing of projective planes, note that, in an ordinary Euclidean plane, two lines either intersect in a single point or are parallel. In the latter case, both lines are either the same, that is, they intersect in all points, or do not intersect at all. A projective plane can then be thought of as an ordinary plane, but equipped with an additional ``point at infinity'' such that two different lines always intersect in a single point. Parallel lines intersect ``at infinity''.
 
-Such an inclusion of infinity points makes projective planes particularly useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol ``the point at infinity'' to give the set of points on the curve the structure of a group \ref{sec:short_weierstrass_curve}. Translating the curve into projective geometry includes this ``point at infinity'' more naturally into the set of all points on a projective plane.
+Such an inclusion of infinity points makes projective planes particularly useful in the description of elliptic curves, as the description of such a curve in an ordinary plane needs an additional symbol for ``the point at infinity'' to give the set of points on the curve the structure of a group \ref{sec:short_weierstrass_curve}. Translating the curve into projective geometry includes this ``point at infinity'' more naturally into the set of all points on a projective plane.
 
 To be more precise, let $\F$ be a field, $\F^3:=\F\times \F\times \F$ the set of all tuples of three elements over $\F$ and $x\in \F^3$ with $x=(X,Y,Z)$. Then there is exactly one \textit{line} $L_x$ in $\F^3$ that intersects both $(0,0,0)$ and $x$, given by the set $L_x=\{(k\cdot X,k\cdot Y, k\cdot Z)\;|\; k\in\F\}$. A point in the \textbf{projective plane} over $\F$ can then be defined as such a \term{line} if we exclude the intersection of that line with  $(0,0,0)$. This leads to the following definition of a \term{point} in projective geometry:
 \begin{equation}
 \label{def:projective_coordinate}
 [X:Y:Z] := \{(k\cdot X,k\cdot Y, k\cdot Z)\;|\; k\in\F^*\}
 \end{equation}
-Points in projective geometry are therefore lines in $\F^3$ where the intersection with $(0,0,0)$ is excluded. Given a field $\F$ the \term{projective plane} of that field is then defined as the set of all  points, excluding the point $[0:0:0]$:
+Points in projective geometry are therefore lines in $\F^3$ where the intersection with $(0,0,0)$ is excluded. Given a field $\F$, the \term{projective plane} of that field is then defined as the set of all  points excluding the point $[0:0:0]$:
 \begin{equation}
 \F\mathbb{P}^2:=\{[X:Y:Z]\;|\; (X,Y,Z)\in \F^3\text{ with } (X,Y,Z)\neq (0,0,0)\}
 \end{equation}
 It can be shown that a projective plane over a finite field $\F_{p^m}$ contains $p^{2m}+p^m+1$ number of elements.
 
-To understand why the projective point $[X:Y:Z]$ is also a line, consider the situation where the underlying field $\F$ is the set of rational numbers $\Q$. In this case, $\Q^3$ can be seen as the three-dimensional space, and $[X:Y:Z]$ is an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $X$, $Y$ and $Z$, such that the intersection with zero is excluded.
+To understand why the projective point $[X:Y:Z]$ is also a line, consider the situation where the underlying field $\F$ is the set of rational numbers $\Q$. In this case, $\Q^3$ can be seen as the three-dimensional space, and $[X:Y:Z]$ is an ordinary line in this 3-dimensional space that intersects zero and the point with coordinates $X$, $Y$ and $Z$ such that the intersection with zero is excluded.
 
-The key observation here is that points in the projective plane $\F\mathbb{P}^2$ are lines in the $3$-dimensional space $\F^3$. However it should be kept in mind that, for finite fields, the terms \term{space} and \term{line} share very little visual similarity with their counterparts over the set of rational numbers.
+The key observation here is that points in the projective plane $\F\mathbb{P}^2$ are lines in the $3$-dimensional space $\F^3$. However, it should be kept in mind that, for finite fields, the terms \term{space} and \term{line} share very little visual similarity with their counterparts over the set of rational numbers.
 
 It follows from this that points $[X:Y:Z]\in \F\mathbb{P}^2$ are not simply described by fixed coordinates $(X,Y,Z)$, but by \term{sets of coordinates}, where two different coordinates $(X_1,Y_1,Z_1)$ and $(X_2,Y_2,Z_2)$ describe the same point if and only if there is some non-zero field element $k\in\F^*$ such that $(X_1,Y_1,Z_1) = (k\cdot X_2,k\cdot Y_2,k\cdot Z_2)$. Points $[X:Y:Z]$ are called \term{projective coordinates}.
 
@@ -1252,7 +1332,7 @@ It follows from this that points $[X:Y:Z]\in \F\mathbb{P}^2$ are not simply desc
 %https://math.mit.edu/classes/18.783/2017/Lecture1.pdf
 Projective coordinates of the form $[X:Y:1]$ are descriptions of so-called \textbf{affine points}.  Projective coordinates of the form $[X:Y:0]$ are descriptions of so-called \textbf{points at infinity}. In particular, the projective coordinate $[1:0:0]$ describes the so-called \textbf{line at infinity}.
 \end{notation}
-\begin{example} Consider the field $\F_3$ from exercise \ref{exercise:F3} . As this field only contains three elements, it does not take too much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, as we know that it only contains $13$ elements.
+\begin{example} Consider the field $\F_3$ from \exercisename{} \ref{exercise:F3} . As this field only contains three elements, it does not take too much effort to construct its associated projective plane $\F_3\mathbb{P}^2$, which we know only contains $13$ elements.
 
 To find $\F_3\mathbb{P}^2$, we have to compute the set of all lines in $\F_3\times \F_3\times \F_3$ that intersect $(0,0,0)$, excluding their intersection with $(0,0,0)$. Since those lines are parameterized by tuples $(x_1,x_2,x_3)$, we compute as follows:
 \begin{align*}

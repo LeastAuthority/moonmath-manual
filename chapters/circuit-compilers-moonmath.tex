@@ -4,15 +4,15 @@ As we have seen in the previous chapter, statements can be formalized as members
 
 However, both algebraic circuits and Rank-1 Constraint Systems are not ideal from a developers point of view, because they deviate substantially from common programming paradigms. Writing real-world applications as circuits and the associated verification in terms of Rank-1 Constraint Systems is at least as troublesome as writing any other low-level language like assembler code. To allow for complex statement design, it is therefore necessary to have some kind of compiler framework, capable of transforming high-level languages into arithmetic circuits and associated Rank-1 Constraint Systems. 
 
-As we have seen in chapter \ref{sec:statements} and in \ref{sec:R1CS} as well as \ref{sec:circuits}, both arithmetic circuits and Rank-1 Constraint Systems have a modularity property \ref{sec:R1CS_modularity} by which it is possible to synthesize complex circuits from simple ones. A basic approach taken by many circuit/R1CS compilers is therefore to provide a library of atomic and simple circuits and then define a way to combine those basic building blocks into arbitrary complex systems.
+As we have seen in \chaptname{} \ref{sec:statements}, specifically in \ref{sec:R1CS} and \ref{sec:circuits}, both arithmetic circuits and Rank-1 Constraint Systems have a modularity property \ref{sec:R1CS_modularity}, by which it is possible to synthesize complex circuits from simple ones. A basic approach taken by many circuit/R1CS compilers is therefore to provide a library of atomic and simple circuits and then define a way to combine those basic building blocks into arbitrary complex systems.
 
 In this chapter, we provide an introduction to basic concepts of so-called \term{circuit compilers} and derive a toy language which we can ``compile'' in a pen-and-paper approach into graphical representations of algebraic circuits and their associated Rank-1 Constraint Systems.
 
 We start with a general introduction to our toy programming language, and then introduce atomic types like booleans and unsigned integers. Then we define the fundamental control flow primitives like the if-then-else conditional and the bounded loop. We will look at basic functionality primitives like elliptic curve cryptography. Primitives like these are often called \term{gadgets} in the literature. 
-\section{A Pen-and-Paper Language} To explain basic concepts of circuit compilers and their associated high-level languages, we derive an informal toy language and associated ``brain-compiler'' which we name \texttt{PAPER} (\textbf{P}en-\textbf{A}nd-\textbf{P}aper \textbf{E}xecution \textbf{R}ules). \texttt{PAPER} allows programmers to define statements in Rust-like pseudo-code. The language is inspired by \texttt{zokrates} and \texttt{circom}.\sme{add references to these languages?}
+\section{A Pen-and-Paper Language} To explain basic concepts of circuit compilers and their associated high-level languages, we derive an informal toy language and associated ``brain-compiler'' which we name \lgname{PAPER} (\textbf{P}en-\textbf{A}nd-\textbf{P}aper \textbf{E}xecution \textbf{R}ules). \lgname{PAPER} allows programmers to define statements in Rust-like pseudo-code. The language is inspired by \lgname{zokrates} and \lgname{circom}.\sme{add references to these languages?}
  
 \subsection{The Grammar}
-In \texttt{PAPER}, any statement is defined as an ordered list of functions, where any function has to be declared in the list before it is called in another function of that list. The last entry in a statement has to be a special function, called \texttt{main}. Functions take a list of typed parameters as inputs and compute a tuple of typed variables as output, where type\_functions are special functions that define how to transform one type into another type, ultimately transforming any type into elements of the base field where the circuit is defined over. 
+In \lgname{PAPER}, any statement is defined as an ordered list of functions, where any function has to be declared in the list before it is called in another function of that list. The last entry in a statement has to be a special function, called \texttt{main}. Functions take a list of typed parameters as inputs and compute a tuple of typed variables as output, where type\_functions are special functions that define how to transform one type into another type, ultimately transforming any type into elements of the base field where the circuit is defined over. 
 
 Any statement is parameterized over the field that the circuit will be defined on, and has additional optional parameters of unsigned type, needed to define the size of arrays or the counter of bounded loops. The following definition makes the grammar of a statement precise using a command line language like description: 
 % used the command line style formalized e.g. here: http://docopt.org/
@@ -32,15 +32,15 @@ statement <Name> {F:<Field> [ , <N_1: unsigned>,... ] } {
   } ;
 }
 \end{lstlisting}
-Function arguments and variables are witness variables by default, but can be declared as instance by the \texttt{pub} specifier. Declaring arguments and variables as instances always overwrites any previous or conflicting witness declarations. Every argument, constant or variable has a type, and every type is defined as a function that transforms that type into another type. In order for a \texttt{PAPER} program to compile successfully, all type transformations must be composed in such a way that the final type is the base field where the circuit is defined over: 
+Function arguments and variables are witness variables by default, but can be declared as instance by the \texttt{pub} specifier. Declaring arguments and variables as instances always overwrites any previous or conflicting witness declarations. Every argument, constant or variable has a type, and every type is defined as a function that transforms that type into another type. In order for a \lgname{PAPER} program to compile successfully, all type transformations must be composed in such a way that the final type is the base field where the circuit is defined over: 
 \begin{lstlisting}
 type_function <TYPE>( t1 : <TYPE_1>) -> TYPE_2{
   let t2: TYPE_2 <== fn(TYPE_1)
   return t2
 }
 \end{lstlisting}
-Many real-world circuit languages are based on a similar, but of course more sophisticated approach than \texttt{PAPER}. The purpose of \texttt{PAPER} is to show basic principles of circuit compilers and their associated high-level languages.
-\begin{example}To get a better understanding of the grammar of \texttt{PAPER}, the following constitutes proper high-level code that follows the grammar of the \texttt{PAPER} language, assuming that all types in that code have been defined elsewhere. 
+Many real-world circuit languages are based on a similar, but of course more sophisticated approach than \lgname{PAPER}. The purpose of \lgname{PAPER} is to show basic principles of circuit compilers and their associated high-level languages.
+\begin{example}To get a better understanding of the grammar of \lgname{PAPER}, the following constitutes proper high-level code that follows the grammar of the \lgname{PAPER} language, assuming that all types in that code have been defined elsewhere. 
 \begin{lstlisting}
 statement MOCK_CODE {F: F_43, N_1 = 1024, N_2 = 8} {
   fn foo(in_1 : F, pub in_2 : TYPE_2) -> F {
@@ -77,8 +77,8 @@ The second mode of execution is usually called the \term{prover phase}. In this 
 
 Modern circuit languages and their associated compilers abstract over those two phases and provide a unified \term{interphase} to the developer, who then writes a single program that can be used in both phases.
 
-To give the reader a clear, conceptual distinction between the two phases, \texttt{PAPER} keeps them separated. \texttt{PAPER}-code can be ``brain-compiled'' during the \term{setup-phase} in a pen-and-paper approach into a graphical circuit representation. Once a circuit is derived, it can be executed in a \term{prover phase} to generate a valid assignment. The valid assignment is then interpreted as a constructive proof for a knowledge claim in the associated language.
-\paragraph{The Setup Phase} In \texttt{PAPER}, the task of the setup phase is to compile code in the \texttt{PAPER} language into a visual representation of an algebraic circuit. Deriving the circuit from the code in a pen-and-paper style is what we call \term{brain-compiling}.
+To give the reader a clear, conceptual distinction between the two phases, \lgname{PAPER} keeps them separated. \lgname{PAPER}-code can be ``brain-compiled'' during the \term{setup-phase} in a pen-and-paper approach into a graphical circuit representation. Once a circuit is derived, it can be executed in a \term{prover phase} to generate a valid assignment. The valid assignment is then interpreted as a constructive proof for a knowledge claim in the associated language.
+\paragraph{The Setup Phase} In \lgname{PAPER}, the task of the setup phase is to compile code in the \lgname{PAPER} language into a visual representation of an algebraic circuit. Deriving the circuit from the code in a pen-and-paper style is what we call \term{brain-compiling}.
 
 Given some statement description that adheres to the correct grammar, we start the graphical circuit compilation process with an empty circuit, compile the main function first and then inductively compile all other functions as they are called during the process. 
 
@@ -96,8 +96,8 @@ Once this is done, we compile all occurring types of all variables in a function
 
 The compilation stops once we have inductively replaced all functions by their circuits. The result is a circuit that contains many unnecessary box nodes. In a final \term{optimization step}, all box nodes that are directly linked to each other are collapsed into a single node, and all box nodes that represent the same constants are collapsed into a single node. 
 
-Of course, \texttt{PAPER}'s brain-compiler is not properly defined in any formal manner. Its purpose is to highlight important steps that real-world compilers undergo in their setup phases. 
-\begin{example}[A trivial Circuit]\label{ex:trivial-circuit} To give an intuition of how to write and compile circuits in the \texttt{PAPER} language, consider the following statement description:
+Of course, \lgname{PAPER}'s brain-compiler is not properly defined in any formal manner. Its purpose is to highlight important steps that real-world compilers undergo in their setup phases. 
+\begin{example}[A trivial Circuit]\label{ex:trivial-circuit} To give an intuition of how to write and compile circuits in the \lgname{PAPER} language, consider the following statement description:
 \begin{lstlisting}
 statement trivial_circuit {F:F_13} {
   fn main{F}(in1 : F, pub in2 : F) -> (F,F){
@@ -112,7 +112,7 @@ statement trivial_circuit {F:F_13} {
   }
 }
 \end{lstlisting} 
-To brain-compile this statement into an algebraic circuit with \texttt{PAPER}, we start with an empty circuit and evaluate function \texttt{main}, which is the only function in this statement. 
+To brain-compile this statement into an algebraic circuit with \lgname{PAPER}, we start with an empty circuit and evaluate function \texttt{main}, which is the only function in this statement. 
 
 We draw box-nodes for every argument, every constant and every variable of the function and label them with their names or values, respectively.  Then we do a consistency and type check for every \texttt{<==} operator in the function. Since the circuit only wires inputs to outputs and all elements have the same type, the check is valid.
 
@@ -148,8 +148,8 @@ Then we evaluate the right side of the assignment operators. Since, in our case,
 }
 \end{center}
 \end{example}
-\paragraph{The Prover Phase} In \texttt{PAPER}, a so-called \term{prover phase} can be executed once the setup phase has generated a graphic circuit representation from its associated high-level code. This is done by executing the circuit while assigning proper values to all input nodes of the circuit. However, in contrast to most real-world compilers, \texttt{PAPER} does not tell the prover how to find proper input values to a given circuit. Real-world programing languages usually provide this data by computations that are done outside of the circuit.
-\begin{example} Consider the circuit from example \ref{ex:TJJ-circuit_2}. Valid assignments to this circuit are constructive proofs that the pair of inputs $<I_1,I_2>$ is a point on the tiny-jubjub curve. However, the circuit does not provide a way to actually compute proper values for $I_1$ and $I_2$. Any real-world system therefore needs an auxiliary computation that provides those values.
+\paragraph{The Prover Phase} In \lgname{PAPER}, a so-called \term{prover phase} can be executed once the setup phase has generated a graphic circuit representation from its associated high-level code. This is done by executing the circuit while assigning proper values to all input nodes of the circuit. However, in contrast to most real-world compilers, \lgname{PAPER} does not tell the prover how to find proper input values to a given circuit. Real-world programing languages usually provide this data by computations that are done outside of the circuit.
+\begin{example} Consider the circuit from \examplename{} \ref{ex:TJJ-circuit_2}. Valid assignments to this circuit are constructive proofs that the pair of inputs $<I_1,I_2>$ is a point on the tiny-jubjub curve. However, the circuit does not provide a way to actually compute proper values for $I_1$ and $I_2$. Any real-world system therefore needs an auxiliary computation that provides those values.
 \end{example}
 \section{Common Programing concepts}
 In this section, we cover concepts that appear in almost every programming language, and see how they can be implemented in circuit compilers. 
@@ -163,7 +163,7 @@ In this section, we look at some common ways to achieve this. After a recapitula
 \label{def:base_field_type}
 Since both algebraic circuits and their associated Rank-1 Constraint Systems are defined over a finite field, elements from that field are the atomic informational units in those models. In this sense, field elements $x\in \F$ are for algebraic circuits what bits are for computers. 
 
-In \texttt{PAPER}, we write \texttt{F} for this type and specify the actual instance of the field type in curly brackets after the name of a given statement. Two functions are associated to this type, which are induced by the \term{addition} and \term{multiplication} law in the field \texttt{F}. We write
+In \lgname{PAPER}, we write \texttt{F} for this type and specify the actual instance of the field type in curly brackets after the name of a given statement. Two functions are associated to this type, which are induced by the \term{addition} and \term{multiplication} law in the field \texttt{F}. We write
 \begin{equation}
 \mathtt{MUL}:\; \mathtt{F} \times \mathtt{F} \to \mathtt{F}\;;\; (x,y) \mapsto \mathtt{MUL}(x,y)
 \end{equation}
@@ -172,7 +172,7 @@ In \texttt{PAPER}, we write \texttt{F} for this type and specify the actual inst
 \end{equation}
 Circuit compilers have to compile these functions into arithmetic gates, as explained in \ref{algebraic-gates}. Every other function has to be expressed in terms of these two atomic functions.
 
-To represent addition and multiplication in the \texttt{PAPER} language, we define the following two functions:
+To represent addition and multiplication in the \lgname{PAPER} language, we define the following two functions:
 \begin{lstlisting}
 fn MUL(x : F, y : F) -> F{}
 \end{lstlisting}  
@@ -205,7 +205,7 @@ The compiler then compiles every occurrence of the $\mathtt{MUL}$ or the $\matht
 	n7 -> n8 [xlabel="W_3"] ;
 }
 \end{center}
-\begin{example}[Basic gates] To give an intuition of how a real-world compiler might transform addition and multiplication in algebraic expressions into a circuit, consider the following \texttt{PAPER} statement:
+\begin{example}[Basic gates] To give an intuition of how a real-world compiler might transform addition and multiplication in algebraic expressions into a circuit, consider the following \lgname{PAPER} statement:
 \begin{lstlisting}
 statement basic_ops {F:F_13} {
   fn main(in_1 : F, pub in_2 : F) -> (F, F){
@@ -223,7 +223,7 @@ We check the validity of every expression on the right side of every \texttt{<==
 
 We evaluate the expressions on the right side of every \texttt{<==} operator inductively, replacing every occurrence of a function with a subgraph that represents its associated circuit.
 
-According to \texttt{PAPER}, every occurrence of the instance specifier \texttt{pub} overwrites the associate witness default value. Using the appropriate edge labels we get: 
+According to \lgname{PAPER}, every occurrence of the instance specifier \texttt{pub} overwrites the associate witness default value. Using the appropriate edge labels we get: 
 \begin{center}
 \digraph[scale=0.5]{BASICOPS}{
     forcelabels=true;
@@ -279,7 +279,7 @@ According to \texttt{PAPER}, every occurrence of the instance specifier \texttt{
 \end{center}
 Any real-world compiler might process its associated high-level language in a similar way, replacing functions, or gadgets by predefined associated circuits. This process is often followed by various optimization steps that try to reduce the number of constraints as much as possible.
 
-In \texttt{PAPER}, we optimize this circuit by collapsing all box nodes that are directly connected to other box nodes, adhering to the rule that a variable's \texttt{pub} specifier overwrites any witness specifier. Reindexing edge labels, we get the following circuit as our pen and paper compiler output: 
+In \lgname{PAPER}, we optimize this circuit by collapsing all box nodes that are directly connected to other box nodes, adhering to the rule that a variable's \texttt{pub} specifier overwrites any witness specifier. Reindexing edge labels, we get the following circuit as our pen and paper compiler output: 
 \begin{center}
 \digraph[scale=0.5]{BASICOPSOPTI}{
     forcelabels=true;
@@ -301,7 +301,7 @@ In \texttt{PAPER}, we optimize this circuit by collapsing all box nodes that are
 }
 \end{center}
 \end{example} 
-\begin{example}[$3$-factorization] Consider our $3$-factorization problem from example \ref{ex:3-factorization} and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in example \ref{ex:TJJ-circuit_1}. To understand the process of replacing high-level functions by their associated circuits inductively, we want define a \texttt{PAPER} statement that we brain-compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$:
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from \examplename{} \ref{ex:3-factorization} and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in \examplename{} \ref{ex:TJJ-circuit_1}. To understand the process of replacing high-level functions by their associated circuits inductively, we want define a \lgname{PAPER} statement that we brain-compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$:
 \begin{lstlisting}
 statement 3_fac_zk {F:F_13} {
   fn main(x_1 : F, x_2 : F, x_3 : F) -> F{
@@ -311,7 +311,7 @@ statement 3_fac_zk {F:F_13} {
   }
 }
 \end{lstlisting} 
-Using \texttt{PAPER}, we start with an empty circuit and then add $3$ input nodes to the input subgraph as well as $1$ output node to the output subgraph. All these nodes are decorated with the associated variable names. Since all of these nodes represent variables of the \texttt{field} type, we don't have to add any type constraints to the circuit.
+Using \lgname{PAPER}, we start with an empty circuit and then add $3$ input nodes to the input subgraph as well as $1$ output node to the output subgraph. All these nodes are decorated with the associated variable names. Since all of these nodes represent variables of the \texttt{field} type, we don't have to add any type constraints to the circuit.
 
 We check the validity of every expression on the right side of the single \texttt{<==} operator including a type check. 
 
@@ -421,7 +421,7 @@ Using the general method from \ref{sec:circuits_associated_R1CS}, the circuits a
 Any valid assignment $<S_1,S_2, S_3>$ to this circuit therefore enforces the value $S_3$ to be the difference $S_1- S_2$.
 
 Real-world compilers usually provide a gadget or a function to abstract over this circuit such that programmers can use subtraction as if it were native to circuits.
-In \texttt{PAPER}, we define the following subtraction function that compiles to the previous circuit:
+In \lgname{PAPER}, we define the following subtraction function that compiles to the previous circuit:
 \begin{lstlisting}
 fn SUB(x : F, y : F) -> F{
   let rslt : F ;
@@ -462,7 +462,7 @@ S_1 \cdot S_2 = 1
 \end{equation}
 Any valid assignment $<S_1,S_2>$ to this circuit enforces that $S_2$ is the multiplicative inverse of $S_1$, and, since there is no field element $S_2$ such that $0\cdot S_2=1$, it also handles the fact that the multiplicative inverse of $0$ is not defined in any field. 
 
-Real-world compilers usually provide a gadget or a function to abstract over this circuit, and those functions compute the inverse $x^{-1}$ as part of their witness generation process. Programers then don't have to care about providing the inverse as auxiliary data to the circuit. In \texttt{PAPER}, we define the following inversion function that compiles to the previous circuit:
+Real-world compilers usually provide a gadget or a function to abstract over this circuit, and those functions compute the inverse $x^{-1}$ as part of their witness generation process. Programers then don't have to care about providing the inverse as auxiliary data to the circuit. In \lgname{PAPER}, we define the following inversion function that compiles to the previous circuit:
 \begin{lstlisting}
 fn INV(x : F, y : F) -> F {
   let x_inv : F ;
@@ -472,7 +472,7 @@ fn INV(x : F, y : F) -> F {
   return x_inv ;
 }
 \end{lstlisting}
-As we see, this functions takes two inputs, the field value and its inverse. It therefore does not handle the computation of the inverse by itself. This is to keep \texttt{PAPER} as simple as possible. 
+As we see, this functions takes two inputs, the field value and its inverse. It therefore does not handle the computation of the inverse by itself. This is to keep \lgname{PAPER} as simple as possible. 
 
 In the setup phase, we compile every occurrence of the $\mathtt{INV}$ function into an instance of the inversion circuit \ref{circ:inversion}, and edge labels are generated according to the rules from \ref{def:algebraic-circuit}.
 \paragraph{The Division Constraint System}
@@ -507,7 +507,7 @@ S_1 \cdot S_3 &= S_4
 \end{align*}
 Any valid assignment $<S_1,S_2,S_3,S_4>$ to this circuit enforces $S_4$ to be the field division of $S_1$ by $S_2$. It handles the fact that division by $0$ is not defined, since there is no valid assignment in case $S_2=0$. 
 
-In \texttt{PAPER}, we define the following division function that compiles to the previous circuit:
+In \lgname{PAPER}, we define the following division function that compiles to the previous circuit:
 \begin{lstlisting}
 fn DIV(x : F, y : F, y_inv : F) -> F {
   let DIV : F ;
@@ -516,7 +516,7 @@ fn DIV(x : F, y : F, y_inv : F) -> F {
 }
 \end{lstlisting}
 In the setup phase, we compile every occurrence of the binary $\mathtt{DIV}$ operator into an instance of the inversion circuit.
-\begin{exercise} Let $\mathtt{F}$ be the field $\F_5$ of modular $5$ arithmetics from example \ref{primfield_z_5}. Brain-compile the following \texttt{PAPER} statement into an algebraic circuit:
+\begin{exercise} Let $\mathtt{F}$ be the field $\F_5$ of modular $5$ arithmetics from \examplename{} \ref{primfield_z_5}. Brain-compile the following \lgname{PAPER} statement into an algebraic circuit:
 \begin{lstlisting}
 statement STUPID_CIRC {F: F_5} {
   fn foo(in_1 : F, in_2 : F)->(out_1 : F, out_2 : F,){
@@ -532,9 +532,9 @@ statement STUPID_CIRC {F: F_5} {
 }
 \end{lstlisting}
 \end{exercise}
-\begin{exercise} Consider the tiny-jubjub curve from example \ref{TJJ13} and its associated circuit \ref{ex:3-fac-zk-circuit}. Write a statement in \texttt{PAPER} that brain-compiles the statement into a circuit equivalent to the one derived in \ref{ex:3-fac-zk-circuit}, assuming that curve point is the instance and every other assignment is a witness. 
+\begin{exercise} Consider the tiny-jubjub curve from \examplename{} \ref{TJJ13} and its associated circuit \ref{ex:3-fac-zk-circuit}. Write a statement in \lgname{PAPER} that brain-compiles the statement into a circuit equivalent to the one derived in \ref{ex:3-fac-zk-circuit}, assuming that curve point is the instance and every other assignment is a witness. 
 \end{exercise}
-\begin{exercise} Let $\mathtt{F}=\F_{13}$ be the modular $13$ prime field and $x\in\mathtt{F}$ some field element. Define a statement in \texttt{PAPER} such that given instance $x$ a field element $y\in\mathtt{F}$ is a witness for the statement if and only if $y$ is the square root of $x$.  
+\begin{exercise} Let $\mathtt{F}=\F_{13}$ be the modular $13$ prime field and $x\in\mathtt{F}$ some field element. Define a statement in \lgname{PAPER} such that given instance $x$ a field element $y\in\mathtt{F}$ is a witness for the statement if and only if $y$ is the square root of $x$.  
 
 Brain-compile the statement into a circuit and derive its associated Rank-1 Constraint System. Consider the instance $x=9$ and compute a constructive proof for the statement. 
 \begin{comment}
@@ -554,7 +554,7 @@ statement KNOWLEDGE_OF_SQUARE_ROOT {F} {
 \begin{comment}
 \paragraph{Modularity} Implementing bounded computation in algebraic circuits it is often necessary to deal with complex expressions of the field type. As we have seen in XXX\sme{add reference} and XXX\sme{add reference}, both algebraic circuits and R1CS have a modularity property, which enables a compiler to derive algebraic circuit implementations for arbitrary circuits. 
 \begin{example}
-To given an intuition of how real-world circuit compilers make use of the modularity property to synthesize complex circuits from high-level programs, we derive a circuit for the following \texttt{PAPER} code:
+To given an intuition of how real-world circuit compilers make use of the modularity property to synthesize complex circuits from high-level programs, we derive a circuit for the following \lgname{PAPER} code:
 \begin{lstlisting}
 def main<F_13>(private x : F, private y : F, private y^(-1) : F ) -> () {
 
@@ -658,7 +658,7 @@ S_1 \cdot (1-S_1) = 0
 $$
 Any valid assignment $<S_1>$ to label of this circuit therefore enforces $S_1$ to be either the field element $0$ or $1$. 
 
-Some real-world circuit compilers (like \texttt{ZOKRATES} or \texttt{BELLMAN}) are typed, while others (like \texttt{circom}) are not. However, all of them have their way of dealing with the binary constraint. In \texttt{PAPER}, we define the boolean type by its type\_function that compiles to the previous circuit:
+Some real-world circuit compilers (like \texttt{ZOKRATES} or \texttt{BELLMAN}) are typed, while others (like \texttt{circom}) are not. However, all of them have their way of dealing with the binary constraint. In \lgname{PAPER}, we define the boolean type by its type\_function that compiles to the previous circuit:
 \begin{lstlisting}
 type_function BOOL(b : BOOL) -> F { 
 	let x : F ;
@@ -694,7 +694,7 @@ The associated Rank-1 Constraint System can be deduced from the general process 
 \begin{equation}
  S_1 \cdot S_2 = S_3
 \end{equation}
-Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\wedge$ operator without caring about the associated circuit. In \texttt{PAPER}, we define the following function that compiles to the $\wedge$-operator's circuit:
+Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\wedge$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\wedge$-operator's circuit:
 \begin{lstlisting}
 fn AND(b_1 : BOOL, b_2 : BOOL) -> BOOL{
   let AND : BOOL ; 
@@ -741,7 +741,7 @@ The associated Rank-1 Constraint System can be deduced from the general process 
 S_1 \cdot S_2 & = S_3\\
 (S_1 + S_2 - S_3)\cdot 1 &= S_4
 \end{align*}
-Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\vee$ operator without caring about the associated circuit. In \texttt{PAPER}, we define the following function that compiles to the $\vee$-operator's circuit:
+Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\vee$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\vee$-operator's circuit:
 \begin{lstlisting}
 fn OR(b_1 : BOOL, b_2 : BOOL) -> BOOL {
   let OR : BOOL ;
@@ -756,7 +756,7 @@ $OR(b_1,b_2) = 1 - (1 - b_1)\cdot (1 - b_2)$ holds true.
 
 Use this equation to derive an algebraic circuit with ingoing variables $b_1$ and $b_2$ and outgoing variable $OR(b_1,b_2)$ such that $b_1$ and $b_2$ are boolean constrained and the circuit has a valid assignment, if and only if $OR(b_1,b_2) = b_1 \vee b_2$.  
 
-Use the technique from \ref{sec:circuits_associated_R1CS} to transform this circuit into a Rank-1 Constraint System and find its full solution set. Define a \texttt{PAPER} function that brain-compiles into the circuit. 
+Use the technique from \ref{sec:circuits_associated_R1CS} to transform this circuit into a Rank-1 Constraint System and find its full solution set. Define a \lgname{PAPER} function that brain-compiles into the circuit. 
 \begin{comment}
 \begin{center}
 \digraph[scale=0.4]{BOOLOR}{
@@ -795,7 +795,7 @@ The associated Rank-1 Constraint System can be deduced from the general process 
  (1- S_1) \cdot (1-S_2) & = S_3\\
   (1-S_3)\cdot 1 &= S_4
 \end{align*}
-Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\vee$ operator without caring about the associated circuit. In \texttt{PAPER}, we define the following function that compiles to the $\vee$-operator's circuit:
+Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\vee$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\vee$-operator's circuit:
 \begin{lstlisting}
 fn OR(b_1 : BOOL, b_2 : BOOL) -> OR(b_1,b_2) : BOOL{
   l
@@ -834,7 +834,7 @@ The associated Rank-1 Constraint System can be deduced from the general process 
 \begin{align*}
   (1-S_1)\cdot 1 &= S_2
 \end{align*}
-Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\lnot$ operator without caring about the associated circuit. In \texttt{PAPER}, we define the following function that compiles to the $\lnot$-operator's circuit:
+Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\lnot$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\lnot$-operator's circuit:
 \begin{lstlisting}
 fn NOT(b : BOOL -> BOOL{
   let NOT : BOOL ;
@@ -851,7 +851,7 @@ Let $\F$ be a finite field. Derive algebraic circuits and associated Rank-1 Cons
 \paragraph{Modularity} As we have seen in chapter \ref{sec:statements}, both algebraic circuits and R1CS have a modularity property, and as we have seen in this section, all basic boolean functions are expressible in circuits. Combining those two properties shows that it is possible to express arbitrary boolean functions as algebraic circuits.
 
 The expressiveness of algebraic circuits and therefore Rank-1 Constraint Systems is as general as the expressiveness of boolean circuits. An important implication is that the languages $L_{R1CS-SAT}$ and $L_{Circuit-SAT}$ as defined in \ref{r1cs-satisfiability} and \ref{circuit-satisfiability}, are as general as the famous language $L_{3-SAT}$, which is known to be $\mathcal{NP}$-complete. 
-\begin{example} To give an example of how a compiler might construct complex boolean expressions in algebraic circuits from simple ones and how we derive their associated Rank-1 Constraint Systems, let's look at the following \texttt{PAPER} statement:
+\begin{example} To give an example of how a compiler might construct complex boolean expressions in algebraic circuits from simple ones and how we derive their associated Rank-1 Constraint Systems, let's look at the following \lgname{PAPER} statement:
 \begin{lstlisting}
 statement BOOLEAN_STAT {F: F_p} {
   fn main(b_1:BOOL,b_2:BOOL,b_3:BOOL,b_4:BOOL )-> BOOL {
@@ -867,7 +867,7 @@ $$
 $$
 During a setup-phase, a circuit compiler transforms this high-level language statement into a circuit and associated Rank-1 Constraint Systems and hence defines a  language $L_{BOOLEAN\_STAT}$. 
 
-To see how this might be achieved, we use \texttt{PAPER} as an example to execute the setup-phase and compile \texttt{BOOLEAN\_STAT} into a circuit. Taking the definition of the boolean constraint \ref{def:boolean_constraint} as well as the definitions of the appropriate boolean operators into account, we get the following circuit:
+To see how this might be achieved, we use \lgname{PAPER} as an example to execute the setup-phase and compile \texttt{BOOLEAN\_STAT} into a circuit. Taking the definition of the boolean constraint \ref{def:boolean_constraint} as well as the definitions of the appropriate boolean operators into account, we get the following circuit:
 \begin{center}
 \digraph[scale=0.25]{BOOLCOMPLEX}{
   forcelabels=true;
@@ -1185,13 +1185,13 @@ W_9:\;\; & W_1 \cdot W_2 = W_9 & \text{ first OR-operator constraint}\\
 W_{10}:\;\; & W_3 \cdot (1-W_4) = W_{10} & \text{AND(.,NOT(.))-operator constraints}\\
 I_1:\;\; & (W_1 + W_2 -W_9) \cdot W_{10} = I_1 & \text{AND-operator constraints}\\
 \end{align*}
-The reason why this R1CS only contains a single constraint for the multiplication gate in the OR-circuit, while the general definition \ref{def:boolean-or} requires two constraints, is that the second constraint in \ref{def:boolean-or_constraints} only appears because the final addition gate is connected to an output node. In this case, however, the final addition gate from the OR-circuit is enforced in the left factor of the $I_{1}$ constraint. Something similar holds true for the negation circuit. 
+The reason why this R1CS only contains a single constraint for the multiplication gate in the OR-circuit, while the general definition \ref{def:boolean-or} requires two constraints, is that the second constraint in \ref{def:boolean-or_constraints}\tbds{this needs to be numbered} only appears because the final addition gate is connected to an output node. In this case, however, the final addition gate from the OR-circuit is enforced in the left factor of the $I_{1}$ constraint. Something similar holds true for the negation circuit. 
 
 During a prover-phase, some public instance $I_5$ must be given. To compute a constructive proof for the statement of the associated languages with respect to instance $I_5$, a prover has to find four boolean values $W_1$, $W_2$, $W_3$ and $W_4$ such that 
 $$
 \left( W_1 \vee W_2 \right) \wedge (W_3 \wedge \lnot W_4) = I_5
 $$ 
-holds true. In our case neither the circuit nor the \texttt{PAPER} statement specifies how to find those values, and it is a problem that any prover has to solve outside of the circuit. This might or might not be true for other problems, too. In any case, once the prover found those values, they can execute the circuit to find a valid assignment. 
+holds true. In our case neither the circuit nor the \lgname{PAPER} statement specifies how to find those values, and it is a problem that any prover has to solve outside of the circuit. This might or might not be true for other problems, too. In any case, once the prover found those values, they can execute the circuit to find a valid assignment. 
 
 To give a concrete example, let $I_1=1$ and assume $W_1=1$, $W_2=0$, $W_3=1$ and $W_4=0$. Since 
 $\left( 1 \vee 0 \right) \wedge (1 \wedge \lnot 0) = 1$, those values satisfy the problem and we can use them to execute the circuit. We get 
@@ -1210,14 +1210,14 @@ A constructive proof of knowledge of a witness, for instance, $I_1=1$, is theref
 
 Arrays are a classical type, implemented by many higher programing languages that compile to circuits or Rank-1 Constraint Systems. However, most high-level circuit languages support \term{static} arrays, i.e., arrays whose length is known at compile time only. 
 
-The most common way to compile arrays to circuits is to transform any array of a given type $\texttt{t}$ and size $\texttt{N}$ into $\texttt{N}$ circuit variables of type $\texttt{t}$. Arrays are therefore \term{syntactic sugar}, with the purpose to make code easier for humans to read, and write. In \texttt{PAPER}, we define the following array type\_function:
+The most common way to compile arrays to circuits is to transform any array of a given type $\texttt{t}$ and size $\texttt{N}$ into $\texttt{N}$ circuit variables of type $\texttt{t}$. Arrays are therefore \term{syntactic sugar}, with the purpose to make code easier for humans to read, and write. In \lgname{PAPER}, we define the following array type\_function:
 \begin{lstlisting}
 type_function <Name>: <Type>[N : unsigned] -> (Type,...) { 
   return (<Name>[0],...)
 }
 \end{lstlisting}
 In the setup phase of a statement, we compile every occurrence of an array of size \texttt{N} that contains elements of type \texttt{Type} into \texttt{N} variables of type \texttt{Type}.
-\begin{example} To give an intuition of how a real-world compiler might transform arrays into circuit variables, consider the following \texttt{PAPER} statement:
+\begin{example} To give an intuition of how a real-world compiler might transform arrays into circuit variables, consider the following \lgname{PAPER} statement:
 \begin{lstlisting}
 statement ARRAY_TYPE {F: F_5} {
   fn main(x: F[2])-> F {
@@ -1227,7 +1227,7 @@ statement ARRAY_TYPE {F: F_5} {
   } ;
 }
 \end{lstlisting}
-During a setup phase, a circuit compiler might then replace any occurrence of the array type by a tuple of variables of the underlying type, and then use those variables in the circuit synthesis process instead. To see how this can be achieved, we use \texttt{PAPER} as an example. Abstracting over the sub-circuit of the computation, we get the following circuit:
+During a setup phase, a circuit compiler might then replace any occurrence of the array type by a tuple of variables of the underlying type, and then use those variables in the circuit synthesis process instead. To see how this can be achieved, we use \lgname{PAPER} as an example. Abstracting over the sub-circuit of the computation, we get the following circuit:
 \begin{center}
 \digraph[scale=0.5]{SIMPLEARRAYCIRC}{
   forcelabels=true;
@@ -1278,7 +1278,7 @@ During a setup phase, a circuit compiler might then replace any occurrence of th
 
 \paragraph{The uN Constraint System} Many high-level circuit languages define the various \texttt{uN} types as arrays of size \texttt{N}, where each element is of boolean type. This parallels their representation on common computer hardware and allows for efficient and straightforward definition of common operators, like the various shift operators, or the logical operators.
 
-Assuming that some unsigned integer \texttt{N} is known at compile time in \texttt{PAPER}, we define the following \texttt{uN} type\_function, which casts a an unsigned integer into an array of boolean variables:
+Assuming that some unsigned integer \texttt{N} is known at compile time in \lgname{PAPER}, we define the following \texttt{uN} type\_function, which casts a an unsigned integer into an array of boolean variables:
 \begin{lstlisting}
 type_function uN -> BOOL[N] { 
   let base2 : BOOL[N] ;
@@ -1300,7 +1300,7 @@ S_{N-1} \cdot (1-S_{N-1}) & = 0\\
 
 It should be noted that, in some cases, there is another, more space- and Constraint System efficient approach for representing unsigned integers that can be used whenever the underlying base field is sufficiently large. To understand this, recall that addition and multiplication in a prime field $\F_p$ is equal to addition and multiplication of integers, as long as the sum or the product does exceed neither the modulus $p$ of the base field nor the modulus $2^N$ of the unsigned integer type. Under those limitations it is possible to represent the \texttt{uN} type inside the base-field type whenever $N$ is small enough. This however is not safe and care has to be taken to never overflow any of those moduli, or underflow $0$.
 \end{remark}
-\begin{example} To give an intuition of how a real-world compiler might transform unsigned integers into circuit variables, consider the following \texttt{PAPER} statement, which implement the classical ring-shift operator on the $u4$ type as a circuit:
+\begin{example} To give an intuition of how a real-world compiler might transform unsigned integers into circuit variables, consider the following \lgname{PAPER} statement, which implement the classical ring-shift operator on the $u4$ type as a circuit:
 \begin{lstlisting}
 statement RING_SHIFT{F: F_p, N=4} {
   fn main(x: uN)-> uN {
@@ -1310,7 +1310,7 @@ statement RING_SHIFT{F: F_p, N=4} {
   } ;
 }
 \end{lstlisting}
-During the setup-phase, a circuit compiler might then replace any occurrence of the \texttt{uN} type by \texttt{N} variables of \texttt{boolean} type. Using the definition of booleans, each of these variables is then transformed into the \texttt{field} type and a boolean constraint system. To see how this can be achieved, we use \texttt{PAPER} as an example and get the following circuit:
+During the setup-phase, a circuit compiler might then replace any occurrence of the \texttt{uN} type by \texttt{N} variables of \texttt{boolean} type. Using the definition of booleans, each of these variables is then transformed into the \texttt{field} type and a boolean constraint system. To see how this can be achieved, we use \lgname{PAPER} as an example and get the following circuit:
 
 \begin{center}
 \digraph[scale=0.25]{u4SHIFTER}{
@@ -1602,7 +1602,7 @@ Let \texttt{F}$=\F_{13}$ and \texttt{N=4} be fixed and let $x$ be of $uN$ type. 
 \begin{exercise}
 Let \texttt{F}$=\F_{13}$ and \texttt{N=2} be fixed. Define a circuit and associated R1CS for the addition operator $\mathtt{ADD}: uN \times uN \to uN$. Execute the associated circuit to compute $\mathtt{ADD}(2,7)$ for $2,7\in uN$.
 \end{exercise}
-\begin{exercise} Execute the setup phase for the following \texttt{PAPER} code (That is brain compile the code into a circuit and derive the associated R1CS). 
+\begin{exercise} Execute the setup phase for the following \lgname{PAPER} code (That is brain compile the code into a circuit and derive the associated R1CS). 
 \begin{lstlisting}
 statement MASK_MERGE {F:F_5, N=4} {
   fn main(pub a : uN, pub b : uN) -> uN {
@@ -1678,7 +1678,7 @@ S_1 \cdot S_2 & = S_3 \\
 (1 - S_1) \cdot S_4 & = S_5 \\
 (S_3 + S_5)\cdot 1 &= S_6
 \end{align*}
-\begin{example} To give an intuition of how a real-world circuit compiler might transform any high-level description of the conditional assignment operator into a circuit, consider the following \texttt{PAPER} code:
+\begin{example} To give an intuition of how a real-world circuit compiler might transform any high-level description of the conditional assignment operator into a circuit, consider the following \lgname{PAPER} code:
 \begin{lstlisting}
 statement CONDITIONAL_OP {F:F_p} {
   fn main(x : F, y : F, b : BOOL) -> F {
@@ -1823,7 +1823,7 @@ In addition it is often possible to implement loop structures, where the number 
 In contrast to this, algebraic circuits and Rank-1 Constraint Systems are not general enough to express arbitrary computation, but bounded computation only. As a consequence,  it is not possible to implement unbounded loops, or loops with bounds that are unknown at compile time in those models. This can be easily seen since circuits are acyclic by definition, and implementing an unbounded loop as an acyclic graph requires a circuits of unbounded size.  However, circuits are general enough to express bounded loops, where the upper bound on its execution is known at compile time. Those loop can be implemented in circuits by enrolling the loop. 
 
 As a consequence, any programing language that compiles to algebraic circuits can only provide loop structures where the bound is a constant known at compile time. This implies that loops cannot depend on execution inputs, but on compile time parameters only.  
-\begin{example} To give an intuition of how a real-world circuit compiler might transform any high-level description of a bounded \texttt{for} loop into a circuit, consider the following \texttt{PAPER} code:
+\begin{example} To give an intuition of how a real-world circuit compiler might transform any high-level description of a bounded \texttt{for} loop into a circuit, consider the following \lgname{PAPER} code:
 \begin{lstlisting}
 statement FOR_LOOP {F:F_p, N: unsigned = 4} {
   fn main(fac : F[N]) -> F {
@@ -2039,7 +2039,7 @@ In applications, it is often required to do cryptography in a circuit. To do thi
 
 For efficiency reasons, it is advantageous to choose an elliptic curve such that that all required constraints and operations can be implement with as few gates as possible. Twisted Edwards curves are particularly useful for that matter, since their group law is particularly simple and the same calculation can be used for all curve points including the point at infinity. This simplifies the circuit a lot.
 % implementations https://github.com/iden3/circomlib/blob/master/circuits/babyjub.circom
-\paragraph{Twisted Edwards curve constraints} As we have seen in \ref{sec:edwards}, a twisted Edwards curve over a finite field $F$ is defined as the set of all pairs of points $(x,y)\in \F\times \F$ such that $x$ and $y$ satisfy the equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ and as we have seen in example \ref{ex:TJJ-circuit_1}, we can transform this equation into the following circuit:
+\paragraph{Twisted Edwards curve constraints} As we have seen in \ref{sec:edwards}, a twisted Edwards curve over a finite field $F$ is defined as the set of all pairs of points $(x,y)\in \F\times \F$ such that $x$ and $y$ satisfy the equation $a\cdot x^2+y^2= 1+d\cdot x^2y^2$ and as we have seen in \examplename{} \ref{ex:TJJ-circuit_1}, we can transform this equation into the following circuit:
 \begin{center}
 \digraph[scale=0.35]{TECCIRCUIT}{
 	forcelabels=true;
@@ -2083,7 +2083,7 @@ For efficiency reasons, it is advantageous to choose an elliptic curve such that
 	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-The circuit enforces the two inputs of \texttt{field} type to satisfy the twisted Edwards curve equation and, as we know from example \ref{ex:tjj-circuit-2-tjj-R1CS}, the associated Rank-1 Constraint System is given by:
+The circuit enforces the two inputs of \texttt{field} type to satisfy the twisted Edwards curve equation and, as we know from \examplename{} \ref{ex:tjj-circuit-2-tjj-R1CS}, the associated Rank-1 Constraint System is given by:
 \begin{align*}
  S_1 \cdot S_1 &= S_3\\
  S_2 \cdot S_2 &= S_4\\
