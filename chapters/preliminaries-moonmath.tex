@@ -1,103 +1,42 @@
 \chapter{Preliminaries}
 
-\section{Preface and Acknowledgements}
-This book began as a set of lecture and notes accompanying the zk-Summit 0x and 0xx .... It arose from the desire to collect the scattered information of snarks [] and present them to an audience that does not have a strong backgroud in cryptography []
+\section{Runtime complexity}
 
-\section{Purpose of the book}
-The first version of this book is written by security auditors at Least Authority where we audited quite a few snark based systems. Its included "what we have learned" destilate of the time we spend on various audits.  
+\commscomb{}{should this whole section be moved to section \ref{def:DL-secure}?}
+Before we deal with the mathematics behind zero-knowledge proof systems, we must first say a few words about the runtime of an algorithm or the time complexity of a mathematical problem. This is particularly important for us when we analyze the security of various SNARK systems.
 
+Roughly speaking, the runtime complexity of an algorithm describes the amount of elementary computation steps that this algorithm requires in order to solve a problem, depending on the size of the input data.
 
-We intend to let illus-
-trative examples drive the discussion and present the key concepts of pairing
-computation with as little machinery as possible. For those that are fresh to
-pairing-based cryptography, it is our hope that this chapter might be particu-
-larly useful as a first read and prelude to more complete or advanced expositions
-(e.g. the related chapters in [Gal12]).
+Of course, the exact amount of arithmetic operations required depends on many factors, such as the implementation, the operating system used, the CPU and so on. However, this level of accuracy is seldom required for our purposes, so the ``magnitude'' of the computational effort is used instead.
 
-On the other hand, we also hope our beginner-friendly intentions do not leave
-any sophisticated readers dissatisfied by a lack of formality or generality, so in
-cases where our discussion does sacrifice completeness, we will at least endeavour
-to point to where a more thorough exposition can be found.
+In other words, instead of specifying the individual calculation steps, we look for an upper limit which approximates the runtime as soon as the input quantity becomes very large. 
 
-One advantage of writing a survey on pairing computation in 2012 is that,
-after more than a decade of intense and fast-paced research by mathematicians
-and cryptographers around the globe, the field is now racing towards full matu-
-rity. Therefore, an understanding of this text will equip the reader with most
-of what they need to know in order to tackle any of the vast literature in this
-remarkable field, at least for a while yet.
-
-Since we are aiming the discussion at
-active readers, we have matched every example with a corresponding snippet of
-(hyperlinked) Magma [BCP97] code 1 , where we take inspiration from the helpful
-Magma pairing tutorial by Dominguez Perez et al. [DKS09].
-
-Early in the book we will develop examples that we then later extend with most of the things we learn in each chapter. This way we incrementally build a few real world snarks but over full fledged cryptographic systems that are nevertheless simple enough to be computed by pen and paper to illustrate all steps in grwat detail.
+To talk about the security of cryptographic systems, we distinguish the following levels of complexity:
+\begin{itemize}
+\item $\mathcal{O}(n)$ means that the running time of the algorithm to be considered is linearly dependent on the size of the input set $n$
+\item $\mathcal{O}(n^k)$ means that the running time is polynomial  
+\item $\mathcal{O}(2^n) $ stands for an exponential running time. %\cite{JB} 
+\end{itemize} 
 
 
-\section{How to read this book}
+An algorithm which has a running time that is greater than a polynomial is often simply referred to as \hilight{slow}.
 
-Books and papers to read: XXXXXXXXXXX
+A generalization of the runtime complexity of an algorithm is the so-called \term{time complexity of a mathematical problem}, which is defined as the runtime of the fastest possible algorithm that can still solve this problem.
+%\cite{AB}.
 
-Software to try: XXXXXXXXXXXXXXXXXXX
+Since the time complexity of a mathematical problem is concerned with the runtime analysis of all possible (and thus possibly still undiscovered) algorithms, this is often very difficult to determine.
 
-Correctly prescribing the best reading route for a beginner naturally requires individual diagnosis that depends on their prior knowledge and technical preparation.
-
-\section{Cryptological Systems}
-The science of information security is referred to as \textit{cryptology}. In the broadest sense, it deals with encryption and decryption processes, with digital signatures, identification protocols, cryptographic hash functions, secrets sharing, electronic voting procedures and electronic money. EXPAND
-
-\section{SNARKS}
-
-
-
-\section{complexity theory}
-Before we deal with the mathematics behind zero knowledge proof systems, we must first clarify what is meant by the runtime of an algorithm or the time complexity of an entire mathematical problem. This is particularly important for us when we analyze the various snark systems...
-
-For the reader who is interested in complexity theory, we recommend, or example 
-%\cite{BE} 
-or 
-%\cite{AB}
-, as well as the references contained therein.
-
-\subsection{Runtime complexity}
-The runtime complexity of an algorithm describes, roughly speaking, the amount of elementary computation steps that this algorithm requires in order to solve a problem, depending on the size of the input data.
-
-Of course, the exact amount of arithmetic operations required depends on many factors such as the implementation, the operating system used, the CPU and many more. However, such accuracy is seldom required and is mostly meaningful to consider only the asymptotic computational effort.
-
-In computer science, the runtime of an algorithm is therefore not specified in individual calculation steps, but instead looks for an upper limit which approximates the runtime as soon as the input quantity becomes very large. This can be done using the so-called \textit{Landau notation} (also called big -$\mathcal{O}$-notation) A precise definition
-would, however, go beyond the scope of this work and we therefore refer the reader to 
-%\cite{AB}
-.
-
-For us, only a rough understanding of transit times is important in order to be able to talk about the security of crypographic systems. For example, $\mathcal{O}(n)$ means that the running time of the algorithm to be considered is linearly dependent on the size of the input set $n$, $\mathcal{O}(n^k)$ means that the running time is polynomial and $\mathcal{O}(2^n) $ stands for an exponential running time (%\cite{JB} 
-chapter 2.4).
-
-
-An algorithm which has a running time that is greater than a polynomial is often simply referred to as \textit{slow}.
-
-A generalization of the runtime complexity of an algorithm is the so-called \textit{time complexity of a mathematical problem}, which is defined as the runtime of the fastest possible algorithm that can still solve this problem (
-%\cite{AB} 
-chapter 3.1).
-
-Since the time complexity of a mathematical problem is concerned with the runtime analysis of all possible (and thus possibly still undiscovered) algorithms, this is often a very difficult and deep-seated question .
-
-For us, the time complexity of the so-called discrete logarithm problem will be important. This is a problem for which we only know slow algorithms on classical computers at the moment, but for which at the same time we cannot rule out that faster algorithms also exist.
+For our topic, the time complexity of the so-called discrete logarithm problem  is particularly important (see \secname{} \ref{def:DL-secure}). This is a problem for which we only know slow algorithms on classical computers at the moment, but for which we cannot rule out that faster algorithms also exist.
  
 
-STUFF ON CRYPTOGRAPHIC HASH FUNCTIOND
-
-
 \section{Software Used in This Book}
-
-\subsection{Sagemath}
 \label{sagemath_setup}
-It order to provide an interactive learning experience, and to allow getting hands-on with the concepts described in this book, we give examples for how to program them in the Sage programming language. Sage is a dialect of the learning-friendly programming language Python, which was extended and optimized for computing with, in and over algebraic objects. Therefore, we recommend installing Sage before diving into the following chapters.
+It order to provide an interactive learning experience, and to allow getting hands-on with the concepts described in this book, we give examples for how to program them in the \href{https://www.sagemath.org/}{SageMath} programming language. Sage is based on the learning-friendly programming language \href{https://www.python.org/}{Python},  extended and optimized for computations involving algebraic objects. Therefore, we recommend installing Sage before diving into the following chapters.
 
-The installation steps for various system configurations are described on the sage websit \footnote{\url{https://doc.sagemath.org/html/en/installation/index.html}}. Note however that we use Sage version 9, so if you are using Linux and your package manager only contains version 8, you may need to choose a different installation path, such as using prebuilt binaries.
+The installation steps for various system configurations are described on the \href{https://doc.sagemath.org/html/en/installation/index.html}{Sage website}. Note that we use Sage version 9, so if you are using Linux and your package manager only contains version 8, you may need to choose a different installation path, such as using prebuilt binaries.
 
-We recommend the interested reader, who is not familiar with sagemath to read on the many tutorial before starting this book. For example 
-%https://doc.sagemath.org/pdf/en/tutorial/SageTutorial.pdf
+If you are not familiar with SageMath, we recommend you consult the \href{https://doc.sagemath.org/html/en/tutorial/index.html}{Sage Tutorial}.
 
-% Note: Logging Input and Output
-% You can use this command to log all input you type, all output, and even play back that input in a future session (by simply reloadingthe log file).
+
 
 

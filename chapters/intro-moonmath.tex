@@ -18,8 +18,10 @@ intermediaries.
 
 Zero-knowledge proofs (ZKPs) are an important privacy-enhancing tool from cryptography. Theyallow proving the veracity of a statement, related to confidential data, without revealing any in-formation beyond the validity of the statement. ZKPs were initially developed by the academiccommunity in the 1980s, and have seen tremendous improvements since then. They are now ofpractical feasibility in multiple domains of interest to the industry, and to a large community ofdevelopers and researchers. ZKPs can have a positive impact in industries, agencies, and for per-sonal use, by allowing privacy-preserving applications where designated private data can be madeuseful to third parties, despite not being disclosed to them. 
 
-ZKP systems involve at least two parties: a prover and a verifier. The goal of the prover is toconvince the verifier that a statement is true, without revealing any additional information. Forexample, suppose the prover holds a birth certificate digitally signed by an authority. In orderto access some service, the prover may have to prove being at least 18 years old, that is, thatthere exists a birth certificate, tied to the identify of the prover and digitally signed by a trustedcertification authority, stating a birthdate consistent with the age claim. A ZKP allows this, withoutthe prover having to reveal the birthdate.
+ZKP systems involve at least two parties: a prover and a verifier. The goal of the prover is to convince the verifier that a statement is true, without revealing any additional information. Forexample, suppose the prover holds a birth certificate digitally signed by an authority. In orderto access some service, the prover may have to prove being at least 18 years old, that is, thatthere exists a birth certificate, tied to the identify of the prover and digitally signed by a trustedcertification authority, stating a birthdate consistent with the age claim. A ZKP allows this, withoutthe prover having to reveal the birthdate.
 \end{comment}
+
+\commscomb{}{Add short description of zk-proofs}
 
 \section{Target audience}
 \begin{comment}
@@ -32,11 +34,11 @@ It is assumed that you have a basic understanding of programming and the underly
 %\section{Aims and target audience}
 \tbds{Sylvia: This subsection should be in the introduction of the book as it applies to the entire math part \label{intro-shift_1}}
 \end{comment}
-How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using mathematics at all; however, to read a foundational paper like \cite{Groth16} and to understand the internals of snark implementations, some knowledge of mathematics is needed to be able to follow the discussion. 
+How much mathematics do you need to understand \uterm{zero-knowledge proofs}? The answer, of course, depends on the level of understanding you aim for. It is possible to describe zero-knowledge proofs without using any mathematics at all; however, to read a foundational paper like \cite{Groth16} and to understand the internals of snark implementations, some knowledge of mathematics is needed to be able to follow the discussion. 
 
 %The goal of this chapter is therefore to enable a reader who is starting out with nothing more than basic high school algebra to be able to solve simple tasks in the mathematics underlying most zero knowledge proofs without the need of a computer.
 
-Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who has never seen or dealt with, say, a prime field \ref{prime_fields}, or an elliptic curve \ref{chap:elliptic-curves}, may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, but rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that complicted. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature and unsecure code. 
+Without a solid grounding in mathematics, someone who is interested in learning the concepts of zero-knowledge proofs, but who has never seen or dealt with, say, a prime field \ref{prime_fields}, or an elliptic curve \ref{chap:elliptic-curves},\commscomb{}{I'd remove references from here} may quickly become overwhelmed. This is not so much due to the complexity of the mathematics needed, but rather because of the vast amount of technical jargon, unknown terms, and obscure symbols that quickly makes a text unreadable, even though the concepts themselves are not actually that complicted. As a result, the reader might either lose interest, or pick up some incoherent bits and pieces of knowledge that, in the worst case scenario, result in immature and unsecure code. 
 
 This is why we dedicated large parts of the book to explaining the mathematical foundations needed to understand the basic concepts underlying snark development. We encourage the reader who is not familiar with basic number theory and elliptic curves to take the time and read this and the following chapters, until they are able to solve at least a few exercises in each chapter.
 
@@ -44,44 +46,27 @@ This is why we dedicated large parts of the book to explaining the mathematical 
 
 We start our explanations at a very basic level, and only assume pre-existing knowledge of fundamental concepts like high school integer arithmetic. At the same time, we'll attempt to teach you to ``think mathematically'', and to show you that there are numbers and mathematical structures out there that appear to be very different from the things you learned about in high school, but on a deeper level, they are actually quite similar, as we will see in various examples below in this chapter.
 
-To make it easier to memorize new concepts and symbols, we might frequently link to definitions in the beginning, but as to many links render a text unreadable, we will assume the reader will become familiar with definitions as the text proceeds at which point we will not link them anymore.
-
 We want to stress, however that this introduction is informal, incomplete and optimized to enable the reader to understand zero-knowledge concepts as efficiently as possible. Our focus and design choices are to include as little theory as necessary, focusing on a wealth of numerical examples. We believe that such an informal, example-driven approach to learning mathematics may make it easier for beginners to digest the material in the initial stages. 
 
-For instance, as a beginner, you would probably find it more beneficial to first compute a simple toy \term{snark} with pen and paper all the way through, before actually developing real-world production-ready systems. In addition, it's useful to have a few simple examples in your head before getting started with reading actual academic papers.
+For instance, as a beginner, you would probably find it more beneficial to first compute a simple toy \term{SNARK} with pen and paper all the way through, before actually developing real-world production-ready systems. In addition, it's useful to have a few simple examples in your head before getting started with reading actual academic papers.
 
-However, in order to be able to derive these toy examples, some mathematical groundwork is needed. This chapter therefore will help the inexperienced reader to focus on what we believe is important, accompanied by exercises that you are encouraged to recompute yourself. Every section usually ends with a list of additional exercises in increasing order of difficulty, to help the reader memorize and apply the concepts. 
-
-\section{Preface and Acknowledgements}
-[To APPEAR]
-
-\section{Purpose of the book}
-This book began as a set of lecture and notes one of the authors gave at the \href{https://www.zksummit.com/}{Zero Knowledge Summit - ZK0x02} in Berlin. It arose from the desire to collect the scattered information around the topic of zk-SNARKS and present them to an audience that does not have a strong background in cryptography.
-
-The first version of this book is written by security auditors at Least Authority where we audited quite a few snark based systems. It includes "what we have learned" distillate of the time we spend on various audits and serves as a polished version of what one might call an auditors adoptation of classical \href{https://en.wikipedia.org/wiki/Lab_notebook}{lab notebooks}.  
-
-We intend to let illustrative examples drive the discussion and present the key ideas of all basic concepts relevant to the understanding of zk-SNARKS with as little mathematics as possible. For those who are new to this topic, it is our hope that this book might be particularly useful as a first read and prelude to more complete or advanced expositions.
-
-On the other hand, we also hope our beginner-friendly intentions do not leave
-the more advanced readers dissatisfied by our chosen lack of formality, so in
-cases where our discussion does sacrifice rigor, we will point the reader to the proper literature.
-
-After more than a decade of intense and fast-paced research by mathematicians
-and cryptographers around the globe on zk-SNARKS, the field is now racing towards full maturity and in our believe first saturation effects appear at the horizon. A purpose of the book is therefore, that an understanding of this text will equip the reader with most
-of what they need to know in order to tackle any of the vast literature in this
-remarkable field, at least for a while yet.
-
-Early in the book we will develop examples that we then later extend with most of the things we learn in each chapter. This way we incrementally build a few real world snarks but over full fledged cryptographic systems that are nevertheless simple enough to be computed by pen and paper to illustrate all steps in great detail.
-
-\section{How to read the book}
-Since the Moonmath Manual aims to become a complete introduction to all topics relevant for beginners, there are different path to read it, besides linear.
-
-The reader who is first of all interested in building a simple pen and paper zk-SNARK and to fill their knowledge gaps as they appear throughout the process, only, might want to start with out 3-factorization example []. In [] we introduce the 3-factorization problem as a statement in a formal language. If this is to abstract, the reader might start in [] where we described the 3-factorization problem as an algebraic circuit. In [] we introduce various levels of zero-knowledge and we show how to compute solutions in []. We then transform the circuit into an associated Rank-1 Constraint System in [] and transform that constraint  system into an Quadratic Arithmetic Program in []. In [] we show how solutions are transformed into polynomial divisibility problems. In [] we then use the result of those examples to derive a Groth16 zk-SNARK for the 3-factorization problem. In [] we compute the prover and the verifier key. in [] we compute a zk-SNARK and in [] we verify that zk-SNARK. In [] we show how to simulate proofs. 
-
-The reader who wants to get a better understanding about elliptic curves as they arise in zero knowledge based proving systems, might want to start with our introduction of the BLS6\_6 curve [], which is a pen and paper, pairing friendly elliptic curve. All concepts needed to understand this curve are introduced in chapter []. The BLS6\_6 is useful, because
-programmers who develop real world SNARKS, frequently face the situation where it would be useful do some pen-and-paper computations before implementing the real thing. In the MMM we specifically designed the BLS6\_6 curve for this purpose. Its a pairing friendly curve, that has all the properties needed to do pairing based computations without any computer assistence, which often helps to understand delicate details of your system. 
+However, in order to be able to derive these toy examples, some mathematical groundwork is needed. This book therefore will help the inexperienced reader to focus on what we believe is important, accompanied by exercises that you are encouraged to recompute yourself. Every section contains a list of  exercises in increasing order of difficulty, to help the you memorize and apply the concepts. 
 
 
+\section{How to read this book}
+Since the MoonMath Manual aims to become a complete introduction to all topics relevant for beginners, there are ways of reading it. The first and most obvious one is linear, following the order of the chapters. We recommend this if you have little pre-existing knowledge of mathematics and cryptography. We start with basic concepts like natural numbers, prime numbers, and how we can perform operations on such sets in different kinds of arithmetic. Then we move on to algebraic constructs like groups, rings, prime fields and projective planes.
+
+Early in the book, we develop examples that we gradually extend with the things we learn in each chapter. This way, we incrementally build a few real-world SNARKs over full-fledged cryptographic systems that are nevertheless simple enough to be computed by pen and paper to illustrate all steps in great detail.
+
+Readers who mainly want to get a better understanding of elliptic curves as they arise in zero-knowledge-based proving systems might want to start with our introduction of the BLS6\_6 curve [], which is a pen-and-paper, pairing-friendly elliptic curve. All concepts needed to understand this curve are introduced in chapter []. Programmers who develop real-world SNARKS frequently face the situation where it would be useful do some pen-and-paper computations before implementing the real thing. In this book, we specifically designed the BLS6\_6 curve for this purpose. It is a pairing friendly curve that has all the properties needed to do pairing-based computations without any computer assistance, which often helps to understand delicate details of your system. 
+
+
+Readers who are primarily interested in building a simple pen-and-paper zk-SNARK and in filling in their knowledge gaps as they appear throughout the process might want to start with our 3-factorization example []. In [] we introduce the 3-factorization problem as a statement in a formal language. If this is too abstract, the reader might start in [] where we describe the 3-factorization problem as an algebraic circuit. In [] we introduce various levels of zero knowledge, and we show how to compute solutions in []. We then transform the circuit into an associated Rank-1 Constraint System in [], and transform that constraint  system into a Quadratic Arithmetic Program in []. In [], we show how solutions are transformed into polynomial divisibility problems. In [], we  use the result of those examples to derive a Groth16 zk-SNARK for the 3-factorization problem. In [], we compute the prover and the verifier key. In [] we compute a zk-SNARK and in [] we verify that zk-SNARK. In [] we show how to simulate proofs. 
+
+
+
+
+%rest is commented out
 
 \begin{comment}
 \section{The Zoo of Zero-Knowledge Proofs}
