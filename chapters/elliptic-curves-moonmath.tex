@@ -1,7 +1,7 @@
 \chapter{Elliptic Curves}\label{chap:elliptic-curves}
 \label{chap:elliptic_curves}
 %references http://infosec.pusan.ac.kr/wp-content/uploads/2019/09/Pairings-For-Beginners.pdf
-Generally speaking, elliptic curves are geometric objects in projective planes (see \secname{} \ref{sec:planes}) over a given field, made up of points that satisfy certain equations. One of their key features from the point of view of cryptography is that, if the underlying field is of positive characteristic, elliptic curves are finite, cyclic groups (\secname{} \ref{sec:finite-groups}). Further, it is believed that the \concept{discrete logarithm problem} (\secname{} \ref{def:DL-secure}) on many elliptic curve groups is hard, given that the underlying characteristic is large enough.\footnote{An in-depth introduction to elliptic curves is given, for example, in \cite{silverman-1994}. An introduction from a cryptographic point of view is given in \cite{hoffstein-2008}.}
+Generally speaking, elliptic curves are geometric objects in projective planes (see \secname{} \ref{sec:planes}) over a given field, made up of points that satisfy certain equations. One of their key features from the point of view of cryptography is that, if the underlying field is of positive characteristic, elliptic curves are finite, cyclic groups (\secname{} \ref{sec:finite-groups}). Further, it is believed that, in this case, the \concept{discrete logarithm problem} (\secname{} \ref{def:DL-secure}) on many elliptic curve groups is hard, given that the underlying characteristic is large enough.\footnote{An in-depth introduction to elliptic curves is given, for example, in \cite{silverman-1994}. An introduction from a cryptographic point of view is given in \cite{hoffstein-2008}.}
 
 A special class of elliptic curves are so-called pairing-friendly curves, which have a notation of a group pairing (\secname{} \ref{pairing-map}) attached to them, which has cryptographically advantageous properties. 
 
@@ -42,7 +42,7 @@ C2 = E2.plot()
 \sageplot[scale=.5]{C2}
 \end{minipage}
 
-Both elliptic curves are defined by the same \concept{short Weierstrass} equation $y^2 = x^3-2x+1$, but the first curve is defined over the rational numbers $\Q$, that is, the pair $(x,y)$ contains rational numbers, while the second one is defined over the prime field $\F_{9973}$, which means that both coordinates $x$ and $y$ are from the prime field $\F_{9973}$. Every blue dot represents a pair $(x,y)$ that is a solution to $y^2 = x^3-2x+1$. As we can see, the second curve hardly looks like a geometric structure one would naturally call a curve. This shows that our geometric intuitions from $\Q$ are less applicable to curves over finite fields.
+Both elliptic curves are defined by the same \concept{short Weierstrass} equation $y^2 = x^3-2x+1$, but the first curve is defined over the rational numbers $\Q$, that is, the pair $(x,y)$ contains rational numbers, while the second one is defined over the prime field $\F_{9973}$, which means that both coordinates $x$ and $y$ are from the prime field $\F_{9973}$. Every blue dot represents a pair $(x,y)$ that is a solution to $y^2 = x^3-2x+1$. As we can see, the second curve hardly looks like a geometric structure one would naturally call a curve. This shows that our geometric intuitions from $\Q$ are obfuscated curves over finite fields.
 
 The equation $4a^3+ 27b^2\neq 0$ ensures that the curve is  \term{non-singular}, which loosely means that the curve has no cusps or self-intersections in the geometric sense, if seen as an actual curve. As we will see in \ref{sec:affine_group_law}, cusps and self-intersections would make the group law potentially amibugous.
 
@@ -192,7 +192,7 @@ Show that $TJJ\_13$ and $E_{5,12}(\F_{13})$ are isomorphic. Then compute the set
 \label{sec:affine_point_compression}
 As we have seen in \examplename{} \ref{secp256k1}, cryptographically secure elliptic curves are defined over large prime fields, where elements of those fields typically need more than $255$ bits of storage on a computer. Since elliptic curve points consist of pairs of those field elements, they need double that amount of storage.
 
-However, we can reduce the amount of space needed to represent a curve point by using a technique called \term{point compression}. To understand this, note that, for each given $x\in\F$, there are only $2$ possible values of $y\in \F$ such that the pair $(x,y)$ is a point on an affine \concept{short Weierstrass} curve, since $x$ and $y$ have to satisfy the equation $y^2 = x^3 + a\cdot x + b$. From this, it follows that $y$ can be computed from $x$, since it is an element from the set of square roots $\sqrt{x^3 + a\cdot x +b}$ (see \ref{ded:square_root}), which contains exactly two elements for $x^3 + a\cdot x +b\neq 0$ and exactly one element for $x^3 + a\cdot x +b=0$. 
+However, we can reduce the amount of space needed to represent a curve point by using a technique called \term{point compression}. To understand this, note that, for each given $x\in\F$, there are only $2$ possible $y$s $\in \F$ such that the pair $(x,y)$ is a point on an affine \concept{short Weierstrass} curve, since $x$ and $y$ have to satisfy the equation $y^2 = x^3 + a\cdot x + b$. From this, it follows that $y$ can be computed from $x$, since it is an element from the set of square roots $\sqrt{x^3 + a\cdot x +b}$ (see \ref{ded:square_root}), which contains exactly two elements for $x^3 + a\cdot x +b\neq 0$ and exactly one element for $x^3 + a\cdot x +b=0$. 
 
 This implies that we can represent a curve point in \term{compressed form} by simply storing the $x$ coordinate together with a single bit called the \term{sign bit}, the latter of which deterministically decides which of the two roots to choose. One convention could be to always choose the root closer to $0$ when the sign bit is $0$, and the root closer to the order of $\F$ when the sign bit is $1$. In case the $y$ coordinate is zero, both sign bits give the same result.
 
@@ -498,7 +498,7 @@ We can use this computation to write the large-order prime group $(\mathit{TJJ\_
 From this, we can immediately see, for example, that  $(8,8)\oplus (7,2)= (8,5)$, since 
 $3+4=2$ in $\F_5$.
 \end{example}
-Based on the previous two examples, you reader might get the impression that elliptic curve computation can be largely replaced by modular arithmetics. This however, is not true in general, but only an artifact of small groups, where it is possible to write the entire group in a logarithmic order.
+Based on the previous two examples, you  might get the impression that elliptic curve computation can be largely replaced by modular arithmetics. This however, is not true in general, but only an artifact of small groups, where it is possible to write the entire group in a logarithmic order.
 \begin{exercise} Consider \examplename{} \ref{ex:G1G2-subgroups} and compute the set 
 $\{[1](0,1), [2](0,1),\ldots,[8](0,1,[9](0,1)\}$ using the tangent rule only.
 \end{exercise}
@@ -552,7 +552,7 @@ $$
 3^2\cdot 2 = 0^3 + 1\cdot 0\cdot 2^2 + 1\cdot 2^3 \Leftrightarrow
 3 = 3
 $$
-This tells us that the affine point $[0:4:1]$ is indeed a solution to the equation \eqref{eq:homogenous-cubic}, but we could just as well have inserted any other element. For example, inserting $(0,1,4)$ also satisfies \eqref{eq:homogenous-cubic}: 
+This tells us that the affine point $[0:4:1]$ is indeed a solution to the equation \eqref{eq:homogenous-cubic}, but we could just as well have inserted any other representative of the element. For example, inserting $(0,1,4)$ also satisfies \eqref{eq:homogenous-cubic}: 
 $$
 1^2\cdot 4 = 0^3 + 1\cdot 0\cdot 4^2 + 1\cdot 4^3 \Leftrightarrow
 4=4
@@ -585,8 +585,7 @@ As we saw in section \ref{sec:affine_group_law}, one of the key properties of an
 
 One of the key features of projective coordinates is that, in projective space, it is guaranteed that any chord will always intersect the curve in three points, and any tangent will intersect it in two points. So, the geometric picture simplifies, as we don't need to consider external symbols and associated cases. The price to pay for this mathematical simplification is that projective coordinates might be less intuitive for beginners.
 
-It can be shown that the points of an elliptic curve in projective space form a commutative group with respect to the tangent-and-chord rule such that the projective point $[0:1:0]$ is the neutral element, and the additive inverse of a point $[X:Y:Z]$ is given by $[X:-Y:Z]$. The addition law is usually described by  \algname{} \ref{alg:projective_group_law}, minimizing the number of necessary additions and multiplications in the base field. \final{Check if following Alg is floated too far}
-% https://www.hyperelliptic.org/EFD/precomp.pdf
+It can be shown that the points of an elliptic curve in projective space form a commutative group with respect to the tangent-and-chord rule such that the projective point $[0:1:0]$ is the neutral element, and the additive inverse of a point $[X:Y:Z]$ is given by $[X:-Y:Z]$. The addition law is usually described by  \algname{} \ref{alg:projective_group_law}, minimizing the number of necessary additions and multiplications in the base field. % https://www.hyperelliptic.org/EFD/precomp.pdf
 
 \begin{algorithm}\caption{Projective \concept{short Weierstrass} Addition Law}
 \label{alg:projective_group_law}
@@ -1364,7 +1363,8 @@ e(\cdot,\cdot) : \G_1[r] \times \G_2[r] \to \F^*_{p^k}\; ;\;
 (P,Q)\mapsto (-1)^r \cdot \frac{f_{r,P}(Q)}{f_{r,Q}(P)}
 \end{equation} 
 
-The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ in the definition of the Weil pairing are computed by \term{Miller's algorithm}:\final{check floating of algorithm}
+The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ in the definition of the Weil pairing are computed by \term{Miller's algorithm} below.
+
 \begin{algorithm}\caption{Miller's algorithm for \concept{short Weierstrass} curves $y^2 = x^3 +ax +b$}
 % https://www.math.u-bordeaux.fr/~damienrobert/csi2018/pairings.pdf
 \begin{algorithmic}[0]
@@ -1454,9 +1454,9 @@ on a prime field, only half of the field elements are quadratic residues. Hence,
 
 One way to account for this problem is the following so-called \term{try-and-increment} method. Instead of simply hashing a binary string $s$ to the field, this method use a try-and-increment hash to the base field as described in \ref{def:try_and_increment_hash} in combination with a single auxiliary bit derived from the underlying cryptographic hash function.
 
-If any try of hashing to the field does not result in a field element or a valid curve point, the counter is incremented, and the hashing is repeated. This is done until a valid curve point is found.\final{check if the algorithm is floated properly} 
+If any try of hashing to the field does not result in a field element or a valid curve point, the counter is incremented, and the hashing is repeated. This is done until a valid curve point is found (see the algorithm below).
 
-\begin{algorithm}\caption{Hash-to-$E(\F_p)$}
+\begin{algorithm}\label{alg:hash-to-e}\caption{Hash-to-$E(\F_p)$}
 \begin{algorithmic}[0]
 \Require $p \in \Z$ with $|p|=k$ and $s\in\{0,1\}^*$
 \Require Curve equation $y^2 = x^3 + ax +b$ over $\F_p$
@@ -1536,7 +1536,7 @@ For example, in the context of SNARK development, it became necessary to design 
 
 Another requirement in the context of many so-called \term{pairing-based zero-knowledge proofing systems} is the existence of a suitable, pairing-friendly curve with a specified security level and a low embedding degree as defined in \ref{def:embedding-degree}. Famous examples are the BLS\_12 and the NMT curves.\sme{add references}
 
-The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{\concept{complex multiplication method}} (cf. \chaptname{} 6 of \cite{silverman-1994}). We will apply this method in section \label{BLS6} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our \curvename{Tiny-jubjub} curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
+The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{\concept{complex multiplication method}} (cf. \chaptname{} 6 of \cite{silverman-1994}). We will apply this method in section \ref{BLS6} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our \curvename{Tiny-jubjub} curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
  
 Before we introduce the \concept{complex multiplication method}, we have to explain a few properties of elliptic curves that are of key importance in understanding that method. 
 

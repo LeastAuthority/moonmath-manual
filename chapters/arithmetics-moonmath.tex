@@ -1,10 +1,8 @@
 \chapter{Arithmetics}\label{chap:arithmetic}\label{chap:arithmetics}
-% Reason why we need a math-chapter in a book like this:
-\sme{Pluralize chapter title}\smelong{S: This chapter talks about different types of arithmetic, so I suggest using ``Arithmetics'' as the chapter title.}
 
 \section{Introduction}
 
-The goal of this chapter is to bring a reader with only basic school-level algebra up to speed in arithmetics. We start with a brief recapitulation of basic integer arithmetics, discussing long division, the greatest common divisor and Euclidean Division. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our \finalcomb{pen-and-paper examples.}{check if this is already introduced in intro} We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of \concept{Lagrange interpolation}.
+The goal of this chapter is to bring a reader with only basic school-level algebra up to speed in arithmetics. We start with a brief recapitulation of basic integer arithmetics, discussing long division, the greatest common divisor and \concept{Euclidean division}. After that, we introduce modular arithmetics as \hilight{the most important} skill to compute our pen-and-paper examples. We then introduce polynomials, compute their analogs to integer arithmetics and introduce the important concept of \concept{Lagrange interpolation}.
 
 \section{Integer arithmetic}
 \label{integer_arithmetic}
@@ -98,7 +96,7 @@ sage: factor(n)
 
 The computation from the previous example reveals an important observation: computing the factorization of an integer is computationally expensive, because we have to divide repeatedly by all prime numbers smaller than the number itself until all factors are prime numbers themselves. From this, an important question arises: how fast can we compute the prime factorization of a natural number? This question is the famous \hilight{integer factorization problem} and, as far as we know, there is currently no known method that can factor integers much faster than the naive approach of just dividing the given number by all prime numbers in ascending order.
 
-On the other hand, computing the product of a given set of prime numbers is fast: you just multiply all factors. This simple observation implies that the two processes, ``prime number multiplication'' on the one side and its inverse process ``natural number factorization'' have very different computational costs. The factorization problem is therefore an example of a \commscomb{so-called}{a bit overused in the text?} \term{one-way function}: an invertible \href{https://en.wikipedia.org/wiki/Function_(mathematics)}{function} that is easy to compute in one direction, but hard to compute in the other direction (see Wikipedia for a description of \href{https://en.wikipedia.org/wiki/Time_complexity}{time complexity} and \href{https://en.wikipedia.org/wiki/Time_complexity#Polynomial_time}{polynomial time}). 
+On the other hand, computing the product of a given set of prime numbers is fast: you just multiply all factors. This simple observation implies that the two processes, ``prime number multiplication'' on the one side and its inverse process ``natural number factorization'' have very different computational costs. The factorization problem is therefore an example of a so-called \term{one-way function}: an invertible \href{https://en.wikipedia.org/wiki/Function_(mathematics)}{function} that is easy to compute in one direction, but hard to compute in the other direction (see Wikipedia for a description of \href{https://en.wikipedia.org/wiki/Time_complexity}{time complexity} and \href{https://en.wikipedia.org/wiki/Time_complexity#Polynomial_time}{polynomial time}). 
 \footnote{It should be noted that what is ``easy'' and ``hard'' to compute depends on the computational power available to us. Currently available computers cannot easily compute the prime factorization of natural numbers (in formal terms, the cannot compute it in polynomial time). However, the American mathematician Peter W. Shor developed an algorithm in \citeyear{shor94} which can calculate the prime factorization of a natural number in polynomial time on a quantum computer. The consequence of this is that cryptosystems, which are based on the prime factor problem being computationally hard on currently available computers, become unsafe as soon as practically usable quantum computers become available.}
 
 
@@ -110,7 +108,7 @@ Compute the factorization of $30030$ and double check your results using  Sage.
 \end{exercise}
 \begin{exercise}
 Consider the following equation:
-\begin{equation*}4\cdot x + 21 = 5.\end{equation*}
+\begin{equation*}4\cdot x + 21 = 5\end{equation*}
 Compute the set of all solutions for $x$ under the following alternative assumptions:
 \begin{enumerate}
 \item The equation is defined over the set of natural numbers.
@@ -128,22 +126,22 @@ Compute the set of all solutions $x$ under the following assumptions:
 \end{enumerate}
 \end{exercise}
 
-\subsection{Euclidean Division}
+\subsection{\concept{Euclidean division}}
 \label{Euclidean_division}
 As we know from high school mathematics, integers can be added, subtracted and multiplied, and the result of these operations is guaranteed to always be an integer as well.
 On the contrary, division (in the commonly understood sense) is not defined for integers, as, for example, $7$ divided by $3$ will not result in an integer. However, it is always possible to divide any two integers if we consider \term{division with a remainder}. For example, $7$ divided by $3$ is equal to $2$ with a remainder of $1$, since $7 = 2\cdot 3 + 1$.
 
-This section introduces division with a remainder for integers, usually called \term{Euclidean Division}. It is an essential technique underlying many concepts in this book.\footnote{Euclidean division is introduced in \chaptname{} 1, \secname{} 5 of \cite{mignotte-1992} and in \chaptname{} 1, \secname{} 1.3 of \cite{cohen-2010}.} The precise definition is as follows:
+This section introduces division with a remainder for integers, usually called \term{\concept{Euclidean division}}. It is an essential technique underlying many concepts in this book.\footnote{\concept{Euclidean division} is introduced in \chaptname{} 1, \secname{} 5 of \cite{mignotte-1992} and in \chaptname{} 1, \secname{} 1.3 of \cite{cohen-2010}.} The precise definition is as follows:
 
 Let $ a \in \Z $ and $ b \in \Z $ be two integers with $b\neq 0$. Then there is always another integer $ m \in \Z $ and a natural number $ r \in \N $, with $ 0 \leq r <|b| $ such that the following holds:
 \begin{equation}
 \label{eq_euclidean_division}
 a = m \cdot b + r
 \end{equation}
-This decomposition of $a$ given $b$ is called \term{Euclidean Division}, where $ a $ is called the \term{dividend}, $ b $ is called the \term{divisor}, $m$ is called the \term{quotient} and $r$ is called the \term{remainder}. It can be shown that both the quotient and the remainder always exist and are unique, as long as the divisor is different from $0$.
+This decomposition of $a$ given $b$ is called \term{\concept{Euclidean division}}, where $ a $ is called the \term{dividend}, $ b $ is called the \term{divisor}, $m$ is called the \term{quotient} and $r$ is called the \term{remainder}. It can be shown that both the quotient and the remainder always exist and are unique, as long as the divisor is different from $0$.
 \begin{notation}
 \label{eq_euclidean_division_notation}
-Suppose that the numbers $a$, $b$, $m$ and $r$ satisfy equation (\ref{eq_euclidean_division}). We can then describe the quotient and the remainder of the Euclidean Division as follows:
+Suppose that the numbers $a$, $b$, $m$ and $r$ satisfy equation (\ref{eq_euclidean_division}). We can then use the following notation for the quotient and the remainder of the \concept{Euclidean division} as follows:
 \begin{equation}
 \label{def_integer_division_and_modulus}
 \begin{array}{lcr}
@@ -153,17 +151,17 @@ Suppose that the numbers $a$, $b$, $m$ and $r$ satisfy equation (\ref{eq_euclide
 
 We also say that an integer $ a $ is \term{divisible} by another integer $ b $ if $ \Zmod{a}{b} = 0 $ holds. In this case, we write $ b | a $, and call the integer $\Zdiv{a}{b}$ the \term{cofactor}\label{def:cofactor} of $b$ in $a$.
 \end{notation}
-So, in a nutshell, Euclidean Division is the process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor.
+So, in a nutshell, \concept{Euclidean division} is the process of dividing one integer by another in a way that produces a quotient and a non-negative remainder, the latter of which is smaller than the absolute value of the divisor.
 
 \begin{example}
 \label{example:euclidean_division_1}
- Applying Euclidean Division and the notation defined in \ref{def_integer_division_and_modulus} to the dividend $-17$ and the divisor $4$, we get the following:
+ Because $ -17 = -5 \cdot 4 + 3 $  is the \concept{Euclidean division} of $-17$ by $4$, applying \concept{Euclidean division} and the notation defined in \ref{def_integer_division_and_modulus} to the dividend $-17$ and the divisor $4$, we get the following:
 \begin{equation}
 \begin{array}{lcr}
 \Zdiv{-17}{4} = - 5, & & \Zmod{-17}{4} = 3
 \end{array}
 \end{equation}
-$ -17 = -5 \cdot 4 + 3 $  is the Euclidean Division of $-17$ by $4$. The remainder, by definition, is a non-negative number. In this case, $4$ does not divide $-17$, as the remainder is not zero. The truth value of the expression $4 | -17 $ therefore is \textsc{false}. On the other hand, the truth value of $4 | 12$ is \textsc{true}, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. If we use  Sage to do the computation for us, we get the following:
+The remainder, by definition, is a non-negative number. In this case, $4$ does not divide $-17$, as the remainder is not zero. The truth value of the expression $4 | -17 $ therefore is \textsc{false}. On the other hand, the truth value of $4 | 12$ is \bool{true}, since $4$ divides $12$, as $ \Zmod{12}{4} = 0 $. If we use  Sage to do the computation for us, we get the following:
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(4) # Integer quotient
 sage: ZZ(-17) % ZZ(4) # remainder
@@ -171,7 +169,7 @@ sage: ZZ(4).divides(ZZ(-17)) # self divides other
 sage: ZZ(4).divides(ZZ(12))
 \end{sagecommandline}
 \end{example}
-\begin{remark} In \ref{def_integer_division_and_modulus}, we defined the notation of  \hilight{$\Zdiv{a}{b}$} and \hilight{$\Zmod{a}{b}$} in terms of Euclidean Division. It should be noted, however, that many programing languages (like Python and  Sage) implement both the operator $(/)$ amd the operator $(\%)$ differently. Programers should be aware of this, as the discrepancy between the mathematical notation and the implementation in programing languages might become the source of subtle bugs in implementations of cryptographic primitives.
+\begin{remark} In \ref{def_integer_division_and_modulus}, we defined the notation of  \hilight{$\Zdiv{a}{b}$} and \hilight{$\Zmod{a}{b}$} in terms of \concept{Euclidean division}. It should be noted, however, that many programing languages (like Python and  Sage) implement both the operator $(/)$ amd the operator $(\%)$ differently. Programers should be aware of this, as the discrepancy between the mathematical notation and the implementation in programing languages might become the source of subtle bugs in implementations of cryptographic primitives.
 
 To give an example, consider the the dividend $-17$ and the divisor $-4$. Note that, in contrast to the previous \examplename{} \ref{example:euclidean_division_1}, we now have a negative divisor. According to our definition we have the following:
 \begin{equation}\label{euclidean-negative}
@@ -179,7 +177,7 @@ To give an example, consider the the dividend $-17$ and the divisor $-4$. Note t
 \Zdiv{-17}{-4} = 5, & & \Zmod{-17}{-4} = 3
 \end{array}
 \end{equation}
-$ -17 = 5 \cdot (-4) + 3 $  is the Euclidean Division of $-17$ by $-4$ (the remainder is, by definition, a non-negative number). However, using the operators $(/)$ and $(\%)$ in  Sage, we get a different result: 
+$ -17 = 5 \cdot (-4) + 3 $  is the \concept{Euclidean division} of $-17$ by $-4$ (the remainder is, by definition, a non-negative number). However, using the operators $(/)$ and $(\%)$ in  Sage, we get a different result: 
 
 \begin{sagecommandline}
 sage: ZZ(-17) // ZZ(-4) # Integer quotient
@@ -188,7 +186,7 @@ sage: ZZ(-17).quo_rem(ZZ(-4)) # not Euclidean Division
 \end{sagecommandline}
 \end{remark}
 
-Methods to compute Euclidean Division for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school. An extensive elementary school introduction o long division can be found in \chaptname{} 7 of Wu [2011]. An extensive elementary school introduction o long division can be found in \chaptname{} 7 of \cite{wu-1}.
+Methods to compute \concept{Euclidean division} for integers are called \term{integer division algorithms}. Probably the best known algorithm is the so-called \term{long division}, which most of us might have learned in school. An extensive elementary school introduction o long division can be found in \chaptname{} 7 of Wu [2011]. An extensive elementary school introduction o long division can be found in \chaptname{} 7 of \cite{wu-1}.
 
 In a nutshell, the long division algorithm loops through the digits of the dividend from the left to right, subtracting the largest possible multiple of the divisor (at the digit level) at each stage. The multiples then become the digits of the quotient, and the remainder is the first digit of the dividend.
 
@@ -220,7 +218,7 @@ Find an $m\in\Z$ and an $r\in\N$ with $0\leq r< |b|$ such that $a= m\cdot b +r$ 
 Using the programming language of your choice, write an \href{https://en.wikipedia.org/wiki/Division_algorithm}{algorithm} that computes integer long division and handles all edge cases properly.
 \end{exercise}
 \begin{exercise}[Binary Representation]
-Using the programming language of your choice, write an algorithm that computes the binary representation \ref{def:binary_representation_integer} of any non-negative integer.
+Write an algorithm that computes the binary representation \ref{def:binary_representation_integer} of any non-negative integer.
 \end{exercise}
 
 \subsection{The Extended Euclidean Algorithm}
@@ -234,7 +232,7 @@ A common method for computing the greatest common divisor is the so-called Eucli
 gcd (a, b) = s \cdot a + t \cdot b
 \end{equation}
 
-The pseudocode in algorithm \ref{alg_ext_euclid_alg} shows in detail how to calculate the greatest common divisor and the numbers $s$ and $t$ with the Extended Euclidean Algorithm:\smecomb{In \examplename{} \ref{example:extended_Euclidean_division_1}, the computation stops when $r_k=0$ (at $k_4$), not when $r_{k-1}=0$ (which would be $k_5$). Also the GCD is $r_3=r_{k-1}=1$, not $r_{k-2}$. Same for $s$ and $t$.}{unify with \examplename{} \ref{example:extended_Euclidean_division_1}}
+The pseudocode in algorithm \ref{alg_ext_euclid_alg} shows in detail how to calculate the greatest common divisor and the numbers $s$ and $t$ with the Extended Euclidean Algorithm:
 
 \begin{algorithm}\caption{Extended Euclidean Algorithm}
 \label{alg_ext_euclid_alg}
@@ -257,7 +255,7 @@ The pseudocode in algorithm \ref{alg_ext_euclid_alg} shows in detail how to calc
 \Ensure $ gcd (a, b) = s \cdot a + t \cdot b $
 \end{algorithmic}
 \end{algorithm}
-The algorithm is simple enough to be used effectively in pen-and-paper examples. It is commonly written as a table where where the rows represent the while-loop and the columns represent the values of the the array $r$, $s$ and $t$ with index $k$. The following example provides a simple execution.
+The algorithm is simple enough to be used effectively in pen-and-paper examples. It is commonly written as a table where the rows represent the while-loop and the columns represent the values of the the array $r$, $s$ and $t$ with index $k$. The following example provides a simple execution.
 \begin{example}
 \label{example:extended_Euclidean_division_1}
 To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=12$ and $b=5$. Since $12,5\in \N$ and $12\geq 5$, all requirements are met, and we compute as follows:\sme{check additional explanation}
@@ -269,7 +267,12 @@ To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=
     2 & 2 & 1 & -2 \\
     3 & 1 & -2 & 5 \\
     4 & 0 &  &  \\
+    5 & & &\\
   \end{tabular}
+  \end{center}
+
+  
+  \begin{comment}
   \begin{tabularx}{1.02\textwidth}{c| r  r  r  r@{}c@{\hspace{0.5cm}}>{\small}X>{\small}X>{\small}X>{\small}X@{}}
     k & $ r_k $ & $ s_k $ & $ t_k $ &$q_k$&&&&& \\\cline{1-5}
     0 & 12 & 1 & 0 &--&& $r_0 \gets a = 12$ & $s_0 \gets 1$ & $t_0 \gets 0$ & \\\\
@@ -278,8 +281,11 @@ To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=
     3 & 1 & -2 & 5 &2 && $r_3 \gets \Zmod{r_1}{r_2} =\newline \Zmod{5}{2} = 1 $  & $s_3 \gets s_1 - q_3\cdot s_2 =\newline 0-2\cdot 1 = -2$ & $t_3 \gets t_1 - q_3\cdot t_2 =\newline 1 - 2\cdot -2 = 5$   &$q_3 \gets \Zdiv{r_1}{r_2} = \newline\Zdiv{5}{2} = 2$\\\\
     4 & 0 & &  & &  &     $r_4 \gets \Zmod{r_2}{r_3} =\newline \Zmod{2}{1}= 0 $&  &  & \\
   \end{tabularx}
-\end{center}
+  
+  
 \sme{SB: I'll streamline the outlook of this table once the discrepancy above is resolved.}
+\end{comment}
+
 From this we can see that the greatest common divisor of $12$ and $5$ is $ gcd (12, 5) = 1 $ and that the equation $ 1 = (-2) \cdot 12 + 5 \cdot 5 $ holds. We can also use  Sage to double check our findings:
 \begin{sagecommandline}
 sage: ZZ(12).xgcd(ZZ(5)) # (gcd(a,b),s,t)
@@ -308,7 +314,7 @@ Show that $gcd(n,m) = gcd(n+m,m)$ for all $n,m\in\N$.
 \label{def:coprime_integers}
 \term{Coprime integers} are integers that do not share a prime number as a factor. As we will see in \secname{} \ref{modular_arithmetic}, coprime integers are important for our purposes, because, in modular arithmetic, computations that involve coprime numbers are substantially different from computations on non-coprime numbers (\defname{} \ref{def:modular_arithmetic_rules}).\footnote{An introduction to coprime numbers can be found in \chaptname{} 5, \secname{} 1 of \cite{hardy-2008}.}
 
-The naive way to decide if two integers are coprime would be to divide both numbers successively by all prime numbers smaller than those numbers, to see if they share a common prime factor. However, two integers are coprime if and only if their greatest common divisor is $1$, which is why computing the $gcd$ is the preferred method.
+The naive way to decide if two integers are coprime would be to divide both numbers successively by all prime numbers smaller than those numbers, to see if they share a common prime factor. However, two integers are coprime if and only if their greatest common divisor is $1$.  Computing the $gcd$ is therefore the preferred method, as it is computationally more efficient.
 
 \begin{example} Consider \examplename{} \ref{example:extended_Euclidean_division_1} again. As we have seen, the greatest common divisor of $12$ and $5$ is $1$. This implies that the integers $12$ and $5$ are coprime, since they share no divisor other than $1$, which is not a prime number.
 \end{example}
@@ -323,12 +329,12 @@ The number at which the wrap occurs is called the \term{modulus}. Modular arithm
 Although modular arithmetic appears very different from ordinary integer arithmetic that we are all familiar with, we encourage you to work through the examples and discover that, once they get used to the idea that this is a new kind of calculation, it will seem much less daunting. A detailed introduction to modular arithmetic and its applications in number theory can be found in \chaptname{} 5 - 8 of \cite{hardy-2008}. An elementary school introduction to parts of the topic in section can be found in part 4 of \cite{wu-1}.
 
 \subsection{Congruence}
-In what follows, let $n\in\N$ with $n\geq 2$ be a fixed natural number that we will call the \term{modulus} of our modular arithmetic system. With such an $n$ given, we can then group integers into classes: two integers are in the same class whenever their Euclidean Division (\ref{Euclidean_division}) by $n$ will give the same remainder. We two numbers that are in the same class are called \term{congruent}.
+In what follows, let $n\in\N$ with $n\geq 2$ be a fixed natural number that we will call the \term{modulus} of our modular arithmetic system. With such an $n$ given, we can then group integers into classes: two integers are in the same class whenever their \concept{Euclidean division} (\ref{Euclidean_division}) by $n$ will give the same remainder. Two numbers that are in the same class are called \term{congruent}.
 
 \begin{example}
-If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we perform Euclidean Division on them by $12$. Imagining the picture of an analog $12$-hour clock, starting at $5$ o'clock and adding  $12$ hours, we are at $5$ o'clock again, representing the number $17$. Indeed, in many countries, 5:00 in the afternoon is written as 17:00. On the other hand, when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$.
+If we choose $n=12$ as in our clock example, then the integers $-7$, $5$, $17$ and $29$ are all congruent with respect to $12$, since all of them have the remainder $5$ if we perform \concept{Euclidean division} on them by $12$. Imagining the picture of an analog $12$-hour clock, starting at $5$ o'clock and adding  $12$ hours, we are at $5$ o'clock again, representing the number $17$. Indeed, in many countries, 5:00 in the afternoon is written as 17:00. On the other hand, when we subtract $12$ hours, we are at $5$ o'clock again, representing the number $-7$.
 \end{example}
-We can formalize this intuition of what congruence should be into a proper definition utilizing Euclidean Division (as explained previously in \ref{integer_arithmetic}). Let $ a $, $ b \in \Z $ be two integers, and $ n \in \N $ be a natural number such that $n\geq 2$. The integers $ a $ and $ b $ are said to be \term{congruent with respect to the modulus} $ n $ if and only if the following equation holds:
+We can formalize this intuition of what congruence should be into a proper definition utilizing \concept{Euclidean division} (as explained previously in \ref{integer_arithmetic}). Let $ a $, $ b \in \Z $ be two integers, and $ n \in \N $ be a natural number such that $n\geq 2$. The integers $ a $ and $ b $ are said to be \term{congruent with respect to the modulus} $ n $ if and only if the following equation holds:
 \begin{equation}
 \Zmod{a}{n} = \Zmod{b}{n}
 \end{equation}
@@ -407,7 +413,7 @@ In the next step, we want to shift all instances of $x$ to the left and every ot
 \kongru{14x-x +158-158}{x-x-102-158}{6} \Leftrightarrow \\
 \kongru{13x}{-260}{6}
 \end{multline*}
-If our congruence was just a regular integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruence, we need to make sure that the modulus and the number we want to divide by are coprime to ensure that get an equivalent expression (see rule \ref{eq_fermat_lt_2}\sme{check reference}). This means that we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute as follows:
+If our congruence was just a regular integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruence, we need to make sure that the modulus and the number we want to divide by are coprime to ensure that the result of the division is an expression equivalent to the original one (see rule \ref{eq_fermat_lt_2}\sme{check reference}). This means that we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute as follows:
 $$
 \kongru{13x}{-260}{6} \Leftrightarrow \kongru{x}{-20}{6}
 $$
@@ -453,7 +459,7 @@ the product $N= n_1 \cdot \ldots \cdot n_k $.\footnote{This is the classical Chi
 \end{array}
 \end{equation}
 
-The following algorithm computes the solution set: \final{check algorithm floating}
+The solution set is computed by \algname{} \ref{chinese-remainder-theorem} below. 
 \begin{algorithm}\caption{Chinese Remainder Theorem}
 \label{chinese-remainder-theorem}
 \begin{algorithmic}[0]
@@ -517,7 +523,7 @@ As we have seen in various examples before, computing congruences can be cumbers
 
 Fortunately, this is possible and relatively straightforward once we identify each set of numbers that have equal remainders with that remainder itself, and call this set the \term{remainder class} or \term{residue class} representation in modulo $n$ arithmetic.
 
-It then follows from the properties of Euclidean Division that there are exactly $ n $ different remainder classes for every modulus $n$, and that integer addition and multiplication can be projected to a new kind of addition and multiplication on those classes.
+It then follows from the properties of \concept{Euclidean division} that there are exactly $ n $ different remainder classes for every modulus $n$, and that integer addition and multiplication can be projected to a new kind of addition and multiplication on those classes.
 
 Informally speaking, the new rules for addition and multiplication are then computed by taking any element of the first remainder class and some element of the second remainder class, then add or multiply them in the usual way and see which remainder class the result is contained in. The following example makes this abstract description more concrete.
 
@@ -559,7 +565,7 @@ $ \cdot $ & 0 & 1 & 2 & 3 & 4 & 5 \\\hline
         5 & 0 & 5 & 4 & 3 & 2 & 1
   \end{tabular}
 \end{equation}
-This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. We call it \term{modular 6 arithmetic} and write the associated \uterm{type} as $\Z_6$.
+This way, we have defined a new arithmetic system that contains just $6$ numbers and comes with its own definition of addition and multiplication. We call it \term{modular 6 arithmetic} and write the associated \href{https://en.wikibooks.org/wiki/Arithmetic/Types_of_Numbers}{type} as $\Z_6$.
 
 To see why identifying a remainder class with its remainder is useful and actually simplifies congruence computations significantly, let's go back to the congruence from \examplename{} \ref{example_first_congruence}:
 \begin{equation}
@@ -625,7 +631,7 @@ For example, the multiplicative inverse of $3$ is $\frac{1}{3}$, since $3\cdot \
 \end{example}
 \begin{example}Looking at  the set $\Z$ of integers, we see that the neutral element of multiplication is the number $1$ We can also see that no integer other than $1$ or $-1$ has a multiplicative inverse, since the equation $a\cdot x =1$ has no integer solutions for $a\neq 1$ or $a\neq -1$.
 
-The definition of multiplicative inverse has a parallel for addition called the \term{additive inverse}. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exists, and is given by the negative number $-a$, since $a+(-a)=0$.
+The definition of multiplicative inverse has an analog definition for addition called the \term{additive inverse}. In the case of integers, the neutral element with respect to addition is $0$, since $a+0=0$ for all integers $a\in\Z$. The additive inverse always exists, and is given by the negative number $-a$, since $a+(-a)=0$.
 \end{example}
 \begin{example} Looking at the set $\Z_6$ of residue classes modulo $6$ from \examplename{} \ref{def_residue_ring_z_6}, we can use the multiplication table in \eqref{eq:Z6_tables} to find multiplicative inverses. To do so, we look at the row of the element and find the entry equal to $1$. If such an entry exists, the element of that column is the multiplicative inverse. If, on the other hand, the row has no entry equal to $1$, we know that the element has no multiplicative inverse.
 
@@ -789,8 +795,8 @@ $Q_1$ is not an integer polynomial because the expression $x^{-2}$ has a negativ
 
 We can use  Sage to do computations with polynomials. To do so, we have to specify the symbol for the variable and the type for the coefficients. \smecomb{(For the definition of rings see \ref{sec:rings}.)}{why is this ref here?} \smecomb{Note, however, that  Sage defines the degree of the zero polynomial to be $-1$.}{what does this imply?}
 \begin{sagecommandline}
-sage: Zx = ZZ['x'] # integer polynomials with variable x
-sage: Zt.<t> = ZZ[] # integer polynomials with variable t
+sage: Zx = ZZ['x'] # integer polynomials with indeterminate x
+sage: Zt.<t> = ZZ[] # integer polynomials with indeterminate t
 sage: Zx
 sage: Zt
 sage: p1 = Zx([17,-4,2])
@@ -804,7 +810,7 @@ sage: p6.degree()
 \end{sagecommandline}
 \end{example}
 \begin{example}[Polynomials over $\mathbb{Z}_6$]
-\label{example:integer_mod_6_polynomials} Recall the definition of modular $6$ arithmetics $\Z_6$ from \examplename{} \ref{def_residue_ring_z_6}. The set of all polynomials with variable $x$ and coefficients in $\Z_6$ is symbolized as $\Z_6[x]$. Some examples of polynomials from $\Z_6[x]$ are given below:
+\label{example:integer_mod_6_polynomials} Recall the definition of modular $6$ arithmetics $\Z_6$ from \examplename{} \ref{def_residue_ring_z_6}. The set of all polynomials with indeterminate $x$ and coefficients in $\Z_6$ is symbolized as $\Z_6[x]$. Some examples of polynomials from $\Z_6[x]$ are given below:
 \begin{align*}
 P_1(x) &= 2x^2 -4x +5 & \text{ \# with } deg(P_1)=2 \text{ and } Lc(P_1)=2\\
 P_2(x) &= x^{23} & \text{ \# with } deg(P_2)=23 \text{ and } Lc(P_2)=1\\
@@ -822,7 +828,7 @@ Just like in the previous example, $P_7$ is a polynomial. However, since we are 
                 &= x^3+x^2+x^2+x & \text{\# bracket expansion}\\
                 &= x^3+2x^2+x
 \end{align*}
-Again, we can use  Sage to do computations with polynomials that have their coefficients in $\Z_6$. \smecomb{(For the definition of rings see \ref{sec:rings}.)}{why is this ref here?} To do so, we have to specify the symbol for the variable and the type for the coefficients:
+Again, we can use  Sage to do computations with polynomials that have their coefficients in $\Z_6$. \smecomb{(For the definition of rings see \ref{sec:rings}.)}{why is this ref here?} To do so, we have to specify the symbol for the indeterminate and the type for the coefficients:
 \begin{sagecommandline}
 sage: Z6 = Integers(6)
 sage: Z6x = Z6['x']
@@ -835,7 +841,7 @@ sage: Z6x(x-2)*Z6x(x+3)*Z6x(x-5) == Z6x(x^3 + 2*x^2 + x)
 \end{sagecommandline}
 \end{example}
 
-Given some element from the same type as the coefficients of a polynomial, the polynomial can be evaluated at that element, which means that we insert the given element for every occurrence of the variable $x$ in the polynomial expression.
+Given some element from the same type as the coefficients of a polynomial, the polynomial can be evaluated at that element, which means that we insert the given element for every occurrence of the indeterminate $x$ in the polynomial expression.
 
 To be more precise, let $P\in R[x]$, with $P(x)=\sum_{j=0}^m a_j x^j$ be a polynomial with a coefficient of type $R$ and let $b\in R$ be an element of that type. Then the \term{evaluation} of $P$ at $b$ is given as follows:
 \begin{equation}
@@ -881,7 +887,7 @@ sage: p1(Z6(2)) == Z6(5)
 Compare both expansions of $P_7$ from $\Z[x]$ in \examplename{} \ref{example:integer_polynomials} and from  from $\Z_6[x]$ in \examplename{} \ref{example:integer_mod_6_polynomials} , and consider the definition of $\Z_6$ as given in \examplename{} \ref{def_residue_ring_z_6}. Can you see how the definition of $P_7$ over $\Z$ projects to the definition over $\Z_6$ if you consider the residue classes of $\Z_6$?\sme{the task could be defined more clearly}
 \end{exercise}
 \subsection{Polynomial arithmetic}\sme{this is the same as the section title}
-Polynomials behave like integers in many ways. In particular, they can be added, subtracted and multiplied. In addition, they have their own notion of Euclidean Division. Informally speaking, we can add two polynomials  by simply adding the coefficients of the same index, and we can multiply them by applying the distributive property, that is, by multiplying every term of the left factor with every term of the right factor and adding the results together.
+Polynomials behave like integers in many ways. In particular, they can be added, subtracted and multiplied. In addition, they have their own notion of \concept{Euclidean division}. Informally speaking, we can add two polynomials  by simply adding the coefficients of the same index, and we can multiply them by applying the distributive property, that is, by multiplying every term of the left factor with every term of the right factor and adding the results together.
 
 To be more precise, let $ \sum _{n = 0} ^{m_1}{a} _{n}{x} ^{n} $ and
 $ \sum _{n = 0} ^{m_2}{b} _{n}{x^n} $ be two polynomials from $ R[x]$. Then the \term{sum} and the \term{product} of these polynomials is defined as follows:
@@ -941,8 +947,8 @@ sage: P*Q == Z6x(5*x^5 +4*x^4 +4*x^3+3*x^2+4*x +4)
 \begin{exercise}
 Compare the sum $P+Q$ and the product $P\cdot Q$ from the previous two examples \ref{example:integer_polynomial_arithmetic_1} and \ref{example:integer_mod_6_polynomial_arithmetic_1}, and consider the definition of $\Z_6$ as given in \examplename{} \ref{def_residue_ring_z_6}. How can we derive the computations in $\Z_6[x]$ from the computations in $Z[x]$?
 \end{exercise}
-\subsection{Euclidean Division with polynomials}
-The arithmetic of polynomials shares a lot of properties with the arithmetic of integers. As a consequence, the concept of Euclidean Division and the algorithm of long division is also defined for polynomials. Recalling the Euclidean Division of integers \ref{Euclidean_division}, we know that, given two integers $a$ and $b\neq 0$, there is always another integer $m$ and a natural number $r$ with $r<|b|$ such that $a = m\cdot b +r$ holds.
+\subsection{\concept{Euclidean division} with polynomials}
+The arithmetic of polynomials shares a lot of properties with the arithmetic of integers. As a consequence, the concept of \concept{Euclidean division} and the algorithm of long division is also defined for polynomials. Recalling the \concept{Euclidean division} of integers \ref{Euclidean_division}, we know that, given two integers $a$ and $b\neq 0$, there is always another integer $m$ and a natural number $r$ with $r<|b|$ such that $a = m\cdot b +r$ holds.
 
 We can generalize this to polynomials whenever the leading coefficient of the dividend polynomial has a notion of multiplicative inverse. In fact, given two polynomials $A$ and $B\neq 0$ from $R[x]$ such that $Lc(B)^{-1}$ exists in $R$, there exist two polynomials $Q$ (the quotient) and $P$ (the remainder), such that the following equation holds and $deg(P) < deg(B)$:
 \begin{equation}
@@ -950,11 +956,11 @@ We can generalize this to polynomials whenever the leading coefficient of the di
 A = Q\cdot B + P
 \end{equation}
 
-Similarly to integer Euclidean Division, both $Q$ and $P$ are uniquely defined by these relations.
+Similarly to integer \concept{Euclidean division}, both $Q$ and $P$ are uniquely defined by these relations.
 
 \begin{notation}
 \label{notation_polynomial_euclidean_division_notation}
-Suppose that the polynomials $ A, B, Q $ and $ P $ satisfy equation \ref{eq_polynomial_euclidean_division_notation}. We often use the following notation to describe the quotient and the remainder polynomials of the Euclidean Division:\footnote{Polynomial Euclidean division is explained in more detail in \cite{mignotte-1992}. A detailed description of the associated algorithm can be found in \chaptname{} 3, \secname{} 1 of \cite{cohen-2010}. }
+Suppose that the polynomials $ A, B, Q $ and $ P $ satisfy equation \ref{eq_polynomial_euclidean_division_notation}. We often use the following notation to describe the quotient and the remainder polynomials of the \concept{Euclidean division}:\footnote{Polynomial \concept{Euclidean division} is explained in more detail in \cite{mignotte-1992}. A detailed description of the associated algorithm can be found in \chaptname{} 3, \secname{} 1 of \cite{cohen-2010}. }
 \begin{equation}
 \label{def_polynomial_division_and_modulus}
 \begin{array}{lcr}
@@ -963,7 +969,7 @@ Suppose that the polynomials $ A, B, Q $ and $ P $ satisfy equation \ref{eq_poly
 \end{equation}
 We also say that a polynomial $ A $ is divisible by another polynomial $ B $ if $ \Zmod{A}{B} = 0 $ holds. In this case, we also write $ B | A $ and call $B$ a \textit{factor} of $A$.
 \end{notation}
-Analogously to integers, methods to compute Euclidean Division for polynomials are called \term{polynomial division algorithms}. Probably the best known algorithm is the so-called \term{polynomial long division} \final{algorithm-floating}.
+Analogously to integers, methods to compute \concept{Euclidean division} for polynomials are called \term{polynomial division algorithms}. Probably the best known algorithm is the so-called \term{polynomial long division} (\algname{} \ref{alg_polynom_euclid_alg} below).
 \begin{algorithm}\caption{Polynomial Euclidean Algorithm}
 \label{alg_polynom_euclid_alg}
 \begin{algorithmic}[0]
@@ -1004,7 +1010,7 @@ sage: A == Q*B + P
 
 For example, consider the integer polynomial $P_7$ from \examplename{} \ref{example:integer_polynomials} again. As we have shown, it can be written both as $x^3 - 4 x^2 - 11 x + 30$ and as $(x-2)(x + 3)(x-5)$. From this, we can see that the polynomials $F_1(x)=(x-2)$, $F_2(x)=(x+3)$ and $F_3(x)=(x-5)$ are all factors of $x^3 - 4 x^2 - 11 x + 30$, since division of $P_7$ by any of these factors will result in a zero remainder.
 \end{example}
-\begin{exercise} Consider the polynomial expressions $A(x):= -3x^4 + 4x^3 + 2x^2 +4$ and $B(x)= x^2-4x+2$. Compute the Euclidean Division of $A$ by $B$ in the following types:
+\begin{exercise} Consider the polynomial expressions $A(x):= -3x^4 + 4x^3 + 2x^2 +4$ and $B(x)= x^2-4x+2$. Compute the \concept{Euclidean division} of $A$ by $B$ in the following types:
 \begin{enumerate}
 \item $A,B\in \Z[x]$
 \item $A,B\in \Z_6[x]$
@@ -1019,7 +1025,7 @@ Show that the polynomial $B(x)= 2x^4-3x+4\in \Z_5[x]$ is a factor of the polynom
 \footnote{A more detailed description can be found in \chaptname{} 3, \secname{} 4 of \cite{mignotte-1992}.}
 
 
-The polynomial analog to a prime number is a so-called \term{irreducible polynomial}, which is defined as a polynomial that cannot be factored into the product of two non-constant polynomials using Euclidean Division. Irreducible polynomials are to polynomials what prime numbers are to integers: they are the basic building blocks from which all other polynomials can be constructed. 
+The polynomial analog to a prime number is a so-called \term{irreducible polynomial}, which is defined as a polynomial that cannot be factored into the product of two non-constant polynomials using \concept{Euclidean division}. Irreducible polynomials are to polynomials what prime numbers are to integers: they are the basic building blocks from which all other polynomials can be constructed. 
 
 To be more precise, let $P \in R[x]$ be any polynomial. Then there always exist irreducible polynomials $F_1, F_2, \ldots, F_k \in R[x]$, such that the following holds:
 \begin{equation}
@@ -1080,8 +1086,7 @@ S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m)\;|\; x_i\neq x_j\text{ for all indice
 \end{equation}
 Polynomials therefore have the property that $m+1$ pairs of points $(x_i,y_i)$ for $x_i\neq x_j$ are enough to determine the set of pairs $(x,P(x))$ for all $x\in R$. This ``few too many'' property of polynomials is widely used, including in SNARKs. Therefore, we need to understand the method to actually compute a polynomial from a set of points.
 
-If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial using a method called \term{\concept{Lagrange interpolation}}, which works as follows. Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by the following algorithm:
-\final{check algorithm floating}
+If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial using a method called \term{\concept{Lagrange interpolation}}, which works as follows. Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by \algname{} \ref{alg_lagrange_interplation} below.
 
 \begin{algorithm}\caption{Lagrange Interpolation}
 \label{alg_lagrange_interplation}

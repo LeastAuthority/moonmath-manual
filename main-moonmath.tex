@@ -153,34 +153,25 @@ backgroundcolor= \color{white},
 % theorem styles
 \theoremstyle{remark}
 \newtheorem{theorem}{Theorem}[subsection]
-\newtheorem{prop}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{prop}[theorem]{Proposition}
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{definition}[theorem]{Definition}
 \newcommand{\deftitle}[1]{\textbf{#1}}%used in the optional title of definitions
 \newcommand{\defname}{definition}%word used for cross-referencing definitions in the text
 \newcommand{\defvsep}{\hspace{0ex}\newline{}\vspace{-4ex}}% vertical space after definitions that start with a list
 \newtheorem{conjecture}{Conjecture}
 \newtheorem{remark}{Remark}
-\newcommand{\notationname}{notation}%word used for cross-referencing notations in the text
 \newtheorem{notation}{Notation and Symbols}
 
 % Examples get their own counter
 \newcounter{ExampleCounter}
 \newtheorem{example}[ExampleCounter]{Example}
-\newcommand{\examplename}{example}%word used for cross-referencing examples in the text
 
 
 % Exercises get their own counter
 \newcounter{ExerciseCounter}
 \newtheorem{exercise}[ExerciseCounter]{Exercise}
-\newcommand{\exercisename}{exercise}%word used for cross-referencing excercises in the text
-
-\newcommand{\secname}{section}%word used for cross-referencing (sub)*sections in the text
-\newcommand{\chaptname}{chapter}%word used for cross-referencing chapters in the text
-\newcommand{\algname}{algorithm}%word used for cross-referencing algorithms in the text
-
-
 
 % Jargon get their own counter
 \newcounter{JargonCounter}
@@ -197,9 +188,15 @@ backgroundcolor= \color{white},
 
 \usepackage{mfirstuc}
 
-
 %text highlighting
-\usepackage[textwidth=2cm,textsize=small,colorinlistoftodos]{todonotes}
+\newcommand{\term}[1]{\textbf{#1}}%technical terms that are being defined
+\newcommand{\uterm}[1]{\textcolor{red}{#1}\todo[color=red]{#1}}%new terms introduced in the text that have not been defined or are not being defined. Note: these are only highlighted when they are used in non-meta text, e.g. not in the text outlining the structure of the chapter ahead.  The argument of the command is repeated on purpose to appear in both the inline text and the margin note/list of to do items
+\newcommand{\utermlong}[1]{\textcolor{red}{#1}}%longer inline markings for undefined terms
+
+
+%\usepackage[textwidth=2cm,textsize=small,colorinlistoftodos]{todonotes}
+\usepackage[disable]{todonotes}
+
 \newcommand{\final}[1]{\fboxsep=0pt\todo[color=yellow]{#1}}%things that need to be checked only at the very final typesetting stage
 \newcommand{\finallong}[1]{\colorbox{yellow}{#1}}%longer inline marking for things that need to be checked only at the very final typesetting stage
 \newcommand{\finalcomb}[2]{\colorbox{yellow}{#1}\fboxsep=0pt\todo[color=yellow]{#2}}%things that need to be checked only at the very final typesetting stage – highlight text and add different comment in margin
@@ -214,17 +211,34 @@ backgroundcolor= \color{white},
 \newcommand{\commslong}[1]{\textcolor{la-purple-med}{#1}}%longer inline notes for comms
 \newcommand{\commscomb}[2]{\textcolor{la-purple-med}{#1}\todo[color=la-purple-med,textcolor=white]{#2}}%notes/highlights for the marketing/communications team – highlight text and add different comment in margin
 
+%remove markings from PDF. Comment out if you want the annotations visible
+\renewcommand{\tbds}[1]{#1}
+\renewcommand{\tbdsm}[1]{}
+\renewcommand{\tbdslong}[1]{}
+\renewcommand{\tbdscomb}[2]{#1}
+\renewcommand{\sme}[1]{}
+\renewcommand{\smelong}[1]{}
+\renewcommand{\smecomb}[2]{}
+\renewcommand{\comms}[1]{#1}
+\renewcommand{\commslong}[1]{}
+\renewcommand{\commscomb}[2]{#1}
+\renewcommand{\uterm}[1]{#1}
+
+
+
 \newcommand{\hilight}[1]{\textbf{#1}}%basically, our own version of \emph. we can decide later if it'll be italic, boldface or a highlight color
 \newcommand{\code}[1]{\texttt{#1}}%parts of code, names of files or libraries
 \newcommand{\curvename}[1]{\textsf{\small #1}}%names of elliptic curves
+\newcommand{\examplename}{example}%word used for cross-referencing examples in the text
+\newcommand{\secname}{section}%word used for cross-referencing (sub)*sections in the text
+\newcommand{\chaptname}{chapter}%word used for cross-referencing chapters in the text
+\newcommand{\algname}{algorithm}%word used for cross-referencing algorithms in the text
+\newcommand{\exercisename}{exercise}%word used for cross-referencing excercises in the text
+\newcommand{\notationname}{notation}%word used for cross-referencing notations in the text
 \newcommand{\concept}[1]{\capitalisewords{#1}}%fixed terms for mathematical concepts, methods, etc.
 \newcommand{\TJJ}{\curvename{${TJJ\_13}$}}%the name of the TJJ13 curve
 \newcommand{\lgname}[1]{\texttt{#1}}%names of formal languages
-
-
-\newcommand{\term}[1]{\textbf{#1}}%technical terms that are being defined
-\newcommand{\uterm}[1]{\textcolor{red}{#1}\todo[color=red]{#1}}%new terms introduced in the text that have not been defined or are not being defined. Note: these are only highlighted when they are used in non-meta text, e.g. not in the text outlining the structure of the chapter ahead.  The argument of the command is repeated on purpose to appear in both the inline text and the margin note/list of to do items
-\newcommand{\utermlong}[1]{\textcolor{red}{#1}}%longer inline markings for undefined terms
+\newcommand{\bool}[1]{\textsc{#1}}%Boolean values
 
 
 
@@ -234,28 +248,33 @@ backgroundcolor= \color{white},
 \date{\today}
 
 %only typesets the chapters specified here, but keeps the TOC, page and section numbering, etc. comment the following line out if you want the whole book to be typeset; modify file names accordingly if you want to typeset other chapters
-\includeonly{chapters/ops-notes-moonmath,%
-chapters/preface-moonmath,%
-chapters/intro-moonmath,%
-chapters/preliminaries-moonmath,%
+%\includeonly{chapters/ops-notes-moonmath,%
+%chapters/preface-moonmath,%
+%chapters/intro-moonmath,%
+%chapters/preliminaries-moonmath,%
 %chapters/arithmetics-moonmath,%
-chapters/algebra-moonmath,%
+%chapters/algebra-moonmath,%
 %chapters/elliptic-curves-moonmath,%
 %chapters/statements-moonmath,%
 %chapters/circuit-compilers-moonmath,%
 %chapters/zk-protocols-moonmath,%
-}
+%}
 %the following command is a placeholder for the text that describes which chapters are typeset. it should be used in Operational notes. Define it as empty when the whole document is typeset.
 \newcommand{\inclonlytext}[1]{{
 \Large NB: This PDF only includes the following chapters: Introduction, Preliminaries, Algebra.
 }}
+
+%whole page graphics for titlepage
+\usepackage{pdfpages}
 
 \begin{document}
 % set the language for the listings package
 \lstset{language=python }
 
 \frontmatter
-\include{chapters/ops-notes-moonmath}
+%title page using the packege `pdfpages`
+\includepdf{figures/MMM_cover.jpg}
+%\include{chapters/ops-notes-moonmath}
 
 \tableofcontents
 

@@ -736,11 +736,14 @@ Assuming that three variables $b_1$, $b_2$ and $b_3$ are boolean constraint, the
 }
 \end{center}
 The associated Rank-1 Constraint System can be deduced from the general process \ref{sec:circuits_associated_R1CS} and consists of the following constraints:
-\begin{align*}
-\label{def:boolean-or_constraints}
-S_1 \cdot S_2 & = S_3\\
-(S_1 + S_2 - S_3)\cdot 1 &= S_4
-\end{align*}
+
+\begin{equation}\label{def:boolean-or_constraints}
+\begin{tabular}{lcr}
+$S_1 \cdot S_2$ & $=$ & $S_3$\\
+$(S_1 + S_2 - S_3)\cdot 1$ &$=$ &$S_4$
+\end{tabular}
+\end{equation}
+
 Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\vee$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\vee$-operator's circuit:
 \begin{lstlisting}
 fn OR(b_1 : BOOL, b_2 : BOOL) -> BOOL {
@@ -1185,7 +1188,7 @@ W_9:\;\; & W_1 \cdot W_2 = W_9 & \text{ first OR-operator constraint}\\
 W_{10}:\;\; & W_3 \cdot (1-W_4) = W_{10} & \text{AND(.,NOT(.))-operator constraints}\\
 I_1:\;\; & (W_1 + W_2 -W_9) \cdot W_{10} = I_1 & \text{AND-operator constraints}\\
 \end{align*}
-The reason why this R1CS only contains a single constraint for the multiplication gate in the OR-circuit, while the general definition \ref{def:boolean-or} requires two constraints, is that the second constraint in \ref{def:boolean-or_constraints}\tbds{this needs to be numbered} only appears because the final addition gate is connected to an output node. In this case, however, the final addition gate from the OR-circuit is enforced in the left factor of the $I_{1}$ constraint. Something similar holds true for the negation circuit. 
+The reason why this R1CS only contains a single constraint for the multiplication gate in the OR-circuit, while the general definition \ref{def:boolean-or} requires two constraints, is that the second constraint in \ref{def:boolean-or_constraints} only appears because the final addition gate is connected to an output node. In this case, however, the final addition gate from the OR-circuit is enforced in the left factor of the $I_{1}$ constraint. Something similar holds true for the negation circuit. 
 
 During a prover-phase, some public instance $I_5$ must be given. To compute a constructive proof for the statement of the associated languages with respect to instance $I_5$, a prover has to find four boolean values $W_1$, $W_2$, $W_3$ and $W_4$ such that 
 $$

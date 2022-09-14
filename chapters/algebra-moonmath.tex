@@ -24,7 +24,7 @@ A \term{commutative group} $(\G,\cdot) $ consists of a set $\G$ and a \term{map}
 \item \hilight{Associativity}: For every $g_1,g_2,g_3\in\G$ the equation
 $g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
 \item \hilight{Existence of a neutral element}:  For every $g\in\G$, there is an $e\in\G$ such that $e\cdot g=g$.
-\item \hilight{Existence of an inverse}: For every $g\in\G$, there is a $g^{-1}\in\G$ such that $g\cdot g^{-1}=e$.
+\item \hilight{Existence of an inverse}: For every $g\in\G$, there is an $e\in\G$ such that $g\cdot g^{-1}=e$.
 \end{itemize}
 If $(\G,\cdot)$ is a group, and $\G'\subset\G$ is a subset of $\G$ such that the \term{restriction} of the group law $\cdot: \G'\times \G' \to \G'$ is a group law on $\G'$, then $(\G',\cdot)$ is called a \term{subgroup} of $(\G,\cdot)$.
 \end{definition}
@@ -145,8 +145,6 @@ Cryptographic applications often utilize finite cyclic groups of a very large or
 \end{algorithmic}
 \end{algorithm}
 
-\final{check algorithm floating}
-
 Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. The latter mehtod is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
 \begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\Z_{5}^*,\cdot)$ from exercise \ref{fstar}. We know from \ref{ex:modulus-prime-group} that $\Z_{5}^*$ is a cyclic group of order $4$, and that the element $3\in\Z_5^*$ is a generator. This means that we also know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
 $$
@@ -158,7 +156,7 @@ To do an example computation ``in the exponent'' of $3$ , let's perform the calc
 3^{1+3+2} &=3^{2}\label{3_Z4_exponent}\\
           & = 4\label{3_Z4_exp_map}
 \end{align}
-In \eqref{3_Z4_exponent} above, we first performed the computation $1+3+2=$\smecomb{$1$}{should be 2?} in the remainder class group $(\Z_4,+)$ and then applied the exponential map $3^{(\cdot)}$ to the result in \eqref{3_Z4_exp_map}. 
+In \eqref{3_Z4_exponent} above, we first performed the computation $1+3+2$ in the remainder class group $(\Z_4,+)$ and then applied the exponential map $3^{(\cdot)}$ to the result in \eqref{3_Z4_exp_map}. 
 
 However, since the exponential map \eqref{exponentialmap} respects the group law, we also could map each summand into $(\Z_5^*,\cdot)$ first and then apply the group law of $(\Z_5^*,\cdot)$. The result is guranteed to be the same:
 
@@ -460,7 +458,7 @@ If $H$ is a hash function that maps binary strings of arbitrary length onto bina
 
 \begin{example}[$k$-truncation hash]\label{ex:k-truncation-hash} One of the most basic hash functions $H_k:\{0,1\}^*\to \{0,1\}^k$ is given by simply truncating every binary string $s$ of size $|s|> k$ to a string of size $k$ and by filling any string $s'$ of size $|s'|<k$ with zeros. To make this hash function deterministic, we define that both truncation and filling should happen ``on the left''.
 
-For example, if the parameter $k$ is given by $k=3$, $s_1=<0,0,0,0,1,0,1,0,1,1,1,0>$ and $s_2=1$, then \smecomb{$H_3(x_1)=<1,1,0>$ and $H_3(x_2)=<0,0,1>$}{should be $H_3(s_1)$ and $H_3(s_2)$?}.
+For example, if the parameter $k$ is given by $k=3$, $s_1=<0,0,0,0,1,0,1,0,1,1,1,0>$ and $s_2=1$, then \smecomb{$H_3(s_1)=<1,1,0>$ and $H_3(s_2)=<0,0,1>$}.
 \end{example}
 
 A desirable property of a hash function is \term{uniformity}, which means that it should map input values as evenly as possible over its output range. In mathematical terms, every string of length $k$  from $\{0,1\}^k$ should be generated with roughly the same probability.
@@ -636,8 +634,8 @@ A \term{commutative ring with unit} $ (R, +, \cdot, 1) $ is a set $R$ with two m
 \item $ (R, +) $ is a commutative group where the neutral element is denoted  with $ 0 $.
 \item \hilight{Commutativity of multiplication}: $r_1\cdot r_2 = r_2\cdot r_1$ for all $r_1, r_2\in R$.
 \item \hilight{Multiplicative neutral unit }: $1\cdot g=g$ for all $g\in R$.
-\item \hilight{Associativity}: For every $g_1,g_2,g_3\in\G$, the equation
-$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.\sme{what are the gs here? copy+paste error from \ref{def:commutative_group}?}
+\item \hilight{Associativity}: For every $g_1,g_2,g_3\in\R$, the equation
+$g_1\cdot(g_2\cdot g_3) = (g_1\cdot g_2)\cdot g_3$ holds.
 \item \hilight{Distributivity}: For all $ g_1, g_2, g_3 \in R $, the distributive law
 $ g_1 \cdot \left (g_2 + g_3 \right) = g_1 \cdot g_2 + g_1 \cdot g_3$ holds.
 \end{itemize}
@@ -769,6 +767,7 @@ $p$ at the point $s$ in the exponent of $3$ as follows:
 \end{align*}
 Both computations \comms{agree}, since the secret point $s$ was equal to $2$ in this example. However the second evaluation was possible without any knowledge about $s$.
 \end{example}
+
 \subsection{Hashing into Modular Arithmetic}
 \label{hash-to-modular-arithmetics}
 As we have seen in \secname{} \ref{sec:hashing-to-groups}, various constructions for hashing to groups are known and used in applications. As commutative rings are commutative groups when we disregard the multiplication, hash-to-group constructions can be applied for hashing into commutative rings.  We review some frequently used applications below.
@@ -993,7 +992,7 @@ Prime fields are the foundation of many of the contemporary algebra-based crypto
 Since prime fields are special cases of modular arithmetic rings, addition and multiplication can be computed by first doing normal integer addition and multiplication, and then considering the remainder in Euclidean division by $p$ as the result. For any prime field element $x\in \F_p$, its additive inverse (the negative) is given by $-x=\Zmod{p-x}{p}$. For $x\neq 0$, the multiplicative inverse always exists, and is given by $x^{-1}=x^{p-2}$. Division is then defined by multiplication with the multiplicative inverse, as explained in \secname{} \ref{sec:modular_inverses}. Alternatively, the multiplicative inverse can be computed using the Extended Euclidean Algorithm as explained in \eqref{eq_compute_multiplicative_inverse}.
 
 \begin{example}
-The smallest possible field is the field $\F_2$ of characteristic $2$, as we have seen in \examplename{}  \ref{ex:field-2-elements}. It is the prime field of the prime number $2$.
+The smallest field is the field $\F_2$ of characteristic $2$, as we have seen in \examplename{}  \ref{ex:field-2-elements}. It is the prime field of the prime number $2$.
 \end{example}
 \begin{example}
 The field $\F_5$ from \examplename{} \ref{primfield_z_5} is a prime field, as defined by its addition and multiplication table \eqref{Z5_tables}. 
@@ -1057,7 +1056,7 @@ For any $ y \in \F_p $, we denote the set of all square roots of $ y $ in the pr
 \label{ded:square_root}
 \sqrt{y}: = \{x \in \F_p \; | \; x^2 = y \}
 \end{equation}
-Informally speaking, quadratic residues are numbers that have a square root, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have a square root, and others like $2$ or $3$ don't (within the set of integers).
+Informally speaking, quadratic residues are numbers that have a square root, while quadratic non-residues are numbers that don't have square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have a square root, and others like $2$ or $3$ don't (within the ring of integers).
 
 If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. 
 
