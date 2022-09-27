@@ -1530,13 +1530,13 @@ Use our definition of the $try\_hash$ algorithm to implement a hash function $H_
 \begin{exercise}
 Implement a cryptographic hash function $H_{secp256k1} : \{0,1\}^*\to secp256k1$ that maps binary strings of arbitrary length onto the elliptic curve \curvename{secp256k1}. 
 \end{exercise}
-\section{Constructing elliptic curves} Cryptographically secure elliptic curves like \curvename{secp256k1} \ref{secp256k1} have been known for quite some time. Given the latest advancements of cryptography, however, it is often necessary to design and instantiate elliptic curves from scratch that satisfy certain very specific properties. 
+\section{Constructing elliptic curves} Cryptographically secure elliptic curves like \curvename{secp256k1} \ref{secp256k1} have been known for quite some time. Given the latest advancements in cryptography, however, it is often necessary to design and instantiate elliptic curves from scratch that satisfy certain very specific properties. 
 
-For example, in the context of SNARK development, it became necessary to design elliptic curves that can be efficiently implemented inside of a so-called \uterm{circuit} in order to enable primitives like elliptic curve \uterm{signature schemes} in a zero-knowledge proof. Such a curve is given by the Baby-jubjub curve in XXX\sme{add reference}, and we have paralleled its definition by introducing the \curvename{Tiny-jubjub} curve from \examplename{} \ref{TJJ13}. As we have seen, those curves are instances of so-called \concept{twisted Edwards} curves, and as such have easy to implement addition laws that work without branching. However, we introduced the \curvename{Tiny-jubjub} curve out of thin air, as we just gave the curve parameters without explaining how we came up with them.
+For example, in the context of SNARK development, it became necessary to design elliptic curves that can be efficiently implemented inside of a so-called \uterm{algebraic circuit} in order to enable primitives like elliptic curve \uterm{signature schemes} in a zero-knowledge proof. Such a curve is given by the Baby-jubjub curve as defined in \cite{whitehat-21}, and we have paralleled its definition by introducing the \curvename{Tiny-jubjub} curve from \examplename{} \ref{TJJ13}. As we have seen, those curves are instances of so-called \concept{twisted Edwards} curves, and as such have easy to implement addition laws that work without branching. However, we introduced the \curvename{Tiny-jubjub} curve out of thin air, as we just gave the curve parameters without explaining how we came up with them.
 
 Another requirement in the context of many so-called \term{pairing-based zero-knowledge proofing systems} is the existence of a suitable, pairing-friendly curve with a specified security level and a low embedding degree as defined in \ref{def:embedding-degree}. Famous examples are the BLS\_12 and the NMT curves.\sme{add references}
 
-The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{\concept{complex multiplication method}} (cf. \chaptname{} 6 of \cite{silverman-1994}). We will apply this method in section \ref{BLS6} to synthesize a particular BLS\_6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our \curvename{Tiny-jubjub} curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS\_6 curve. 
+The major goal of this section is to explain the most important method of designing elliptic curves with predefined properties from scratch, called the \term{\concept{complex multiplication method}} (cf. \chaptname{} 6 of \cite{silverman-1994}). We will apply this method in section \ref{BLS6} to synthesize a particular BLS6 curve, which is one of the most insecure curves, that is particular well suited to serve  as the main curve to build our pen-and-paper SNARKs on. As we will see, this curve has a ``large'' prime factor subgroup of order $13$, which implies that we can use our \curvename{Tiny-jubjub} curve to implement certain elliptic curve cryptographic primitives in circuits over that BLS6 curve. 
  
 Before we introduce the \concept{complex multiplication method}, we have to explain a few properties of elliptic curves that are of key importance in understanding that method. 
 
@@ -1590,16 +1590,15 @@ sage: abs(RR(t)) <= 2*sqrt(RR(p))
 \end{sagecommandline}
 \end{example} 
 
-\subsection{The $j$-invariant} As we have seen in XXX\sme{add reference}, two elliptic curves $E_1(\F)$ defined by $y^2 = x^3 + ax +b$ and $E_2(\F)$ defined by $y^2 + a'x + b'$ are strictly isomorphic if and only if there is a quadratic residue $d\in \F$ such that $a' = a d^2$ and $b' = b d^3$. 
+\subsection{The $j$-invariant}
+\label{sec:j-inv} As we have seen in \ref{sec:isomorphic_curves} , two elliptic curves $E_1(\F)$ defined by $y^2 = x^3 + ax +b$ and $E_2(\F)$ defined by $y^2 + a'x + b'$ are strictly isomorphic if and only if there is a quadratic residue $d\in \F$ such that $a' = a d^2$ and $b' = b d^3$. 
 
 There is, however, a more general way to classify elliptic curves over finite fields $\F_q$, based on the so-called \term{$j$-invariant} of an elliptic curve with $j(E(\F_q))\in\F_q$, as defined below:
 \begin{equation}\label{eq:j-invariant1}
 j(E(\F_q)) = \Zmod{1728\cdot \frac{4\cdot a^3}{4\cdot a^3+ 27\cdot b^2}}{q}
 \end{equation}
 
-A detailed description of the $j$-invariant is beyond the scope of this book. For our present purposes, it is sufficient to note that two elliptic curves $E_1(\F)$ and $E_2(\F')$ are isomorphic over the \uterm{algebraic closures} of $\F$ and $\F'$, if and only if $\overline{\F}=\overline{\F'}$ and $j(E_1)=j(E_2)$.
-
-So, the $j$-invariant is an important tool to classify elliptic curves and it is needed in the \concept{complex multiplication method} to decide on an actual curve instantiation that implements abstractly chosen properties.
+A detailed description of the $j$-invariant is beyond the scope of this book. For our present purposes, it is sufficient to note that the $j$-invariant is an important tool to classify elliptic curves and it is needed in the \concept{complex multiplication method} to decide on an actual curve instantiation that implements abstractly chosen properties.
 
 \begin{example} Consider the elliptic curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}\sme{check reference}. We compute its $j$-invariant as follows:
 \begin{align*}
@@ -1629,7 +1628,7 @@ sage: j == F(0)
 \end{example} 
 
 \subsection{The \concept{complex multiplication method}}\label{complex-multiplication-method}
-As we have seen in the previous sections, elliptic curves have various defining properties, like their order, their prime factors, the embedding degree, or the cardinality (number of elements) of the base field. The \term{\concept{complex multiplication method}} (CM)  provides a practical way of constructing elliptic curves with pre-defined restrictions on the order and the base field.\footnote{A detailed explanation of the complex multiplication
+As we have seen in the previous sections, elliptic curves have various defining properties, like their order, their prime factors, the embedding degree, or the order of the base field. The \term{\concept{complex multiplication method}} (CM) provides a practical way of constructing elliptic curves with pre-defined restrictions on the order of the curve and the base field.\footnote{A detailed explanation of the complex multiplication
 method and its derivation can be found, for example, in \cite{grech-2012}.}
 
 % the detailed method is here https://arxiv.org/pdf/1207.6983.pdf
@@ -1641,9 +1640,9 @@ method and its derivation can be found, for example, in \cite{grech-2012}.}
 
 The \concept{complex multiplication method} starts by choosing a base field $\F_{q}$ of the curve $E(\F_q)$ we want to construct such that $q = p^m$ for some prime number $p$, and  $m\in \N$. We assume $p>3$ to simplify things in what follows. 
 
-Next, the trace of Frobenius $t\in \Z$ of the curve is chosen such that $p$ and $t$ are coprime, that is, $gcd(p,t)=1$ holds true and $|t|\leq 2\sqrt{q}$. The choice of $t$ also defines the curve's order $r$, since $r=p+1-t$ by the Hasse bound \eqref{hasse-bound}, so choosing $t$ will determine the large order subgroup as well as all small cofactors. The resulting $r$ must be such that the curve meets the application's security requirements. 
+Next, the trace of Frobenius $t\in \Z$ of the curve is chosen such that $q$ and $t$ are coprime, that is, $gcd(q,t)=1$ holds true and $|t|\leq 2\sqrt{q}$. The choice of $t$ also defines the curve's order $r$, since $r=p+1-t$ by the Hasse bound \eqref{hasse-bound}, so choosing $t$ will determine the large order subgroup as well as all small cofactors. The resulting $r$ must be such that the curve meets the application's security requirements. 
 
-Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of any prime-order subgroup of the curve, since $k$ is defined as the smallest number such that the prime order $n$ divides the number $q^k-1$.
+Note that the choice of $p$ and $t$ also determines the embedding degree $k$ of any prime-order subgroup of the curve, since $k$ is defined as the smallest number such that the prime order $n$ divides the number $p^k-1$.
 
 In order for the \concept{complex multiplication method} to work, neither $q$ nor $t$ can be arbitrary, but must be chosen in such a way that two additional integers $D\in \Z$ and $v\in \Z$ exist and the following conditions hold:
 
@@ -1655,11 +1654,17 @@ D<0\\
 \end{split}
 \end{equation}
 
-If such numbers exist, we call $D$ the \term{CM-discriminant}, and we know that we can construct a curve $E(\F_q)$ over a finite field $\F_q$ such that the order of the curve is $|E(\F_q)|= q+1-t$. 
+If such numbers exist, we call $D$ the \term{CM-discriminant}, and we know that we can construct a curve $E(\F_q)$ over a finite field $\F_q$ such that the order of the curve is $|E(\F_q)|= q+1-t$. In this case, it is the goal of the \concept{complex multiplication method} to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weierstrass equation such that the curve has the desired order $r$. 
 
-It is the goal of the \concept{complex multiplication method} to actually construct such a curve, that is finding the parameters $a$ and $b$ from $\F_q$ in the defining Weierstrass equation such that the curve has the desired order $r$. 
+Equation \ref{eq:D-criteria} has an infinite number of solutions and much research has been done to compute solution sets which result in elliptic curves with desired properties. A common approach is to fix the CM-discriminant and to define $q$, $t$ and $v$ as functions of a parameter $x$, such that the values $q(x)$, $t(x)$ and $v(x)$ give a solution to \ref{eq:D-criteria} for every parameter $x$. In fact many of those families are known under names like BLS \cite{bls-02} or NMT \cite{mnt-84} curves, indicating that the base field order $q$ as well as the trace of Frobenius $t$ of each member in such a family of curves are computed in similar ways. This is an approach taken for example in \cite{freeman-06} to compute pairing friendly elliptic curves.
+\begin{example}[BLS6 curves]
+\label{ex:bls6-params} To give a better understanding of how parameterized solution sets of equation \ref{eq:D-criteria} give rise to families of elliptic curves, we will look at a parametrization that was found by the authors Barreto, Lynn and Scott in 2002 \cite{bls-02}. Their approach gives rise to pairing friendly elliptic curves of various embedding degrees and in particular to curves of embedding degree $6$ with CM-discriminant $D=-3$. Members of those families are usually called BLS6 curves for short. 
 
-Finding solutions to equation \ref{eq:D-criteria} can be achieved in different ways. In general, it can be said that there are well-known constraints for elliptic curve families (e.g. the BLS families REFERENCES) that provides families of solutions. In what follows, we will look at one type curve in the BLS-family, which gives an entire range of solutions.\sme{disambiguate}\smelong{Are we looking at a subtype of BLS or is BLS the specific type we're referring to?}
+To be more precise, let the polynomials $t,q\in \Q[x]$ be defined as $t(x)=x+1$ and $q(x) = \frac{1}{3}(x-1)^2(x^2-x+1) + x$. Then the following set defines a solution set to equation \ref{eq:D-criteria} for $D=-3$ and $v= \sqrt{(4 q - t^2)/3}$: 
+\begin{equation}
+PARAM(BLS6) = \{t(x), q(x) \;|\; x\in \NN \text{ and } q(x)\in\NN\}
+\end{equation}  
+\end{example}
 
 Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so-called \term{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
 \begin{multline*}
@@ -1670,7 +1675,7 @@ S(D)=\{(A,B,C)\;|\; A,B,C\in\Z,\; D = B^2-4AC,\; gcd(A,B,C)=1, \\
 \end{multline*}\tbds{this needs to be numbered}
 One way to compute this set is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $0\leq A\leq A_{max}$, as well as through all the integers $-A\leq B \leq A$ and check if there is an integer $C$ that satisfies the equation $D = B^2-4AC$ and the rest of the requirements from \ref{def:hilbert_class_domain}.
 
-To compute the Hilbert class polynomial, the so-called \term{$j$-function} (or $j$-invariant) is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as follows:
+To compute the Hilbert class polynomial, the so-called \term{$j$-function} is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as follows:
 
 \begin{equation}\label{eq:j-invariant2}
 j: \mathbb{H} \to \mathbb{C}
@@ -1678,7 +1683,7 @@ j: \mathbb{H} \to \mathbb{C}
 
 What this means is that the $j$-functions takes complex numbers $(x +y\cdot i)$ with a positive imaginary part $y>0$ as inputs and returns a complex number $j(x+i\cdot y)$ as a result.
 
-For the purposes of this book, it is not important to understand the $j$-function in detail, and we can use Sage to compute it in a similar way that we would use Sage to compute any other well-known function. It should be noted, however, that the computation of the $j$-function in Sage is sometimes prone to precision errors. For example, the $j$-function has a root in $\frac{-1+i\sqrt{3}}{2}$, which Sage only approximates. Therefore, when using Sage to compute the $j$-function, we need to take precision loss into account and possibly round to the nearest integer.
+The $j$-function is closely related to the $j$-invariant \ref{sec:j-inv} of an elliptic curve. However for the purposes of this book, it is not important to understand the $j$-function in detail. We can use Sage to compute it in a similar way that we would use Sage to compute any other well-known function, like the square root. It should be noted, however, that the computation of the $j$-function in Sage is sometimes prone to precision errors. For example, the $j$-function has a root in $\frac{-1+i\sqrt{3}}{2}$, which Sage only approximates. Therefore, when using Sage to compute the $j$-function, we need to take precision loss into account and possibly round to the nearest integer.
 
 \begin{sagecommandline}
 sage: z = ComplexField(100)(0,1)
@@ -1702,9 +1707,9 @@ With a way to compute the $j$-function and the precomputed set $S(D)$ at hand, w
 H_D(x) = \Pi_{(A,B,C)\in S(D)} \left(x - j\left(\frac{-B + \sqrt{D}}{2A}\right)\right)
 \end{equation}
 
-In other words, we loop over all elements $(A,B,C)$ from the set $S(D)$ and compute the $j$-function at the point $\frac{-B + \sqrt{D}}{2A}$, where $D$ is the CM-discriminant that we chose in a previous step. The result defines a factor of the Hilbert class polynomial and all factors are multiplied together.
+In other words, we loop over all elements $(A,B,C)$ from the set $S(D)$ and compute the $j$-function at the point $\frac{-B + \sqrt{D}}{2A}$, where $D$ is the CM-discriminant that we decided in a previous step. The result defines a factor of the Hilbert class polynomial and all factors are multiplied together.
 
-It can be shown that the Hilbert class polynomial is an integer polynomial, but actual computations need high-precision arithmetic to avoid approximation errors that usually occur in computer approximations of the $j$-function (as shown above). So, in case the calculated Hilbert class polynomial does not have integer coefficients, we need to round the result to the nearest integer. Given that the precision we used was high enough, the result will be correct.
+It can be shown that the Hilbert class polynomial is an integer polynomial, but actual computations need high-precision arithmetic to avoid approximation errors that usually occur in computer approximations of the $j$-function (as shown above). So, in case the calculated Hilbert class polynomial does not have integer coefficients, we need to round the result to the nearest integer. Given that the precision we used was sufficiently high, the result will be correct.
 
 In the next step, we use the Hilbert class polynomial $H_D\in \Z[x]$, and project it to a polynomial $H_{D,q}\in\F_q[x]$ with coefficients in the base field $\F_q$ as chosen in the first step. We do this by simply reducing the coefficients modulo $p$, that is, if $H_D(x)= a_mx^m +a_{m-1}x^{m-1}+\ldots + a_1 x + a_0$, we compute the $q$-modulus of each coefficient
 $\tilde{a}_j = \Zmod{a_j}{p}$, which yields the \term{projected Hilbert class polynomial} as follows:
@@ -1715,7 +1720,7 @@ We then search for roots of $H_{D,p}$, since every root $j_0$ of $H_{D,p}$ defin
 
 To compute a curve with the correct order, we have to distinguish a few different cases based on our choice of the root $j_0\in \F_q$ and of the CM-discriminant $D\in \Z$. If $j_0\neq 0$ or $j_0\neq \Zmod{1728}{q}$, we compute $c_1=\frac{j_0}{(\Zmod{1728}{q}) -j_0}\in \F_q$, then we chose some arbitrary quadratic non-residue $c_2\in \F_q$, and some arbitrary cubic non-residue $c_3\in \F_q$. 
 
-The following table is guaranteed to define a curve with the correct order $r= q+1 -t$ for the fields order $q$ and the trace of Frobenius $t$ we initially decided on:
+The following list is guaranteed to define a curve with the correct order $r= q+1 -t$ for the fields order $q$ and the trace of Frobenius $t$ we initially decided on:
 
 \begin{itemize}
 \label{def:curve-order-frobenius}
@@ -1748,9 +1753,9 @@ To decide the proper defining \concept{short Weierstrass} equation, we therefore
 
 To summarize, using the \concept{complex multiplication method}, it is possible to synthesize elliptic curves with predefined order over predefined base fields from scratch. However, the curves that are constructed this way are just some representatives of a larger class of curves, all of which have the same order. Therefore, in real-world applications, it is sometimes more advantageous to choose a different representative from that class. To do so recall from \ref{sec:isomorphic_curves} that any curve defined by the \concept{short Weierstrass} equation $y^2 = x^3 + ax + b$ is isomorphic to a curve of the form $y^2 = x^3 + ad^4 x + bd^6$ for some invertible field element $d\in \F^*_q$. 
 
-In order to find a suitable representative (e.g. with small parameters $a$ and $b$) in the last step, the curve designer might choose an invertible field element $d$ such that the transformed curve has the properties they wanted.
+In order to find a suitable representative (e.g. with small parameters $a$ and $b$), the curve designer might choose an invertible field element $d$ such that the transformed curve has small parameters.
 
-\begin{example} Consider curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}. We want to use the \concept{complex multiplication method} to derive that curve from scratch. Since $E_{1,1}(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from \examplename{} \ref{ex:E1F5-frobenius}\sme{check reference} that its trace of Frobenius is $t=-3$, which also implies that $q$ and $|t|$ are coprime. 
+\begin{example} Consider curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}. We want to use the \concept{complex multiplication method} to derive that curve from scratch. Since $E_{1,1}(\F_5)$ is a curve of order $r=9$ over the prime field of order $q=5$, we know from \examplename{} \ref{ex:E1F5-frobenius} that its trace of Frobenius is $t=-3$, which also shows that $q$ and $t$ are coprime. 
 
 We then have to find parameters $D,v\in\Z$ such that the criteria in \ref{eq:D-criteria} hold. We get the following:
 \begin{align*}
@@ -1760,45 +1765,41 @@ We then have to find parameters $D,v\in\Z$ such that the criteria in \ref{eq:D-c
 \end{align*}
 Now, since $11$ is a prime number, the only solution is $|D|=11$ and $v=1$ here. With $D=-11$ and  the Euclidean division of $-11$ by $4$ being $-11 = -3\cdot 4 +1$, we have $\Zmod{-11}{4}=1$, which shows that $D=-11$ is a proper choice.
 
-In the next step, we have to compute the Hilbert class polynomial $H_{-11}$. To do so, we first have to find the set $S(D)$. To compute that set, observe that, since $\sqrt{\frac{|D|}{3}}\approx 1.915<2$, we know from $A\leq \sqrt{\frac{|D|}{3}}$ and $A\in\Z$ that $A$ must be either $0$ or $1$. 
+In the next step, we have to compute the Hilbert class polynomial $H_{-11}$. To do so, we first have to find the set $S(D)$. To compute that set, observe that, since $\sqrt{\frac{|D|}{3}}\approx 1.915<2$, we know from $A\leq \sqrt{\frac{|D|}{3}}$ and $A\in\Z$ as well as $0\leq |B|\leq A$ that $A$ must be either $0$ or $1$. 
 
 For $A=0$, we know $B=0$ from the constraint $|B|\leq A$. However, in this case, there could be no $C$ satisfying $-11= B^2 -4AC$. So we try $A=1$ and deduce $B\in\{-1,0,1\}$ from the constraint $|B|\leq A$. The case $B=-1$ can be excluded, since then $B<0$ has to imply $|B|<A$. The case $B=0$ can also be excluded, as there cannot be an integer $C$ with $-11 = -4C$, since $11$ is a prime number. 
 
-This leaves the case $B=1$, and we compute $C=3$ from the equation $-11 = 1^2 -4C$, which gives the solution $(A,B,C)=(1,1,3)$:
+This leaves the case $B=1$, and we compute $C=3$ from the equation $-11 = 1^2 -4C$, which gives the solution $(A,B,C)=(1,1,3)$. Hence:
 $$
 S(D)=\{(1,1,3)\}
 $$
 
-With the set $S(D)$ at hand, we can compute the Hilbert class polynomial of $D=-11$. To do so, we have to insert the term $\frac{-1+\sqrt{-11}}{2\cdot1}$ into the $j$-function. To do so, first observe that $\sqrt{-11}=i\sqrt{11}$, where $i$ is the imaginary unit, defined by $i^2=-1$. Using this, we can use Sage to compute the $j$-invariant and get the following:
+With the set $S(D)$ at hand, we can compute the Hilbert class polynomial of $D=-11$. To do so, we have to insert the term $\frac{-1+\sqrt{-11}}{2\cdot1}$ into the $j$-function. To do so, first observe that $\sqrt{-11}=i\sqrt{11}$, where $i$ is the imaginary unit, defined by $i^2=-1$. Using this, we use Sage to compute the $j$-invariant and get the following:
 $$
 H_{-11}(x) = x - j\left(\frac{-1+i\sqrt{11}}{2}\right) = x + 32768
 $$
 
-As we can see, in this particular case, the Hilbert class polynomial is a linear function with a single integer coefficient. In the next step, we have to project it onto a polynomial from $\F_5[x]$ by computing the modular $5$ remainder of the coefficients $1$ and $32768$. We get $\Zmod{32768}{5}=3$, from which it follows that the projected Hilbert class polynomial is considered a polynomial from $\F_5[x]$:
+As we can see, in this particular case, the Hilbert class polynomial is a linear function with a single integer coefficient. In the next step, we have to project it onto a polynomial from $\F_5[x]$ by reducing the coefficients $1$ and $32768$ modulo $5$. We get $\Zmod{32768}{5}=3$, so the projected Hilbert class polynomial is
 $$
 H_{-11,5}(x)=x+3
 $$ 
- As we can see, the only root of this polynomial is $j=2$, since $H_{-11,5}(2)=2+3=0$. We therefore have a situation with $j\neq 0$ and $j\neq 1728$, which tells us that we have to compute the parameter $c_1$ in modular $5$ arithmetics:
-$$
-c_1=\frac{2}{1728-2}
-$$
- Since $\Zmod{1728}{5}=3$, we get $c_1=2$. 
- 
- Next, we have to check if the curve $E(\F_5)$ defined by the \concept{short Weierstrass} equation  $y^2 = x^3 + 3\cdot 2 x + 2\cdot 2$ has the correct order. We use Sage, and find that the order is indeed $9$, so it is a curve with the required parameters. Thus, we have successfully constructed the curve with the desired properties.
+As we can see, the only root of this polynomial is $j=2$, since $H_{-11,5}(2)=2+3=0$. We therefore have a situation with $j\neq 0$ and $j\neq 3 = \Zmod{1728}{5}$, which tells us that we have to consider the first case in \ref{def:curve-order-frobenius} and compute the parameter $c_1$, where in our case division is done in in modular $5$ arithmetic:
+\begin{equation}
+c_1 = \frac{2}{\Zmod{1728}{5}-2} = \frac{2}{3-2}= 2
+\end{equation}
+In order to decide the correct equation from the first case in \ref{def:curve-order-frobenius}, we have to check if the curve $E(\F_5)$ defined by the \concept{short Weierstrass} equation  $y^2 =  x^3 + 3\cdot c_1 x + 2\cdot c_1 = x^3 + x + 4$ has the correct order. We use Sage, and find that the order is indeed $9$, so it is a curve with the required parameters. Thus, we have successfully constructed the curve with the desired properties.
 
-Note, however, that in real-world applications, it might be useful to choose parameters $a$ and $b$ that have certain properties, e.g. to be a small as possible. As we know from XXX\sme{add reference}, choosing any quadratic residue $d\in \F_5$ gives a curve of the same order defined by $y^2 = x^2 + a k^2 x + bk^3$. Since $4$ is a quadratic residue in $\F_4$, we can transform the curve defined by 
-$y^2 = x^3 +x+4$ into the curve $y^2 = x^3 + 4^2 + 4\cdot 4^3$ which gives the following:
+Comparing our constructed curve $y^2 =  x^3 + x + 4$ to the definition of $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5}, we see that the defining equations are different. However, since both curves are of the same order, we know from \ref{sec:isomorphic_curves} that they are isomorphic. In fact we can use \ref{sec:isomorphic_curves} and the quadratic residue $4\in \F_5$, to transform the curve defined by $y^2 = x^3 +x+4$ into the curve $y^2 = x^3 + 4^2 + 4\cdot 4^3$ which gives the defining equation of $E_{1,1}(\F_5)$:
 $$
 y^2 = x^3 + x +1
 $$
-
-This is the curve $E_{1,1}(\F_5)$ that we used extensively throughout this book. Thus, using the \concept{complex multiplication method}, we were able to derive a curve with specific properties from scratch.
+Thus, using the \concept{complex multiplication method}, we were able to derive a curve with specific properties from scratch.
 \end{example}
 
 \begin{example}
- Consider the \curvename{Tiny-jubjub} curve \TJJ{} from \examplename{} \ref{TJJ13}\sme{check reference}. We want to use the \concept{complex multiplication method} to derive that curve from scratch. Since \TJJ{} is a curve of order $r=20$ over the prime field of order $q=13$, we know from \examplename{} \ref{ex:TJJ13-frobenius}\sme{check reference} that its trace of Frobenius is $t=-6$, which also implies that $q$ and $|t|$ are coprime. 
+ Consider the \curvename{Tiny-jubjub} curve \TJJ{} from \examplename{} \ref{TJJ13}. We want to use the \concept{complex multiplication method} to derive that curve from scratch. We know from \examplename{} \ref{TJJ13} that \TJJ{} is a curve of order $r=20$ over the prime field of order $q=13$ and we know from \examplename{} \ref{ex:TJJ13-frobenius} that its trace of Frobenius is $t=-6$. This shows that $q$ and $t$ are coprime. 
 
-We then have to find parameters $D,v\in\Z$ such that \ref{eq:D-criteria} holds. We get the following:
+In order to apply the \concept{complex multiplication method} we have to find parameters $D,v\in\Z$ such that \ref{eq:D-criteria} holds. We get the following:
 \begin{align*}
 4q & = t^2+ |D|v^2 & \Rightarrow \\
 4\cdot 13 & = (-6)^2+ |D|v^2 & \Rightarrow \\
@@ -1806,13 +1807,12 @@ We then have to find parameters $D,v\in\Z$ such that \ref{eq:D-criteria} holds. 
 16 & = |D|v^2
 \end{align*}
 
-This equation has two solutions for $(D,v)$, namely $(-4,\pm 2)$ and $(-16,\pm 1)$. Looking at the first solution, we know that  $D=-4$ implies $j=1728$, and the constructed curve is defined by a \concept{short Weierstrass} equation \ref{def_short_weierstrass_curve}\sme{check reference} that has a vanishing parameter $b=0$. We can therefore conclude that choosing $D=-4$ will not help us reconstructing \TJJ{}. It will produce curves with order $20$, just not the one we are looking for.
+This equation has four solutions for $(D,v)$, namely $(-4,\pm 2)$ and $(-16,\pm 1)$. Looking at the first two solution, we show in exercise \ref{ex:Low_order_Hilbert_polys} that $D=-4$ implies $j=1728$, and from \ref{def:curve-order-frobenius} we know that in this case the constructed curve is defined by a \concept{short Weierstrass} equation \ref{def_short_weierstrass_curve} that has a vanishing parameter $b=0$. We can therefore conclude that $D=-4$ will not help us reconstructing \TJJ{}, since $D=-4$ will produce curves of order $20$, but all of those curves have $b=0$.
 
-So we choose the second solution $D=-16$. In the next step, we have to compute the Hilbert class polynomial $H_{-16}$. To do so, we first have to find the set $S(D)$. To compute that set, observe that since $\sqrt{\frac{|-16|}{3}}\approx 2.31<3$, we know from $A\leq \sqrt{\frac{|-16|}{3}}$ and $A\in\Z$ that $A$ must be in the range $0..2$. So we loop through all possible values of $A$ and through all possible values of $B$ under the constraints $|B|\leq A$, and if $B<0$ then $|B|<A$.
-Then we compute potential $C$'s from $-16 = B^2 -4AC$. We get the following two solutions for $S(D)$:
+We therefore consider the third and fourth solution for $D=-16$. In the next step, we have to compute the Hilbert class polynomial $H_{-16}$. To do so, we first have to find the set $S(D)$. To compute that set, observe that since $\sqrt{\frac{|-16|}{3}}\approx 2.31<3$, we know from $A\leq \sqrt{\frac{|-16|}{3}}$ and $A\in\Z$ with $0\leq |B|\leq A$, that $A$ must be in the range $0..2$. So we loop through all possible values of $A$ and through all possible values of $B$ under the constraints $|B|\leq A$, and if $B<0$ then $|B|<A$.
+Then we compute potential $C$'s from the equation $-16 = B^2 -4AC$. We get the following two solutions for $S(D)$:
 % sage has precomputed Hilbert class polynomials 
 % https://doc.sagemath.org/html/en/reference/databases/sage/databases/db_class_polynomials.html
-we get
 $$
 S(D)=\{(1,0,4),(2,0,2)\}
 $$
@@ -1823,34 +1823,32 @@ H_{-16}(x) &= \left(x - j\left(\frac{i\sqrt{16}}{2}\right)\right)
            &= (x- 287496)(x-1728)
 \end{align*}
 
-As we can see, in this particular case, the Hilbert class polynomial is a quadratic function with two integer coefficients. In the next step, we have to project it onto a polynomial from $\F_5[x]$ by computing the modular $5$ remainder of the coefficients $1$, $287496$ and $1728$. We get $\Zmod{287496}{13}=1$ and $\Zmod{1728}{13}=2$, which means that the projected Hilbert class polynomial is as follows:
+As we can see, in this particular case, the Hilbert class polynomial is a quadratic function with two integer coefficients. In the next step, we have to project it onto a polynomial over $\F_{13}$ by computing the modular $13$ remainder of the coefficients $287496$ and $1728$. We get $\Zmod{287496}{13}=1$ and $\Zmod{1728}{13}=12$, which means that the projected Hilbert class polynomial is as follows:
 $$
 H_{-11,5}(x)=(x-1)(x-12)= (x+12)(x+1)
 $$ 
-This is considered a polynomial from $\F_{13}[x]$. Thus, we have two roots, namely $j=1$ and $j=12$. We already know that $j=12$ is the wrong root to construct the \curvename{Tiny-jubjub} curve, since $\Zmod{1728}{13}=2$, and that case is not compatible with a curve with $b\neq 0$. So we choose $j=1$.
+This is considered a polynomial from $\F_{13}[x]$. Thus, we have two roots, namely $j=1$ and $j=12$. We already know that $j=12$ is the wrong root to construct the \curvename{Tiny-jubjub} curve, since $\Zmod{1728}{13}=12$, and that case is not compatible with a curve with $b\neq 0$. So we choose $j=1$.
 
 Another way to decide the proper root is to compute the $j$-invariant of the \curvename{Tiny-jubjub} curve. We get the following:
 \begin{align*}
 j(\mathit{TJJ\_13}) & = 12\frac{4\cdot 8^3}{4\cdot 8^3+ 1\cdot 8^2}\\
                     & = 12\frac{4\cdot 5}{4\cdot 5+ 12}\\
                     & = 12\frac{7}{7+ 12}\\
-                    & = 12\frac{7}{7+ 12}\\
+                    & = 12\frac{7}{7-1}\\
                     & = 1
 \end{align*}
 
-This is equal to the root $j=1$ of the Hilbert class polynomial $H_{-16,13}$ as expected. We therefore have a situation with $j\neq 0$ and $j\neq 1728$, which tells us that we have to compute the parameter $c_1$ in modular $5$ arithmetics:
+This is equal to the root $j=1$ of the Hilbert class polynomial $H_{-16,13}$ as expected. We therefore have a situation with $j\neq 0$ and $j\neq 1728$, which tells us that we have to consider the first case in \ref{def:curve-order-frobenius} and compute the parameter $c_1$, where in our case division is done in in modular $13$ arithmetic:
 $$
-c_1=\frac{1}{12-1} = 6
+c_1=\frac{1}{12-1} = \frac{1}{11} =6
 $$
-Since $\Zmod{1728}{13}=12$, we get $c_1=6$. Then we have to check if the curve $E(\F_5)$ defined by the \concept{short Weierstrass}  equation $y^2 = x^3 + 3\cdot 6 x + 2\cdot 6$, which is equivalent to
-$
-y^2 = x^3 + 5x +12
-$, has the correct order. We use Sage and find that the order is $8$, which implies that the trace of this curve is $6$, not $-6$ as required. So we have to consider the second possibility, and choose some quadratic non-residue $c_2\in\F_{13}$. We choose $c_2=5$ and compute the \concept{short Weierstrass} equation $y^2 = x^3 + 5 c_2^2 + 12 c_2^3$ as follows:
+In order to decide the correct equation from the first case in \ref{def:curve-order-frobenius}, we have to check if the curve $E(\F_{13})$ defined by the \concept{short Weierstrass} equation  $y^2 = x^3 + 3\cdot 6 x + 2\cdot 6 = x^3 + 5x +12$ has the correct order. We use Sage and find that the order is $8$ not $20$ as expected, which implies that the trace of this curve is $6$, not $-6$. So we have to consider the second equation from the first case in \ref{def:curve-order-frobenius}, and choose some quadratic non-residue $c_2\in\F_{13}$. We choose $c_2=5$ and compute the \concept{short Weierstrass} equation $y^2 = x^3 + 5 c_2^2 x + 12 c_2^3$ as follows:
 $$
 y^2 = x^3 + 8 x + 5
 $$
-We use Sage and find that the order is $20$, which is indeed the correct one. As we know from XXX\sme{add reference}, choosing any quadratic residue $d\in \F_5$ gives a curve of the same order defined by $y^2 = x^2 + a d^2 x + bd^3$. Since $12$ is a quadratic residue in $\F_{13}$, we can transform the curve defined by 
-$y^2 = x^3 +8x+5$ into the curve $y^2 = x^3 + 12^2\cdot 8 + 5\cdot 12^3$ which gives the following:
+We use Sage and find that the order is $20$, which is indeed the correct one. Comparing our constructed curve $y^2 =  x^3 + 8x + 5$ to the definition of \TJJ{} from \examplename{} \ref{TJJ13}, we see that the defining equations are different. However, since both curves are of the same order, we know from \ref{sec:isomorphic_curves} that they are isomorphic.
+
+In fact we can use \ref{sec:isomorphic_curves} and the quadratic residue $12\in \F_{13}$, to transform the curve defined by $y^2 =  x^3 + 8x + 5$ into the curve $y^2 = x^3 + 12^2\cdot 8 + 5\cdot 12^3$ which gives the following:
 $$
 y^2 = x^3 + 8x +8
 $$
@@ -1858,21 +1856,21 @@ $$
 This is the \curvename{Tiny-jubjub} curve that we used extensively throughout this book. So using the \concept{complex multiplication method}, we were able to derive a curve with specific properties from scratch.
 \end{example}
 
-\begin{example} To consider a real-world example, we want to use the \concept{complex multiplication method} in combination with Sage to compute \curvename{secp256k1} from scratch. So based on \examplename{} \ref{secp256k1}\sme{check reference}, we decided to compute an elliptic curve over a prime field $\F_p$ of order $r$ for the following security parameters:
+\begin{example} To consider a real-world example, we want to use the \concept{complex multiplication method} in combination with Sage to compute \curvename{secp256k1} from scratch. So based on \examplename{} \ref{secp256k1}, we decide to compute an elliptic curve over a prime field $\F_p$ of order $r$ for the following security parameters:
 \begin{align*}
 p &= \scriptstyle 115792089237316195423570985008687907853269984665640564039457584007908834671663\\
 r &= \scriptstyle 115792089237316195423570985008687907852837564279074904382605163141518161494337
 \end{align*}
-According to \examplename{} \ref{ex:secp256k1-trace}\sme{check reference}, this gives the following trace of Frobenius:
+According to \examplename{} \ref{ex:secp256k1-trace}, this gives the following trace of Frobenius for any curve isomorphic to \curvename{secp256k1}:
 $$t = \scriptstyle 432420386565659656852420866390673177327$$ 
 
-We also decided that we want a curve of the form $y^2 = x^3 + b$, that is, we want the parameter $a$ to be zero. This implies that the $j$-invariant of our curve must be zero.
+We also decide that we want a curve of the form $y^2 = x^3 + b$, that is, we want the parameter $a$ to be zero. Table \ref{def:curve-order-frobenius} then implies that the $j$-invariant of our curve must be zero.
 
 In a first step, we have to find a CM-discriminant $D$ and some integer $v$ such that the equation 
 $
 4p = t^2 +|D|v^2
 $
-is satisfied. Since we aim for a vanishing $j$-invariant, the first thing to try is $D=-3$. In this case, we can compute $v^2 = (4p -t^2)$, and if $v^2$ happens to be an integer that has a square root $v$, we are done. Invoking Sage we compute as follows:
+is satisfied. Since we aim for a vanishing $j$-invariant, the first thing to try is $D=-3$. In this case, we can compute $v^2 = (4p -t^2)/|D|$, and if $v^2$ happens to be an integer that has a square root $v$, we are done. Invoking Sage we compute as follows:
 \begin{sagecommandline}
 sage: D = -3
 sage: p = 115792089237316195423570985008687907853269984665640564039457584007908834671663
@@ -1887,7 +1885,7 @@ sage: v
 \end{sagecommandline}
 The pair $(D,v)=(-3, 303414439467246543595250775667605759171)$ does indeed solve the equation, which tells us that there is a curve of order $r$ over a prime field of order $p$, defined by a \concept{short Weierstrass} equation $y^2 = x^3 + b$ for some $b\in \F_p$. Now we need to compute $b$.
 
-For $D=-3$, we already know that the associated Hilbert class polynomial is given by $H_{-3}(x)=x$, which gives the projected Hilbert class polynomial as 
+For $D=-3$, we show in exercise \ref{ex:Low_order_Hilbert_polys} that the associated Hilbert class polynomial is given by $H_{-3}(x)=x$, which gives the projected Hilbert class polynomial as 
 $H_{-3,p}=x$ and the $j$-invariant of our curve is guaranteed to be $j=0$. Now, looking at \ref{def:curve-order-frobenius}\sme{check reference}, we see that there are $6$ possible cases to construct a curve with the correct order $r$. In order to construct the curves in question, we have to choose some arbitrary quadratic and cubic non-residue. So we loop through $\F_p$ to find them, invoking Sage:
 
 \begin{sagecommandline}
@@ -1922,29 +1920,25 @@ sage: C6 = EllipticCurve(F,[0,c3^(-2)*c2^3])
 sage: C6.order() == r
 \end{sagecommandline}
 
-As expected, we found an elliptic curve of the correct order $r$ over a prime field of size $p$. In principle. we are done, as we have found a curve with the same basic properties as \curvename{secp256k1}. However, the curve is defined by the following equation, which uses a very large parameter $b_1$, and so it might perform too slowly in certain algorithms.
+As expected, we found an elliptic curve of the correct order $r$ over a prime field of size $p$. In principle. we are done, as we have found a curve with the same basic properties as \curvename{secp256k1}. However, the curve is defined by the following equation, which uses a very large parameter $b_1$, and so it might perform too slowly in certain algorithms and is not very convenient for humans to handle.
 $$
 \scriptstyle y^2 = x^3 + 86844066927987146567678238756515930889952488499230423029593188005931626003754
 $$
- It is also not very elegant to be written down by hand.\sme{what does this mean? Maybe just delete it}  It might therefore be advantageous to find an isomorphic curve with the smallest possible parameter $b_2$. In order to find such a $b_2$, we have to choose a quadratic residue $d$ such that $b_2 = b_1\cdot d^3$ is as small as possible. To do so, we rewrite the last equation into the following form:
+It might therefore be advantageous to find an isomorphic curve with the smallest possible parameter $b_2$. In order to find such a $b_2$, we can use  \ref{sec:isomorphic_curves} and choose an invertible, quadratic residue $d$ such that $b_2 = b_1\cdot d^3$ is as small as possible. To do so, we rewrite the last equation into the following form:
 $$
 d = \sqrt[3]{\frac{b_2}{b_1}}
 $$ 
 
 Then we use Sage to loop through values $b_2\in \F_p$ until it finds some number such that the quotient $\frac{b_2}{b_1}$ has a cube root $d$ and this cube root itself is a quadratic residue. 
 \begin{sagecommandline}
-sage: b1=86844066927987146567678238756515930889952488499230423029593188005931626003754
+sage: b1=F(86844066927987146567678238756515930889952488499230423029593188005931626003754)
 sage: for b2 in F:
+....:     if b2 == 0: continue
 ....:     try:
 ....:         d = (b2/b1).nth_root(3)
-....:         try:
-....:             _ = d.nth_root(2)
-....:             if d != 0:
-....:                 break
-....:         except ValueError:
-....:             pass
-....:     except ValueError:
-....:         pass
+....:         _ = d.nth_root(2) # test
+....:     except ValueError: continue
+....:     break # found it
 sage: b2
 \end{sagecommandline}
 Indeed, the smallest possible value is $b_2=7$ and the defining \concept{short Weierstrass} equation of a curve over $\F_p$ with prime order $r$ is 
@@ -1958,82 +1952,83 @@ which we might call \curvename{secp256k1}. As we have just seen, the \concept{co
 \begin{exercise}
 \label{ex:Low_order_Hilbert_polys} Show that the Hilbert class polynomials for the CM-discriminants $D=-3$ and $D=-4$ are given by  $H_{-3,q}(x)=x$ and $H_{-4,q}= x-(\Zmod{1728}{q})$.
 \end{exercise}
-
+\begin{exercise}
+Use the complex multiplication method to construct an elliptic curve of order $7$ over the prime field $\F_{13}$.
+\end{exercise}
+\begin{exercise}
+Use the complex multiplication method to compute all isomorphism classes of all elliptic curves of order $7$ over the prime field $\F_{13}$.
+\end{exercise}
 \subsection{The $BLS6\_6$ pen-and-paper curve}\label{BLS6}
 
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
 In this paragraph, we summarize our understanding of elliptic curves to derive our main pen-and-paper example for the rest of the book. To do so, we want to use the \concept{complex multiplication method} to derive a pairing-friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen-and-paper examples, which mostly means that the curve should contain only a few points so that we are able to derive exhaustive addition and pairing tables. Specifically, we use construction 6.6 in \cite{freeman-2020}.
 
-A well-understood family of pairing-friendly curves is the the group of BLS curves \smelong{(STUFF ABOUT THE HISTORY AND THE NAMING CONVENTION)}\sme{write up this part}, which are derived in [XXX\sme{add reference}]. BLS curves are particularly useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. Of course, the smallest embedding degree $k$ that satisfies this congruency is $k=6$ and we therefore aim for a BLS6 curve as our main pen-and-paper example. 
+A well-understood family of pairing-friendly curves is given the set of BLS curves. As explained in example \ref{ex:bls6-params}, in \cite{bls-02} the authors Barreto, Lynn and Scott found a parameterized solution set to equation \ref{eq:D-criteria}, which gives rise to pairing friendly elliptic curves of various embedding degrees with CM-discriminant $D = -3$. BLS curves are particularly useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. Of course, the smallest embedding degree $k$ that satisfies this congruency is $k=6$ and we therefore aim for a BLS6 curve as our main pen-and-paper example. 
 
-To apply the \concept{complex multiplication method} from page \pageref{complex-multiplication-method} ff.\sme{check reference}, recall that this method starts with a definition of the base field $\F_{p^m}$, as well as the trace of Frobenius $t$ and the order of the curve. If the order $p^m+1-t$ is not a prime number, then the order $r$ of the largest prime factor group needs to be controlled. 
 
-In the case of BLS\_6 curves, the parameter $m$ is chosen to be $1$, which means that the curves are defined over prime fields. All relevant parameters $p$, $t$ and $r$ are then themselves parameterized by the following three polynomials:
+To apply the \concept{complex multiplication method} \ref{complex-multiplication-method} , recall that it starts with a choice of the base field $\F_{p^m}$, as well as the trace of Frobenius $t$ and the CM-discriminant $D$ of the curve. In the case of BLS6 curves, the parameter $m$ is chosen to be $1$, which means that the curves are defined over prime fields. In addition the CM-discriminant is chosen to be $D=-3$, which implies that the curve is defined by the equation $y^2 = x^3 +b$ for some $b\in \F_p$. 
+
+As shown in example \ref{ex:bls6-params} the relevant parameters $p$ and $t$ are themselves parameterized by the following functions:
 \begin{equation}
 \begin{split}
-r(x) &= \Phi_6(x)\\
 t(x) &= x+1\\
-q(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
+p(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
 \end{split}
 \end{equation}
+Here $x\in\NN$ is a parameter that the designer has to choose in such a way that the evaluation of $p$ and $t$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve to be synthesized. 
 
-In the equations above, $\Phi_6$ is the $6$-th \uterm{cyclotomic polynomial} and  $x\in\N$ is a parameter that the designer has to choose in such a way that the evaluation of $p$, $t$ and $r$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve that they want to design. It is then guaranteed that the \concept{complex multiplication method} can be used in combination with those parameters to define an elliptic curve with CM-discriminant $D=-3$, embedding degree $k=6$, and curve equation $y^2 = x^3 +b$ for some $b\in\F_p$. 
+In this case it is guaranteed that there is an integer $v\in\Z$, such that equation \ref{eq:D-criteria} hold for the CM-discriminant $D=-3$, which implies that the \concept{complex multiplication method} can be used to compute a field element $b\in\F_p$ such that the elliptic curve $y^2 = x^3 +b$ has order $r=p+1-t$, CM-discriminant $D=-3$ and embedding degree $k=6$. 
 
-For example, if the curve should target the $128$-bit security level, due to the \uterm{Pholaard-rho attack} (TODO)\sme{todo} the parameter $r$ should be prime number of at least $256$ bits.
+In order to design the smallest BLS6 curve, we therefore have to find a parameter $x$ such that $t(x)$ and $p(x)$ are the smallest natural numbers that satisfy $p(x)>3$.\footnote{The smallest BLS curve will also be the most insecure BLS curve. However, since our goal with this curve is ease of pen-and-paper computation rather than security, it fits the purposes of this book.}
 
-In order to design the smallest BLS\_6 curve, we therefore have to find a parameter $x$ such that $r(x)$, $t(x)$ and $q(x)$ are the smallest natural numbers that satisfy $q(x)>3$ and $r(x)>3$.\footnote{The smallest BLS curve will also be the most insecure BLS curve. However, since our goal with this curve is ease of pen-and-paper computation rather than security, it fits the purposes of this book.}
-
-We therefore initiate the design process of our $BLS6$ curve by looking up the $6$-th cyclotomic polynomial, which is $\Phi_{6}=x^2-x+1$, and then insert small values for $x$ into the defining polynomials $r,t,q$. We get the following results:
+We therefore initiate the design process of our $BLS6$ curve by inserting small values for $x$ into the defining polynomials $t$ and $q$. We get the following results:
 $$
 \begin{array}{lcr}
-x=1 & (r(x),t(x),q(x)) & (1,2,1)\\
-x=2 & (r(x),t(x),q(x)) & (3,3,3)\\
-x=3 & (r(x),t(x),q(x)) & (7,4,\frac{37}{3})\\
-x=4 & (r(x),t(x),q(x)) & (13,5,43)\\
+x=1 & (t(x),p(x)) & (2,1)\\
+x=2 & (t(x),p(x)) & (3,3)\\
+x=3 & (t(x),p(x)) & (4,\frac{37}{3})\\
+x=4 & (t(x),p(x)) & (5,43)\\
 \end{array}
 $$
-Since $q(1)=1$ is not a prime number, the first $x$ that gives a proper curve is $x=2$. However, such a curve would be defined over a base field of characteristic $3$, and we would rather like to avoid that.We therefore find $x=4$, which defines a curve over the prime field of characteristic $43$ that has a trace of Frobenius $t=5$ and a larger order prime group of size $r=13$. 
+Since $p(1)=1$ is not a prime number, the first $x$ that gives a proper curve is $x=2$. However, such a curve would be defined over a base field of characteristic $3$, and we would rather like to avoid that, since we only defined elliptic curves over fields of characteristics larger then $3$ in this book. We therefore find $x=4$, which defines a curve over the prime field of characteristic $43$ that has a trace of Frobenius $t=5$. 
 
 Since the prime field $\F_{43}$ has $43$ elements and $43$'s binary representation is $43_2= 101011$, which consists of $6$ digits, the name of our pen-and-paper curve should be $BLS6\_6$, since its is common to name a BLS curve by its embedding degree and the bit-length of the modulus in the base field. We call $BLS6\_6$ the \term{moon-math-curve}.
 
-Based on \ref{hasse-bound}\sme{check reference}, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a ``large'' prime factor group of size $13$, as expected, and a small cofactor group of size $3$. Fortunately, a subgroup of order $13$ is well suited for our purposes, as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen-and-paper style. 
+Based on \ref{hasse-bound}\sme{check reference}, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a ``large'' prime factor group of size $13$, as expected, and a small cofactor of $3$. Fortunately, a subgroup of order $13$ is well suited for our purposes, as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen-and-paper style. 
 
 We can check that the embedding degree is indeed $6$ as expected, since $k = 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
 \begin{sagecommandline}
+sage: k= 0
 sage: for k in range(1,42): # Fermat's little theorem
 ....:     if (43^k-1)%13 == 0:
 ....:         break
 sage: k
 \end{sagecommandline}
 
-In order to compute the defining equation $y^2=x^3 + ax + b$ of BLS6-6, we use the \concept{complex multiplication method} as described in \ref{complex-multiplication-method}\sme{check reference}. The goal is to find $a,b\in\F_{43}$ representations that are particularly \smelong{nice to work with}\sme{what does this mean?}. The authors of XXX\sme{add reference} showed that the CM-discriminant of every BLS curve is $D=-3$ and, indeed, the following equation has the four solutions $(D,v)\in\{(-3,-7),(-3,7),(-49,-1),(-49,1)\}$ if $D$ is required to be negative, as expected: 
-
+To see that equation \ref{eq:D-criteria} indeed has a solution for the parameters $D=-3$, $p=43$ and $t=5$ as expected, we compute $v=\pm 7$:  
 \begin{align*}
 4p & = t^2 + |D|v^2 & \Rightarrow \\ 
-4\cdot 43 & = 5^2 + |D|v^2 & \Rightarrow \\ 
-172 & = 25 + |D| v^2 & \Leftrightarrow \\ 
-49 & = |D| v^2
+4\cdot 43 & = 5^2 + 3\cdot v^2 & \Leftrightarrow \\ 
+172 & = 25 + 3 v^2 & \Leftrightarrow \\ 
+49 & = v^2 & \Leftarrow \\
+v & = \pm 7
 \end{align*}
+This implies that we can use the \concept{complex multiplication method} as described in \ref{complex-multiplication-method} in order to compute the defining equation $y^2=x^3 + ax + b$ of BLS6\_6. 
 
-This means that $D=-3$ is indeed a proper CM-discriminant, and we can deduce that the parameter $a$ has to be $0$, and that the Hilbert class polynomial is given by
-$
-H_{-3,43}(x) = x
-$.
-
-This implies that the $j$-invariant of $BLS6\_6$ is given by $j(BLS6\_6)=0$. We therefore have to look at case XXX\sme{add reference} in table \ref{def:curve-order-frobenius}\sme{check reference} to derive a parameter $b$. To decide the proper case for $j_0=0$ and $D=-3$, we therefore have to choose some arbitrary quadratic non-residue $c_2$ and cubic non-residue $c_3$ in $\F_{43}$. We choose $c_2 =5$ and $c_3=36$. We check these with Sage:
+Since $D=-3$ we know from exercise \ref{ex:Low_order_Hilbert_polys} that the associated Hilbert class polynomial is given by $H_{-3,43}(x) = x$, which implies that the $j$-invariant of $BLS6\_6$ is given by $j(BLS6\_6)=0$. We therefore have to look at the third case in table \ref{def:curve-order-frobenius} to deduce $a=0$ and derive parameter $b$. To apply \ref{def:curve-order-frobenius} and decide the proper equation for $j_0=0$ and $D=-3$, we have to choose some arbitrary quadratic non-residue $c_2$ and cubic non-residue $c_3$ in $\F_{43}$. We choose $c_2 =5$ and $c_3=36$. We check these with Sage:
 \begin{sagecommandline}
 sage: F43 = GF(43)
 sage: c2 = F43(5)
 ....: try: # quadratic residue
 ....:     c2.nth_root(2)
 ....: except ValueError: # quadratic non-residue
-....:     c2
+....:     print("OK") 
 sage: c3 =F43(36)
 ....: try:
 ....:     c3.nth_root(3)
 ....: except ValueError:
-....:     c3
+....:     print("OK") 
 \end{sagecommandline} 
 
 Using those numbers we check the six possible cases from \ref{def:curve-order-frobenius}\sme{check reference} against the the expected order $39$ of the curve we want to synthesize:
@@ -2053,13 +2048,13 @@ sage: BLS66 = EllipticCurve(F43,[0,c3^(-2)*c2^3])
 sage: BLS66.order() == 39
 sage: BLS6 = BLS63 # our BLS6 curve in the book
 \end{sagecommandline}
-As expected, we found an elliptic curve of the correct order $39$ over a prime field of size $43$, defined by the following equation:
+As expected, we found an elliptic curve of the correct order $39$ over a prime field of size $43$. Since $c_3^2=36^2=6$ in $\F_{43}$ the curve $BLS6\_6$ is defined by the following equation:
 
 \begin{equation}
 BLS6\_6 := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43}\}
 \end{equation}
 
-There are other choices for $b$, such as $b=10$ or $b=23$, but all these curves are isomorphic, and hence represent the same curve in a different way. Since BLS6-6 only contains $39$ points ,it is possible to give a visual impression of the curve:
+There are other choices for $b$, such as $b=10$ or $b=23$, but due to \ref{sec:isomorphic_curves} all these curves are isomorphic, and hence represent the same curve in a different way. Since BLS6\_6 only contains $39$ points ,it is possible to give a visual impression of the curve:
 
 \begin{sagesilent}
 BLS63p = BLS63.plot()
