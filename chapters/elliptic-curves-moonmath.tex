@@ -1121,6 +1121,7 @@ We see that \curvename{secp256k1} has no embedding degree $k<1000$, which means 
 \end{example}
 
 \subsubsection{Elliptic Curves over extension fields}
+\label{sec:curve-extensions}
 \sme{TODO:Rewrite intro together with Sven} Suppose that $p$ is a prime number, and $\F_p$ its associated prime field. We know from equation \eqref{eq:prime-extension-field} that the fields $\F_{p^m}$ are extensions of $\F_p$ in the sense that $\F_{p}$ is a subfield of $\F_{p^m}$. This implies that we can extend the affine plane that an elliptic curve is defined on by changing the base field to any extension field. To be more precise, let 
 $E(\F)=\{ (x,y)\in \F \times \F \;|\; y^2 = x^3 +a\cdot x +b \}$ be an affine \concept{short Weierstrass} curve, with parameters $a$ and $b$ taken from $\F$. If $\F'$ is an extension field of $\F$, then we extend the domain of the curve by defining $E(\F')$ as follows:
 
@@ -1161,7 +1162,8 @@ As we can see, the set of points from the elliptic curve $E_{1,1}(\F_5)$ is a su
 \label{exercise:TJJ134}
  Consider the \curvename{Tiny-jubjub} curve from \examplename{} \ref{TJJ13}. Show that the polynomial $t^4+2\in \F_{13}[t]$ is irreducible. Then write a sage program to implement the finite field extension $\F_{13^4}$, implement the curve extension $TJJ\_13(\F_{13^4})$ and compute the number of curve points.
 \end{exercise}
-\subsection{Full torsion groups} As we will see in what follows, cryptographically interesting pairings are defined on so-called torsion subgroups of elliptic curves. To define \term{torsion groups} of an elliptic curve, let $\F$ be a finite field, $E(\F)$ an elliptic curve of order $n$ and $r$ a factor of $n$. Then the \term{$r$-torsion group} of the elliptic curve $E(\F)$ is defined as the set
+\subsection{Full torsion groups}
+\label{sec:full-torsion} As we will see in what follows, cryptographically interesting pairings are defined on so-called torsion subgroups of elliptic curves. To define \term{torsion groups} of an elliptic curve, let $\F$ be a finite field, $E(\F)$ an elliptic curve of order $n$ and $r$ a factor of $n$. Then the \term{$r$-torsion group} of the elliptic curve $E(\F)$ is defined as the set
 \begin{equation}
 \label{def:torsion_group}
 E(\F)[r]:= \{P\in E(\F)\;|\; [r]P = \mathcal{O}\}
@@ -1355,7 +1357,8 @@ Consider Bitcoin's curve \curvename{secp256k1} again. Since the group $\G_1$ is 
 Consider the small prime factor $2$ of the \curvename{Tiny-jubjub} curve. Compute the full $2$-torsion group of $TJJ\_13$ and then compute the groups $\G_1[2]$ and $\G_2[2]$.  
 \end{exercise}
 
-\subsection{The Weil pairing} Recall the definition of a non-degenerate group pairing from \ref{pairing-map}. In this part, we consider a pairing function defined on
+\subsection{The Weil pairing}
+\label{sec:weil-pairing} Recall the definition of a non-degenerate group pairing from \ref{pairing-map}. In this part, we consider a pairing function defined on
 the subgroups $\G_1[r]$ and $\G_2[r]$ of the full $r$-torsion $E[r]$ of a \concept{short Weierstrass} elliptic curve. To be more precise, let $E(\F_p)$ be an elliptic curve of embedding degree $k$ such that $r$ is a prime factor of its order. Then the \term{Weil pairing} is defined as the following bilinear, non-degenerate map:
 
 \begin{equation}\label{eq:weil-pairing}
@@ -1365,7 +1368,7 @@ e(\cdot,\cdot) : \G_1[r] \times \G_2[r] \to \F^*_{p^k}\; ;\;
 
 The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ in the definition of the Weil pairing are computed by \term{Miller's algorithm} below.
 
-\begin{algorithm}\caption{Miller's algorithm for \concept{short Weierstrass} curves $y^2 = x^3 +ax +b$}
+\begin{algorithm}\caption{Miller's algorithm for \concept{short Weierstrass} curves $y^2 = x^3 +ax +b$}\label{alg:millersalgo}
 % https://www.math.u-bordeaux.fr/~damienrobert/csi2018/pairings.pdf
 \begin{algorithmic}[0]
 \Require $r>3$, $P \in E[r]$, $Q\in E[r]$ and
@@ -1962,23 +1965,23 @@ Use the complex multiplication method to compute all isomorphism classes of all 
 
 % https://arxiv.org/pdf/1207.6983.pdf
 % construction 6.6 in https://eprint.iacr.org/2006/372.pdf
-In this paragraph, we summarize our understanding of elliptic curves to derive our main pen-and-paper example for the rest of the book. To do so, we want to use the \concept{complex multiplication method} to derive a pairing-friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen-and-paper examples, which mostly means that the curve should contain only a few points so that we are able to derive exhaustive addition and pairing tables. Specifically, we use construction 6.6 in \cite{freeman-2020}.
+In this paragraph, we summarize our understanding of elliptic curves to compute the main pen-and-paper example for the rest of the book. To do so, we want to use the \concept{complex multiplication method} to derive a pairing-friendly elliptic curve that has similar properties to curves that are used in actual cryptographic protocols. However, we design the curve specifically to be useful in pen-and-paper examples, which mostly means that the curve should contain only a few points so that we are able to derive exhaustive addition and pairing tables. Specifically, we use construction 6.6 in \cite{freeman-2020}.
 
-A well-understood family of pairing-friendly curves is given the set of BLS curves. As explained in example \ref{ex:bls6-params}, in \cite{bls-02} the authors Barreto, Lynn and Scott found a parameterized solution set to equation \ref{eq:D-criteria}, which gives rise to pairing friendly elliptic curves of various embedding degrees with CM-discriminant $D = -3$. BLS curves are particularly useful in our case if the embedding degree $k$ satisfies $\kongru{k}{6}{0}$. Of course, the smallest embedding degree $k$ that satisfies this congruency is $k=6$ and we therefore aim for a BLS6 curve as our main pen-and-paper example. 
+A well-understood family of pairing-friendly curves is given by the set of BLS curves. As explained in example \ref{ex:bls6-params}, in \cite{bls-02} the authors Barreto, Lynn and Scott found a parameterized solution set to equation \ref{eq:D-criteria}, which gives rise to pairing friendly elliptic curves of various embedding degrees with CM-discriminant $D = -3$. 
 
+Most real world BLS curves have an embedding degree of $12$, however this degree is to large for a convenient pen-and-paper curve. Fortunately BLS curves of embedding degrees $k$ that satisfies $\kongru{k}{0}{6}$, are computed in a similar fashion and since the smallest embedding degree $k$ that satisfies this congruency is $k=6$, we aim for a BLS curve of embedding degree 6 as our main pen-and-paper example. We call such a curve a $BLS6$ curve, since it is a convention to note the embedding degree right after a descriptor that gives a hint of how the curve was constructed.  
 
-To apply the \concept{complex multiplication method} \ref{complex-multiplication-method} , recall that it starts with a choice of the base field $\F_{p^m}$, as well as the trace of Frobenius $t$ and the CM-discriminant $D$ of the curve. In the case of BLS6 curves, the parameter $m$ is chosen to be $1$, which means that the curves are defined over prime fields. In addition the CM-discriminant is chosen to be $D=-3$, which implies that the curve is defined by the equation $y^2 = x^3 +b$ for some $b\in \F_p$. 
+\subsubsection{The Construction}
+To apply the \concept{complex multiplication method} \ref{complex-multiplication-method} , recall that it starts with a choice of a base field $\F_{p^m}$, as well as a trace of Frobenius $t$ and a CM-discriminant $D$ of the curve. In the case of $BLS$ curves, the parameter $m$ is chosen to be $1$, which means that the curves are defined over prime fields. In addition the CM-discriminant is chosen to be $D=-3$, which implies that the curve is defined by the equation $y^2 = x^3 +b$ for some $b\in \F_p$. 
 
-As shown in example \ref{ex:bls6-params} the relevant parameters $p$ and $t$ are themselves parameterized by the following functions:
+As shown in example \ref{ex:bls6-params}, for $BLS6$ curves, the relevant parameters $p$ and $t$ are themselves parameterized by the following functions:
 \begin{equation}
 \begin{split}
 t(x) &= x+1\\
 p(x) &= \frac{1}{3}(x-1)^2(x^{2}-x+1) +x
 \end{split}
 \end{equation}
-Here $x\in\NN$ is a parameter that the designer has to choose in such a way that the evaluation of $p$ and $t$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve to be synthesized. 
-
-In this case it is guaranteed that there is an integer $v\in\Z$, such that equation \ref{eq:D-criteria} hold for the CM-discriminant $D=-3$, which implies that the \concept{complex multiplication method} can be used to compute a field element $b\in\F_p$ such that the elliptic curve $y^2 = x^3 +b$ has order $r=p+1-t$, CM-discriminant $D=-3$ and embedding degree $k=6$. 
+Here $x\in\NN$ is a parameter that the designer has to choose in such a way that the evaluation of $p$ and $t$ at the point $x$ gives integers that have the proper size to meet the security requirements of the curve to be synthesized. It is guaranteed that there is an integer $v\in\Z$, such that equation \ref{eq:D-criteria} hold for the CM-discriminant $D=-3$, which implies that the \concept{complex multiplication method} can be used to compute a field element $b\in\F_p$ such that the elliptic curve $y^2 = x^3 +b$ has order $r=p+1-t$, CM-discriminant $D=-3$ and embedding degree $k=6$. 
 
 In order to design the smallest BLS6 curve, we therefore have to find a parameter $x$ such that $t(x)$ and $p(x)$ are the smallest natural numbers that satisfy $p(x)>3$.\footnote{The smallest BLS curve will also be the most insecure BLS curve. However, since our goal with this curve is ease of pen-and-paper computation rather than security, it fits the purposes of this book.}
 
@@ -1995,7 +1998,7 @@ Since $p(1)=1$ is not a prime number, the first $x$ that gives a proper curve is
 
 Since the prime field $\F_{43}$ has $43$ elements and $43$'s binary representation is $43_2= 101011$, which consists of $6$ digits, the name of our pen-and-paper curve should be $BLS6\_6$, since its is common to name a BLS curve by its embedding degree and the bit-length of the modulus in the base field. We call $BLS6\_6$ the \term{moon-math-curve}.
 
-Based on \ref{hasse-bound}\sme{check reference}, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a ``large'' prime factor group of size $13$, as expected, and a small cofactor of $3$. Fortunately, a subgroup of order $13$ is well suited for our purposes, as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen-and-paper style. 
+Based on \ref{hasse-bound}\sme{check reference}, we know that the Hasse bound implies that $BLS6\_6$ will contain exactly $39$ elements. Since the prime factorization of $39$ is $39=3\cdot 13$, we have a ``large'' prime factor group of size $13$, and a small cofactor of $3$. Fortunately, a subgroup of order $13$ is well suited for our purposes, as $13$ elements can be easily handled in the associated addition, scalar multiplication and pairing tables in a pen-and-paper style. 
 
 We can check that the embedding degree is indeed $6$ as expected, since $k = 6$ is the smallest number $k$ such that $r=13$ divides $43^k-1$. 
 \begin{sagecommandline}
@@ -2006,7 +2009,7 @@ sage: for k in range(1,42): # Fermat's little theorem
 sage: k
 \end{sagecommandline}
 
-To see that equation \ref{eq:D-criteria} indeed has a solution for the parameters $D=-3$, $p=43$ and $t=5$ as expected, we compute $v=\pm 7$:  
+To see that equation \ref{eq:D-criteria} indeed has a solution for the parameters $D=-3$, $p=43$ and $t=5$ as expected, we compute as follows:  
 \begin{align*}
 4p & = t^2 + |D|v^2 & \Rightarrow \\ 
 4\cdot 43 & = 5^2 + 3\cdot v^2 & \Leftrightarrow \\ 
@@ -2031,7 +2034,7 @@ sage: c3 =F43(36)
 ....:     print("OK") 
 \end{sagecommandline} 
 
-Using those numbers we check the six possible cases from \ref{def:curve-order-frobenius}\sme{check reference} against the the expected order $39$ of the curve we want to synthesize:
+Using those numbers we check the six possible cases from \ref{def:curve-order-frobenius}\sme{check reference} against the expected order $39$ of the curve we want to synthesize:
 
 \begin{sagecommandline}
 sage: BLS61 = EllipticCurve(F43,[0,1])
@@ -2054,7 +2057,9 @@ As expected, we found an elliptic curve of the correct order $39$ over a prime f
 BLS6\_6 := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43}\}
 \end{equation}
 
-There are other choices for $b$, such as $b=10$ or $b=23$, but due to \ref{sec:isomorphic_curves} all these curves are isomorphic, and hence represent the same curve in a different way. Since BLS6\_6 only contains $39$ points ,it is possible to give a visual impression of the curve:
+Since there are other choices for $c_3$ there are other choices for $b$, such as $b=10$ or $b=23$ too. However due to \ref{sec:isomorphic_curves} all these curves are isomorphic, and hence represent the same curve in different ways. We decided on $b=6$ for no particular reason.
+
+Since BLS6\_6 contains $39$ points only, it is possible to use Sage in order to give a visual impression of the curve:
 
 \begin{sagesilent}
 BLS63p = BLS63.plot()
@@ -2065,53 +2070,54 @@ BLS63p = BLS63.plot()
 
 As we can see, our curve has some desirable properties: it does not contain self-inverse points, that is, points with $y=0$. It follows that the addition law can be optimized, since the branch for those cases can be eliminated. 
 
-Summarizing the previous procedure, we have used the method of Barreto, Lynn and Scott\sme{add reference} to construct a pairing-friendly elliptic curve of embedding degree $6$. However, in order to do elliptic curve cryptography on this curve, note that, since the order of $BLS6\_6$ is $39$, its group of rational points is not a finite cyclic group of prime order. We therefore have to find a suitable subgroup as our main target. Since $39=13\cdot 3$, we know that the curve must contain a ``large'' prime-order group of size $13$ and a small cofactor group of order $3$. 
+\subsubsection{The large prime order subgroup}
+Summarizing the previous procedure, we have used the method of Barreto, Lynn and Scott\sme{add reference} to construct a pairing-friendly elliptic curve of embedding degree $6$. However, in order to do elliptic curve cryptography on this curve, note that, since the order of $BLS6\_6$ is $39$, its group is not of prime order. We therefore have to find a suitable subgroup as our main target. Since $39=13\cdot 3$, we know that the curve must contain a ``large'' prime-order group of size $13$ called $BLS6\_6(\F_{43})[13]$ according to definition \ref{def:torsion_group} and a small cofactor group of order $3$. We use the following notation for the large prime order group
+\begin{equation}
+\label{def:BLS6613}
+\G_1[13]:= BLS6\_6(\F_{43})[13]
+\end{equation}
 
-The following step is to construct this group. One way to do so is to find a generator. We can achieve this by choosing an arbitrary element of the group that is not the point at infinity, and then multiply that point with the cofactor of the group's order. If the result is not the point at infinity, the result will be a generator. If it is the point at infinity we have to choose a different element. 
+One way to compute this group is to find a generator. We can achieve this by choosing an arbitrary element of $BLS6\_6$ that is not the point at infinity, and then multiply that point with the cofactor $3$ of $13$. If the result is not the point at infinity, it will be a generator of $\G_1[13]$. If it is the point at infinity we have to choose a different element. 
 
-In order to find a generator for the large order subgroup of size $13$, we first notice that the cofactor of $13$ is $3$, since $39=3\cdot 13$. We then need to construct an arbitrary element from $BLS6\_6$. To do so in a pen-and-paper style, we can choose some $arbitrary x\in\F_{43}$ and see if there is some solution $y\in\F_{43}$ that satisfies the defining \concept{short Weierstrass} equation $y^2 = x^3 + 6$. We choose $x=9$, and check that $y=2$ is a proper solution:
+In order construct such an element from $BLS6\_6$ in a pen-and-paper style, we can choose some $x\in\F_{43}$ and see if there is some $y\in\F_{43}$ that satisfies the defining \concept{short Weierstrass} equation $y^2 = x^3 + 6$. We choose $x=9$, and check that $y=2$ satisfies the curve equation for $x$:
 \begin{align*}
 y^2 & = x^3 + 6 & \Rightarrow \\
 2^2 & = 9^3 + 6 & \Leftrightarrow \\
 4 & = 4
 \end{align*}   
 
-This implies that $P=(9,2)$ is therefore a point on $BLS6\_6$. To see if we can project this point onto a generator of the large order prime group $BLS6\_6[13]$, we have to multiply $P$ with the cofactor, that is, we have to compute $[3](9,2)$. After some computation \smelong{(EXERCISE)}\sme{add exercise} we get $[3](9,2) = (13,15)$. Since this is not the point at infinity, we know that $(13,15)$ must be a generator of $BLS6\_6[13]$. The generator $g_{BLS6\_6[13]}$, which we will use in pairing computations in the remainder of this book, is given as follows:
+This implies that $P=(9,2)$ is a point on $BLS6\_6$. To see if we can project this point onto a generator of the large prime order group $\G_1[13]$, we have to multiply $P$ by the cofactor $3$, that is, we have to compute $[3](9,2)$. We get $[3](9,2) = (13,15)$ (See exercise \ref{ex:BLS66-scalar-product}). Since this is not the point at infinity, we know that $(13,15)$ is a generator of $\G_1[13]$, which we will use throughout this book: 
 
 \begin{equation}\label{gBLS6-6-13}
-g_{BLS6\_6[13]} = (13,15)
+g_{1} = (13,15)
 \end{equation}
 
-Since $g_{BLS6\_6[13]}$ is a generator, we can use it to construct the subgoup $BLS6\_6[13]$ by repeatedly adding the generator to itself. Using Sage, we get the following:
+Since $g_{1}$ is a generator, recall from \ref{exponentialmap} that there is an exponential map from the field $\F_{13}$ to $\G_1[13]$ with respect to this generator, which generates the group in logarithmic order:
+$$
+[\cdot]_{(13,15)}: \F_{13} \to \G_1[13]\;;\; x \mapsto [x](13,15)
+$$ 
+We can use this function to construct the subgroup $\G_1[13]$ by repeatedly adding the generator to itself. Using Sage, we get the following:
 \begin{sagecommandline}
-sage: P = BLS6(9,2)
-sage: Q = 3*P
-sage: Q.xy()
-sage: BLS6_13 = []
-sage: for x in range(0,13): # cyclic of order 13
-....:     P = x*Q
-....:     BLS6_13.append(P)
+sage: P1 = BLS6(9,2)
+sage: g1 = 3*P1 # generator
+sage: g1.xy()
+sage: G1_13 = [ x*g1 for x in range(0,13) ]
 \end{sagecommandline}
-Repeatedly adding a generator to itself, as we just did, will generate small groups in logarithmic order with respect to the generator as, explained on page \pageref{generators} ff\sme{check reference}. We therefore get the following description of the large prime-order subgroup of $BLS6\_6$:
-
+Repeatedly adding a generator to itself generates small groups in logarithmic order with respect to the generator as explained in \ref{def:logarithmic_ordering}. This gives the following representation:
 \begin{multline}
 \label{BLS6-G1-log}
-BLS6\_6[13]=\\
+\G_1[13]=
 \{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
 (27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
 \end{multline}
-Having a logarithmic description of this group is tremendously helpful in pen-and-paper computations. To see that, observe that we know fromXXX\sme{add reference} that there is an exponential map from the scalar field $\F_{13}$ to $BLS6\_6[13]$ with respect to our generator, which generates the group in logarithmic order:
-$$
-[\cdot]_{(13,15)}: \F_{13} \to BLS6\_6[13]\;;\; x \mapsto [x](13,15)
-$$
- So, for example, we have $[1]_{(13,15)}= (13,15)$, $[7]_{(13,15)}= (27,9)$ and $[0]_{(13,15)}= \mathcal{O}$ and so on. The relevant point here is that we can use this representation to do computations in $BLS6\_6[13]$ efficiently in our head using XXX\sme{add reference}, as in the following example:
+Having a logarithmic order of this group is helpful in pen-and-paper computations. To see that consider the following example:
 \begin{align*}
 (27,34)\oplus (33,9)  & = [6](13,15)\oplus [11](13,15)\\
                       & = [6+11](13,15)\\
                       & = [4](13,15)\\
                       & = (35,28)\\
 \end{align*}
-So XXX\sme{add reference} is really all we need to do computations in $BLS6\_6[13]$ in this book efficiently. However, out of convenience, the following picture lists the entire addition table of that group, as it might be useful in pen-and-paper computations:
+As this computation shows \ref{BLS6-G1-log} is really all we need to do computations in $\G_1[13]$ efficiently. $\G_1[13]$ is therefore suitable as a pen-and-paper cryptographic group. However, out of convenience, the following picture lists the entire addition table of the group $BLS6\_6$, as it might be useful in some pen-and-paper computations, that are not restricted to the subgroup $\G_1$:
 \begingroup
     \fontsize{7pt}{7pt}\selectfont
 $$
@@ -2147,68 +2153,71 @@ $$
 \end{array}
 $$
 \endgroup
+\begin{exercise}
+\label{ex:BLS66-scalar-product}
+Consider the point $P=(9,2)$. Show that $P$ is a point on the $BLS6\_6$ curve and compute the scalar product $[3]P$. 
+\end{exercise}
+\begin{exercise}
+Compute the following expressions: $-(26,34)$, $(26,9)\oplus(13,28)$, $(35,15)\oplus \mathcal{O}$ and $(27,9)\ominus(33,9)$.
+\end{exercise}
 %To see how the small prime-order group of $BLS6\_6$ looks like we can apply the same approach but for the cofactor $13$ instead (EXERCISE). We get 
 %$$BLS6\_6[3]=\{\mathcal{O},(0,7),(0,36)\}$$
 %Now that we ha
+\subsubsection{Pairing groups}
+\label{sec:bls66-pairing-groups}
+We know that $BLS6\_6$ is a pairing-friendly curve by design, since it has a small embedding degree $k=6$. It is therefore possible to compute Weil pairings efficiently. However, in order to do so, we have to decide the pairing groups $\G_1$ and $\G_2$ as defined in section \ref{sec:pairing_groups}. 
 
-Now that we have constructed a ``large'' cyclic prime-order subgroup of $BLS6\_6$ suitable for many pen-and-paper computations in elliptic curve cryptography, we have to look at how to do pairings in this context. We know that $BLS6\_6$ is a pairing-friendly curve by design, since it has a small embedding degree $k=6$. It is therefore possible to compute Weil pairings efficiently. However, in order to do so, we have to decide the groups $\G_1$ and $\G_2$ as explained in exercise \ref{ex:G1G2-subgroups}\sme{check reference}. 
+Since $BLS6\_6$ has two non-trivial subgroups, it would be possible to use any of them as the $n$-torsion group. However, in cryptography, the only secure choice is to use the large prime-order subgroup, which in our case is $\G_1[13]$ as presented in \ref{BLS6-G1-log}. We therefore decide to consider the $13$-torsion for the Weil pairing and therefore use $\G_1[13]$ as its left argument.
 
-Since $BLS6\_6$ has two non-trivial subgroups, it would be possible to use any of them as the $n$-torsion group. However, in cryptography, the only secure choice is to use the large prime-order subgroup, which in our case is $BLS6\_6[13]$. We therefore decide to consider the $13$-torsion and define ${G}_1[13]$ as the first argument for the Weil pairing function:
+In order to construct the domain for the right argument, we need to construct $\G_2[13]$, which, according to the general theory \ref{sec:pairing_groups}, should be defined by those elements $P$ of the full $13$-torsion group  $BLS6\_6[13]$ that are mapped to $43\cdot P$ under the Frobenius endomorphism \ref{eq:frobenius-enomorphism}. 
 
-\begin{multline*}
-\mathbb{G}_1[13]=\{(13,15) \rightarrow (33,34) \rightarrow  (38,15) \rightarrow  (35,28) \rightarrow (26,34) \rightarrow  (27,34) \rightarrow  \\ 
-(27,9)  \rightarrow  (26,9) \rightarrow  (35,15) \rightarrow  (38,28) \rightarrow  (33,9) \rightarrow (13,28) \rightarrow  \mathcal{O}\}$$
-\end{multline*}
-
-In order to construct the domain for the second argument, we need to construct $\G_2[13]$, which, according to the general theory, should be defined by those elements $P$ of the full $13$-torsion group $BLS6\_6[13]$ that are mapped to $43\cdot P$ under the Frobenius endomorphism (equation \ref{eq:frobenius-enomorphism})\sme{check reference}. 
-
-To compute $\G_2[13]$, we therefore have to find the full $13$-torsion group first. To do so, we use the technique from XXX, which tells us that the full $13$-torsion can be found in the curve extension over the extension field $\F_{43^6}$, since the embedding degree of $BLS6\_6$ is $6$:
+To compute $\G_2[13]$, we therefore have to find the full $13$-torsion group first. To do so, we use the technique from \ref{sec:full-torsion}, which tells us that the full $13$-torsion can be found in the curve extension $BLS6\_6(\F_{43^6})$ \ref{sec:curve-extensions} of $BLS6\_6$ over the extension field $\F_{43^6}$ \ref{field-extension}, since the embedding degree of $BLS6\_6$ is $6$. We therefore have to consider the following elliptic curve:
 
 \begin{equation}
-BLS6\_6 := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43^6}\}
+\label{def:extended-bls6}
+BLS6\_6(\F_{43^6}) := \{(x,y)\;|\; y^2 = x^3 + 6 \text{ for all } x,y \in \F_{43^6}\}
 \end{equation}
 
-Thus, we have to construct $\F_{43^6}$, a field that contains $6321363049$ elements. In order to do so, we use the procedure of XXX\sme{add reference} and start by choosing a non-reducible polynomial of degree $6$ from the ring of polynomials $\F_{43}[t]$. We choose $p(t) = t^6+6$. Using Sage, we get the following:
+In order to compute this curve, we have to construct $\F_{43^6}$, a field that contains more then 6 billion elements. We use the general construction of prime field extensions from \ref{field-extension} and start by choosing a non-reducible polynomial of degree $6$ from the ring of polynomials $\F_{43}[t]$. We choose $p(t) = t^6+6$. In order to visually distinguish polynomials with coefficients in $\F_{43}$ from elements in $\F_{43^6}$, we use the symbol $v$ exclusively to represent the indeterminate in $\F_{43^6}$. Using Sage, we get the following:
 \begin{sagecommandline}
 sage: F43 = GF(43)
 sage: F43t.<t> = F43[]
 sage: p = F43t(t^6+6)
 sage: p.is_irreducible()
 sage: F43_6.<v> = GF(43^6, name='v', modulus=p)
+sage: F43_6.order()
 \end{sagecommandline}
 
-Recall from XXX\sme{add reference} that elements $x\in\F_{43^6}$ can be seen as polynomials $a_0+a_1v + a_2v^2+\ldots + a_5 v^5$ with the usual addition of polynomials and multiplication modulo $t^6+6$. 
+Recall from \ref{eq:prime-extension-field} that elements $x\in\F_{43^6}$ can be seen as polynomials $a_0+a_1v + a_2v^2+\ldots + a_5 v^5$ with the usual addition of polynomials and multiplication modulo $v^6+6$. 
 
-In order to compute $\G_2[13]$, we first have to extend $BLS6\_6$ to $\F_{43^6}$, that is, we keep the defining equation, but expand the domain from $\F_{43}$ to $\F_{43^6}$. After that, we have to find at least one element $P$ from that curve that is not the point at infinity, is in the full $13$-torsion and  satisfies the identity $\pi(P) = [43]P$. We can then use this element as our generator of $\G_2[13]$ and construct all other elements by repeatedly adding the generator to itself.
+In order to compute $\G_2[13]$, we first have to extend $BLS6\_6$ to $\F_{43^6}$, that is, we keep the defining equation, but expand the domain from $\F_{43}$ to $\F_{43^6}$. After that, we have to find at least one element $P$ from that curve that is not the point at infinity, is in the full $13$-torsion and  satisfies the identity $\pi(P) = [43]P$, where $\pi$ is the Frobenius endomorphism \ref{eq:frobenius-enomorphism}. We can then use this element as our generator of $\G_2[13]$ and construct all other elements by repeatedly adding the generator to itself.
 
-Since $BLS6(\F_{43^6})$ contains $6321251664$ elements, it's not a good strategy to simply loop through all elements. Fortunately, Sage has a way to loop through elements from the torsion group directly:
+Since $BLS6(\F_{43^6})$ contains approximately as many elements as $\F_{43^6}$ by the Hasse bound \ref{hasse-bound}, it's not a good strategy to simply loop through all elements. Fortunately, Sage has a way to loop through elements from the torsion group directly:
 
 \begin{sagecommandline}
-sage: BLS6 = EllipticCurve (F43_6,[0 ,6]) # curve extension
-sage: INF = BLS6(0) # point at infinity
+sage: ExtBLS6 = EllipticCurve(F43_6,[0 ,6]) # curve extension
+sage: INF = ExtBLS6(0) # point at infinity
 sage: for P in INF.division_points(13): # full 13-torsion
-....: # PI(P) == [q]P
+....:     # pI(P) == [q]P
 ....:     if P.order() == 13: # exclude point at infinity
-....:         PiP = BLS6([a.frobenius() for a in P])
+....:         piP = ExtBLS6([a.frobenius() for a in P])
 ....:         qP = 43*P
-....:         if PiP == qP:
+....:         if piP == qP:
 ....:             break
 sage: P.xy()
 \end{sagecommandline}
 
-We found an element from the full $13$-torsion that is in the Eigenspace of the Eigenvalue $43$, which implies that it is an element of $\G_2[13]$. As $\G_2[13]$ is cyclic of prime order, this element must be a generator:
+We found an element $P$ from the full $13$-torsion with the property $\pi(P) = [43]P$, which implies that it is an element of $\G_2[13]$. As $\G_2[13]$ is cyclic and of prime order, this element must be a generator:
 \begin{equation}
-g_{\G_2[13]} = (7v^2, 16v^3)
+g_{2} = (7v^2, 16v^3)
 \end{equation}
 
-We can use this generator to compute $\G_2$ in logarithmic order with respect to $g_{\G_[13]}$. Using Sage we get the following:
+We can use this generator to compute $\G_2[13]$ in logarithmic order with respect to $g_{2}$. Using Sage we get the following:
 \begin{sagecommandline}
-sage: Q = BLS6(7*v^2,16*v^3)
-sage: BLS6_13_2 = []
-sage: for x in range(0,13):
-....:     P = x*Q
-....:     BLS6_13_2.append(P)
+sage: g2 = ExtBLS6(7*v^2,16*v^3)
+sage: G2_13 = [ x*g2 for x in range(0,13) ]
 \end{sagecommandline}
+Repeatedly adding a generator to itself generates small groups in logarithmic order with respect to the generator as explained in \ref{def:logarithmic_ordering}. We therefore get the following presentation:
 \begin{multline}
 \label{BLS6-G2-log}
 \mathbb{G}_2=\{
@@ -2227,34 +2236,49 @@ sage: for x in range(0,13):
 \mathcal{O}\}
 \end{multline}
 
-Again, having a logarithmic description of $\G_2[13]$ is tremendously helpful in pen-and-paper computations, as it reduces complicated computation in the extended curves to modular $13$ arithmetics, as in the following example:
+Again, having a logarithmic description of $\G_2[13]$ is helpful in pen-and-paper computations, as it reduces complicated computation in the extended curve to modular $13$ arithmetic, as in the following example:
 \begin{align*}
 (17v^2,28v^3)\oplus (10v^2,15v^2)  & = [6](7v^2,16v^3)\oplus [11](7v^2,16v^3)\\
                       & = [6+11](7v^2,16v^3)\\
                       & = [4](7v^2,16v^3)\\
                       & = (37v^2,27v^3)\\
 \end{align*}
+As this computation shows \ref{BLS6-G2-log} is really all we need to do computations in $\G_2[13]$ efficiently. The groups $\G_1[13]$ and $\G_2[13]$ are therefore suitable as pen-and-paper cryptographic pairing groups. 
 
-So XXX\sme{add reference} is really all we need to do computations in $\G_2[13]$ in this book efficiently. 
+\subsubsection{The Weil pairing}
+In \ref{sec:bls66-pairing-groups} we computed two different groups, $\G_1[13]$ and $\G_2[13]$, which are subgroups of the full $13$-torsion group of the extended moon-math-curve $BLS6\_6(\F_{43^6})$. As explained in \ref{sec:weil-pairing}, this implies that there is a Weil pairing 
+\begin{equation}
+e(\cdot,\cdot): \G_1[13]\times\G_2[13] \to \F_{43^6}
+\end{equation}
 
-To summarize the previous steps, we have found two subgroups, $\G_1[13]$ and $\G_2[13]$ suitable to do Weil pairings on $BLS6\_6$ as explained in \ref{eq:weil-pairing}\sme{check reference}. Using the logarithmic order XXX\sme{add reference} of $\G_1[13]$, the logarithmic order XXX\sme{add reference} of $\G_2[13]$ and the bilinearity in \ref{eq:bilinearityBLS6}, we can do Weil pairings on $BLS6\_6$ in a pen-and-paper style:
-
+Since we know a logarithmic order \ref{BLS6-G1-log} for $\G_1[13]$  and a logarithmic order \ref{BLS6-G2-log} for $\G_2[13]$, this Weil pairing is efficiently computable in pen-and-paper calculations, using the following identity as derived in exercise \ref{ex:pairing-arithmetics}:  
 \begin{equation}\label{eq:bilinearityBLS6}
-e([k_1]g_{BLS6\_6[13]},[k_2]g_{\G_2[13]}) = 
-e(g_{BLS6\_6[13]},g_{\G_2[13]})^{k_1\cdot k_2}
+e([m]g_{1},[n]g_{2}) = 
+e(g_{1},g_{2})^{\Zmod{m\cdot n}{13}}
 \end{equation}
-
-Observe that the Weil pairing between our two generators is given by the following identity:
-\begin{equation}\label{BLS6-weil-pairing}
-e(g_{BLS6\_6[13]},g_{\G_2[13]})= 5v^5 + 16v^4 + 16v^3 + 15v^2 + 3v + 41
-\end{equation}
-
+In many pairing based zero knowledge proving systems like \ref{sec:gorth_16}, it is only necessary to show equality of various pairings and in pen-and-paper computations the exact value of $e(g_{1},g_{2})$ is therefore not important. To see how this simplifies the calculation, assume that we want to proof the identity $e((27,34),(16v^2,28v^3))=e((26,9),(17v^2,15v^3))$. In this case we can compute
+\begin{align*}
+e((27,34),(16v^2,28v^3)) 
+               & = e([6](13,15),[5](7v^2,16v^3))\\
+               & = e((13,15),(7v^2,16v^3))^{6\cdot 5}\\
+               & = e((13,15),(7v^2,16v^3))^{4}\\
+               & = e((13,15),(7v^2,16v^3))^{8\cdot 7}\\
+               & = e([8](13,15),[7](7v^2,16v^3))\\
+               & = e((26,9),(17v^2,15v^3))\\
+\end{align*}
+If the actual value of $e(g_{1},g_{2})$ is needed, the Weil pairing can either  be computed using equation \ref{eq:weil-pairing} and execute Miller's algorithm \ref{alg:millersalgo} (Exercise \ref{ex:generator-pairing}), or Sage can be invoked:  
 \begin{sagecommandline}
-sage: g1 = BLS6([13,15])
-sage: g2 = BLS6([7*v^2, 16*v^3])
+sage: g1 = ExtBLS6([13,15])
+sage: g2 = ExtBLS6([7*v^2, 16*v^3])
 sage: g1.weil_pairing(g2,13)
 \end{sagecommandline}
 
+\begin{exercise}
+\label{ex:generator-pairing}
+Consider the extended $BLS6\_6$ curve as defined in \ref{def:extended-bls6} and the two curve points $g1=(13,15)$ and $g2=(7v^2,16v^3)$. Compute the Weil pairing 
+$e(g1,g2)$ using definition \ref{eq:weil-pairing} and Miller's algorithm \ref{alg:millersalgo}.
+\end{exercise}
+\begin{comment}
 \subsection{Hashing to pairing groups}
 We give various constructions to hash into $\mathbb{G}_1$ and $\mathbb{G}_2$. 
 
@@ -2340,7 +2364,7 @@ $$
 For example, since 
 $MD5("")=\\ 0xd41d8cd98f00b204e9800998ecf8427e$, and the binary representation of the hexadecimal number $0x27e$ is $001001111110$, we compute $TinyMD5_{\mathbb{G}_2}$ of the empty string as follows:
 $$TinyMD5_{\mathbb{G}_2}("")= H_2(MD5(s)_{11},\ldots MD5(s)_{0}) = H_2(001001111110)=$$\sme{check equation}
-
+\end{comment}
 
 
 
