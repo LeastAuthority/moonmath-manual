@@ -421,7 +421,8 @@ We know from \secname{} \ref{sec:elliptic_curve_pairings} that computing pairing
 In \cite{Groth16}, the author showed that $2$ is the minimal amount of pairings that any protocol with similar properties has to use. This protocol is therefore close to the theoretical minimum. In the same paper, the author outlined an adaptation that only uses $2$ pairings. However, that reduction comes with the price of much more overhead computation. Having $3$ pairings is therefore a compromise that gives the overall best performance. To date, the Groth16 protocol is the most efficient in its class. 
 \end{remark}
 
-\begin{example}[The $3$-factorization Problem] To see how a verifier might verify  
+\begin{example}[The $3$-factorization Problem]
+\label{3-fac-snark-verifier} To see how a verifier might verify  
 a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params}, the \concept{Common Reference String} from \eqref{ex:3-fac-groth-16-crs} as well as the zk-SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$ from \examplename{}  \eqref{ex:3-fac-groth-16-snark}, which claims to be an argument of knowledge for a witness for the instance $I_1=<11>$.
 
 In order to verify the zk-SNARK for that instance, we first compute the curve point $g_1^I$. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[I]g_1$ as follows:
@@ -506,8 +507,9 @@ To see that the simulation trapdoor is necessary and sufficient to compute the s
 
 If, on the other hand, the simulation trapdoor is unknown, it is not possible to compute $g_1^C$, since, for example, the computational Diffie-Hellman assumption makes the derivation of $g_1^{\alpha\cdot \beta}$ from $g_1^\alpha$ and $g_1^\beta$ infeasible.
 
-\begin{example}[The $3$-factorization Problem] To see how a forger might simulate a  
-zk-SNARK for some given instance $I$, consider the $3$-factorization problem from  \examplename{} \ref{ex:3-factorization}, our protocol parameters from \eqref{ex:3-fac-groth-16-params}, the \concept{Common Reference String} from \examplename{} \ref{ex:3-fac-groth-16-crs} and the simulation trapdoor $\tau = (6,5,4,3,2)$ of that CRS.
+\begin{example}[The $3$-factorization Problem]
+\label{3-fac-snark-simulator}
+To see how a forger might simulate a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from  \examplename{} \ref{ex:3-factorization}, our protocol parameters from \eqref{ex:3-fac-groth-16-params}, the \concept{Common Reference String} from \examplename{} \ref{ex:3-fac-groth-16-crs} and the simulation trapdoor $\tau = (6,5,4,3,2)$ of that CRS.
 
 In order to forge a zk-SNARK for instance $I_1=<11>$, we don't need a constructive proof for the associated Rank-1 Constraint System, which implies that we don't have to execute the circuit $C_{3.fac}(\F_{13})$ from \examplename{} \ref{ex:3-fac-zk-circuit}. Instead, we have to choose $2$ arbitrary elements $A$ and $B$ from $\F_{13}$, and compute $g_1^A$, $g_2^B$ and $g_1^C$ as defined in \ref{def:groth16-simulated-proof}. We choose $A=9$ and $B=3$, and, since $\delta^{-1}=3$, we compute as follows:
 
