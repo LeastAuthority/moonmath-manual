@@ -143,6 +143,34 @@ sage: r.nbits()
 \end{sagecommandline}
 %\seqsplit{115792089237316195423570985008687907853269984665640564039457584007908834671663}
 \end{example}
+\begin{example}[Ethereums's \curvename{alt\_bn128} curve]\label{BN128}
+To give an example of a real-world, cryptographically secure curve, that we will use in our \lgname{circom} implementations, let us look at curve \curvename{alt\_bn128} as defined in \href{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-197.md}{EIP-197}. This curve is used in zk-SNARK verification on the Ethereum blockchain. The prime field $\F_p$ of \curvename{alt\_bn128} is defined by the following prime number:
+$$
+p = \scriptstyle 21888242871839275222246405745257275088696311157297823662689037894645226208583
+$$
+The binary representation of this number needs $254$ bits, which implies that the prime field $\F_p$  contains approximately $2^{254}$ many elements. We write $\F_{bn128}:=F_p$ for this prime field. 
+
+\curvename{alt\_bn128} is a Short Weierstrass curve, defined by the parameters $a,b\in \F_p$ with $a=0$ and $b=3$. Since $\Zmod{4\cdot 0^3 + 27\cdot 3^2}{p}=243$, those parameters indeed define an elliptic curve given as follows:
+$$
+\mathit{alt\_bn128} = \{(x,y)\in \F_p\times \F_p \;|\; y^2 = x^3 +3\;\} 
+$$
+The number of points on the elliptic curve \curvename{alt\_bn128} is a prime number $r$ that also has a binary representation of $254$ bits:
+$$
+r = \scriptstyle 21888242871839275222246405745257275088548364400416034343698204186575808495617
+$$
+In order to use this curve in our circom examples, we implement this Short Weierstrass elliptic curve in Sage:
+\begin{sagecommandline}
+sage: p = 21888242871839275222246405745257275088696311157297823662689037894645226208583
+sage: p.is_prime()
+sage: p.nbits()
+sage: Fbn128 = GF(p)
+sage: bn128 = EllipticCurve(Fbn128,[0,3])
+sage: r = bn128.order() # number of elements
+sage: r.is_prime()
+sage: r.nbits()
+\end{sagecommandline}
+\end{example}
+
 \begin{exercise} Consider the curve $E_1(\F)$ from \examplename{} \ref{E1F5} and compute the set of all curve points $(x,y)\in E_1(\F)$.
 \end{exercise}
 \begin{exercise} Consider the curve $TJJ\_13$ from \examplename{} \ref{TJJ13} and compute the set of all curve points $(x,y)\in TJJ\_13$.
@@ -879,6 +907,9 @@ Consider the commutative group $(\mathit{M\_TJJ\_13},\oplus)$ of the \curvename{
 \end{enumerate}
 Choose some element $x\in \mathit{M\_TJJ\_13}$ and test if $x$ is a generator of $\mathit{M\_TJJ\_13}$. If $x$ is not a generator, repeat until you find some generator $x$. Write $\mathit{M\_TJJ\_13}$ in logarithmic order with respect to $x$.
 \end{exercise}
+\begin{exercise}
+Consider the curve \curvename{alt\_bn128} from example \ref{BN128}. Show that this curve is not a Montgomery curve.
+\end{exercise}
 %\subsubsection{Projective Montgomery Form}
 %As with more general curves in \concept{short Weierstrass} form, we can look at Montgomery curves in projective space. To see how such a curve looks in projective coordinates is, let $\F_{q}$ be a finite field and $A,B\in \F_q$ two field elements such that $B\neq 0$ and $A^2\neq 4$. Then a \term{Montgomery elliptic curve} $E/\F_q$ over $\F_q$ in its projective representation is the set
 %\begin{equation}
@@ -1119,6 +1150,25 @@ sage: k
 \end{sagecommandline}
 We see that \curvename{secp256k1} has no embedding degree $k<1000$, which means that  \curvename{secp256k1} is a curve that has no small embedding degree. This property will be of importance later on.\sme{add reference}
 \end{example}
+\begin{example}
+\label{ex:embedding_degre_BN128}
+To give an example of a cryptographically secure real-world elliptic curve that does have a small embedding degree, let's look at curve \curvename{alt\_bn128} again. We know from \examplename{} \ref{BN128} that the order of this curve is a prime number, which means that we only have a single embedding degree.
+
+To compute the embedding degrees $k$, we can use Sage and loop through small embedding degrees until we find as match. We compute as follows:
+\begin{sagecommandline}
+sage: p = ZZ(21888242871839275222246405745257275088696311157297823662689037894645226208583)
+sage: r = ZZ(21888242871839275222246405745257275088548364400416034343698204186575808495617)
+sage: k = ZZ(1)
+sage: # degree is supposed to be small
+sage: while k < 50: 
+....:     if (p^k-1)%r == 0:
+....:         break
+....:     k=k+1
+sage: k
+\end{sagecommandline}
+\end{example}
+
+
 
 \subsubsection{Elliptic Curves over extension fields}
 \label{sec:curve-extensions}
@@ -1161,6 +1211,10 @@ As we can see, the set of points from the elliptic curve $E_{1,1}(\F_5)$ is a su
 \begin{exercise}
 \label{exercise:TJJ134}
  Consider the \curvename{Tiny-jubjub} curve from \examplename{} \ref{TJJ13}. Show that the polynomial $t^4+2\in \F_{13}[t]$ is irreducible. Then write a sage program to implement the finite field extension $\F_{13^4}$, implement the curve extension $TJJ\_13(\F_{13^4})$ and compute the number of curve points.
+\end{exercise}
+\begin{exercise}
+\label{exercise:BN128-extension}
+Consider the \curvename{alt\_bn128} curve and its associated base field $\F_{bn128}$ from \examplename{} \ref{BN128}. As we know from example \ref{ex:embedding_degre_BN128} this curve has an embedding degree of $12$. Use Sage to find an irreducible polynomial $P\in \F_{bn128}[t]$ and write a sage program to implement the finite field extension $\F_{p^{12}}$, where $p$ is the modulus of $\F_{bn128}$ and to implement the curve extension $alt\_bn128(\F_{p^12})$ and compute the number of curve points.
 \end{exercise}
 \subsection{Full torsion groups}
 \label{sec:full-torsion} As we will see in what follows, cryptographically interesting pairings are defined on so-called torsion subgroups of elliptic curves. To define \term{torsion groups} of an elliptic curve, let $\F$ be a finite field, $E(\F)$ an elliptic curve of order $n$ and $r$ a factor of $n$. Then the \term{$r$-torsion group} of the elliptic curve $E(\F)$ is defined as the set
@@ -1260,6 +1314,10 @@ This means that the embedding degree is very large, which implies that the field
 \end{exercise}
 \begin{exercise} Consider the curve \curvename{secp256k1} from \examplename{} \ref{secp256k1} and its full $r$-torsion group as introduced in \examplename{} \ref{example:secp256k1}. Write down a single element from the curves full torsion group that is not the point at infinity.
 \end{exercise}
+\begin{exercise}
+\label{exercise:BN128-full-torsion}
+ Consider the curve \curvename{alt\_bn128} from \examplename{} \ref{BN128} and its curve extension from exercise \ref{exercise:BN128-extension}. Write a Sage program that computes a generator from the curves full torsion group.
+\end{exercise}
 
 \subsection{Pairing groups}
 \label{sec:pairing_groups}
@@ -1356,6 +1414,11 @@ Consider Bitcoin's curve \curvename{secp256k1} again. Since the group $\G_1$ is 
 \begin{exercise}
 Consider the small prime factor $2$ of the \curvename{Tiny-jubjub} curve. Compute the full $2$-torsion group of $TJJ\_13$ and then compute the groups $\G_1[2]$ and $\G_2[2]$.  
 \end{exercise}
+\begin{exercise}
+\label{exercise:BN128-pairing-groups}
+ Consider the curve \curvename{alt\_bn128} from \examplename{} \ref{BN128} and its curve extension from exercise \ref{exercise:BN128-extension}. Write a Sage program that computes a generator for each of the torsion group $\G_1[p]$ and $\G_2[p]$.
+\end{exercise}
+
 
 \subsection{The Weil pairing}
 \label{sec:weil-pairing} Recall the definition of a non-degenerate group pairing from \ref{pairing-map}. In this part, we consider a pairing function defined on
@@ -1436,6 +1499,10 @@ sage: P.weil_pairing(Q,5)
 \begin{example}
 Consider Bitcoin's curve \curvename{secp256k1} again. As we have seen in \examplename{} \ref{example:secp256k1_pairing_groups}, it is infeasible to compute elements from the pairing group $\G_2$ and as we know from \examplename{} \ref{example:secp256k1} it is moreover infeasible to do calculations in the extension field $\F_{p^k}$. It follows that the Weil pairing is not efficiently computable and that \curvename{secp256k1} is not pairing friendly. 
 \end{example}
+\begin{exercise}
+\label{exercise:BN128-pairing}
+Consider the curve \curvename{alt\_bn128} from \examplename{} \ref{BN128} and the generators $g_1$ and $g_2$ of $\G_1[p]$ and $\G_2[p]$ from exercise \ref{exercise:BN128-pairing-groups}. Write a Sage program that computes the Weil pairing $e(g_1,g_2)$.
+\end{exercise}
 
 % http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf
 % p. 396ff
@@ -1592,6 +1659,10 @@ sage: t.nbits()
 sage: abs(RR(t)) <= 2*sqrt(RR(p))
 \end{sagecommandline}
 \end{example} 
+\begin{exercise}
+\label{exercise:BN128-trace}
+Consider the curve \curvename{alt\_bn128} from \examplename{} \ref{BN128}. Write a Sage program that computes the trace of Frobenius for \curvename{alt\_bn128}. Does the curve contain more or less elements than its base field $\F_{bn128}$?
+\end{exercise}
 
 \subsection{The $j$-invariant}
 \label{sec:j-inv} As we have seen in \ref{sec:isomorphic_curves} , two elliptic curves $E_1(\F)$ defined by $y^2 = x^3 + ax +b$ and $E_2(\F)$ defined by $y^2 + a'x + b'$ are strictly isomorphic if and only if there is a quadratic residue $d\in \F$ such that $a' = a d^2$ and $b' = b d^3$. 
@@ -1629,7 +1700,10 @@ sage: j = F(1728)*((F(4)*F(0)^3)/(F(4)*F(0)^3+F(27)*F(7)^2))
 sage: j == F(0)
 \end{sagecommandline}
 \end{example} 
-
+\begin{exercise}
+\label{exercise:BN128-j-inv}
+Consider the curve \curvename{alt\_bn128} from \examplename{} \ref{BN128}. Write a Sage program that computes the $j$-invariant for \curvename{alt\_bn128}.
+\end{exercise}
 \subsection{The \concept{complex multiplication method}}\label{complex-multiplication-method}
 As we have seen in the previous sections, elliptic curves have various defining properties, like their order, their prime factors, the embedding degree, or the order of the base field. The \term{\concept{complex multiplication method}} (CM) provides a practical way of constructing elliptic curves with pre-defined restrictions on the order of the curve and the base field.\footnote{A detailed explanation of the complex multiplication
 method and its derivation can be found, for example, in \cite{grech-2012}.}
@@ -1960,6 +2034,10 @@ Use the complex multiplication method to construct an elliptic curve of order $7
 \end{exercise}
 \begin{exercise}
 Use the complex multiplication method to compute all isomorphism classes of all elliptic curves of order $7$ over the prime field $\F_{13}$.
+\end{exercise}
+\begin{exercise}
+\label{exercise:BN128-cm-method}
+Consider the prime modulus $p$ of curve \curvename{alt\_bn128} from \examplename{} \ref{BN128} and its trace $t$ from exercise \ref{exercise:BN128-cm-method}. Use the complex multiplication method to synthesize an elliptic curve over $F_p$ that is isomorphic to \curvename{alt\_bn128} and compute an explicit isomorphism between these two curves.
 \end{exercise}
 \subsection{The $BLS6\_6$ pen-and-paper curve}\label{BLS6}
 
