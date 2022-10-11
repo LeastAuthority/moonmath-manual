@@ -1,0 +1,65 @@
+name: Build document
+
+on:
+  push:
+    tags: ["*"]
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: xu-cheng/latex-action@v2
+        with:
+          pre_compile: |
+            TMPDIR=`mktemp -d`
+            pushd $TMPDIR
+            wget https://github.com/sagemath/sagetex/archive/refs/tags/v3.6.zip -O sagetex.zip
+            unzip sagetex.zip
+            pushd sagetex-3.6
+            latex sagetex.ins
+            popd
+            popd
+            cp $TMPDIR/sagetex-3.6/sagetex.sty .
+            rm -rf $TMPDIR
+          compiler: pdflatex
+          root_file: main-moonmath.tex
+      - uses: wuan/sagemath-action@v1
+        with:
+          source_file: main-moonmath.sagetex.sage
+      - uses: xu-cheng/latex-action@v2
+        with:
+          root_file: main-moonmath.tex
+      - uses: actions/upload-artifact@v3
+        with:
+          name: MoonMath Manual PDF
+          path: main-moonmath.pdf
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./main-moonmath.pdf
+          asset_name: main-moonmath.pdf
+          asset_content_type: application/pdf
