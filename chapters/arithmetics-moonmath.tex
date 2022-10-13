@@ -38,24 +38,12 @@ We use the symbol $\N$ for the set of all positive integers, usually called the 
 \N := \{1,2,3,\ldots\} & & \NN := \{0,1,2,3,\ldots\}
 \end{align*}
 
-\smecomb{SB: Talking about the binary representation seems way to complex at this stage, and the concepts introduced here are not used for several chapters.}{Move content on binary representation}
-Let $n\in\NN$ be a non-negative integer and $<b_0,b_1,\ldots b_{k-1}>$ a string of \term{bits} $b_j\in\{0,1\}\subset\NN$ for some positive integer $k\in\N$, such that the following equation holds:
-
-\begin{equation}
-\label{def:binary_representation_integer}
-n = \sum_{j=0}^{k-1} b_j\cdot 2^j
-\end{equation}
-
-In this case, we call $Bits(n):= <b_0,b_1,\ldots b_{k-1}>$ the \term{binary representation} of $n$, say that $n$ is a $k$-bit number and call $k:= |n|_2$ the \term{bit length} of $n$. It can be shown, that the binary representation of any non negative integer is unique. We call $b_0$ the \term{least significant bit} and $b_{k-1}$ the \term{most significant} bit and define the \term{Hamming weight} of an integer as the number of $1$s in its binary representation.\footnote{For more on binary and general base integer representation see, for example, \chaptname{} 1 in \cite{mignotte-1992}.}
-
 In addition, we use the symbol $\Q$ for the set of all \term{rational numbers}, which can be represented as the set of all fractions $\frac{n}{m}$, where $n\in \Z$ is an integer and $m\in \N$ is a natural number, such that there is no other fraction $\frac{n'}{m'}$ and natural number $k\in \N$ with $k\neq 1$ and the following equation:\footnote{A more in-depth introduction to rational numbers, their representation as well as their arithmetic operations can be found in part 2. of \cite{wu-1} and in \chaptname{} 1, \secname{} 2 of \cite{mignotte-1992}.}
 \begin{equation}
 \frac{n}{m} = \frac{k\cdot n'}{k\cdot m'}
 \end{equation}
 
-
-
-The sets $\N$, $\Z$ and $\Q$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently use the  SageMath system (\ref{sagemath_setup}) for more complicated computations (we define rings and fields later in this book):\smecomb{SB: I would delete lines 12-18 form the  Sage example below, unnecessarily confusing at this point}{simplify  Sage ex.}
+The sets $\N$, $\Z$ and $\Q$ have a notion of addition and multiplication defined on them. Most of us are probably able to do many integer computations in our head, but this gets more and more difficult as these increase in complexity.  We will frequently use the  SageMath system (\ref{sagemath_setup}) for more complicated computations (we define rings and fields later in this book):
 \begin{sagecommandline}
 sage: ZZ #  Sage notation for the set of integers
 sage: NN # Sage notation for the set of natural numbers
@@ -63,10 +51,7 @@ sage: QQ # Sage notation for the set of rational numbers
 sage: ZZ(5) # Get an element from the set of integers
 sage: ZZ(5) + ZZ(3)
 sage: ZZ(5) * NN(3)
-sage: ZZ.random_element(10**50)
-sage: ZZ(27713).str(2) # Binary string representation
-sage: NN(27713).str(2) # Binary string representation
-sage: ZZ(27713).str(16) # Hexadecimal string representation
+sage: ZZ.random_element(10**6)
 \end{sagecommandline}
 
 A set of numbers of particular interest to us is the set of \term{prime numbers}. A prime number is a natural number $ p \in \N $ with $ p \geq 2 $ that is only divisible by itself and by $1$. All prime numbers apart from the number $ 2 $ are called \term{odd} prime numbers. We use $ \Prim $ for the set of all prime numbers and $ \Prim _{\geq 3} $ for the set of all odd prime numbers.\footnote{As prime numbers are of central importance to our topic, the interested reader might benefit from consulting the wide range of books available on the topic of number theory. An introduction is given for example in  \chaptname{} 1 and 2 of \cite{hardy-2008}. An elementary school level introduction can be found in  \chaptname{} 33 of \cite{wu-1}. Chapter 34 of \cite{wu-1} gives an introduction to the fundamental theorem of arithmetic \eqref{def:fundamental_theorem_arithmetic}. \cite{fine-2016} could be of particular interest to more advanced readers.}
@@ -194,7 +179,7 @@ In a nutshell, the long division algorithm loops through the digits of the divid
 
 As long division is the standard method used for pen-and-paper division of multi-digit numbers expressed in decimal notation, we use it throughout this book when we do simple pen-and-paper computations, so readers should become familiar with it. However, instead of defining the algorithm formally, we  provide some examples instead, as this will hopefully make the process more clear.
 
-\begin{example}[Integer Long Division] To give an example of integer long division algorithm, let's divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euclidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in English-speaking countries, we compute as follows:\smecomb{SB: I think a more detailed explanation is needed for those unfamiliar with this notation/algorithm}{Add explanation}
+\begin{example}[Integer Long Division] To give an example of integer long division algorithm, let's divide the integer $a=143785$ by the number $b=17$. Our goal is therefore to find solutions to equation \ref{eq_euclidean_division}, that is, we need to find the quotient $m\in\Z$ and the remainder $r \in \N$ such that $143785 = m\cdot 17 + r$. Using a notation that is mostly used in English-speaking countries, we compute as follows:\smecomb{SB: I think a more detailed explanation is needed for those unfamiliar with this notation/algorithm. MIRCO: I think we have to make a cut somewhere. Explaining third grade integer division is ot of scope and a requirement to read the book}{Add explanation}
 \begin{equation}
 \intlongdivision{143785}{17}
 \end{equation}
@@ -260,7 +245,7 @@ The pseudocode in algorithm \ref{alg_ext_euclid_alg} shows in detail how to calc
 The algorithm is simple enough to be used effectively in pen-and-paper examples. It is commonly written as a table where the rows represent the while-loop and the columns represent the values of the the array $r$, $s$ and $t$ with index $k$. The following example provides a simple execution.
 \begin{example}
 \label{example:extended_Euclidean_division_1}
-To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=12$ and $b=5$. Since $12,5\in \N$ and $12\geq 5$, all requirements are met, and we compute as follows:\sme{check additional explanation}
+To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=12$ and $b=5$. Since $12,5\in \N$ and $12\geq 5$, all requirements are met, and we compute as follows:
 \begin{center}
   \begin{tabular}{c | c c l}
     k & $ r_k $ & $ s_k $ & $ t_k $ \\\hline
@@ -269,7 +254,7 @@ To illustrate algorithm \ref{alg_ext_euclid_alg}, we apply it to the numbers $a=
     2 & 2 & 1 & -2 \\
     3 & 1 & -2 & 5 \\
     4 & 0 &  &  \\
-    5 & & &\\
+    5 & $\cdot$ & &\\
   \end{tabular}
   \end{center}
 
@@ -322,6 +307,62 @@ The naive way to decide if two integers are coprime would be to divide both numb
 \end{example}
 \begin{exercise} Consider \exercisename{} \ref{exercise:extended_Euclidean_division_1} again. Which pairs $(a,b)$ from that exercise are coprime?
 \end{exercise}
+\subsection{Integer Representations}
+\label{sec:integer-rep}
+So fare we have represented integers in the so called \term{decimal positional system}, which represents any integer as a sequence of elements from the set of decimal digits $\{0,1,2,3,4,5,6,7,8,9\}$. However there are other representations of integers used in computer science and cryptography which we want to highlight:
+
+The so called \term{binary positional system} (or binary representation), represents every integer as a sequence of elements from the set of binary digits (or bits) $\{0,1\}$. To be more precise, let $n\in\NN$ be a non-negative integer in decimal representation and $b=b_{k-1}b_{k-2}\ldots b_{0}$ a sequence of \term{bits} $b_j\in\{0,1\}\subset\NN$ for some positive integer $k\in\N$. Then $b$ is the \term{binary representation} of $n$ if the following equation holds:
+
+\begin{equation}
+\label{def:binary_representation_integer}
+n = \sum_{j=0}^{k-1} b_j\cdot 2^j
+\end{equation}
+
+In this case, we write $Bits(n):= b_{k-1}b_{k-2}\ldots b_{0}$ for the binary representation of $n$, say that $n$ is a $k$-bit number and call $k:= |n|_2$ the \term{bit length} of $n$. 
+
+It can be shown, that the binary representation of any non negative integer is unique. We call $b_0$ the \term{least significant bit} and $b_{k-1}$ the \term{most significant} bit and define the \term{Hamming weight} of an integer as the number of $1$s in its binary representation.\footnote{For more on binary and general base integer representation see, for example, \chaptname{} 1 in \cite{mignotte-1992}.}
+
+Another commonly used representation is the so called \term{hexadecimal positional system}, which represents every integer as a sequence of elements from a set of $16$ digits usually written as $\{0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f\}$. 
+
+If not stated otherwise, we use the decimal positional system throughout this book in order to represent numbers, like integers or rational numbers. It should be noted though, that since real world cryptographic systems often have to deal with large integers, the hexadecimal system is a common choice in those circumstances, since hexadecimal representations need less digits to represent an integer then decimal representation.  
+\begin{sagecommandline}
+sage: NN(27713).str(2) # Binary representation
+sage: ZZ(27713).str(16) # Hexadecimal representation
+\end{sagecommandline}
+If a positional system with a $k$ digest set $\{d_0,d_1,\ldots, d_{k-1}\}$ is given, then an integer representation $d_{j_h}\cdots d_{j_1} d_{j_0}$ in that system can be transformed into 
+an integer representation $n$ in the decimal system by the following equation:
+\begin{equation}
+\label{eq:from-k-digits-to-deci}
+n = \sum_{i=0}^h j_i\cdot k^{i}
+\end{equation}
+Similar equations exist to transform an integer representation from any positional system into any other positional system. The decimal system is therefore not special, just the most common.To deal with this ambiguity many computer systems accept prefixes to a number which specify which positional system this number is expressed in. Common prefix notations are:
+ 
+\begin{center}
+\begin{tabular}{rl}
+ 0x & hexadecimal \\
+ 0b & binary
+\end{tabular}
+\end{center} 
+\begin{example}
+To understand the difference between an integer representation and the integer itself, consider the expression $11$ as an integer representation. Note that without a reference to a positional system this expression is ambiguous. One might consider this expression to represent the integer $11$ in decimal representation. However if $11$ is considered as an expression in the binary system, then it refers to the integer $3$ in decimal representation. Moreover when $11$ is considered as an expression in the hexadecimal system, then it refers to the integer $17$ in the decimal representation. It is therefore common practice to use a prefix in order to uniquely specify an integer in a positional system. We get
+\begin{align*}
+0x11 & = 17\\
+0b11 & = 3
+\end{align*}
+\end{example}
+\begin{example} In order to see how equation 
+\ref{eq:from-k-digits-to-deci} can transform any representation into a decimal representation, consider the set of hexadecimal digits $\{0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f\}$  which we can write as 
+$$\{0_0,1_1,2_2,3_3,4_4,5_5,6_6,7_7,8_8,9_9,a_{10},b_{11},c_{12},d_{13},e_{14},f_{15}\}$$
+If we want to transform the integer $y=0x3f7a$ we can write it as $0x3_3f_{15}7_7a_{10}$ and use equation \ref{eq:from-k-digits-to-deci} to compute its decimal representation. Since the hexadecimal system has $16$ digest and $y$ is a $4$-digits number in hexadecimal, we get
+\begin{align*}
+n = & \sum_{i=0}^4 j_i\cdot 16^{i} \\
+  = & 10\cdot 16^0+7\cdot 16^1+15\cdot 16^2+3\cdot 16^3\\
+  = & 16250
+\end{align*}
+\end{example}
+\begin{exercise}Consider the \term{octal} positional system, which represents integers with 8 digits, usually written as $\{0,1,2,3,4,5,6,7\}$. Numbers in this system are characterized by the prefix $0o$. Write the numbers $0o1354$ and $0o777$ into their decimal representation.
+\end{exercise}
+
 \section{Modular arithmetic}
 \label{modular_arithmetic}
 \term{Modular arithmetic} is a system of integer arithmetic where numbers ``wrap around'' when reaching a certain value, much like calculations on a clock wrap around whenever the value exceeds the number $12$. For example, if the clock shows that it is $11$ o'clock, then $20$ hours later it will be $7$ o'clock, not $31$ o'clock. The number $31$ has no meaning on a normal clock that shows hours.
@@ -398,24 +439,23 @@ The following example  contains most of the concepts described in this section.
 
 \begin{example}
 \label{example_first_congruence}
-Let us solve the following congruence for $x\in \Z$ in modular $6$ arithmetic:
+To better understand congruences, let us solve the following congruence for $x\in \Z$ in modular $6$ arithmetic:
 $$\kongru{7\cdot(2x+21) + 11}{x-102}{6}$$
-As many rules for congruences are more or less same as for equations, we can proceed in a  similar way as we would if we had an equation to solve.
-Since both sides of a congruence contain ordinary integers, we can rewrite the left side as follows: 
+As many rules for congruences are more or less same as for equations, we can proceed in a  similar way as we would if we had an equation to solve. Since both sides of a congruence contain ordinary integers, we can rewrite the left side as follows: 
 
 $$7\cdot(2x+21) + 11 = 14x + 147 + 11 = 14x +158$$
 
-We can therefore rewrite the congruence into the equivalent form:
+Using this expression, we can rewrite the congruence into the following equivalent form:
 
 $$\kongru{14x +158}{x-102}{6}$$
 
-In the next step, we want to shift all instances of $x$ to the left and every other term to the right. So we apply the``compatibility with translation'' rules twice. In the first step, we choose $k=-x$, and in a second step, we choose $k=-158$. \sme{SB: let's separate these two steps in the equivalence below}{separate steps 1 and 2} Since ``compatibility with translation'' transforms a congruence into an equivalent form, the solution set will not change, and we get the following:
+In the next step, we want to shift all instances of $x$ to the left and every other term to the right. So we apply the``compatibility with translation'' rule twice. In the first step, we choose $k=-x$, and in a second step, we choose $k=-158$. \sme{SB: let's separate these two steps in the equivalence below -- separate steps 1 and 2} Since ``compatibility with translation'' transforms a congruence into an equivalent form, the solution set will not change, and we get the following:
 \begin{multline*}
 \kongru{14x +158}{x-102}{6} \Leftrightarrow\\
 \kongru{14x-x +158-158}{x-x-102-158}{6} \Leftrightarrow \\
 \kongru{13x}{-260}{6}
 \end{multline*}
-If our congruence was just a regular integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruence, we need to make sure that the modulus and the number we want to divide by are coprime to ensure that the result of the division is an expression equivalent to the original one (see rule \ref{eq_fermat_lt_2}\sme{check reference}). This means that we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that$gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute as follows:
+If our congruence was just a regular integer equation, we would divide both sides by $13$ to get $x=-20$ as our solution. However, in case of a congruence, we need to make sure that the modulus and the number we want to divide by are coprime to ensure that the result of the division is an expression equivalent to the original one (see rule \ref{eq_fermat_lt_2}\sme{check reference}). This means that we need to find the greatest common divisor $gcd(13,6)$. Since $13$ is prime and $6$ is not a multiple of $13$, we know that $gcd(13,6)=1$, so these numbers are indeed coprime. We therefore compute as follows:
 $$
 \kongru{13x}{-260}{6} \Leftrightarrow \kongru{x}{-20}{6}
 $$
