@@ -15,8 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: xu-cheng/latex-action@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: LaTeX pass 1
+        uses: xu-cheng/latex-action@v2
         with:
           pre_compile: |
             export SAGETEX_VERSION=3.5
@@ -31,14 +33,22 @@ jobs:
             cp $TMPDIR/sagetex-${SAGETEX_VERSION}/sagetex.sty .
             rm -rf $TMPDIR
           compiler: pdflatex
+          args: --shell-escape
           root_file: main-moonmath.tex
-      - uses: wuan/sagemath-action@v1
+      - name: LaTeX pass 2
+        uses: xu-cheng/latex-action@v2
+        with:
+          compiler: pdflatex
+          args: --shell-escape
+          root_file: main-moonmath.tex
+      - name: SageMath pass
+        uses: wuan/sagemath-action@v1
         with:
           source_file: main-moonmath.sagetex.sage
-      - uses: xu-cheng/latex-action@v2
+      - name: LaTeX final iterations
+        uses: xu-cheng/latex-action@v2
         with:
           root_file: main-moonmath.tex
-          latexmk_shell_escape: true
       - name: Upload PDF
         uses: actions/upload-artifact@v3
         with:
