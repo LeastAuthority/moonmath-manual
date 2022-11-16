@@ -39,10 +39,18 @@ jobs:
         with:
           root_file: main-moonmath.tex
           latexmk_shell_escape: true
-      - uses: actions/upload-artifact@v3
+      - name: Upload PDF
+        uses: actions/upload-artifact@v3
         with:
           name: MoonMath Manual PDF
           path: main-moonmath.pdf
+      - name: Upload generated files
+        uses: actions/upload-artifact@v3
+        with:
+          name: MoonMath Manual generated files
+          path: |
+            tmp/*
+            sage-plots-for-main-moonmath.tex/*
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
