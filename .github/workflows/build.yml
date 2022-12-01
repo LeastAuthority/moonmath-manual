@@ -46,10 +46,11 @@ jobs:
         with:
           source_file: main-moonmath.sagetex.sage
       - name: LaTeX final iterations
+        id: latex-final
         uses: xu-cheng/latex-action@v2
         with:
           root_file: main-moonmath.tex
-          post_compile: ls -la
+          post_compile: echo "WARNINGS=$(grep -A100 '====List of undefined refs and citations:' main-moonmath.log)" >> $GITHUB_OUTPUT
       - name: Upload PDF
         uses: actions/upload-artifact@v3
         with:
@@ -62,6 +63,44 @@ jobs:
           path: |
             tmp/*
             sage-plots-for-main-moonmath.tex/*
+      - name: Update PR with plan result
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          WARNING: "${{ steps.latex-final.outputs.WARNINGS }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+            })
+            // 2. Prepare format of the comment
+            const output = `#### Moonmath Manual build
+            <details><summary>WARNINGS</summary>
+            \`\`\`\n
+            ${process.env.WARNINGS}
+            \`\`\`
+            </details>
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            // 3. If we have a comment, update it, otherwise create a new one
+            const comment_data = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            }
+            if (botComment) {
+              comment_data.comment_id = botComment.id
+              github.rest.issues.updateComment(comment_data)
+            } else {
+              comment_data.issue_number = context.issue.number
+              github.rest.issues.createComment(comment_data)
+            }
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
