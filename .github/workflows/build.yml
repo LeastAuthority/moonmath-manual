@@ -19,15 +19,16 @@ jobs:
       - uses: xu-cheng/latex-action@v2
         with:
           pre_compile: |
+            export SAGETEX_VERSION=3.5
             TMPDIR=`mktemp -d`
             pushd $TMPDIR
-            wget https://github.com/sagemath/sagetex/archive/refs/tags/v3.6.zip -O sagetex.zip
+            wget https://github.com/sagemath/sagetex/archive/refs/tags/v${SAGETEX_VERSION}.zip -O sagetex.zip
             unzip sagetex.zip
-            pushd sagetex-3.6
+            pushd sagetex-${SAGETEX_VERSION}
             latex sagetex.ins
             popd
             popd
-            cp $TMPDIR/sagetex-3.6/sagetex.sty .
+            cp $TMPDIR/sagetex-${SAGETEX_VERSION}/sagetex.sty .
             rm -rf $TMPDIR
           compiler: pdflatex
           root_file: main-moonmath.tex
