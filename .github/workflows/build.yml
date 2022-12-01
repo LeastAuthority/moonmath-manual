@@ -64,44 +64,9 @@ jobs:
           path: |
             tmp/*
             sage-plots-for-main-moonmath.tex/*
-      - name: Update PR with warnings found
-        uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        env:
-          WARNING: "${{ steps.latex-final.outputs.WARNINGS }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // 1. Retrieve existing bot comments for the PR
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
-            const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Moonmath Manual build')
-            })
-            // 2. Prepare format of the comment
-            const output = `#### Moonmath Manual build
-            <details><summary>WARNINGS</summary>
-            \`\`\`\n
-            ${process.env.WARNINGS}
-            \`\`\`
-            </details>
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
-            // 3. If we have a comment, update it, otherwise create a new one
-            const comment_data = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            }
-            if (botComment) {
-              comment_data.comment_id = botComment.id
-              github.rest.issues.updateComment(comment_data)
-            } else {
-              comment_data.issue_number = context.issue.number
-              github.rest.issues.createComment(comment_data)
-            }
+      - name: Warnings
+        run: echo ${{ steps.latex-final.outputs.WARNINGS }}
+        continue-on-error: true
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
