@@ -21,18 +21,7 @@ jobs:
       - name: LaTeX pass 1
         uses: xu-cheng/latex-action@v2
         with:
-          pre_compile: |
-            export SAGETEX_VERSION=3.5
-            TMPDIR=`mktemp -d`
-            pushd $TMPDIR
-            wget https://github.com/sagemath/sagetex/archive/refs/tags/v${SAGETEX_VERSION}.zip -O sagetex.zip
-            unzip sagetex.zip
-            pushd sagetex-${SAGETEX_VERSION}
-            latex sagetex.ins
-            popd
-            popd
-            cp $TMPDIR/sagetex-${SAGETEX_VERSION}/sagetex.sty .
-            rm -rf $TMPDIR
+          pre_compile: ./install_sagetex_sty.sh
           compiler: pdflatex
           args: --shell-escape
           root_file: main-moonmath.tex
