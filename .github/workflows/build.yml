@@ -13,35 +13,88 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: xu-cheng/latex-action@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: LaTeX pass 1
+        uses: xu-cheng/latex-action@v2
         with:
-          pre_compile: |
-            export SAGETEX_VERSION=3.5
-            TMPDIR=`mktemp -d`
-            pushd $TMPDIR
-            wget https://github.com/sagemath/sagetex/archive/refs/tags/v${SAGETEX_VERSION}.zip -O sagetex.zip
-            unzip sagetex.zip
-            pushd sagetex-${SAGETEX_VERSION}
-            latex sagetex.ins
-            popd
-            popd
-            cp $TMPDIR/sagetex-${SAGETEX_VERSION}/sagetex.sty .
-            rm -rf $TMPDIR
+          pre_compile: ./install_sagetex_sty.sh
           compiler: pdflatex
+          args: --shell-escape
           root_file: main-moonmath.tex
-      - uses: wuan/sagemath-action@v1
+      - name: LaTeX pass 2
+        uses: xu-cheng/latex-action@v2
+        with:
+          compiler: pdflatex
+          args: --shell-escape
+          root_file: main-moonmath.tex
+      - name: SageMath pass
+        uses: wuan/sagemath-action@v1
         with:
           source_file: main-moonmath.sagetex.sage
-      - uses: xu-cheng/latex-action@v2
+      - name: LaTeX final iterations
+        id: latex-final
+        uses: xu-cheng/latex-action@v2
         with:
           root_file: main-moonmath.tex
-      - uses: actions/upload-artifact@v3
+          post_compile: echo "WARNINGS=$(grep -A100 '====List of undefined refs and citations:' main-moonmath.log)" >> $GITHUB_OUTPUT
+      - name: Upload PDF
+        uses: actions/upload-artifact@v3
         with:
           name: MoonMath Manual PDF
           path: main-moonmath.pdf
+      - name: Upload generated files
+        uses: actions/upload-artifact@v3
+        with:
+          name: MoonMath Manual generated files
+          path: |
+            tmp/*
+            sage-plots-for-main-moonmath.tex/*
+      - name: Warnings
+        run: echo ${{ steps.latex-final.outputs.WARNINGS }}
+        continue-on-error: true
+      - name: Update PR with warnings found
+        uses: actions/github-script@v6
+        continue-on-error: true
+        if: github.event_name == 'pull_request'
+        env:
+          WARNING: "${{ steps.latex-final.outputs.WARNINGS }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Moonmath Manual build')
+            })
+            // 2. Prepare format of the comment
+            const output = `#### Moonmath Manual build
+            <details><summary>WARNINGS</summary>
+            \`\`\`\n
+            ${process.env.WARNINGS}
+            \`\`\`
+            </details>
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            // 3. If we have a comment, update it, otherwise create a new one
+            const comment_data = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            }
+            if (botComment) {
+              comment_data.comment_id = botComment.id
+              github.rest.issues.updateComment(comment_data)
+            } else {
+              comment_data.issue_number = context.issue.number
+              github.rest.issues.createComment(comment_data)
+            }
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
