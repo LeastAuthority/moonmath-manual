@@ -298,7 +298,7 @@ The chord-and-tangent rule defines the group law of an elliptic curve geometrica
 $$
 \begin{array}{llr}
 x' = \left(\frac{3x^2+a}{2y}\right)^2 -2x &,&
-y' = \left(\frac{3x^2+a}{2y}\right)^2\left(x-x'\right) - y
+y' = \left(\frac{3x^2+a}{2y}\right)\left(x-x'\right) - y
 \end{array} 
 $$
 \item (Chord Rule) If $P=(x_1,y_1)$ and $Q=(x_2,y_2)$ such that $x_1 \neq x_2$, the group law $R=P\oplus Q$ with $R=(x_3,y_3)$ is defined as follows:
@@ -716,7 +716,7 @@ Affine and the projective \concept{short Weierstrass} forms are the most general
 
 As we will see in this section, so-called \term{Montgomery curves} are a subset of all elliptic curves that can be written in the \term{Montgomery form}. Those curves allow for constant time algorithms for (specializations of) the elliptic curve scalar multiplication. 
 
-To see what a Montgomery curve in its affine representation is, let $\F$ be a finite field of characteristic $p>3$, and let $A,B\in \F$ be two field elements such that $B\neq 0$ and $A^2 \neq 4$.  A \term{Montgomery elliptic curve} $M(\F)$ over $\F$ in its affine representation is the set of all pairs of field elements $(x,y)\in \F\times \F$ that satisfy the \term{Montgomery cubic equation} $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
+To see what a Montgomery curve in its affine representation is, let $\F$ be a prime field of order $p>3$, and let $A,B\in \F$ be two field elements such that $B\neq 0$ and $A^2 \neq \Zmod{4}{p}$.  A \term{Montgomery elliptic curve} $M(\F)$ over $\F$ in its affine representation is the set of all pairs of field elements $(x,y)\in \F\times \F$ that satisfy the \term{Montgomery cubic equation} $B\cdot y^2 = x^3 + A\cdot x^2 + x$, together with a distinguished symbol $\Oinf$, called the \term{point at infinity}.
 
 \begin{equation}
 \label{eq:montgomery-curve}
@@ -726,10 +726,10 @@ M(\F) = \{(x,y)\in \F\times \F\;|\; B\cdot y^2 = x^3 + A\cdot x^2 + x  \} \bigcu
 Despite the fact that Montgomery curves look different from \concept{short Weierstrass} curves, they are just a special way to describe certain \concept{short Weierstrass} curves. In fact, every curve in affine Montgomery form can be transformed into an elliptic curve in \concept{short Weierstrass} form. To see that, assume that a curve is given in Montgomery form $B y^2 = x^3 + A x^2 + x$. The associated \concept{short Weierstrass} form is then defined as follows:
 
 \begin{equation}\label{eq:montgomery-to-weierstrass}
-y^2 = x^3 + \frac{3-A^2}{3\cdot B^2}\cdot x + \frac{2\cdot A^3-(\Zmod{9}{q})\cdot A}{(\Zmod{27}{q})\cdot B^3}
+y^2 = x^3 + \frac{3-A^2}{3\cdot B^2}\cdot x + \frac{2\cdot A^3-(\Zmod{9}{p})\cdot A}{(\Zmod{27}{p})\cdot B^3}
 \end{equation}
 
-On the other hand, not every elliptic curve $E(\F)$ over base field $\F$ given in \concept{short Weierstrass} form $y^2 = x^3 + a x + b$ can be converted into Montgomery form. For a \concept{short Weierstrass} curve to be a Montgomery curve, the following conditions need to hold:
+On the other hand, not every elliptic curve $E(\F)$ over a prime field $\F$ of characteristic $p>3$ given in \concept{short Weierstrass} form $y^2 = x^3 + a x + b$ can be converted into Montgomery form. For a \concept{short Weierstrass} curve to be a Montgomery curve, the following conditions need to hold:
 
 \begin{definition}\label{def:montgomery}
 \defvsep{}
@@ -1237,7 +1237,7 @@ The $r$-torsion groups $E(\F_{p^m})[r]$ of any curve extensions for $m>k(r)$ are
 \begin{equation}
 \label{def:full_torsion_group_tower}
 \begin{array}{lccclclclcl}
-E(\F_{p}) & \subset & \cdots  & \subset & E(\F_{p^{k(r)-1}}) & \subset & E(\F_{p^{k(r)}})[r] & \subset & E(\F_{p^{k(r)+1}})[r] & \subset & \ldots\\
+E(\F_{p}) & \subset & \cdots  & \subset & E(\F_{p^{k(r)-1}}) & \subset & E(\F_{p^{k(r)}}) & \subset & E(\F_{p^{k(r)+1}}) & \subset & \ldots\\
 E(\F_{p})[r] & = & \cdots  & = & E(\F_{p^{k(r)-1}})[r] & \subset & E(\F_{p^{k(r)}})[r] & = & 
 E(\F_{p^{k(r)+1}})[r] & = & \ldots
 \end{array}
@@ -1261,7 +1261,7 @@ sage: E1_3 = Set(L_E1_3) # Full 3-torsion set
 $$
 E_1[3] = \{\Oinf,(2,1),(2,4),(1,t),(1,4t), (2t + 1,t + 1), (2t + 1, 4t + 4), (3t + 1,t + 4), (3t + 1, 4t + 1) \}
 $$
-As we can see the group $E_1[3]$ contains $9=3^2$ many elements and the $3$-torsion group $E_{1,1}(\F_5)[3]$ of the curve over the prime field is a subset of the full torsion group. 
+As we can see the group $E_1[3]$ contains $9=3^3$ many elements and the $3$-torsion group $E_{1,1}(\F_5)[3]$ of the curve over the prime field is a subset of the full torsion group. 
 \end{example}
 \begin{example}\label{ex:TJJ13-full-torsion} Consider the \curvename{Tiny-jubjub} curve from \examplename{} \ref{TJJ13}. We know from \examplename{} \ref{ex:TJJ13-embedding-degree} that it contains a $5$-torsion group and that the embedding degree of $5$ is $4$. This implies that we can find the full $5$-torsion group $\mathit{TJJ\_13}[5]$ in the curve extension $\mathit{TJJ\_13}(\F_{13^4})$. 
 
@@ -1392,7 +1392,7 @@ sage: for P in TJJF13_4_5:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
 \end{sagecommandline}
-We get $\G_1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$ and as expected, $\G_1$ is identical to the $5$-torsion group of the (unextended) curve over the prime field \TJJ{} as computed in \examplename{} \ref{eq:TJJ13-logarithmic-order}.
+We get $\G_1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$ and as expected, $\G_1$ is identical to the $5$-torsion group of the (unextended) curve over the prime field $TJJ_13$ as computed in \examplename{} \ref{eq:TJJ13-logarithmic-order}.
 
 In order to compute the group $\G_2$ for the tiny jubjub curve, we can use almost the same algorithm as we used for the computation of $\G_1$. Since $p=13$ we get the following:
 \begin{sagecommandline}
