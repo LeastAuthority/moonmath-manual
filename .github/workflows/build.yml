@@ -41,7 +41,13 @@ jobs:
         uses: xu-cheng/latex-action@v2
         with:
           root_file: main-moonmath.tex
-          post_compile: echo "WARNINGS=$(grep -A100 '====List of undefined refs and citations:' main-moonmath.log)" >> $GITHUB_OUTPUT
+      - name: Collect Warnings
+        id: warnings
+        run: |
+          echo "WARNINGS<<EOF" >> $GITHUB_ENV
+          grep "^LaTeX Warning" main-moonmath.log | cut -d" " -f3- | tee -a $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        continue-on-error: true
       - name: Upload PDF
         uses: actions/upload-artifact@v3
         with:
@@ -54,15 +60,12 @@ jobs:
           path: |
             tmp/*
             sage-plots-for-main-moonmath.tex/*
-      - name: Warnings
-        run: echo ${{ steps.latex-final.outputs.WARNINGS }}
-        continue-on-error: true
       - name: Update PR with warnings found
         uses: actions/github-script@v6
         continue-on-error: true
         if: github.event_name == 'pull_request'
         env:
-          WARNING: "${{ steps.latex-final.outputs.WARNINGS }}"
+          WARNINGS: "${{ env.WARNINGS }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -77,11 +80,14 @@ jobs:
             })
             // 2. Prepare format of the comment
             const output = `#### Moonmath Manual build
-            <details><summary>WARNINGS</summary>
-            \`\`\`\n
+            <details><summary>WARNINGS</summary>\n\n
+
+            \`\`\`
             ${process.env.WARNINGS}
             \`\`\`
+
             </details>
+
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
             // 3. If we have a comment, update it, otherwise create a new one
             const comment_data = {
