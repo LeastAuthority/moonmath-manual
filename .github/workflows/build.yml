@@ -19,6 +19,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Update Title
+        run: |
+          sudo apt install imagemagick fonts-freefont-ttf
+          export TEXT_FONT=FreeSans-Bold
+          export TEXT_SIZE=96
+          export TEXT_COLOR=LightGray
+          export TEXT="v $(git describe --tags)"
+          mogrify -stroke Black -fill Black -draw "rectangle 1090,2300 1390,2400" -stroke ${TEXT_COLOR} -fill ${TEXT_COLOR} -font ${TEXT_FONT} -pointsize ${TEXT_SIZE} -gravity Center -draw "text 0,600 '${TEXT}'" figures/MMM_cover.jpg
       - name: LaTeX pass 1
         uses: xu-cheng/latex-action@v2
         with:
