@@ -270,7 +270,6 @@ One of the key properties of an elliptic curve is that it is possible to define 
 \defvsep{}
 
 \begin{itemize}
-\label{def:chord-and-tangent}
 \item (Point at infinity) We define the point at infinity $\Oinf$ as the neutral element of addition, that is, we define $P\oplus\Oinf = P$ for all points $P\in E(\F)$.
 \item (Chord Rule) Let $P$ and $Q$ be two distinct points on an elliptic curve, neither of them the point at infinity: $P, Q\in E(\F)\textbackslash \{\Oinf\}$ and $P\neq Q$\\
 The sum of $P$ and $Q$ is defined as follows:\\
@@ -1744,12 +1743,15 @@ PARAM(BLS6) = \{t(x), q(x) \;|\; x\in \NN \text{ and } q(x)\in\NN\}
 \end{example}
 
 Assuming that proper parameters $q$, $t$, $D$ and $v$ are found, we have to compute the so-called \term{Hilbert class polynomial} $H_D\in \Z[x]$ of the CM-discriminant $D$, which is a polynomial with integer coefficients. To do so, we first have to compute the following set:
-\begin{multline*}
+\begin{equation}
+\begin{aligned}
 \label{def:hilbert_class_domain}
-S(D)=\{(A,B,C)\;|\; A,B,C\in\Z,\; D = B^2-4AC,\; gcd(A,B,C)=1, \\
-|B|\leq A \leq \sqrt{\frac{|D|}{3}},\; A\leq C, 
+S(D)=\{(A,B,C)\;|\; A,B,C\in\Z,\; &D = B^2-4AC,\; gcd(A,B,C)=1, \\
+&|B|\leq A \leq \sqrt{\frac{|D|}{3}},\; A\leq C, 
 \text{ if } B< 0 \text{ then } |B| < A < C\}
-\end{multline*}\tbds{this needs to be numbered}
+\end{aligned}
+\end{equation}
+
 One way to compute this set is to first compute the integer $A_{max}= Floor(\sqrt{\frac{|D|}{3}})$, then loop through all the integers $0\leq A\leq A_{max}$, as well as through all the integers $-A\leq B \leq A$ and check if there is an integer $C$ that satisfies the equation $D = B^2-4AC$ and the rest of the requirements from \ref{def:hilbert_class_domain}.
 
 To compute the Hilbert class polynomial, the so-called \term{$j$-function} is needed, which is a complex function defined on the upper half $\mathbb{H}$ of the complex plane $\mathbb{C}$, usually written as follows:
@@ -2326,6 +2328,7 @@ As this computation shows \ref{BLS6-G2-log} is really all we need to do computat
 \subsubsection{The Weil pairing}
 In \ref{sec:bls66-pairing-groups} we computed two different groups, $\G_1[13]$ and $\G_2[13]$, which are subgroups of the full $13$-torsion group of the extended moon-math-curve $BLS6\_6(\F_{43^6})$. As explained in \ref{sec:weil-pairing}, this implies that there is a Weil pairing 
 \begin{equation}
+\label{BLS6-weil-pairing}
 e(\cdot,\cdot): \G_1[13]\times\G_2[13] \to \F_{43^6}
 \end{equation}
 
