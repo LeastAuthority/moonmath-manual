@@ -45,13 +45,13 @@ As we will see in the following chapters, groups are heavily used in cryptograph
 \label{example:group_of_integers}
 The set $(\Z,+)$ of integers with integer addition is the archetypical example of a commutative group, where the group law is traditionally written in additive notation (\notationname{} \ref{def:additive_notation}). 
 
-To compare integer addition against the abstract axioms of a commuative group, we first note that integer addition is \hilight{commutative and associative}, since $a+b = b+a$ as well as $(a+b)+c=a+(b+c)$ for all integers $a,b,c\in \Z$. The \hilight{neutral element} $e$ is the number $0$, since $a+0=a$ for all integers $a\in \Z$. Furthermore, the \hilight{inverse} of a number is its negative counterpart, since $a+(-a)=0$ for all $a\in\Z$. This implies that integers with addition are indeed a commutative group in the abstract sense.
+To compare integer addition against the abstract axioms of a commutative group, we first note that integer addition is \hilight{commutative and associative}, since $a+b = b+a$ as well as $(a+b)+c=a+(b+c)$ for all integers $a,b,c\in \Z$. The \hilight{neutral element} $e$ is the number $0$, since $a+0=a$ for all integers $a\in \Z$. Furthermore, the \hilight{inverse} of a number is its negative counterpart, since $a+(-a)=0$ for all $a\in\Z$. This implies that integers with addition are indeed a commutative group in the abstract sense.
 
 To give an example of a subgroup of the group of integers, consider the set of even numbers, including $0$. 
 
 $$\Z_{even}:=\{\ldots,-4,-2,0,2,4,\ldots\}$$
 
-We can see that this set is a subgroup of $(\Z,+)$, since the sum of two even numbers is always an even number again, since the neutral element $0$ is a member of $\Z_{even}$ and sice the negative of an even number is itself an even number. 
+We can see that this set is a subgroup of $(\Z,+)$, since the sum of two even numbers is always an even number again, since the neutral element $0$ is a member of $\Z_{even}$ and since the negative of an even number is itself an even number. 
 \end{example}
 \begin{example}[The trivial group]\label{example:trivial_group}
 The most basic example of a commutative group is the group with just one element $\{\bullet\}$ and the group law $\bullet\cdot \bullet=\bullet$. We call it the \term{trivial group}.
@@ -145,7 +145,7 @@ Cryptographic applications often utilize finite cyclic groups of a very large or
 \end{algorithmic}
 \end{algorithm}
 
-Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. The latter mehtod is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
+Because the exponential map respects the group law, it doesn't matter if we do our computation in $\Z_n$ before we write the result into the exponent of $g$ or afterwards: the result will be the same in both cases. The latter method is usually referred to as doing computations ``in the exponent''. In cryptography in general, and in SNARK development in particular, we often perform computations ``in the exponent'' of a generator.
 \begin{example}\label{ex:in-the-exponent} Consider the multiplicative group $(\Z_{5}^*,\cdot)$ from exercise \ref{fstar}. We know from \ref{ex:modulus-prime-group} that $\Z_{5}^*$ is a cyclic group of order $4$, and that the element $3\in\Z_5^*$ is a generator. This means that we also know that the following map respects the group law of addition in $\Z_4$ and the group law of multiplication in $\Z_5^*$:
 $$
 3^{(\cdot)}: \Z_4 \to \Z_5^* \;;\; x \mapsto 3^x
@@ -158,7 +158,7 @@ To do an example computation ``in the exponent'' of $3$ , let's perform the calc
 \end{align}
 In \eqref{3_Z4_exponent} above, we first performed the computation $1+3+2$ in the remainder class group $(\Z_4,+)$ and then applied the exponential map $3^{(\cdot)}$ to the result in \eqref{3_Z4_exp_map}. 
 
-However, since the exponential map \eqref{exponentialmap} respects the group law, we also could map each summand into $(\Z_5^*,\cdot)$ first and then apply the group law of $(\Z_5^*,\cdot)$. The result is guranteed to be the same:
+However, since the exponential map \eqref{exponentialmap} respects the group law, we also could map each summand into $(\Z_5^*,\cdot)$ first and then apply the group law of $(\Z_5^*,\cdot)$. The result is guaranteed to be the same:
 
 \begin{align*}
 3^1 \cdot 3^3 \cdot 3^{2}
@@ -728,7 +728,7 @@ sage: Integers(6)
 \smecomb{TODO}{add example} (Non unique)
 \end{example}
 
-\begin{example}[Polynomial evaluation in the exponent of group generators] As we show in \secname{} \ref{sec:QAP}, a key insight in many zero-knowlege protocols is the ability to encode computations as polynomials and then to hide the information of that computation by evaluating the polynomial ``in the exponent'' of certain cryptographic groups (\secname{} \ref{sec:gorth_16}).
+\begin{example}[Polynomial evaluation in the exponent of group generators] As we show in \secname{} \ref{sec:QAP}, a key insight in many zero-knowledge protocols is the ability to encode computations as polynomials and then to hide the information of that computation by evaluating the polynomial ``in the exponent'' of certain cryptographic groups (\secname{} \ref{sec:gorth_16}).
 
 To understand the underlying principle of this idea, consider the exponential map \eqref{exponentialmap} again. If $\G$ is a finite cyclic group of order $n$ with generator $g\in\G$, then the ring structure of $(\Z_n,+,\cdot)$ corresponds to the group structure of $\G$ in the following way:
 \begin{align}
@@ -736,7 +736,7 @@ To understand the underlying principle of this idea, consider the exponential ma
 g^{x+y} &= g^x\cdot g^y & 
 g^{x\cdot y} &= \left( g^x\right)^y & \text{for all } x,y\in\Z_n
 \end{align}
-This correspondense allows polynomials with coefficients in $\Z_n$ to be evaluated ``in the exponent'' of a group generator. To see what this means, let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$, and let $s\in\Z_n$ be an evaluation point. Then the previously defined exponential laws \ref{def:ring_exponential_laws} imply the following identity:
+This correspondence allows polynomials with coefficients in $\Z_n$ to be evaluated ``in the exponent'' of a group generator. To see what this means, let $p\in \Z_n[x]$ be a polynomial with $p(x)=a_m\cdot x^m+a_{m-1}x^{m-1}+\ldots + a_1x +a_0$, and let $s\in\Z_n$ be an evaluation point. Then the previously defined exponential laws \ref{def:ring_exponential_laws} imply the following identity:
 \begin{align}
 \label{def:polynomial_ring_exponential_laws}
 g^{p(s)} & = g^{a_m\cdot s^m+a_{m-1}s^{m-1}+\ldots + a_1s +a_0}\\
@@ -1063,7 +1063,7 @@ If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set
 
 Moreover if $y\neq 0$ is a quadratic residue, then it has precisely two roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$. We adopt the convention to call the smaller one (when interpreted as an integer) the \term{positive square root} and the larger one the \term{negative square root}. 
 
-If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quardratic residues and $(p-1)/2$ quadratic non-residues.
+If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quadratic residues and $(p-1)/2$ quadratic non-residues.
 
 \begin{example} [Quadratic residues and roots in $ \F_5 $]
 \label{example:quadratic_residue_F5}
@@ -1260,8 +1260,8 @@ Since $\F_{3^2}$ is a field, we can solve equations as we would for other fields
 (t+1)x^2 + (t+1)(2t+2) &= 2 \\
 (t+1)x^2 + (t)         &= 2 &\text{\# 2 add the additive inverse of $t$}\\
 (t+1)x^2 + (t) + (2t)  &= (2) + (2t) \\
-(t+1)x^2               &= 2t+2 & \text{\# multiply with the multiplicative invers of $t+1$}\\
-(t+2)(t+1)x^2          &=(t+2)(2t+2) & \text{\# multiply with the multiplicative invers of $t+1$}\\
+(t+1)x^2               &= 2t+2 & \text{\# multiply with the multiplicative inverse of $t+1$}\\
+(t+2)(t+1)x^2          &=(t+2)(2t+2) & \text{\# multiply with the multiplicative inverse of $t+1$}\\
 x^2                    &= 2 & \text{\# 2 is quadratic residue. Take the roots.}\\
 x &\in \{t, 2t\}
 \end{align*}
