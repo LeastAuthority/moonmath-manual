@@ -532,26 +532,33 @@ $\{[1](0,1), [2](0,1),\ldots,[8](0,1,[9](0,1)\}$ using the tangent rule only.
 \end{exercise}
 \begin{exercise} Consider \examplename{} \ref{ex:TJJ13-cofactor-clearing} and compute the scalarmultiplications $[10](5,11)$ as well as $[10](9,4)$ and $[4](9,4)$ with pen and paper using the algorithm from exercise \ref{alg_double-and-add}.
 \end{exercise}
-\subsection{Projective \concept{short Weierstrass} form}
+\subsection{Projective and Jacobian \concept{short Weierstrass} form}
 % https://www.cosic.esat.kuleuven.be/bcrypt/lecture%20slides/wouter.pdf
-As we have seen in the previous section, describing elliptic curves as pairs of points that satisfy a certain equation is relatively straight-forward. However, in order to define a group structure on the set of points, we had to add a special point at infinity to act as the neutral element. 
+As we have seen in the previous section, describing elliptic curves as pairs of points that satisfy a certain equation is relatively straight-forward. However, in order to define a group structure on the set of points, we need to compute multiplicative inverses in the underlying field. In practice this is 80x to 100x more costly than field multiplication for coordinates in a prime field \F\mathrm{P}.
 
-Recalling the definition of projective planes \ref{sec:planes},\sme{S: move that section here?} we know that points at infinity are handled as ordinary points in projective geometry. Therefore, it makes  sense to look at the definition of a \concept{short Weierstrass} curve in projective geometry.
+Recalling the definition of projective planes \ref{sec:planes},\sme{S: move that section here?} we know that projective coordinates systems introduce an extra term $(X,Y,Z)$ over affine coordinates $(x, y)$. That extra term can be used to delay field inversion until the very end of the computation and amortize its cost over many computations. For example, scalar multiplication with a 256-bit random scalar (a secret key) will require 256 doublings and an average of 128 additions, amortizing this single 100x cost over an average of 384 operations.
 
-To see what a \concept{short Weierstrass} curve in projective coordinates is, let $\F$ be a finite field of order $q$ and characteristic $>3$, let $a,b\in \F$ be two field elements such that $\Zmod{4a^3+ 27b^2}{q}\neq 0$ and let $\F\mathrm{P}^2$ be the projective plane over $\F$ as introduced in \secname{} \ref{sec:planes}. Then a \term{projective \concept{short Weierstrass} elliptic curve} over $\F$ is the set of all points $[X:Y:Z]\in \F\mathrm{P}^2$ from the projective plane that satisfy the cubic equation $Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3$:
+The two main projective coordinates systems are homogeneous projective coordinates and Jacobian projective coordinates.
+
+In homogeneous projective coordinates, for an affine point $(x, y)$, we match the set of points of the form $(xZ, yZ, Z)$
 
 \begin{equation}
-\label{def:projective_cubic_equation}
-E(\F\mathrm{P}^2) = \{[X:Y:Z]\in \F\mathrm{P}^2\;|\; Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3 \}
+  \label{def:projective_cubic_equation}
+  E(\F\mathrm{P}^2) = \{[X:Y:Z]\in \F\mathrm{P}^2\;|\; Y^2\cdot Z = X^3+a\cdot X\cdot Z^2 + b\cdot Z^3 \}
 \end{equation}
 
-To understand how the point at infinity is unified in this definition, recall from \secname{} \ref{sec:planes} that, in projective geometry, points at infinity are given by projective coordinates $[X:Y:0]$. Inserting representatives $(x_1,y_1,0)\in [X:Y:0]$ from those coordinates into the defining cubic equation \ref{def:projective_cubic_equation} results in the following identity:
-\begin{align*}
-y_1^2\cdot 0 & = x_1^3+a\cdot x_1\cdot 0^2 + b\cdot 0^3 & \Leftrightarrow \\
-0 & = x_1^3
-\end{align*} 
+In Jacobian projective coordinates, for an affine point $(x, y)$, we match the set of points of the form $(xZ^2, yZ^3, Z)$
 
-This implies $X=0$, and shows that the only projective point at infinity that is also a point on a projective \concept{short Weierstrass} curve is the class $[0,1,0] = \{(0,y,0)\;|\; y\in \F\}$. The point $[0:1:0]$ is the projective representation of the point at infinity $\mathcal{O}$ in the affine representation. The projective representation of a \concept{short Weierstrass} curve, therefore, has the advantage that it does not need a special symbol to represent the point at infinity from the affine definition.
+\begin{equation}
+  \label{def:projective_cubic_equation}
+  E(\F\mathrm{P}^2) = \{[X:Y:Z]\in \F\mathrm{P}^2\;|\; Y\cdot Z = X^3+a\cdot X\cdot Z^4 + b\cdot Z^6 \}
+\end{equation}
+
+In the rest of the manual we will refer to homogeneous projective coordinates as just projective coordinates and Jacobian projective coordinates as just Jacobian coordinates.
+Both coordinates system allow accumulating the field inversion to apply in $Z$. Choosing one or the other is context-dependent (scalar multiplication or pairing, $\F\mathrm{P}$ or $\F\mathrm{P}^2$, coefficient in curve equation).
+They have different addition and doubling cost, especially if made constant-time to protect against timing attacks.
+\sme{For example, projective coordinates are faster for pairings (A13, Realm of the Pairings, https://eprint.iacr.org/2013/722) but for constant-time scalar multiplication on an extension field, it requires 
+multiplying by the coefficient b of the curve (RCB15, Complete addition formulas for prime order elliptic curves, https://eprint.iacr.org/2015/1060) which can be expensive, i.e. for BN254 G2, b' = 3/(9+𝑖)}
 
 \begin{example}
 \label{ex:E1F5-projective}
