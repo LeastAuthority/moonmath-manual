@@ -121,12 +121,12 @@ Common \concept{reference string}s depend on the simulation trapdoor, and are th
 
 If a simulation trapdoor $\tau = (\alpha,\beta,\gamma,\delta, s)$ is given, we call the element $s$ a \term{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$, then a key feature of any \concept{Common Reference String} is that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $s$ in the exponent of the generator $g_1$ or $g_2$, without knowing $s$.
 
-To be more precise, let $s$ be the secret evaluation point and let $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ be a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(s)}$ without knowing what the actual value of $s$ is:\tbds{fix label placement}
+To be more precise, let $s$ be the secret evaluation point and let $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ be a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(s)}$ without knowing what the actual value of $s$ is:
 
 \label{eq:exp_evaluation-poly}
 \begin{align}
 g_1^{P(s)} & = g_1^{a_0\cdot s^0 + a_1\cdot s^1 + \ldots a_k\cdot s^k} \notag\\
- & = g_1^{a_0\cdot s^0} \cdot g_1{a_1\cdot s^1} \cdot \ldots \cdot g_1^{a_k\cdot s^k}\notag\\
+ & = g_1^{a_0\cdot s^0} \cdot g_1^{a_1\cdot s^1} \cdot \ldots \cdot g_1^{a_k\cdot s^k}\notag\\
  & = \Big(g_1^{s^0}\Big)^{a_0} \cdot \Big(g_1^{s^1}\Big)^{a_1} \cdot \ldots \cdot \Big(g_1^{s^k}\Big)^{a_k}
 \end{align}
 In this expression, all group points $g_1^{s^j}$ are part of the \concept{Common Reference String}, hence, they can be used to compute the result. The same holds true for the evaluation of $g_2^{P(s)}$, since the $\G_2$ part of the \concept{Common Reference String} contains the points $g_2^{s^j}$. 
@@ -410,7 +410,7 @@ g_1^I & = \Big(g_1^{\frac{\beta\cdot A_{0}(s)+\alpha\cdot B_{0}(s)+C_{0}(s)}{\ga
 With this group element, the verifier is able to verify the zk-SNARK $\pi=(g_1^A,g_1^C,g_2^B)$ by checking the following equation using the pairing map:
 \begin{equation}
 \label{def:groth16-verifier-equation}
-e(g_1^A, e_2^B) = e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)
+e(g_1^A, g_2^B) = e(g_1^\alpha,g_2^\beta)\cdot e(g_1^I,g_2^\gamma)\cdot e(g_1^C,g_2^\delta)
 \end{equation}
 
 If the equation holds true, the verifier outputs \texttt{accept} and the equation does not hold, the verifier outputs \texttt{reject}.
