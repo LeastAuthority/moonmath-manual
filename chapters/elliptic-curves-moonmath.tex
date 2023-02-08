@@ -181,27 +181,27 @@ Look up the definition of curve \curvename{BLS12-381}, implement it in Sage, and
 \subsubsection{Isomorphic affine \concept{short Weierstrass} curves}
 \label{sec:isomorphic_curves} As explained previously in this chapter, elliptic curves are defined by pairs of parameters $(a, b)\in \F\times \F$ for some field $\F$. An important question in classifying elliptic curves is to decide which pairs of parameters $(a,b)$ and $(a',b')$ instantiate equivalent curves in the sense that there is a 1:1 correspondence between the set of curve points.
 
-To be more precise, let $\F$ be a field, and let $(a,b)$ and $(a',b')$ be two pairs of parameters such that there is an invertible field element $c\in \F^*$ such that $a' = a\cdot c^4$ and $b' = b\cdot c^6$ hold. Then the elliptic curves $E_{a,b}(\F)$ and $E_{a',b'}(\F)$ are called \term{isomorphic}, and there is a map that maps the curve points of $E_{a,b}(\F)$ onto the curve points of $E_{a',b'}(\F)$:
+To be more precise, let $\F$ be a field, and let $(a,b)$ and $(a',b')$ be two pairs of parameters such that there is an invertible field element $c\in \F^*$ such that $a' = a\cdot c^4$ and $b' = b\cdot c^6$ hold. Then the elliptic curves $E_{a,b}(\F)$ and $E_{a',b'}(\F)$ are \term{isomorphic}, and there is a map that maps the curve points of $E_{a,b}(\F)$ onto the curve points of $E_{a',b'}(\F)$:
 \begin{equation}
 \label{eq:curve_isomorphism}
 I: E_{a,b}(\F) \to E_{a',b'}(\F):\; \begin{cases}(x,y)\\\Oinf\end{cases}
-\mapsto \begin{cases}(c^2\cdot x,c^2\cdot y)\\\Oinf\end{cases}
+\mapsto \begin{cases}(c^2\cdot x,c^3\cdot y)\\\Oinf\end{cases}
 \end{equation}
-This map is a 1:1 correspondence, and its inverse map is given by mapping the point at infinity onto the point at infinity, and mapping each curve point $(x,y)$ onto the curve point $(c^{-2}x,c^{-2}y)$.
+This map is a 1:1 correspondence, and its inverse map is given by mapping the point at infinity onto the point at infinity, and mapping each curve point $(x,y)$ onto the curve point $(c^{-2}x,c^{-4}y)$.
 \begin{example}
 \label{ex:isomorphic_E1F5}
  Consider the \concept{short Weierstrass} elliptic curve $E_{1,1}(\F_5)$ from \examplename{} \ref{E1F5} and the following elliptic curve:
 \begin{equation}
-E_{1,4}(\F_5):= \{(x,y)\in \F_5\times \F_5 \; | \; y^3 = x^3 + x + 4 \}
+E_{1,4}(\F_5):= \{(x,y)\in \F_5\times \F_5 \; | \; y^2 = x^3 + x + 4 \}
 \end{equation}
 
-If we insert all pairs of elements $(x,y)\in \F_5\times \F_5$ into the \concept{short Weierstrass} equation $y^3 = x^3 + x + 4$ of $E_{1,4}(\F_5)$, we get the following set of points:
+If we insert all pairs of elements $(x,y)\in \F_5\times \F_5$ into the \concept{short Weierstrass} equation $y^2 = x^3 + x + 4$ of $E_{1,4}(\F_5)$, we get the following set of points:
 \begin{equation}
 E_{1,4}(\F_5) = \{
 \Oinf, (0,2), (0,3), (1,1), (1,4), (2,2), (2,3), (3,2), (3,3)\}
 \end{equation}
 
-As we can see, both curves are of the same order. Since $2$ is an invertible element from $\F_5$ with $1 = 2^4\cdot 1$ and $4=2^6\cdot 1$, $E_{1,4}(\F)$ and $E_{1,1}(\F)$ are isomorphic: the map $I: E_{1,1}(\F_5)\to E_{1,4}(\F_5): (x,y)\mapsto (4x,4y)$ from \ref{eq:curve_isomorphism} defines a 1:1 correspondence. For example, the point $(4,3)\in E_{1,1}(\F)$ is mapped onto the point $I(4,3)=(4\cdot 4, 4\cdot 3) = (1,2)\in E_{1,4}(\F)$.
+As we can see, both curves are of the same order. Since $2$ is an invertible element from $\F_5$ with $1 = 2^4\cdot 1$ and $4=2^6\cdot 1$, $E_{1,4}(\F)$ and $E_{1,1}(\F)$ are isomorphic: the map $I: E_{1,1}(\F_5)\to E_{1,4}(\F_5): (x,y)\mapsto (4x,3y)$ from \ref{eq:curve_isomorphism} defines a 1:1 correspondence. For example, the point $(4,3)\in E_{1,1}(\F)$ is mapped onto the point $I(4,3)=(4\cdot 4, 3\cdot 3) = (1,4)\in E_{1,4}(\F)$.
 \end{example}
   
 \begin{exercise}
@@ -211,9 +211,9 @@ Let $\F$ be a finite field, let $(a,b)$ and $(a',b')$ be two pairs of parameters
 \begin{exercise}
 \label{ex:isomorphic_TJJ13} Consider the \curvename{Tiny-jubjub} curve from \examplename{} \ref{TJJ13} and the elliptic curve $E_{5,12}(\F_{13})$ defined as follows:
 \begin{equation}
-E_{5,12}(\F_{13}) = \{ (x,y)\in \F_{13}\times \F_{13}\;|\; y^2 = x^3 + 5x +12\}
+E_{7,5}(\F_{13}) = \{ (x,y)\in \F_{13}\times \F_{13}\;|\; y^2 = x^3 + 7x +5\}
 \end{equation}
-Show that $TJJ\_13$ and $E_{5,12}(\F_{13})$ are isomorphic. Then compute the set of all points from $E_{5,12}(\F_{13})$, construct $I$ and map all points of $TJJ\_13$ onto $E_{5,12}(\F_{13})$.
+Show that $TJJ\_13$ and $E_{7,5}(\F_{13})$ are isomorphic. Then compute the set of all points from $E_{7,5}(\F_{13})$, construct $I$ and map all points of $TJJ\_13$ onto $E_{7,5}(\F_{13})$.
 \end{exercise}
 
 \subsubsection{Affine compressed representation}
