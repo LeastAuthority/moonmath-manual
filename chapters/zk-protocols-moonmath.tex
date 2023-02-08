@@ -93,6 +93,11 @@ $$
 $$
 It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has an efficiently computable, non-degenerate, bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real-world applications, where SNARKs with equivalent behavior are defined over different curves, used in different applications.
 \end{example}
+\begin{example}[The 3-Factorization Problem in Circom and Snarkjs]
+\label{ex:3-fac-groth-16-params-circom} Snark.js is a JavaScript library that provides support for developing systems utilizing zero-knowledge proofs (ZKPs), including the Groth-16 protocol. In order to provide a real world example for the 3-factorization problem, we use it's Circom implementation \ref{ex:3-fac-circom}, which compiles into a representation that snark.js understands.
+
+As of the time of writing, Snark.js supports the elliptic curves \curvename{alt\_bn128}, \curvename{BLS12-381}, and \curvename{Goldilocks}. For the purposes of this example, we shall utilize \curvename{alt\_bn128}, and it's associated scalar field $\F_{bn128}$ as introduced in \ref{BN128}. The Groth-16 parameters for this curve, as officially defined for the Ethereum blockchain, can be found in \href{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-197.md}{EIP-197}. Snark.js utilizes those parameters.
+\end{example}
 
 \subsection{The Setup Phase} To generate zk-SNARKs from constructive knowledge proofs in the Groth16 protocol, a preprocessing phase is required. This has to be executed a single time for every Rank-1 Constraint System and any associated Quadratic Arithmetic Program. The outcome of this phase is a \concept{Common Reference String} that prover and verifier need in order to generate and verify the zk-SNARK. In addition, a simulation trapdoor is produced that can be used to simulate proofs.
 
@@ -264,6 +269,49 @@ Indeed, we are able to evaluate the polynomials in the exponent at a secret eval
 Apart from the target polynomial $T$, all other polynomials of the Quadratic Arithmetic Program can be evaluated in the exponent this way.
 \end{example}
 
+\begin{example}[The 3-Factorization Problem in Circom and Snark.js]
+\label{ex:3-fac-groth-16-setup-circom} To see how real world applications handle the setup phase of a Groth\_16 zk-SNARK, consider the Circom implementation of the $3$-factorization problem \ref{ex:3-fac-circom} and Snark.js's associated parameter set from example \ref{ex:3-fac-groth-16-params-circom}. 
+
+In Snark.js the generation of the common reference string consists of two parts, which increases flexibility in its support for other protocols. The first part depends on an upper bound of the number of constraints in the circuit, and the second part depends on the circuit itself. 
+
+The first part is usually called \textit{powers of tau}, because it computes consecutive powers $g^\tau$, $g^{\tau^2}$, $g^{\tau^3}$, $\ldots$ of a random field element $\tau$ in the exponent of the agreed on generators of $\G_1$ and $\G_2$, where the randomness is either provided by a trusted third party, or generated in a multi party computation. 
+
+Assuming that an upper bound on the number of constraints in Circom's 3-fac circuit is given by $2^4$, the first part is initialized as follows:
+\begin{lstlisting}
+snarkjs powersoftau new bn128 4 pot4_0000.ptau -v
+\end{lstlisting}
+The \texttt{new} command is used to start a new phase and the first parameter after \texttt{new} refers to the type of curve and hence specifies the Groth-16 parameter set as defined in \ref{ex:3-fac-groth-16-params-circom}. The next parameter \texttt{a}, in this case 4, defines an upper bound $2^a$ on the number of constraints that the setup can accept. 
+
+After the initialization, it is possible for different parties to contribute randomness to the common reference string as follows
+\begin{lstlisting}
+snarkjs powersoftau contribute pot4_0000.ptau pot4_0001.ptau --name="1st_cont" -v
+\end{lstlisting}
+This creates a file with a new contribution and the user is prompted to enter some random text to provide an extra source of entropy. This step can be repeated for multiple users and it can be shown that it is not possible to recover the simulation trapdoor \ref{def:groth16-trapdoor}, as long as at least one contributor does not store their randomness. The correctness of any contribution file can be verified as follows:
+\begin{lstlisting}
+snarkjs powersoftau verify pot4_0001.ptau
+\end{lstlisting}
+In order to finalize the first phase some unpredictable, public randomness must be included into the setup, which was not known before the last contribution of any party. This is usually done by using the hash of the latest block in a public blockchain, or something similar:
+\begin{lstlisting}
+snarkjs powersoftau beacon pot4_0001.ptau pot4_beacon.ptau 0102030405060708090a0b0c00 10 -n="Final Beacon"
+\end{lstlisting}
+The following two commands initialize the second phase and verify it: 
+\begin{lstlisting}
+snarkjs powersoftau prepare phase2 pot4_beacon.ptau pot4_final.ptau -v
+snarkjs powersoftau verify pot4_final.ptau
+\end{lstlisting}
+In our case, the randomness encoded in the power of tau ceremony can then be used for the generation of a common reference string for any circuit, which has less then $2^4$ constraints.  
+
+Since we know from \ref{ex:3-fac-circom}, that Circom's three\_fac circuit has two constraints, we can use the randomness from this power of tau ceremony to generate a common reference string as follows:
+\begin{lstlisting}
+snarkjs groth16 setup three_fac.r1cs pot4_final.ptau three_fac.zkey
+\end{lstlisting}
+This computes a Groth-16 common reference string as defined in \ref{def:groth16-crs} and saves it to \fname{three\_fac.zkey}.
+
+
+
+\end{example}
+
+
 \subsection{The Prover Phase} Given some Rank-1 Constraint System $R$ and instance $I=<I_1,\ldots, I_n>$, the task of the prover phase is to convince any verifier that a prover knows a witness $W$ to instance $I$ such that  $(I;W)$ is a word in the language $L_R$ of the system, without revealing anything about $W$. 
 
 To achieve this in the Groth\_16 protocol, we assume that any prover has access to the Rank-1 Constraint System of the problem, in addition to some algorithm that tells the prover how to compute constructive proofs for the R1CS. In addition, the prover has access to a \concept{Common Reference String} and its associated Quadratic Arithmetic Program. 
@@ -398,6 +446,7 @@ Given the instance $I_1=<11>$, we can now combine these computations and see tha
 
 We can now publish this zk-SNARK, or send it to a designated verifier. Note that, if we had sampled different values for $r$ and $t$, we would have computed a different zk-SNARK for the same witness. The zk-SNARK, therefore, hides the witness perfectly, which means that it is impossible to reconstruct the witness from the zk-SNARK.
 \end{example}
+
 
 \subsection{The Verification Phase}
 \label{sec:groth16-verifier}

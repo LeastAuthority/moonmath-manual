@@ -1,14 +1,19 @@
 \chapter{Circuit Compilers}\label{chap:circuit-compilers}
 % finite field arithmetics https://johnkerl.org/doc/ffcomp.pdf
-As we have seen in the previous chapter, statements can be formalized as membership or knowledge claims in formal languages, and algebraic circuits as well as Rank-1 Constraint Systems are two practically important ways to define those languages.
+As previously demonstrated in Chapter \ref{sec:statements}, statements in formal languages can be formalized as membership or knowledge claims, with algebraic circuits and Rank-1 Constraint Systems being two crucial means of defining these languages.
 
-However, both algebraic circuits and Rank-1 Constraint Systems are not ideal from a developers point of view, because they deviate substantially from common programming paradigms. Writing real-world applications as circuits and the associated verification in terms of Rank-1 Constraint Systems is at least as troublesome as writing any other low-level language like assembler code. To allow for complex statement design, it is therefore necessary to have some kind of compiler framework, capable of transforming high-level languages into arithmetic circuits and associated Rank-1 Constraint Systems. 
+However, both algebraic circuits and Rank-1 Constraint Systems present substantial deviations from conventional programming paradigms and present difficulties for developers. The task of writing real-world applications as circuits and verifying them through Rank-1 Constraint Systems is as challenging as writing code in low-level languages such as assembly. To facilitate complex statement design, it is necessary to have a compiler framework that can translate high-level languages into arithmetic circuits and associated Rank-1 Constraint Systems.
 
-As we have seen in \chaptname{} \ref{sec:statements}, specifically in \ref{sec:R1CS} and \ref{sec:circuits}, both arithmetic circuits and Rank-1 Constraint Systems have a modularity property \ref{sec:R1CS_modularity}, by which it is possible to synthesize complex circuits from simple ones. A basic approach taken by many circuit/R1CS compilers is therefore to provide a library of atomic and simple circuits and then define a way to combine those basic building blocks into arbitrary complex systems.
+These programming languages allow for more intuitive and efficient creation and testing of arithmetic circuits, freeing developers from the intricacies of R1CS representations. As a result, they can concentrate on the logic of the circuits they intend to build while the compiler handles the rest.
 
-In this chapter, we provide an introduction to basic concepts of so-called \term{circuit compilers} and derive a toy language which we can ``compile'' in a pen-and-paper approach into graphical representations of algebraic circuits and their associated Rank-1 Constraint Systems.
+An additional benefit of R1CS compiling programming languages is that they can generate not only R1CS representations but also other programs that can efficiently compute the values of the circuit's assignment. This facilitates integration of the circuits into various platforms and environments, without the need to consider underlying implementation details.
 
-We start with a general introduction to our toy programming language, and then introduce atomic types like booleans and unsigned integers. Then we define the fundamental control flow primitives like the if-then-else conditional and the bounded loop. We will look at basic functionality primitives like elliptic curve cryptography. Primitives like these are often called \term{gadgets} in the literature. 
+As demonstrated in Chapter \ref{sec:statements} through sections \ref{sec:R1CS} and \ref{sec:circuits}, both arithmetic circuits and Rank-1 Constraint Systems exhibit a modular property \ref{sec:R1CS_modularity}, allowing for synthesis of complex circuits from simpler ones. Many circuit/R1CS compilers adopt a basic approach of providing a library of atomic and simple circuits, with a means of combining these building blocks into more complex systems.
+
+This chapter provides an overview of basic concepts in the field of circuit compilers, presenting a toy language which can be manually "compiled" into graphical representations of algebraic circuits and their associated Rank-1 Constraint Systems. The chapter then examines real-world compilers and the higher-level languages they support.
+
+The chapter begins with a general introduction to the toy programming language and to the real world languages, followed by a discussion of atomic types such as booleans and unsigned integers. Control flow primitives, including the if-then-else conditional and the bounded loop, are then defined. The chapter concludes with a review of basic functionality primitives, such as elliptic curve cryptography, commonly referred to as "gadgets" in literature.
+
 \section{A Pen-and-Paper Language} To explain basic concepts of circuit compilers and their associated high-level languages, we derive an informal toy language and associated ``brain-compiler'' which we name \lgname{PAPER} (\textbf{P}en-\textbf{A}nd-\textbf{P}aper \textbf{E}xecution \textbf{R}ules). \lgname{PAPER} allows programmers to define statements in Rust-like pseudo-code. The language is inspired by \lgname{zokrates} and \lgname{circom}.
  
 \subsection{The Grammar}
@@ -151,6 +156,99 @@ Then we evaluate the right side of the assignment operators. Since, in our case,
 \paragraph{The Prover Phase} In \lgname{PAPER}, a so-called \term{prover phase} can be executed once the setup phase has generated a graphic circuit representation from its associated high-level code. This is done by executing the circuit while assigning proper values to all input nodes of the circuit. However, in contrast to most real-world compilers, \lgname{PAPER} does not tell the prover how to find proper input values to a given circuit. Real-world programing languages usually provide this data by computations that are done outside of the circuit.
 \begin{example} Consider the circuit from \examplename{} \ref{ex:TJJ-circuit_2}. Valid assignments to this circuit are constructive proofs that the pair of inputs $<I_1,I_2>$ is a point on the tiny-jubjub curve. However, the circuit does not provide a way to actually compute proper values for $I_1$ and $I_2$. Any real-world system therefore needs an auxiliary computation that provides those values.
 \end{example}
+\section{Real World Circuit Languages}
+Programming languages that compile to rank-1 constraint systems are becoming increasingly popular in the fields of cryptography and blockchain. These languages provide a higher-level abstraction for designing and implementing arithmetic circuits, which are fundamental building blocks in zero-knowledge proof systems. By using these programming languages, developers can focus on the logic of the circuits they want to build, while the compiler takes care of the low-level details of R1CS representations. Additionally, these languages can output not only the R1CS representation, but also other programs, that can efficiently compute all values of a valid circuit assignment. 
+
+\subsection{Circom}
+Circom is a domain-specific programming language for designing arithmetic circuits. It is used to build circuits that can be compiled to rank-1 constraint systems and outputted as WebAssembly and C++ programs for efficient evaluation.
+
+In this section, we will gives examples of how to write basic circuits in Circom. We will use those examples then later to compute associated proof in snarkjs. 
+
+To understand circom, we first have to provide definitions for the terms \hilight{signals},\hilight{templates}, and \hilight{components} to facilitate a better understanding of the examples discussed.
+
+A \term{signal} refers to an element in the underlying finite field $\F$ of a circuit. The arithmetic circuits created using Circom operate on signals, which are immutable and can be defined as inputs or outputs. Input signals are private, unless specified as public, and all output signals are publicly accessible. The remaining signals are private and cannot be made public. Public signals are part of the instance and private signals are part of the witness in any valid assigment of a circuit.
+
+A \term{template} is an algorithm that creates generic circuits in Circom. The template is a new circuit object that can be utilized to construct other circuits.
+
+\term{Components} define an arithmetic circuit by receiving input signals and producing output signals and intermediate signals, as well as a set of constraints. Components, like signals, are also immutable.
+
+\begin{example}
+\label{ex:trivial-circuit-circom}
+As a demonstration of the generation of circuits in the Circom language, we revisit the trivial circuit from example \ref{ex:trivial-circuit} as previously defined in \lgname{PAPER}. The following code provides one representation of this circuit in the Circom language:
+
+\begin{lstlisting}
+template trivial_circuit() {
+
+    signal private input in1 ;
+    signal private input in2 ;
+
+    var outc1 = 0 ;
+    var inc1 = 7 ;
+    
+    signal output out1 ;
+    signal output out2 ;
+
+    out2 <== in1 ;
+    outc1 === in2 ;
+}
+
+component main = trivial_circuit() ;
+\end{lstlisting}
+
+It should be noted that the underlying field is not made explicit in Circom, thus the constants $0$ and $7$ have no immediate significance. To compile the Circom language into an R1CS representation, the code must be saved as a text file. We refer to it as \fname{trivial\_circuit.circom}. This file can then be compiled using the following command:
+\begin{lstlisting}
+circom trivial_circuit.circom --r1cs --wasm --sym
+\end{lstlisting}
+
+The Circom compiler generates three distinct files. The first file, \fname{trivial\_circuit.r1cs}, contains the R1CS constraint system of the circuit in a custom binary format. The second file, \fname{trivial\_circuit.wasm}, is a wasm code that computes a witness from a given instance, thereby yielding a solution to the R1CS. Finally, the third file, \fname{trivial\_circuit.sym}, is a symbols text file necessary for debugging or annotated printing of the constraint system.
+\end{example}
+
+\begin{example}[The 3-factorization problem]
+\label{ex:3-fac-circom}
+In this example we implement the 3-factorization problem \ref{ex:3-factorization} in Circom's language and compile into an R1CS and statement generator. In order to show, how Circom handles modularity \ref{modularity}, we write the code as follows:
+\begin{lstlisting}
+template Multiplier() {
+    signal input a ;
+    signal input b ;
+    signal output c ;
+    c <== a*b ;
+}
+
+
+template three_fac () {
+    signal input x1 ;
+    signal input x2 ;
+    signal input x3 ;
+    signal output x4 ;
+    component mult1 = Multiplier() ;
+    component mult2 = Multiplier() ;
+    mult1.a <== x1 ;
+    mult1.b <== x2 ;
+    mult2.a <== mult1.c ;
+    mult2.b <== x3 ;
+    x4 <== mult2.c ;
+}
+
+component main = three_fac() ;
+\end{lstlisting}
+To compile this Circom implementation into an R1CS representation and statement generator, the code must be saved as a text file. We refer to it as \fname{three\_fac.circom}. This file can then be compiled using the following command:
+\begin{lstlisting}
+circom three_fac.circom --r1cs --wasm --sym
+\end{lstlisting}
+Once the file is compiled, the \texttt{info} command can be used to print circuit stats, including the number of constraints:
+\begin{lstlisting}
+snarkjs r1cs info circuit.r1cs
+
+[INFO]  snarkJS: Curve: bn-128
+[INFO]  snarkJS: # of Wires: 6
+[INFO]  snarkJS: # of Constraints: 2
+[INFO]  snarkJS: # of Private Inputs: 0
+[INFO]  snarkJS: # of Public Inputs: 3
+[INFO]  snarkJS: # of Labels: 11
+[INFO]  snarkJS: # of Outputs: 1
+\end{lstlisting}
+\end{example}
+
 \section{Common Programing concepts}
 In this section, we cover concepts that appear in almost every programming language, and see how they can be implemented in circuit compilers. 
 \subsection{Primitive Types} 
