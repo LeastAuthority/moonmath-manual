@@ -51,17 +51,11 @@ The system is non-interactive because the prover only sends a single message to 
 \end{example}
 \section{The ``Groth16'' Protocol}
 \label{sec:gorth_16}
- In \chaptname{} \ref{chap:statements}, we have introduced algebraic circuits, their associated Rank-1 Constraint Systems and their induced Quadratic Arithmetic Programs. These models define formal languages, and associated memberships and knowledge claims can be constructively proofed by executing the circuit to compute a solution to its associated R1CS. As we have seen in \ref{sec:QAP} the proof can then be transformed into a polynomial such that the polynomial is divisible by another polynomial if and only if the proof is correct. 
+ In \chaptname{} \ref{chap:statements}, we presented algebraic circuits, their associated Rank-1 Constraint Systems and their induced Quadratic Arithmetic Programs. These models define formal languages, and associated memberships and knowledge claims provide constructive proofs by executing the circuit to compute a solution to the associated R1CS. As previously noted in Section \ref{sec:QAP} the proof can then be transformed into a polynomial that is only divisible by another polynomial if and only if the proof is valid. 
  
-In \cite{Groth16},\sme{check reference} Jens Groth provides a method, capable to transform constructive proofs into zero-knowledge succinct non-interactive arguments of knowledge. Assuming that there are groups $\G_1$, $\G_2$ and $\G_3$ and an efficiently computable pairing map \ref{pairing-map}
+In \cite{Groth16}, Jens Groth developed a method for transforming constructive proofs into zero-knowledge succinct non-interactive arguments of knowledge. Given groups $\G_1$, $\G_2$, and $\G_3$, and an efficiently computable pairing map $e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3$ (see \ref{pairing-map}), the resulting zk-SNARK in Groth's protocol is of constant size, consisting of two elements from $\G_1$ and one element from $\G_2$, regardless of the instance and witness size. Verification is non-interactive, requiring the computation of a number of exponentiations proportional to the instance size, along with three group pairings, in order to verify a single proof.
 
-$$
-e(\cdot,\cdot): \G_1 \times \G_2 \to \G_3
-$$
-
-Then the zk-SNARK in Groth's protocol is of constant size and consist of $2$ elements from $G_1$ and a single element from $\G_2$, regardless of the size of the witness. Verification is non-interactive and the verifier needs to compute a number of exponentiations proportional to the size of the instance, together with $3$ group pairings in order to verify a single proof.
-
-The generated zk-SNARK is zero-knowledge, has completeness and soundness in the generic bilinear group model, assuming the existence of a trusted third party that executes a preprocessing phase to generate a \term{\concept{Common Reference String}} and a \term{simulation trapdoor}. This party must be trusted to delete the simulation trapdoor, since everyone in possession of it can simulate proofs. 
+The generated zk-SNARK is zero-knowledge, has completeness and soundness in the generic bilinear group model, under the assumption of the existence of a trusted third party that executes a preprocessing phase to produce a Common Reference String and a simulation trapdoor. It is imperative that this party is trusted to delete the simulation trapdoor, as any individual in possession of it would have the ability to simulate proofs. As demonstrated in \cite{bowe-17}, it is possible to transform the single-party trusted setup into a multi-party computation that is secure as long as at least one contributor deletes their contribution to the simulation trapdoor. 
 
 To be more precise, let $R$ be a Rank-1 Constraint System defined over some finite field $\F_r$. Then \term{Groth\_16 parameters} for $R$ are given by the following set:
 \begin{equation}
@@ -73,14 +67,14 @@ Here, $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a genera
 
 Given some Groth\_16 parameters, a \term{Groth\_16 protocol} is then a quadruple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Prove},\textsc{Vfy},\textsc{Sim})$ such that the following conditions hold:
 \begin{itemize}
-\item (Setup-Phase): $(CRS,\tau)\leftarrow \textsc{Setup}(R)$: Algorithm $\textsc{Setup}$ takes the R1CS $R$ as input and computes a \term{\concept{Common Reference String}} $CRS$ and a \term{simulation trapdoor} $\tau$.
+\item (Setup-Phase): $(CRS,\Tau)\leftarrow \textsc{Setup}(R)$: Algorithm $\textsc{Setup}$ takes the R1CS $R$ as input and computes a \term{\concept{Common Reference String}} $CRS$ and a \term{simulation trapdoor} $\Tau$.
 \item (Prover-Phase): $\pi\leftarrow \textsc{Prove}(R,CRS,I,W)$: Given a constructive proof $(I;W)$ for $R$, algorithm $\textsc{Prove}$ takes the R1CS $R$, the \concept{Common Reference String} $CRS$ and the constructive proof $(I,W)$ as input and computes an zk-SNARK $\pi$.
 \item Verify: $\{\mathtt{accept},\mathtt{reject}\}\leftarrow \textsc{Vfy}(R,CRS,I,\pi)$:   Algorithm \textsc{Vfy} takes the R1CS $R$, the \concept{Common Reference String} $CRS$, the instance $I$ and the zk-SNARK $\pi$ as input and returns \texttt{reject} or \texttt{accept}.
-\item $\pi\leftarrow \textsc{Sim}(R,\tau,CRS, I)$: Algorithm \textsc{Sim} takes the R1CS $R$, the \concept{Common Reference String} $CRS$, the simulation trapdoor $\tau$ and the instance $I$ as input and returns a zk-SNARK $\pi$. 
+\item $\pi\leftarrow \textsc{Sim}(R,\tau,CRS, I)$: Algorithm \textsc{Sim} takes the R1CS $R$, the \concept{Common Reference String} $CRS$, the simulation trapdoor $\Tau$ and the instance $I$ as input and returns a zk-SNARK $\pi$. 
 \end{itemize}
 We will explain these algorithms together with detailed examples in the remainder of this section.
 
-Assuming a trusted third party for the setup, the protocol is  able to compute a zk-SNARK from a constructive proof for $R$, provided that the group order $r$ is sufficiently large, and, in particular, larger than the number of constraints in the associated R1CS.
+Assuming a trusted third party or the presence of a corresponding multi-party computation for the setup, the protocol is capable of deriving a zk-SNARK from a constructive proof for $R$, provided that the group order $r$ is suitably large, with the requirement being particularly applicable to being larger than the number of constraints in the associated R1CS.
 
 \begin{example}[The 3-Factorization Problem]
 \label{ex:3-fac-groth-16-params} Consider the $3$-factorization problem from \ref{ex:3-factorization} and its associated algebraic circuit \ref{ex:3-fac-zk-circuit} as well the Rank-1 Constraint System from \ref{ex:3-factorization-r1cs}. In this example, we want to agree on a parameter set $(r, \G_1, \G_2, e(\cdot,\cdot), g_1, g_2)$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
@@ -94,19 +88,19 @@ $$
 It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has an efficiently computable, non-degenerate, bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real-world applications, where SNARKs with equivalent behavior are defined over different curves, used in different applications.
 \end{example}
 \begin{example}[The 3-Factorization Problem in Circom and Snarkjs]
-\label{ex:3-fac-groth-16-params-circom} Snark.js is a JavaScript library that provides support for developing systems utilizing zero-knowledge proofs (ZKPs), including the Groth-16 protocol. In order to provide a real world example for the 3-factorization problem, we use it's Circom implementation \ref{ex:3-fac-circom}, which compiles into a representation that snark.js understands.
+\label{ex:3-fac-groth-16-params-circom} Snark.js is a JavaScript library that facilitates the development of systems incorporating zero-knowledge proofs (ZKPs), including the Groth-16 protocol. To showcase a practical example of the 3-factorization problem, we utilize our Circom implementation (see \ref{ex:3-fac-circom}), which compiles into a form that is compatible with snark.js.
 
 As of the time of writing, Snark.js supports the elliptic curves \curvename{alt\_bn128}, \curvename{BLS12-381}, and \curvename{Goldilocks}. For the purposes of this example, we shall utilize \curvename{alt\_bn128}, and it's associated scalar field $\F_{bn128}$ as introduced in \ref{BN128}. The Groth-16 parameters for this curve, as officially defined for the Ethereum blockchain, can be found in \href{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-197.md}{EIP-197}. Snark.js utilizes those parameters.
 \end{example}
 
-\subsection{The Setup Phase} To generate zk-SNARKs from constructive knowledge proofs in the Groth16 protocol, a preprocessing phase is required. This has to be executed a single time for every Rank-1 Constraint System and any associated Quadratic Arithmetic Program. The outcome of this phase is a \concept{Common Reference String} that prover and verifier need in order to generate and verify the zk-SNARK. In addition, a simulation trapdoor is produced that can be used to simulate proofs.
+\subsection{The Setup Phase} Generating zk-SNARKs from constructive proofs in the Groth16 protocol requires a preprocessing phase to be performed. This phase must be executed once for every Rank-1 Constraint System and its associated Quadratic Arithmetic Program. The outcome of this phase is a \concept{Common Reference String}, which is necessary for both the prover and the verifier to generate and verify the zk-SNARK. Additionally, a simulation trapdoor is generated during this phase, which can be utilized to simulate proofs.
 
 To be more precise, let $L$ be a language defined by some Rank-1 Constraint System $R$ such that  a constructive proof of knowledge for an instance $<I_1,\ldots,I_n>$ in $L$ consists of a witness $<W_1,\ldots,W_m>$. Let $QAP(R) = \left\{T\in \F[x],\left\{A_j,B_j,C_j\in \F[x]\right\}_{j=0}^{n+m}\right\}$ be a Quadratic Arithmetic Program associated to $R$, and let $\{\G_1, \G_2, e(\cdot,\cdot), g_1, g_2, \F_r\}$ be a set of Groth\_16 parameters.
 
-The setup phase then samples $5$ random, invertible elements $\alpha$, $\beta$,$\gamma$, $\delta$ and $s$ from the scalar field $\F_r$ of the protocol and outputs the \term{simulation trapdoor} $\tau$:
+The setup phase then samples $5$ random, invertible elements $\alpha$, $\beta$,$\gamma$, $\delta$ and $\tau$ from the scalar field $\F_r$ of the protocol and outputs the \term{simulation trapdoor} $\Tau$:
 \begin{equation}
 \label{def:groth16-trapdoor}
-\tau = (\alpha, \beta, \gamma, \delta, s)
+\Tau = (\alpha, \beta, \gamma, \delta, \tau)
 \end{equation}
 In addition, the setup phase uses those $5$ random elements together with the two generators $g_1$ and $g_2$  and the Quadratic Arithmetic Program to generate a \term{\concept{Common Reference String}} $CRS_{QAP}= (CRS_{\mathbb{G}_1},CRS_{\mathbb{G}_2})$ of language $L$:
 
@@ -114,33 +108,33 @@ In addition, the setup phase uses those $5$ random elements together with the tw
 \begin{align*}
 \label{def:groth16-crs}
 CRS_{\mathbb{G}_{1}} &= \textstyle\left\{ \begin{array}{c}
-g_1^\alpha,g_1^\beta,g_1^\delta,\left(g_1^{s^j},\ldots\right)_{j=0}^{deg(T)-1},
-\left(g_1^{\frac{\beta\cdot A_{j}(s)+\alpha\cdot B_{j}(s)+C_{j}(s)}{\gamma}},\ldots\right)_{j=0}^n\\
-\left(g_1^{\frac{\beta\cdot A_{j+n}(s)+\alpha\cdot B_{j+n}(s)+C_{j+n}(s)}{\delta}},\ldots\right)_{j=1}^m,\left(g_1^{\frac{s^{j}\cdot T(s)}{\delta}},\ldots\right)_{j=0}^{deg(T)-2}
+g_1^\alpha,g_1^\beta,g_1^\delta,\left(g_1^{\tau^j},\ldots\right)_{j=0}^{deg(T)-1},
+\left(g_1^{\frac{\beta\cdot A_{j}(\tau)+\alpha\cdot B_{j}(\tau)+C_{j}(\tau)}{\gamma}},\ldots\right)_{j=0}^n\\
+\left(g_1^{\frac{\beta\cdot A_{j+n}(\tau)+\alpha\cdot B_{j+n}(\tau)+C_{j+n}(\tau)}{\delta}},\ldots\right)_{j=1}^m,\left(g_1^{\frac{\tau^{j}\cdot T(\tau)}{\delta}},\ldots\right)_{j=0}^{deg(T)-2}
 \end{array}\right\} \\
-CRS_{\mathbb{G}_{2}} &= \left\{g_2^\beta ,g_2^\gamma,g_2^\delta,\left(g_2^{s^j},\ldots\right) _{j=0}^{deg(T)-1}\right\}
+CRS_{\mathbb{G}_{2}} &= \left\{g_2^\beta ,g_2^\gamma,g_2^\delta,\left(g_2^{\tau^j},\ldots\right) _{j=0}^{deg(T)-1}\right\}
 \end{align*}
 \end{definition}
 
 Common \concept{reference string}s depend on the simulation trapdoor, and are therefore not unique to the problem. Any language can have more than one \concept{Common Reference String}. The  size of a \concept{Common Reference String} is linear in the size of the instance and the size of the witness.
 
-If a simulation trapdoor $\tau = (\alpha,\beta,\gamma,\delta, s)$ is given, we call the element $s$ a \term{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$, then a key feature of any \concept{Common Reference String} is that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $s$ in the exponent of the generator $g_1$ or $g_2$, without knowing $s$.
+If a simulation trapdoor $\Tau = (\alpha,\beta,\gamma,\delta, \tau)$ is given, we call the element $\tau$ a \term{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$, then a key feature of any \concept{Common Reference String} is that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $\tau$ in the exponent of the generator $g_1$ or $g_2$, without knowing $\tau$.
 
-To be more precise, let $s$ be the secret evaluation point and let $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ be a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(s)}$ without knowing what the actual value of $s$ is:
+To be more precise, let $\tau$ be the secret evaluation point and let $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ be a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(\tau)}$ without knowing what the actual value of $\tau$ is:
 
 \label{eq:exp_evaluation-poly}
 \begin{align}
-g_1^{P(s)} & = g_1^{a_0\cdot s^0 + a_1\cdot s^1 + \ldots a_k\cdot s^k} \notag\\
- & = g_1^{a_0\cdot s^0} \cdot g_1^{a_1\cdot s^1} \cdot \ldots \cdot g_1^{a_k\cdot s^k}\notag\\
- & = \Big(g_1^{s^0}\Big)^{a_0} \cdot \Big(g_1^{s^1}\Big)^{a_1} \cdot \ldots \cdot \Big(g_1^{s^k}\Big)^{a_k}
+g_1^{P(\tau)} & = g_1^{a_0\cdot \tau^0 + a_1\cdot \tau^1 + \ldots a_k\cdot \tau^k} \notag\\
+ & = g_1^{a_0\cdot \tau^0} \cdot g_1^{a_1\cdot \tau^1} \cdot \ldots \cdot g_1^{a_k\cdot \tau^k}\notag\\
+ & = \Big(g_1^{\tau^0}\Big)^{a_0} \cdot \Big(g_1^{\tau^1}\Big)^{a_1} \cdot \ldots \cdot \Big(g_1^{\tau^k}\Big)^{a_k}
 \end{align}
-In this expression, all group points $g_1^{s^j}$ are part of the \concept{Common Reference String}, hence, they can be used to compute the result. The same holds true for the evaluation of $g_2^{P(s)}$, since the $\G_2$ part of the \concept{Common Reference String} contains the points $g_2^{s^j}$. 
+In this expression, all group points $g_1^{\tau^j}$ are part of the \concept{Common Reference String}, hence, they can be used to compute the result. The same holds true for the evaluation of $g_2^{P(\tau)}$, since the $\G_2$ part of the \concept{Common Reference String} contains the points $g_2^{\tau^j}$. 
 
-In real-world applications, the simulation trapdoor is often called the \term{toxic waste} of the setup-phase. As we will see in \ref{sec:proof_simulation}, a simulation trapdoor can be used to generate fraud proofs, which are verifiable zk-SNAKS that can be constructed without knowledge of any witness. The \concept{Common Reference String} is also-called a pair of \term{prover and verifier key}. 
+In practical applications, the elements $g_{1/2}^{\tau^0}$, $g_{1/2}^{\tau^1}$, $\ldots$, $g_{1/2}^{\tau^k}$ are commonly referred to as the \term{powers of tau}, a term frequently used in trusted setup computations. Additionally, the simulation trapdoor is often referred to as the \term{toxic waste} of the setup phase. As will be demonstrated in section \ref{sec:proof_simulation}, the simulation trapdoor can be utilized to generate fraud proofs, which are verifiable zk-SNARKs that can be constructed without knowledge of any witness. The Common Reference String is also known as the \term{prover and verifier key pair}.
 
-In order to make the protocol secure, the setup needs to be executed in a way that  guarantees that the simulation trapdoor is deleted. The most simple approach to achieving deletion of the toxic waste is by a so-called \term{trusted third party}, where the trust assumption is that the party generates the \concept{Common Reference String} precisely as defined and deletes the simulation trapdoor afterwards.
+To ensure the security of the protocol, the setup must be carried out in a way that ensures the safe disposal of the simulation trapdoor. The simplest method for accomplishing this is through the use of a so-called \term{trusted third party}, where trust is placed in the party to properly generate the \concept{Common Reference String} and securely dispose of the toxic waste afterwards.
 
-However, as trusted third parties are not easy to find, more sophisticated protocols for the setup phase exist in real-world applications. They execute the setup phase as a multi party computation, where the proper execution can be publicly verified and the simulation trapdoor is deleted if at least one participant deletes their individual contribution. Each participant only possesses a fraction of the simulation trapdoor, so it can only be recovered if all participants collude and share their fraction.
+However, finding a trusted third party can be challenging, thus alternative methods have been developed in practical applications. These utilize multi-party computation in the setup phase, which can be publicly verified for proper execution, and the simulation trapdoor is not recoverable if at least one participant destroys their contribution. Each participant holds only a fraction of the trapdoor, making it recoverable only if all participants collaborate and share their parts.
 
 \begin{example}[The $3$-factorization Problem]
 To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization} and the Groth\_16 parameters from \examplename{} \ref{ex:3-fac-groth-16-params}. As we have seen in \ref{ex:3-fac-QAP}, an associated Quadratic Arithmetic Program is given by the following set:
@@ -148,13 +142,13 @@ To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the
 QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
  \{0,0,6x+10,0,0,7x+4\},\{0,0,0,6x+10,7x+4,0\},\{0,7x+4,0,0,0,6x+10\}\}
 \end{multline*}
-To transform this QAP into a \concept{Common Reference String}, we choose the  field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $s=2$ from $\mathbb{F}_{13}$. 
+To transform this QAP into a \concept{Common Reference String}, we choose the  field elements $\alpha=6$, $\beta=5$, $\gamma=4$, $\delta=3$, $\tau=2$ from $\mathbb{F}_{13}$. 
 In real-world applications, it is important to sample those values randomly from the scalar field, but in our approach, we choose those non-random values to make them more memorizable, which helps in pen-and-paper computations. Our simulation trapdoor is then given as follows:
 $$
-\tau = (6,5,4,3,2)
+\Tau = (6,5,4,3,2)
 $$
 
-We keep this secret in order to simulate proofs later on, but we are careful to hide $\tau$ from anyone who hasn't read this book. Then we instantiate the \concept{Common Reference String} \ref{def:groth16-crs}from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
+We keep this secret in order to simulate proofs later on, but we are careful to hide $\Tau$ from anyone who hasn't read this book. Then we instantiate the \concept{Common Reference String} \ref{def:groth16-crs}from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
 
 To compute the $\G_1$ part of the \concept{Common Reference String}, we use the logarithmic order of the group $\G_1$ \ref{BLS6-G1-log}, the generator $g_1=(13,15)$, as well as the values from the simulation trapdoor. Since $deg(T)=2$, we get the following:
 \begin{align*}
@@ -164,20 +158,20 @@ To compute the $\G_1$ part of the \concept{Common Reference String}, we use the 
 \end{align*}
 To compute the rest of the $\G_1$ part of the \concept{Common Reference String}, we expand the indexed tuples and insert the secret random elements from the simulation backdoor. We get the following:
 \begin{align*}
-\Big( [s^{j}]g_1,\ldots\Big) _{j=0}^{1} = 
+\Big( [\tau^{j}]g_1,\ldots\Big) _{j=0}^{1} = 
  & \Big( [2^0](13,15), [2^1](13,15)\Big)  \\
  = & \Big((13,15),(33,34)\Big)\\
-\Big([\frac{\beta A_{j}(s)+ \alpha B_{j}(s) + C_{j}(s)}{\gamma}]g_1,\ldots\Big)_{j=0}^1 =
+\Big([\frac{\beta A_{j}(\tau)+ \alpha B_{j}(\tau) + C_{j}(\tau)}{\gamma}]g_1,\ldots\Big)_{j=0}^1 =
  & \Big([\frac{5 A_{0}(2)+6 B_{0}(2)+C_{0}(2)}{4}](13,15),\\
  &\phantom{\Big(} [\frac{5 A_{1}(2)+6 B_{1}(2)+C_{1}(2)}{4}](13,15)\Big)\\
-\Big([\frac{\beta A_{j+n}(s)+ \alpha B_{j+n}(s) + C_{j+n}(s)}{\delta}]g_1,\ldots\Big)_{j=1}^4 = 
+\Big([\frac{\beta A_{j+n}(\tau)+ \alpha B_{j+n}(\tau) + C_{j+n}(\tau)}{\delta}]g_1,\ldots\Big)_{j=1}^4 = 
 &  \Big( [\frac{5 A_{2}(2)+ 6 B_{2}(2) + C_{2}(2)}{3}](13,15),\\ 
 & \phantom{\Big(} [\frac{5 A_{3}(2)+ 6 B_{3}(2) + C_{3}(2)}{3}](13,15),\\
 & \phantom{\Big(} [\frac{5 A_{4}(2)+ 6 B_{4}(2) + C_{4}(2)}{3}](13,15),\\ 
 & \phantom{\Big(} [\frac{5 A_{5}(2)+ 6 B_{5}(2) + C_{5}(2)}{3}](13,15)\Big)\\
-\Big([\frac{s^j\cdot T(s)}{\delta})]g_1\Big)_{j=0}^0 = & \Big([\frac{2^0\cdot T(2)}{3}](13,15)\Big) 
+\Big([\frac{\tau^j\cdot T(\tau)}{\delta})]g_1\Big)_{j=0}^0 = & \Big([\frac{2^0\cdot T(2)}{3}](13,15)\Big) 
 \end{align*}
-To compute the curve points on the right side of these expressions, we need the polynomials from the associated Quadratic Arithmetic Program and evaluate them on the secret point $s=2$. Since $4^{-1}=10$ and $3^{-1}=9$ in $\F_{13}$, we get the following:
+To compute the curve points on the right side of these expressions, we need the polynomials from the associated Quadratic Arithmetic Program and evaluate them on the secret point $\tau=2$. Since $4^{-1}=10$ and $3^{-1}=9$ in $\F_{13}$, we get the following:
 \begin{align*}
 [\frac{5 A_{0}(2)+6 B_{0}(2)+C_{0}(2)}{4}](13,15) = 
  & [(5 \cdot 0 +6\cdot 0 + 0)\cdot 10](13,15) = [0](13,14)\\
@@ -220,7 +214,7 @@ To compute the $\G_2$ part of the \concept{Common Reference String}, we use the 
 \end{align*}
 To compute the rest of the $\G_2$ part of the \concept{Common Reference String}, we expand the indexed tuple and insert the secret random elements from the simulation trapdoor. We get the following:
 \begin{align*}
-\Big( [s^{j}]g_2,\ldots\Big) _{j=0}^{1} = 
+\Big( [\tau^{j}]g_2,\ldots\Big) _{j=0}^{1} = 
  & \Big( [2^0](7v^2,16v^3), [2^1](7v^2,16v^3)\Big)  \\
  = & \Big((7v^2,16v^3),(10v^2,28v^3)\Big)
 \end{align*}
@@ -228,7 +222,7 @@ Putting all these values together, we see that the $\mathbb{G}_2$ part of the \c
 $$
 CRS_{\mathbb{G}_{2}}=\left\{(16v^2,28v^3) ,(37v^2,27v^3),(42v^2,16v^3),\Big(7v^2,16v^3), (10v^2,28v^3)\Big)\right\} 
 $$
-Given the simulation trapdoor $\tau$ and the Quadratic Arithmetic Program \ref{ex:3-fac-QAP}, the associated \concept{Common Reference String} of the $3$-factorization problem is as follows:
+Given the simulation trapdoor $\Tau$ and the Quadratic Arithmetic Program \ref{ex:3-fac-QAP}, the associated \concept{Common Reference String} of the $3$-factorization problem is as follows:
 \begin{align*}
 CRS_{\mathbb{G}_{1}} &=\left\{ \begin{array}{c}
 (27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
@@ -242,25 +236,25 @@ We then publish this data to everyone who wants to participate in the generation
 
 To understand how this \concept{Common Reference String} can be used to evaluate polynomials at the secret evaluation point in the exponent of a generator, let's assume that we have deleted the simulation trapdoor. In that case, assuming that the discrete logarithm problem is hard in our groups, we have no way to know the secret evaluation point anymore, hence, we cannot evaluate polynomials at that point. However, we can evaluate polynomials of smaller degree than the degree of the target polynomial in the exponent of both generators at that point. 
 
-To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secret point $s$ without knowing the value of $s$ (which is $2$), we can use the \concept{Common Reference String} and equation \ref{eq:exp_evaluation-poly}. Using the scalar product notation instead of exponentiation, we get the following:
+To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secret point $\tau$ without knowing the value of $\tau$ (which is $2$ in our case), we can use the \concept{Common Reference String} and equation \ref{eq:exp_evaluation-poly}. Using the scalar product notation instead of exponentiation, we get the following:
 \begin{align*}
-[A_2(s)]g_1 & = [6\cdot s^1 + 10\cdot s^0] g_1 \\
-     & = [6](33,34) + [10](13,15) & \text{\# } [s^0]g_1 = (13,15), [s^1]g_1 = (33,34)\\
+[A_2(\tau)]g_1 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_1 \\
+     & = [6](33,34) + [10](13,15) & \text{\# } [\tau^0]g_1 = (13,15), [\tau^1]g_1 = (33,34)\\
      & = [6\cdot 2](13,15) + [10](13,15) = [9](13,15) & \text{\# logarithmic order on } \G_1 \\   
      & = (35,15)\\
-[A_5(s)]g_1 & = [7\cdot s^1 + 4\cdot s^0] g_1 \\
+[A_5(\tau)]g_1 & = [7\cdot \tau^1 + 4\cdot \tau^0] g_1 \\
      & = [7](33,34) + [4](13,15) \\
      & = [7\cdot 2](13,15) + [4](13,15) = [5](13,15)\\
      & = (26,34)     
 \end{align*}
 
-Indeed, we are able to evaluate the polynomials in the exponent at a secret evaluation point, because that point is encrypted in the curve point $(33,34)$ and its secrecy is protected by the discrete logarithm assumption. Of course, in our computation, we recovered the secret point $s=2$, but that was only possible because we know the logarithmic order of our groups with respect to the generators. Such an order is infeasible in cryptographically secure curves. We can do the same computation on $\G_2$ and get the following:
+Indeed, we are able to evaluate the polynomials in the exponent at a secret evaluation point, because that point is encrypted in the curve point $(33,34)$ and its secrecy is protected by the discrete logarithm assumption. Of course, in our computation, we recovered the secret point $\tau=2$, but that was only possible because we know the logarithmic order of our groups with respect to the generators. Such an order is infeasible in cryptographically secure curves. We can do the same computation on $\G_2$ and get the following:
 \begin{align*}
-[A_2(s)]g_2 & = [6\cdot s^1 + 10\cdot s^0] g_2 \\
+[A_2(\tau)]g_2 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_2 \\
      & = [6](10v^2,28v^3) + [10](7v^2,16v^3) \\
      & = [6\cdot 2](7v^2,16v^3) + [10](7v^2,16v^3) = [9](7v^2,16v^3) \\   
      & = (37v^2,16v^3)\\
-[A_5(s)]g_2 & = [7\cdot s^1 + 4\cdot s^0] g_1 \\
+[A_5(\tau)]g_2 & = [7\cdot \tau^1 + 4\cdot \tau^0] g_1 \\
      & = [7](10v^2,28v^3) + [4](7v^2,16v^3) \\
      & = [7\cdot 2](7v^2,16v^3) + [4](7v^2,16v^3) = [5](7v^2,16v^3)\\
      & = (16v^2,28v^3)     
@@ -270,45 +264,82 @@ Apart from the target polynomial $T$, all other polynomials of the Quadratic Ari
 \end{example}
 
 \begin{example}[The 3-Factorization Problem in Circom and Snark.js]
-\label{ex:3-fac-groth-16-setup-circom} To see how real world applications handle the setup phase of a Groth\_16 zk-SNARK, consider the Circom implementation of the $3$-factorization problem \ref{ex:3-fac-circom} and Snark.js's associated parameter set from example \ref{ex:3-fac-groth-16-params-circom}. 
+\label{ex:3-fac-groth-16-setup-circom} The implementation of the Groth\_16 zk-SNARK setup phase in real world applications can be observed through the examination of our Circom implementation of the $3$-factorization problem \ref{ex:3-fac-circom} and the associated parameter set from Snark.js, as outlined in example \ref{ex:3-fac-groth-16-params-circom}.
 
-In Snark.js the generation of the common reference string consists of two parts, which increases flexibility in its support for other protocols. The first part depends on an upper bound of the number of constraints in the circuit, and the second part depends on the circuit itself. 
+In accordance with the methodology described in \cite{bowe-17}, the generation of the Common Reference String in Snark.js is comprised of two parts. The first part depends on an upper bound on the number of constraints in the circuit, while the second part is dependent on the circuit itself. This division increases the flexibility of the trusted setup procedure, as protocols with Universal Common Reference Strings, such as PLONK, only require the execution of the first phase, while the Groth\_16 protocol mandates the execution of both phases.
 
-The first part is usually called \textit{powers of tau}, because it computes consecutive powers $g^\tau$, $g^{\tau^2}$, $g^{\tau^3}$, $\ldots$ of a random field element $\tau$ in the exponent of the agreed on generators of $\G_1$ and $\G_2$, where the randomness is either provided by a trusted third party, or generated in a multi party computation. 
+The first phase, commonly referred to as \term{the powers of tau}, involves the calculation of consecutive powers, $g^\tau$, $g^{\tau^2}$, $g^{\tau^3}$, $\ldots$, $g^{\tau^k}$, of a random field element $\tau$ within the exponents of agreed-upon generators of $\G_1$ and $\G_2$. The random element $\tau$ can either be provided by a trusted third party or generated through a multi-party computation.
 
 Assuming that an upper bound on the number of constraints in Circom's 3-fac circuit is given by $2^4$, the first part is initialized as follows:
-\begin{lstlisting}
-snarkjs powersoftau new bn128 4 pot4_0000.ptau -v
-\end{lstlisting}
+\\
+\\
+\texttt{:\$ snarkjs powersoftau new bn128 4 pot4\_0000.ptau -v}
+\\
+\\
 The \texttt{new} command is used to start a new phase and the first parameter after \texttt{new} refers to the type of curve and hence specifies the Groth-16 parameter set as defined in \ref{ex:3-fac-groth-16-params-circom}. The next parameter \texttt{a}, in this case 4, defines an upper bound $2^a$ on the number of constraints that the setup can accept. 
 
-After the initialization, it is possible for different parties to contribute randomness to the common reference string as follows
-\begin{lstlisting}
-snarkjs powersoftau contribute pot4_0000.ptau pot4_0001.ptau --name="1st_cont" -v
-\end{lstlisting}
-This creates a file with a new contribution and the user is prompted to enter some random text to provide an extra source of entropy. This step can be repeated for multiple users and it can be shown that it is not possible to recover the simulation trapdoor \ref{def:groth16-trapdoor}, as long as at least one contributor does not store their randomness. The correctness of any contribution file can be verified as follows:
-\begin{lstlisting}
-snarkjs powersoftau verify pot4_0001.ptau
-\end{lstlisting}
-In order to finalize the first phase some unpredictable, public randomness must be included into the setup, which was not known before the last contribution of any party. This is usually done by using the hash of the latest block in a public blockchain, or something similar:
-\begin{lstlisting}
-snarkjs powersoftau beacon pot4_0001.ptau pot4_beacon.ptau 0102030405060708090a0b0c00 10 -n="Final Beacon"
-\end{lstlisting}
-The following two commands initialize the second phase and verify it: 
-\begin{lstlisting}
-snarkjs powersoftau prepare phase2 pot4_beacon.ptau pot4_final.ptau -v
-snarkjs powersoftau verify pot4_final.ptau
-\end{lstlisting}
-In our case, the randomness encoded in the power of tau ceremony can then be used for the generation of a common reference string for any circuit, which has less then $2^4$ constraints.  
+After this initialization, it is possible for multiple parties to contribute randomness to the common reference string:
+\\
+\\
+\texttt{:\$ snarkjs powersoftau contribute pot4\_0000.ptau pot4\_0001.ptau \\--name="1st\_cont" -v}
+\\
+\\
+This step can be repeated and the contribution of randomness by each party to the common reference string is facilitated by the creation of a new contribution file, and the user is prompted to input additional entropy. It has been demonstrated that, provided at least one contributor forgets their randomness, recovery of the simulation trapdoor defined in reference \ref{def:groth16-trapdoor} is impossible. Verification of the validity of any contribution file is performed as follows:
+\\
+\\
+\texttt{:\$ snarkjs powersoftau verify pot4\_0001.ptau}
+\\
+\\
+The completion of the first phase requires the incorporation of some public and unpredictable randomness into the powers of tau generation, which needs to be unpredictable until the contribution from the final participant is made. This is typically achieved through the use of the hash of the latest block in a publicly accessible blockchain, or a similar mechanism.
+\\
+\\
+\texttt{:\$ snarkjs powersoftau beacon pot4\_0001.ptau pot4\_beacon.ptau \\ 0102030405060708090a0b0c00 10 -n="Final Beacon"}
+\\
+\\
+Upon the incorporation of the contribution of randomness from the participating parties and the random beacon, the following two commands serve to complete and validate the first phase:
+\\
+\\
+\texttt{:\$ snarkjs powersoftau prepare phase2 pot4\_beacon.ptau \\ pot4\_final.ptau -v}\\
+\texttt{:\$ snarkjs powersoftau verify pot4\_final.ptau}
+\\
+\\
+It is apparent that this phase only depends on the upper bound of the number of constraints and is independent of any specific circuit. Therefore, this power of tau ceremony can be utilized to generate a common reference string for any circuit with a number of constraints less than $2^4$.
 
-Since we know from \ref{ex:3-fac-circom}, that Circom's three\_fac circuit has two constraints, we can use the randomness from this power of tau ceremony to generate a common reference string as follows:
-\begin{lstlisting}
-snarkjs groth16 setup three_fac.r1cs pot4_final.ptau three_fac.zkey
-\end{lstlisting}
-This computes a Groth-16 common reference string as defined in \ref{def:groth16-crs} and saves it to \fname{three\_fac.zkey}.
+As indicated in reference \ref{ex:3-fac-circom}, the three\_fac circuit in Circom consists of two constraints. Hence, the randomness generated from this power of tau ceremony can be employed to initiate the second phase of the Common Reference String generation process:
+\\
+\\
+\texttt{:\$ snarkjs groth16 setup three\_fac.r1cs pot4\_final.ptau \\ three\_fac0000.zkey}
+\\
+\\
+The second phase commences with the computation of a Groth\_16 Common Reference String, as specified in reference \ref{def:groth16-crs}. This phase depends on the R1CS of the problem, and the resulting computation is saved to \fname{three\_fac0000.zkey}.
 
-
-
+In contrast to the first phase, where the randomness was used to generate the '$\tau$' parameter of the CRS, multiple parties can now contribute randomness to the other parameters, namely $\alpha$, $\beta$, $\gamma$, and $\delta$, of the Groth\_16 CRS.
+\\
+\\
+\texttt{:\$ snarkjs zkey contribute three\_fac0000.zkey \\ three\_fac0001.zkey --name="1st Contributor Name" -v}
+\\
+\\
+This  creates a file with a new contribution to the second phase and prompts the user to provide additional randomness to enhance entropy. This step can be repeated many times for different users. The correctness of any contribution file can be verified as follows:
+\\
+\\
+\texttt{:\$ snarkjs zkey verify three\_fac.r1cs pot4\_final.ptau \\ three\_fac0001.zkey}
+\\
+\\
+The second phase requires the integration of unpredictable, public randomness, which is not known prior to the contribution of the final participant. This can be achieved through the utilization of a method such as the hash of the latest block in a public blockchain.:
+\\
+\\
+\texttt{:\$ snarkjs zkey beacon three\_fac0001.zkey three\_fac\_final.zkey \\
+010203040506070809 10 -n="Final Beacon phase2"}
+\\
+\\
+Once the randomness input from all parties and the random beacon have been incorporated, the verification of the second phase can be performed using the following two commands. This process will also export the verification key, which is a vital component of the Common Reference String and will be stored in a JSON file for the verifier to use: 
+\\
+\\
+\texttt{:\$ snarkjs zkey verify three\_fac.r1cs pot4\_final.ptau \\ three\_fac\_final.zkey}\\
+\texttt{:\$ snarkjs zkey export verificationkey three\_fac\_final.zkey \\ verification\_key.json}
+\\
+\\
+The Circom trusted setup therefore enables the creation of the Common Reference String \fname{three\_fac\_final.zkey}, which holds both the prover and the verifier key. The verifier key can also be exported as a JSON file \fname{verification\_key.json} for the purpose of publishing it on a public blockchain for implementation as a smart contract.
 \end{example}
 
 
