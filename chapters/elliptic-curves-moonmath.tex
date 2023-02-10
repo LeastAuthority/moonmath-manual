@@ -86,7 +86,7 @@ C1 = E1.plot()
 \end{center}
 % sage: AffinePoints = [P.xy() for P in E1.points() if P.order > 1]
 \end{example}
-In the development of SNARKs, it is sometimes necessary to do elliptic curve cryptography ``in a circuit", which basically means that the elliptic curve needs to be implemented in a certain SNARK-friendly way. We will look at what this means in chapter \ref{chap:circuit-compilers}. To be able to do this efficiently, it is desirable to have curves with special properties. The following example is a pen-and-paper version of such a curve, called Tiny-\comms{jubjub}. We design this curve especially to resemble a well-known cryptographically secure curve, called \curvename{Baby-jubjub}, the latter of which is extensively used in real-world SNARKs.\sme{insert reference}\footnote{In the literature, the \term{Baby-jubjub curve} is commonly introduced as a so-called \concept{twisted Edwards} curve, which we will cover in \ref{sec:edwards}. However, as we will see in \ref{sec:edwards}, every \concept{twisted Edwards} curve is equivalent to a \concept{short Weierstrass} curve and hence we start with an introduction of Tiny-Jubjub in its \concept{short Weierstrass} incarnation.} 
+In the development of SNARKs, it is sometimes necessary to do elliptic curve cryptography ``in a circuit", which basically means that the elliptic curve needs to be implemented in a certain SNARK-friendly way. We will look at what this means in chapter \ref{chap:circuit-compilers}. To be able to do this efficiently, it is desirable to have curves with special properties. The following example is a pen-and-paper version of such a curve, called Tiny-\comms{jubjub}. We design this curve especially to resemble a well-known cryptographically secure curve, called \curvename{Baby-jubjub}, the latter of which is extensively used in real-world SNARKs (See \href{https://github.com/iden3/iden3-docs/blob/master/source/iden3_repos/research/publications/zkproof-standards-workshop-2/baby-jubjub/baby-jubjub.rst}{Baby-JubJub} for the specification).\footnote{In the literature, the \term{Baby-jubjub curve} is commonly introduced as a so-called \concept{twisted Edwards} curve, which we will cover in \ref{sec:edwards}. However, as we will see in \ref{sec:edwards}, every \concept{twisted Edwards} curve is equivalent to a \concept{short Weierstrass} curve and hence we start with an introduction of Tiny-Jubjub in its \concept{short Weierstrass} incarnation.} 
 The interested reader is advised to study this example carefully, as we will use it and build on it in various places throughout the book. 
 
 \begin{example}[The \curvename{Tiny-jubjub} curve]\label{TJJ13} Consider the prime field $\F_{13}$ from \exercisename{} \ref{prime_field_F13}. If we choose $a=8$ and $b=8$, then $\kongru{4a^3+ 27b^2}{6}{13}$, and the corresponding elliptic curve is given by all pairs $(x,y)$ from $\F_{13}$ such that $y^2=x^3+8x+8$ holds. We call this curve the \term{\curvename{Tiny-jubjub}} curve (in its affine \concept{short Weierstrass} representation), or \TJJ{} for short.
@@ -163,8 +163,8 @@ We write $\F_{bn128}:=F_r$ for the associated prime field. In order to use this 
 sage: p = 21888242871839275222246405745257275088696311157297823662689037894645226208583
 sage: p.is_prime()
 sage: p.nbits()
-sage: Fbn128 = GF(p)
-sage: bn128 = EllipticCurve(Fbn128,[0,3])
+sage: Fbn128base = GF(p)
+sage: bn128 = EllipticCurve(Fbn128base,[0,3])
 sage: r = bn128.order() # number of elements
 sage: r.is_prime()
 sage: r.nbits()

@@ -92,6 +92,9 @@ It should be noted that our choice is not unique. Every pair of finite cyclic gr
 
 As of the time of writing, Snark.js supports the elliptic curves \curvename{alt\_bn128}, \curvename{BLS12-381}, and \curvename{Goldilocks}. For the purposes of this example, we shall utilize \curvename{alt\_bn128}, and it's associated scalar field $\F_{bn128}$ as introduced in \ref{BN128}. The Groth-16 parameters for this curve, as officially defined for the Ethereum blockchain, can be found in \href{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-197.md}{EIP-197}. Snark.js utilizes those parameters.
 \end{example}
+\begin{exercise}
+\label{ex:baby-jubjub-circom} Implement the \href{https://github.com/iden3/iden3-docs/blob/master/source/iden3_repos/research/publications/zkproof-standards-workshop-2/baby-jubjub/baby-jubjub.rst}{Baby-JubJub}  twisted Edwards curve equation in Circom and compile it into an R1CS and associated witness generator.
+\end{exercise}
 
 \subsection{The Setup Phase} Generating zk-SNARKs from constructive proofs in the Groth16 protocol requires a preprocessing phase to be performed. This phase must be executed once for every Rank-1 Constraint System and its associated Quadratic Arithmetic Program. The outcome of this phase is a \concept{Common Reference String}, which is necessary for both the prover and the verifier to generate and verify the zk-SNARK. Additionally, a simulation trapdoor is generated during this phase, which can be utilized to simulate proofs.
 
@@ -341,7 +344,10 @@ Once the randomness input from all parties and the random beacon have been incor
 \\
 The Circom trusted setup therefore enables the creation of the Common Reference String \fname{three\_fac\_final.zkey}, which holds both the prover and the verifier key. The verifier key can also be exported as a JSON file \fname{verification\_key.json} for the purpose of publishing it on a public blockchain for implementation as a smart contract.
 \end{example}
-
+\begin{exercise} 
+\label{ex:baby-jubjub-circom-setupt}
+Consider exercise \ref{ex:baby-jubjub-circom} and execute a 3-party trusted setup phase for the baby-jubjub circuit.
+\end{exercise}
 
 \subsection{The Prover Phase} Given some Rank-1 Constraint System $R$ and instance $I=<I_1,\ldots, I_n>$, the objective of the prover phase is to convince any verifier that a prover knows a witness $W$ to instance $I$ such that  $(I;W)$ is a word in the language $L_R$ of the system, without revealing anything about $W$. 
 
@@ -477,7 +483,52 @@ Given the instance $I_1=<11>$, we can now combine these computations and see tha
 
 We can now publish this zk-SNARK, or send it to a designated verifier. Note that, if we had sampled different values for $r$ and $t$, we would have computed a different zk-SNARK for the same witness. The zk-SNARK, therefore, hides the witness perfectly, which means that it is impossible to reconstruct the witness from the zk-SNARK.
 \end{example}
+\begin{example}[The 3-Factorization Problem in Circom and Snark.js]
+\label{ex:3-fac-groth-16-prover-circom} The performance of the Groth\_16 zk-SNARK prover phase in practical applications can be evaluated by studying our Circom implementation of the $3$-factorization problem \ref{ex:3-fac-circom}, the corresponding parameter set as outlined in example \ref{ex:3-fac-groth-16-params-circom}, and the Common Reference String as described in example \ref{ex:3-fac-groth-16-setup-circom}.
 
+Given an instance $I$, it is established in \ref{r1cs-constructive-proofs} that a constructive proof for the statement "Given instance $I$, there exists a witness $W$ such that $(I;W)$ belongs to the language $\mathcal{L}_R$" requires knowledge of a witness $W$ such that $(I;W)$ is a solution to the R1CS generated from \ref{ex:3-fac-circom}.
+
+In Circom, the instance is composed of all public input signals and the witness is comprised of all other assignments to the circuit. Given an instance, Circom provides a program that calculates the corresponding witness for any valid instance.
+
+To further elaborate, we start by selecting arbitrary input values to our problem. Since the circuit is defined over the scalar field $\F_{BN128}$ of the curve $\curvename{alt\_bn128}$, and there are three input signals $x1$, $x2$, and $x3$ present in the circuit, we can use Sage to randomly generate three elements from $\F_{BN128}$. Utilizing the definition of $\curvename{alt\_bn128}$ as outlined in example \ref{BN128}, we obtain:
+\begin{sagecommandline}
+sage: r = bn128.order() 
+sage: Fbn128 = GF(r) # bn128 scalar field field
+sage: x1 = Fbn128.random_element()
+sage: x2 = Fbn128.random_element()
+sage: x3 = Fbn128.random_element()
+\end{sagecommandline} 
+To facilitate the use of these input values with Circom's witness generator program, they must be written into a JSON format file.
+\begin{lstlisting}
+{
+"x1": 266454826700390499788624045644422204835838308568801104096964341478260924069,
+"x2": 17022543691211744762566166588937408281011290768059146405469762658080007243141,
+"x3":2169708499392809782734482748125393322939898426476751716891099115492318742078 
+}
+\end{lstlisting} 
+The file containing the input values can be saved as \fname{input.json}, and the node.js environment can be utilized to run Circom's Javascript/WASM program, \fname{generate\_witness.js}, to generate the witness based on the instance and the R1Cs:
+\\
+\\
+\texttt{:\$ node <PATH\_TO>/generate\_witness.js three\_fac.wasm input.json\\ witness.wtns}
+\\
+\\
+It is important to recognize that in Circom, the witness encompasses both the instance and the witness as defined in our context. In other words, Circom's witness contains both the private and public assignments to the circuit and the solution to the R1Cs. It serves as a constructive proof to the problem.
+
+With the obtained witness, we can now use Snark.js to convert the constructive proof into a zk-SNARK, utilizing the Common Reference String from example \ref{ex:3-fac-groth-16-params-circom}:
+\\
+\\
+\texttt{:\$ snarkjs groth16 prove three\_fac\_final.zkey witness.wtns \\ proof.json public.json}
+\\
+\\
+The execution of this command will result in the creation of two files: \fname{proof.json}, containing the actual proof represented by three curve points, and \fname{public.json}, which holds the values of the instance. 
+
+It's important to understand that in Circom, the instance and input values are distinct entities. The instance contains all public values, including those that are not input values but generated during witness generation. On the other hand, some input values may be designated as private and therefore not included in the instance. 
+\end{example}
+
+\begin{exercise} 
+\label{ex:baby-jubjub-circom-prover}
+Consider exercise \ref{ex:baby-jubjub-circom} and the CRS from exercise \ref{ex:baby-jubjub-circom-setupt}. Use Sage to generate a valid curve point on the Baby-JubJub curve in twisted Edwards form, that is not the neutral element and use this point as input to the circuit. Generate a witness for this input and use Snark.js to compute an instance as well as a zk-SNARK for this witness. 
+\end{exercise}
 
 \subsection{The Verification Phase}
 \label{sec:groth16-verifier}
@@ -559,6 +610,25 @@ e((13,15),(7v^2,16v^3))^{4}
 
 As we can see, both the left and the right side of equation \eqref{def:groth16-verifier-equation} are identical, which implies that the verification process accepts the zk-SNARK and the verifier outputs \texttt{accept}.
 \end{example}
+
+\begin{example}[The 3-Factorization Problem in Circom and Snark.js]
+\label{ex:3-fac-groth-16-verifier-circom} The performance of the Groth 16 zk-SNARK verifier phase in practical applications can be evaluated by examining our Circom implementation of the 3-factorization problem (Example 3-fac-circom), the corresponding parameter set (Example 3-fac-groth-16-params-circom), the Common Reference String (Example 3-fac-groth-16-setup-circom), and the generated proof (Example 3-fac-groth-16-prover-circom).
+
+As we learned from Example 3-fac-groth-16-setup-circom, a verifier key can be extracted from the Common Reference String. This is beneficial because the verifier key is much smaller in size compared to the full CRS, making it more efficient to store, for example, on a blockchain.
+
+To verify the proof \fname{proof.json} against the instance \fname{public.json}, the verifier utilizes the verification key \fname{verification\_key.json} and employed Snark.js's verification algorithm:
+\\
+\\
+\texttt{:\$ snarkjs groth16 verify verification\_key.json public.json \\ proof.json}
+\\
+\\
+The algorithm either verifies or rejects the Groth\_16 zk-SNARK in relation to the given key and instance.
+\end{example} 
+
+\begin{exercise} 
+\label{ex:baby-jubjub-circom-verifier}
+Consider exercise \ref{ex:baby-jubjub-circom}, the CRS from exercise \ref{ex:baby-jubjub-circom-setupt} as well as the instance and zk-SNARK from exercise \ref{ex:baby-jubjub-circom-prover} and verify the zk-SNARK against the instance.
+\end{exercise}
 
 \subsection{Proof Simulation}
 \label{sec:proof_simulation} During the setup phase, a Common Reference String is created along with a simulation trapdoor (as defined in equation \eqref{def:groth16-trapdoor}), which must be discarded at the end of the setup phase. In this section, we will highlight the potential issues with having knowledge of the simulation trapdoor and how it can be used to generate zk-SNARKs without any knowledge of a valid witness.
@@ -654,6 +724,10 @@ e((13,15),(7v^2,16v^3))^{1}
 \end{align*}
 
 As we can see, both the left and the right side of the verifier equation are identical, which implies that the verification process accepts the simulated proof. $\pi_{fake}$ therefore convinces the verifier that a witness to the $3$-factorization problem exists. However, no such witness was really necessary to generate the proof.
+\end{example}
+
+\begin{example}[The 3-Factorization Problem in Circom and Snark.js]
+\label{ex:3-fac-groth-16-simulator-circom} As of the time of writing, Snark.js does not have an algorithm to generate simulated proofs using a given simulation trapdoor.
 \end{example}
 
 %\subsection{Proof Mutability} As we have seen in the previous paragraph, given some instance $I$, knowledge of the simulation trapdoor allows for the computation of a valid zk-SNARK without knowledge of an actual witness for that instance. 
