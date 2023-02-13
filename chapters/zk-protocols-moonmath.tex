@@ -488,9 +488,9 @@ We can now publish this zk-SNARK, or send it to a designated verifier. Note that
 
 Given an instance $I$, it is established in \ref{r1cs-constructive-proofs} that a constructive proof for the statement "Given instance $I$, there exists a witness $W$ such that $(I;W)$ belongs to the language $\mathcal{L}_R$" requires knowledge of a witness $W$ such that $(I;W)$ is a solution to the R1CS generated from \ref{ex:3-fac-circom}.
 
-In Circom, the instance is composed of all public input signals and the witness is comprised of all other assignments to the circuit. Given an instance, Circom provides a program that calculates the corresponding witness for any valid instance.
+Circom defines an instance as the collection of all public signals, and the witness as the set of all assignments to the circuit that are not public signals. Besides instance and witness, Circom introduces the idea of input signals and a witness generator. This generator calculates the values for both instance and witness based on the provided inputs.
 
-To further elaborate, we start by selecting arbitrary input values to our problem. Since the circuit is defined over the scalar field $\F_{BN128}$ of the curve $\curvename{alt\_bn128}$, and there are three input signals $x1$, $x2$, and $x3$ present in the circuit, we can use Sage to randomly generate three elements from $\F_{BN128}$. Utilizing the definition of $\curvename{alt\_bn128}$ as outlined in example \ref{BN128}, we obtain:
+To further elaborate, we start by selecting arbitrary input values to our problem. Since the circuit is defined over the scalar field $\F_{bn128}$ of the curve $\curvename{alt\_bn128}$, and there are three input signals $x1$, $x2$, and $x3$ present in the circuit, we can use Sage to randomly generate three elements from $\F_{bn128}$. Utilizing the definition of $\curvename{alt\_bn128}$ as outlined in example \ref{BN128}, we obtain:
 \begin{sagecommandline}
 sage: r = bn128.order() 
 sage: Fbn128 = GF(r) # bn128 scalar field field
@@ -612,17 +612,19 @@ As we can see, both the left and the right side of equation \eqref{def:groth16-v
 \end{example}
 
 \begin{example}[The 3-Factorization Problem in Circom and Snark.js]
-\label{ex:3-fac-groth-16-verifier-circom} The performance of the Groth 16 zk-SNARK verifier phase in practical applications can be evaluated by examining our Circom implementation of the 3-factorization problem (Example 3-fac-circom), the corresponding parameter set (Example 3-fac-groth-16-params-circom), the Common Reference String (Example 3-fac-groth-16-setup-circom), and the generated proof (Example 3-fac-groth-16-prover-circom).
+\label{ex:3-fac-groth-16-verifier-circom} The performance of the Groth 16 zk-SNARK verifier phase in practical applications can be evaluated by examining our Circom implementation of the 3-factorization problem \ref{ex:3-fac-circom}, the corresponding parameter set \ref{ex:3-fac-groth-16-params-circom}, the Common Reference String \ref{ex:3-fac-groth-16-setup-circom}, and the generated proof \ref{ex:3-fac-groth-16-prover-circom}.
 
-As we learned from Example 3-fac-groth-16-setup-circom, a verifier key can be extracted from the Common Reference String. This is beneficial because the verifier key is much smaller in size compared to the full CRS, making it more efficient to store, for example, on a blockchain.
+As we learned from Example \ref{ex:3-fac-groth-16-setup-circom}, a verifier key can be extracted from the Common Reference String. This is beneficial because the verifier key is much smaller in size compared to the full CRS, making it more efficient to store, for example, on a blockchain.
 
-To verify the proof \fname{proof.json} against the instance \fname{public.json}, the verifier utilizes the verification key \fname{verification\_key.json} and employed Snark.js's verification algorithm:
+To verify the proof \fname{proof.json} against the instance \fname{public.json}, the verifier utilizes the verification key \fname{verification\_key.json} and employs Snark.js's verification algorithm:
 \\
 \\
 \texttt{:\$ snarkjs groth16 verify verification\_key.json public.json \\ proof.json}
 \\
 \\
-The algorithm either verifies or rejects the Groth\_16 zk-SNARK in relation to the given key and instance.
+The algorithm either verifies or rejects the Groth\_16 zk-SNARK in relation to the given key and instance. 
+
+The verifier logic in Groth\_16 is simple and consists of a few exponentiations and three pairings, making it suitable for implementation as a smart contract on a blockchain. Circom offers an automation tool for the Solidity language, but a more detailed explanation of this is outside the scope of this book.
 \end{example} 
 
 \begin{exercise} 
