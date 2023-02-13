@@ -798,13 +798,13 @@ To be more precise, an \term{univariate polynomial}\footnote{In our context, the
 P(x) := \sum _{j = 0} ^{m}{a} _{j}{x} ^{j} ={a} _{m}x^m +{a} _{m-1} x^{m-1} + \dots + a_1 x + a_0 \;,
 \end{equation}
 
-In \eqref{eq:polynomial} $x$ is called the \term{variable}, and each $ a$ is called a \term{coefficient}. If $R$ is the type of the coefficients, then the set of all \hilight{univariate polynomials with coefficients in $R$} is written as $R[x]$. Univariate polynomials are often simply called polynomials, and written as $ P (x) \in R[x]$. The constant term $a_0$ as is also written as $ P(0)$.
+Expression \eqref{eq:polynomial} is called the \term{coefficient form} of the polynomial $P$,  $x$ is called the \term{variable}, and each $ a$ is called a \term{coefficient}. If $R$ is the type of the coefficients, then the set of all \hilight{univariate polynomials with coefficients in $R$} is written as $R[x]$. Univariate polynomials are often simply called polynomials, and written as $ P (x) \in R[x]$. The constant term $a_0$ as is also written as $ P(0)$.
 
 A polynomial is called the \term{zero polynomial} if all its coefficients are zero. A polynomial is called the \term{one polynomial} if the constant term is $1$ and all other coefficients are zero.
 
 Given a univariate polynomial $P(x)=\sum_{j=0}^m a_jx^j$ that is not the zero polynomial, we call the non-negative integer $deg(P):=m$  the \textit{degree} of $P$, and define the degree of the zero polynomial to be $-\infty$, where $-\infty$ (negative infinity) is a symbol with the properties that $-\infty + m = -\infty$ and $-\infty < m$ for all non-negative integers $m\in\NN$. 
 
-In addition, we denote the coefficient of the term with the highest degree, called \term{leading coefficient}, of the polynomial $P$ as follows:\sme{add explanation on why this is important}
+In polynomial arithmetic, the coefficient of the term with the highest degree is frequently of significance, thus it is referred to as the \term{leading coefficient} of the polynomial $P$ and denoted as follows: 
 \begin{equation}
 \label{def_leading_coefficient}
 Lc(P):=a_m
@@ -1119,15 +1119,12 @@ Show that if a polynomial $P\in R[x]$ of degree $deg(P)=m$ has less than $m$ roo
 \begin{exercise}
 Consider the polynomial $P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1\in \Z_6[x]$. Compute the set of all roots of $R_0(P)$ and then compute the prime factorization of $P$.
 \end{exercise}
-\subsection{\concept{Lagrange interpolation}}
-One particularly useful property of polynomials is that a polynomial of degree $m$ is completely determined on $m+1$ evaluation points, which implies that we can uniquely derive a polynomial of degree $m$ from a set $S$:
-\begin{equation}
-\label{def_lagrange_interpolation_set}
-S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m)\;|\; x_i\neq x_j\text{ for all indices i and j}\}
-\end{equation}
-Polynomials therefore have the property that $m+1$ pairs of points $(x_i,y_i)$ for $x_i\neq x_j$ are enough to determine the set of pairs $(x,P(x))$ for all $x\in R$. This ``few too many'' property of polynomials is widely used, including in SNARKs. Therefore, we need to understand the method to actually compute a polynomial from a set of points.
+\subsection{\concept{The Point-Value Form}}
+Thus far, polynomials have been represented in their coefficient form as defined in \ref{eq:polynomial}. However, depending on the application, alternative representations may exist that lead to more efficient algorithms in specific scenarios. A significant example of such alternative representation is the \term{point-value representation} of a polynomial, which facilitates multiplication algorithms that exhibit linear complexity with respect to the polynomial's degree.
 
-If the coefficients of the polynomial we want to find have a notion of multiplicative inverse, it is always possible to find such a polynomial using a method called \term{\concept{Lagrange interpolation}}, which works as follows. Given a set like \ref{def_lagrange_interpolation_set}, a polynomial $P$ of degree $m$ with $P(x_i)=y_i$ for all pairs $(x_i,y_i)$ from $S$ is given by \algname{} \ref{alg_lagrange_interplation} below.
+The point-value form of a polynomial can be comprehended by recognizing that any polynomial of degree $m$ is uniquely determined by its values at $m+1$ distinct evaluation points, which means that we can construct a unique polynomial of degree $m$ from any point-value set $S= {(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m);|; x_i\neq x_j\text{ for all i and j}}$.
+
+To understand how this works, suppose that the type for the coefficients of the desired polynomial has multiplicative inverses. In this scenario, it is possible to use \concept{Lagrange Interpolation} to compute a degree $m$ polynomial $P$ from set $S$ such that $P(x_i)=y_i$ holds true for all $(x_i,y_i) \in S$. The procedure for this algorithm is described in Algorithm \ref{alg_lagrange_interplation} below:
 
 \begin{algorithm}\caption{Lagrange Interpolation}
 \label{alg_lagrange_interplation}
@@ -1145,6 +1142,15 @@ If the coefficients of the polynomial we want to find have a notion of multiplic
 \Ensure $P(x_j)=y_j$ for all pairs $(x_j,y_j)\in S$
 \end{algorithmic}
 \end{algorithm}
+
+A polynomial of degree $m$, given in coefficient form as $P(x)= a_m x^m + a_{m-1}x^{m-1}+\ldots a_1 x + a_0$, can be transformed into its so-called \term{point-value representation} by evaluating it at $m+1$ different points $x_0, x_1,\ldots,x_m$:
+\begin{equation}
+\label{def_lagrange_interpolation_set}
+S= {(x_0,P(x_0)), (x_1,P(x_1),\ldots,(x_m,P(x_m));|; x_i\neq x_j\text{ for all i and j}}
+\end{equation}
+Conversely, it can be shown that any point-value representation of a polynomial can be transformed into a coefficient representation through Langrange Interpolation, and that both transformations are inverse to each other. This establishes a 1:1 correspondence between degree $n$ polynomials and their evaluations on a given set of points. Thus, coefficient and point-value representations are two equivalent ways of presenting a polynomial.
+
+Both representations have their advantages and disadvantages, but the point-value representation has a specific advantage in fast polynomial multiplication algorithms. The multiplication of a degree $m$ polynomial and a degree $n$ polynomial in coefficient form typically requires $m \cdot n$ operations, whereas in point-value representation, the same multiplication only needs $max{m,n}$ operations. This is because, in the point-value representation, only the values at each point need to be multiplied to compute the product of the polynomials.  
 
 \begin{example} Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of \concept{Lagrange interpolation} from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
 \begin{align*}
@@ -1170,6 +1176,7 @@ sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 \end{sagecommandline}
+This implies that the polynomial $P$ can be expressed in two different forms: its coefficient representation $P(x) = -\frac{1}{2} x^2 +\frac{1}{2} x + 4$, and its point-value representation $S={(0,4),(-2,1),(2,3)}$. It's important to note, though that the point-value representation of $P$ is not unique, as different evaluation points would result in a different point-value representation.
 \end{example}
 \begin{example} To give another example more relevant to the topics of this book, let us consider the same set as in the previous example, $S=\{(0,4),(-2,1),(2,3)\}$ . This time, the task is to compute a polynomial $P\in\Z_5[x]$ from this data. Since we know
 from \examplename{} \ref{primfield_z_5} that multiplicative inverses exist in $\Z_5$, algorithm \ref{alg_lagrange_interplation} is applicable and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables from  \eqref{Z5_tables} for computations in $\Z_5$ and get the following:
@@ -1199,6 +1206,7 @@ sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
 \end{sagecommandline}
+This implies that the polynomial $P$ can be expressed in two different forms: its coefficient representation $P(x) = 2x^2 + 3x + 4$, and its point-value representation $S={(0,4),(-2,1),(2,3)}$. It's important to note, though that the point-value representation of $P$ is not unique, as different evaluation points would result in a different point-value representation.
 \end{example}
 \begin{exercise}
 Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the set
@@ -1206,4 +1214,10 @@ $S=\{(0,0),(1,1),(2,2),(3,2)\}$. Find a polynomial $P\in\Z_5[x]$ such that $P(x_
 \end{exercise}
 \begin{exercise}
 Consider the set $S$ from the previous example. Why is it not possible to apply algorithm \ref{alg_lagrange_interplation} to construct a polynomial $P\in \Z_6[x]$  such that $P(x_i)=y_i$ for all $(x_i,y_i)\in S$?
+\end{exercise}
+\begin{exercise}
+Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the polynomial $P(x) = 3x^2 + x +1$. Compute the point-value representation of $P$ on the following two sets of evaluation points $S_1 = \{0,1,2\}$ and $S_2 = \{2,3,4\}$.
+\end{exercise}
+\begin{exercise}
+Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the polynomial $P(x) = x^2 + x +1$. Compute the point-value representation of $P$ on the following set of evaluation points $S = \{0,1,2,4\}$. Show that Lagrange's interpolation computes the same polynomial for every 3-element subset of $S$.
 \end{exercise}
