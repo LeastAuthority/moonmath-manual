@@ -1120,11 +1120,12 @@ Show that if a polynomial $P\in R[x]$ of degree $deg(P)=m$ has less than $m$ roo
 Consider the polynomial $P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1\in \Z_6[x]$. Compute the set of all roots of $R_0(P)$ and then compute the prime factorization of $P$.
 \end{exercise}
 \subsection{\concept{The Point-Value Form}}
+\label{sec:point-value-form}
 Thus far, polynomials have been represented in their coefficient form as defined in \ref{eq:polynomial}. However, depending on the application, alternative representations may exist that lead to more efficient algorithms in specific scenarios. A significant example of such alternative representation is the \term{point-value representation} of a polynomial, which facilitates multiplication algorithms that exhibit linear complexity with respect to the polynomial's degree.
 
-The point-value form of a polynomial can be comprehended by recognizing that any polynomial of degree $m$ is uniquely determined by its values at $m+1$ distinct evaluation points, which means that we can construct a unique polynomial of degree $m$ from any point-value set $S= {(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m);|; x_i\neq x_j\text{ for all i and j}}$.
+The point-value form of a polynomial can be comprehended by recognizing that any polynomial of degree $m$ is uniquely determined by its values at $m+1$ distinct evaluation points, which means that we can construct a unique polynomial of degree $m$ from any point-value set $S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m);|; x_i\neq x_j\text{ for all i and j}\}$.
 
-To understand how this works, suppose that the type for the coefficients of the desired polynomial has multiplicative inverses. In this scenario, it is possible to use \concept{Lagrange Interpolation} to compute a degree $m$ polynomial $P$ from set $S$ such that $P(x_i)=y_i$ holds true for all $(x_i,y_i) \in S$. The procedure for this algorithm is described in Algorithm \ref{alg_lagrange_interplation} below:
+To understand how this works, suppose that the type for the coefficients of the desired polynomial has multiplicative inverses. In this scenario, it is possible to use \concept{Lagrange Interpolation} to compute a degree $m$ polynomial $P$ from set $S$ such that $P(x_i)=y_i$ holds true for all $(x_i,y_i) \in S$. The procedure is described in Algorithm \ref{alg_lagrange_interplation} below:
 
 \begin{algorithm}\caption{Lagrange Interpolation}
 \label{alg_lagrange_interplation}
@@ -1146,11 +1147,11 @@ To understand how this works, suppose that the type for the coefficients of the 
 A polynomial of degree $m$, given in coefficient form as $P(x)= a_m x^m + a_{m-1}x^{m-1}+\ldots a_1 x + a_0$, can be transformed into its so-called \term{point-value representation} by evaluating it at $m+1$ different points $x_0, x_1,\ldots,x_m$:
 \begin{equation}
 \label{def_lagrange_interpolation_set}
-S= {(x_0,P(x_0)), (x_1,P(x_1),\ldots,(x_m,P(x_m));|; x_i\neq x_j\text{ for all i and j}}
+S= \{(x_0,P(x_0)), (x_1,P(x_1)),\ldots,(x_m,P(x_m));|; x_i\neq x_j\text{ for all i and j}\}
 \end{equation}
-Conversely, it can be shown that any point-value representation of a polynomial can be transformed into a coefficient representation through Langrange Interpolation, and that both transformations are inverse to each other. This establishes a 1:1 correspondence between degree $n$ polynomials and their evaluations on a given set of points. Thus, coefficient and point-value representations are two equivalent ways of presenting a polynomial.
+Conversely, it can be shown that any point-value representation of a polynomial can be transformed into a coefficient representation through Langrange Interpolation, and that both transformations are inverse to each other. This establishes a 1:1 correspondence between degree $m$ polynomials and their evaluations on a given set of points. Thus, coefficient and point-value representations are two equivalent ways of presenting a polynomial.
 
-Both representations have their advantages and disadvantages, but the point-value representation has a specific advantage in fast polynomial multiplication algorithms. The multiplication of a degree $m$ polynomial and a degree $n$ polynomial in coefficient form typically requires $m \cdot n$ operations, whereas in point-value representation, the same multiplication only needs $max{m,n}$ operations. This is because, in the point-value representation, only the values at each point need to be multiplied to compute the product of the polynomials.  
+Both representations have their advantages and disadvantages, but the point-value representation has a specific advantage in fast polynomial multiplication algorithms. The multiplication of a degree $m$ polynomial and a degree $n$ polynomial in coefficient form typically requires $m \cdot n$ operations, whereas in point-value representation, the same multiplication only needs $max\{m,n\}$ operations. This is because, in the point-value representation, only the values at each point need to be multiplied to compute the product of the polynomials.  
 
 \begin{example} Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of \concept{Lagrange interpolation} from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
 \begin{align*}
@@ -1176,7 +1177,7 @@ sage: Qx = QQ['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: Qx.lagrange_polynomial(S)
 \end{sagecommandline}
-This implies that the polynomial $P$ can be expressed in two different forms: its coefficient representation $P(x) = -\frac{1}{2} x^2 +\frac{1}{2} x + 4$, and its point-value representation $S={(0,4),(-2,1),(2,3)}$. It's important to note, though that the point-value representation of $P$ is not unique, as different evaluation points would result in a different point-value representation.
+This implies that the polynomial $P$ can be expressed in two different forms: its coefficient representation $P(x) = -\frac{1}{2} x^2 +\frac{1}{2} x + 4$, and its point-value representation $S=\{(0,4),(-2,1),(2,3)\}$. It's important to note, though that the point-value representation of $P$ is not unique, as different evaluation points would result in a different point-value representation.
 \end{example}
 \begin{example} To give another example more relevant to the topics of this book, let us consider the same set as in the previous example, $S=\{(0,4),(-2,1),(2,3)\}$ . This time, the task is to compute a polynomial $P\in\Z_5[x]$ from this data. Since we know
 from \examplename{} \ref{primfield_z_5} that multiplicative inverses exist in $\Z_5$, algorithm \ref{alg_lagrange_interplation} is applicable and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables from  \eqref{Z5_tables} for computations in $\Z_5$ and get the following:
@@ -1206,7 +1207,7 @@ sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
 \end{sagecommandline}
-This implies that the polynomial $P$ can be expressed in two different forms: its coefficient representation $P(x) = 2x^2 + 3x + 4$, and its point-value representation $S={(0,4),(-2,1),(2,3)}$. It's important to note, though that the point-value representation of $P$ is not unique, as different evaluation points would result in a different point-value representation.
+This implies that the polynomial $P$ can be expressed in two different forms: its coefficient representation $P(x) = 2x^2 + 3x + 4$, and its point-value representation $S=\{(0,4),(-2,1),(2,3)\}$. It's important to note, though that the point-value representation of $P$ is not unique, as different evaluation points would result in a different point-value representation.
 \end{example}
 \begin{exercise}
 Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the set
@@ -1221,3 +1222,21 @@ Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the
 \begin{exercise}
 Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the polynomial $P(x) = x^2 + x +1$. Compute the point-value representation of $P$ on the following set of evaluation points $S = \{0,1,2,4\}$. Show that Lagrange's interpolation computes the same polynomial for every 3-element subset of $S$.
 \end{exercise}
+
+\subsection{\concept{Schwartz–Zippel lemma}}
+\label{sec:point-value-form}
+An essential characteristic of zk-SNARKs is their succinctness, meaning that the data required to prove the validity of a computation to a verifier is significantly smaller than the actual data involved in the computation. However, this advantage comes with a trade-off of a slight possibility of a fraudulent proof being able to deceive an honest verifier.
+
+To comprehend a crucial technique for achieving succinctness and the potential consequences of its implementation, we will discuss the Schwartz-Zippel lemma and its application in polynomial identity testing.
+
+In our context, the \term{Schwartz-Zippel lemma} states that if a polynomial $P\in R[x]$ with a degree of $m$ is given and the set $R$ is finite and consists of $k$ elements, and if a random value $\tau$ is selected uniformly from $R$, then the likelihood of $\tau$ being a root of $P$ is less or equal than $\frac{d}{k}$.
+
+In other words, if the set $R$ is very large in comparison to the degree of the polynomial, then it is very unlikely that any uniformly random value will be a root of the polynomial.
+
+To understand how this is useful in transforming proofs for computations into \textit{succinct} arguments for the same computation, assume that there is a way to transform the algorithm of the computation into a polynomial $P$ in such a way that the polynomial is the zero polynomial if the computation was done correctly and is some other polynomial if the compuation as not done correctly.
+
+In this case proofing the correctness of the computation can be achieved by showing that the polynomial is indeed the zero polynomial, e.g. by showing that all coefficients of that polynomial vanish. While this is possible, it is not succinct because one has to test every single coefficient. 
+
+However if the polynomial is defined for coefficient from a very large set $R$, then another much faster way to execute the test would be to simply insert a uniformly chosen random value into the polynomial 
+ 
+ 

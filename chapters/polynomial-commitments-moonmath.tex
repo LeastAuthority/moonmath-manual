@@ -1,0 +1,91 @@
+\chapter{Polynomial Commitment Schemes}\label{chap:poly-commitments}
+In this chapter, we will explore polynomial commitment schemes, which is a type of cryptographic protocol that allows one party to publish a value, known as the commitment, that binds them to a specific polynomial, without revealing the polynomial itself. Later on, that party may be asked to provide the evaluation of the polynomial at a particular point. The person reveals the evaluation along with a proof of correctness that enables the verifier to confirm that the provided value is consistent with the committed polynomial.
+
+
+
+Polynomial commitment and evaluation schemes are essential components of many new succinct zero-knowledge protocols, such as Sonic ([1]) and PLONK [2]. The role of polynomial evaluation schemes in these protocols is as follows: a confidential witness is often encoded as a univariate polynomial, and the verifier wishes to ensure that such an encoding satisfies certain polynomial relationships. The person committing to the polynomial commits to their confidential witness, and later the verifier requests its values at some random point and checks if all of the relationships are satisfied at those points. As those points are uniformly taken, it is highly likely that those polynomial relationships are indeed satisfied at all points.
+
+
+A commitment scheme is a cryptographic protocol that enables one party to commit to a chosen value or message while keeping it hidden from other parties until a later time when the commitment can be revealed. The purpose of a commitment scheme is to ensure that the committed value remains hidden and unchanged until the commitment is revealed, even if the party making the commitment becomes malicious or uncooperative. Commitment schemes are an important tool in many cryptographic applications, including secure multiparty computation, digital signatures, and zero knowledge proofs.
+
+To be more precise, a \term{Polynomial commitment scheme} is a quintuple of probabilistic polynomial algorithms $(\textsc{Setup},\textsc{Commit},\textsc{VerifyPoly},\textsc{Open}, \textsc{VerifyPoly})$ such that the following conditions hold:
+
+\begin{itemize}
+\item $\textsc{Param}\leftarrow \textsc{Setup}(m)$: Algorithm $\textsc{Setup}$ takes an upper bound $m$ on the degree of the polynomial as input and computes a parameter set necessary to execute the commitment scheme.
+\item $C\leftarrow \textsc{Commit}(\textsc{Param},P)$: Given a polynomial $P\in R[x]$ of degree $\leq m$, algorithm $\textsc{Commit}$ takes $P$ and the parameter set $\textsc{Param}$ and computes a commitment $C$.
+\item $\{\mathtt{accept},\mathtt{reject}\}\leftarrow \textsc{VerifyPoly}(\textsc{Param},P,C)$: Algorithm $\textsc{VerifyPoly}$ takes the commitment $C$, the parameter set $\textsc{Param}$ and a polynomial $P$ as input and returns \texttt{accept} if $C$ is a commitment to $P$. Otherwise it returns \texttt{reject} with very high probability.
+\item $(P(t),\pi)\leftarrow \textsc{Open}(\textsc{Param},P,t)$: Given the parameter set $\textsc{Param}$, the committed polynomial $P\in R[x]$ and some evaluation point $t\in R$, algorithm $\textsc{Open}$ returns the evaluation $P(t)$ of $P$ at $t$ and a correctness proof $\pi$.
+\item $\{\mathtt{accept},\mathtt{reject}\}\leftarrow \textsc{VerifyOpening}(\textsc{Param},C,z,t,\pi)$: Given the parameter set $\textsc{Param}$, the commitment $C$ and values $t,z\in R$, algorithm $\textsc{VerifyOpening}$ returns \texttt{accept} if $z=P(t)$. Otherwise it returns \texttt{reject} with very high probability.
+\end{itemize}
+
+A polynomial commitment scheme therefore allows a committer to publish a value, called the commitment and it is infeasible for the committer to find another polynomial of degree not larger then $m$ with the same commitment. Hence the commitment \term{binds} them to the polynomial. Later, they may open the commitment and reveal the evaluation of the polynomial at given points to a verifier, who can check that the evaluations are consistent with the commitment. 
+
+A polynomial commitment scheme is considered \term{succinct} if the size of the commitment is not greater than a power of the logarithm of the polynomial's degree, i.e. $C.nbits() \leq log(m)^k$ for some natural number $k\in \N$ nd it is called \term{of constant size} if the length of the commitment doesn't depend on the polynomial's degree.
+
+The scheme is called \term{hiding} if opening the committed polynomial at no more than $m$ points doesn't reveal any extra information about the polynomial, and it is called \term{transparent} if the $\textsc{Setup}$ algorithm can be executed without a trusted third party. Moreover it is called \term{homomorphic} IF STUFF and \term{randomizable} IF STUFF.
+
+\section{Kate Polynomial Commitments}
+
+In \cite{kate-10} the authors developed a non-transparent, hiding polynomial commitment scheme of constant size, usually called \term{Kate-commitment}. This scheme was later adopted in the PLONK zero knowledge proofing system. The hiding property of the scheme is based on the DL assumption XXX.
+
+In order to comprehend the intricacies of Kate-Commitments, let us consider a natural number $m\in\N$, which acts as an upper bound on the degree of polynomials that the scheme is capable of handling. Then a Kate Polynomial commitment scheme comprises the following set of algorithms:
+
+\begin{itemize}
+\item $(\textsc{Params}, \Tau, CRS)\leftarrow \textsc{Setup}(m)$: Algorithm $\textsc{Setup}$ takes an upper bound $m$ on the degree of the polynomial as inputs and generates a parameter set $\textsc{Params}$, a \term{simulation trapdoor} $\Tau$, and a \term{Common Reference String} $CRS$:
+\begin{equation}
+(\textsc{Params}, \Tau, CRS) = 
+\left\{
+\left\{\G_1,\G_2, \G_T, e\right\}, 
+\{\tau\}, 
+\left\{
+\begin{array}{ccccc}
+g_1, & g_1^\tau, & g_1^{\tau2}, & \ldots & g_1^{\tau^{m+1}} \\
+g_2, & g_2^\tau, & g_2^{\tau2}, & \ldots & g_2^{\tau^{m+1}} 
+\end{array}
+\right\} 
+\right\}
+\end{equation}
+The mapping $e:\G_1 \times \G_2 \rightarrow G_T$ represents a non-degenerate bilinear pairing defined over $t$-SDH secure (TODO) groups of prime order $p$, and $g_1$ as well as $g_2$ are generators of $\G_1$ and $\G_2$ respectively, whereas $\tau\in \F_{p}$ is an element from the scalar field of the groups in question. The scheme can commit to polynomials $P\in \F_p[x]$ of degrees $deg(P)\leq m$ with coefficients in the scalar field $\F_p$.
+
+The \concept{Common Reference String} relies on the simulation trapdoor $\Tau={\tau}$, and therefore, is not unique to the problem, which implies that Kate Commitments may have multiple \concept{Common Reference Strings}.
+
+Given a simulation trapdoor $\Tau = {\tau}$, we refer to the element $\tau$ as the \term{secret evaluation point} of the protocol. Furthermore, the elements $g_{1/2}^{\tau^0}$, $g_{1/2}^{\tau^1}$, $\ldots$, $g_{1/2}^{\tau^k}$ are commonly known as the \term{powers of tau}. It is essential to note that the simulation trapdoor (also known as the \term{toxic waste}) could potentially generate fraudulent commitments and false openings and must be deleted after the setup phase. As a result, the computation of the setup algorithm needs to be carried out by a trusted third party or in a multi-party computation.
+
+item $C\leftarrow \textsc{Commit}(\textsc{Param}, CRS,P)$: Given a polynomial $P\in \F_p[x]$ of degree $\leq m$, algorithm $\textsc{Commit}$ takes $P$ and the Common Reference String $CRS$ and computes the commitment $C = g_1^{P(\tau)} \in \G_1$. Using the exponential laws from XXX and the coefficient representation $P(x) = a_k x^k + a_{k-1}x^{k-1}+ \ldots + a_1 x + a_0$ of $P$ the commitment is computed as follows:
+\begin{equation}
+\begin{array}{rl}
+C = & g_1^{P(\tau)} \\
+  = & g_1^{a_k \tau^k + a_{k-1}\tau^{k-1}+ \ldots + a_1 \tau + a_0} \\
+  = & \left(g_1^{\tau^k}\right)^{a_k} \cdot \left(g_1^{\tau^{k-1}}\right)^{a_{k-1}}\cdot \cdots \cdot 
+      \left(g_1^\tau\right)^{a_1}\cdot g_1^{a_0}
+\end{array}
+\end{equation} 
+For $k\leq m$ the relevant data is part of the Common Reference string, which implies that the computation consists of $k$ exponentiations and multiplications in the group $\G_1$.
+
+\item $\{\mathtt{accept},\mathtt{reject}\}\leftarrow \textsc{VerifyPoly}(\textsc{Param}, CRS,P,C)$: Algorithm $\textsc{VerifyPoly}$ takes a group element $C\in \G_1$, the Common Reference String $CRS$ and a polynomial $P$ as input, and evaluates $P$ at the secret evaluation point $\tau$ in the exponent of $g_1$ in the same way as the commit algorithm. It returns \texttt{accept} if the result is equal to $C$ and otherwise returns \texttt{reject}.
+
+\item $(P(t),\pi)\leftarrow \textsc{Open}(\textsc{Param}, CRS,P,t)$: Given the Common Reference String $CRS$, the committed polynomial $P\in \F_p[x]$ and some evaluation point $t\in \F_p$, algorithm $\textsc{Open}$
+first computes the function
+\begin{equation}
+W(x) := \frac{P(x) - P(t)}{x-t}
+\end{equation}
+which is guaranteed to be a polynomial of degree $\leq deg(P)$. If the coordinate representation of $W$ is given by $W(x) = b_k x^k + b_{k-1}x^{k-1}+ \ldots + b_1 x + b_0$ then it computes  
+\begin{equation}
+\begin{array}{rl}
+\pi = & g_1^{W(\tau)} \\
+  = & g_1^{b_k \tau^k + b_{k-1}\tau^{k-1}+ \ldots + b_1 \tau + b_0} \\
+  = & \left(g_1^{\tau^k}\right)^{b_k} \cdot \left(g_1^{\tau^{k-1}}\right)^{b_{k-1}}\cdot \cdots \cdot 
+      \left(g_1^\tau\right)^{b_1}\cdot g_1^{b_0}
+\end{array}
+\end{equation}
+The algorithm returns the evaluation $P(t)$ of $P$ at the evaluation point $t$, the evaluation point $t$ and the correctness proof $\pi$.
+
+\item $\{\mathtt{accept},\mathtt{reject}\}\leftarrow \textsc{VerifyOpening}(\textsc{Param}, CRS,C,z,t,\pi)$: Given the parameter set $\textsc{Param}$ as well as the Common Referenz String $CRS$, the commitment $C$ and values $x,P(x)\in \F_p$, algorithm $\textsc{VerifyOpening}$ verifies the following equation
+\begin{equation}
+e(C,g_2) \stackrel{?}{=} e(\pi,g^{\tau}/g_t)e(g_1,g_2)^{z}
+\end{equation}
+\end{itemize} 
+
+\begin{remark}
+In \citep{kate-10}, the authors utilize a symmetric bilinear pairing $e(\cdot,\cdot)$ where $\G_1=\G_2$, and therefore only a single set of powers of tau, namely $g_1,g_1^\tau, g_1^{\tau^2}$, $\ldots$, $g_1^{\tau^m}$, is required. However, in practice, asymmetric pairings are preferred due to their concrete efficiency advantages.
+\end{remark}
