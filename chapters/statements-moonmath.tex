@@ -1,13 +1,13 @@
-\chapter{Statements}\label{sec:statements}\label{chap:statements}
+\chapter{Statement Representations}\label{sec:statements}\label{chap:statements}
 % Update the circuit / r1cs examples to describe their languages and how naive proofs look
 
 % https://people.cs.georgetown.edu/jthaler/ProofsArgsAndZK.pdf
 % https://docs.zkproof.org/reference.pdf
-As we have seen in the informal introduction, a SNARK is a succinct non-interactive argument of knowledge, where the knowledge-proof attests to the correctness of statements like ``The prover knows the prime factorization of a given number'' or ``The prover knows the preimage to a given SHA2 digest value'' and similar things. However,  human-readable statements like these are imprecise and not very useful from a formal perspective. 
+As presented in the informal introduction, a succinct non-interactive argument of knowledge (SNARK) serves as a means of verifying the correctness of various statements, such as "The prover knows the prime factorization of a given number" or "The prover knows the preimage to a given SHA2 digest value." However, such human-readable statements are imprecise and insufficient from a formal perspective.
 
-In this chapter, we therefore look more closely at ways to formalize statements in mathematically rigorous ways, useful for SNARK development. We start by introducing formal languages as a way to define statements properly (\secname{} \ref{sec:formal-languages}). For a detailed introduction of formal languages, see \cite{moll-2012}, for example. We then look at algebraic circuits and \concept{rank-1 constraint systems} [R1CS] as two particularly useful ways to define statements in certain formal languages (\secname{} \ref{sec:statement-representations}). \concept{rank-1 constraint systems} and algebraic circuits are introduced for example in appendix E of \cite{sasson-2013}.
+The purpose of this chapter is to explore methods of formalizing statements in a mathematically rigorous way that is useful for SNARK development. To accomplish this, we introduce formal languages as a means of properly defining statements (\secname{} \ref{sec:formal-languages}). For a more detailed explanation of formal languages, see \cite{moll-2012}. Additionally, we examine algebraic circuits and rank-1 constraint systems (R1CS) as two particularly valuable ways of defining statements within specific formal languages. The introduction to R1CS and algebraic circuits can be found in appendix E of \cite{sasson-2013}.
 
-Proper statement design should be of high priority in the development of SNARKs, since unintended true statements can lead to potentially severe and almost undetectable security vulnerabilities in the applications of SNARKs.
+Given that unintended true statements can result in potentially severe and difficult-to-detect security vulnerabilities in SNARK applications, proper statement design should be a top priority in the development of SNARKs.
 
 \section{Formal Languages}\label{sec:formal-languages}
 
@@ -285,17 +285,12 @@ R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\;
 
 Thus, the intersection of two decision-function-based languages is also decision-function-based language. This is important from an implementation point of view: it allows us to construct complex decision functions, their languages and associated statements from simple building blocks. Given a publicly known instance $I\in \Sigma_I^*$, a statement in an intersection language claims knowledge of a witness that satisfies all relations simultaneously. 
 
-\section{Statement Representations}\label{sec:statement-representations}
-As we have seen in the previous section, formal languages and their definitions by decision functions are a powerful tool to describe statements in a formally rigorous manner. 
+\section{The R1CS Representation}\label{sec:R1CS}
+Despite the various ways in which decision functions can be expressed, some modern proving systems require decision functions to be expressed in terms of a system of quadratic equations over a finite field. This requirement is particularly true for pairing-based proving systems, such as Groth\_16 \ref{sec:gorth_16}, as it is possible to separate the instance and witness and then check solutions to those equations "in the exponent" of pairing-friendly cryptographic groups.
 
-However, from the perspective of existing zero-knowledge proof systems, not all ways to actually represent decision functions are equally useful. Depending on the proof system, some are more suitable than others. In this section, we will describe two of the most common ways to represent decision functions and their statements.
-\subsection{Rank-1 Quadratic Constraint Systems}
-\label{sec:R1CS}
-Although decision functions are expressible in various ways, many contemporary proving systems require the decision function to be expressed in terms of a system of quadratic equations over a finite field. This is true in particular for pairing-based proving systems like the ones we describe in \chaptname{}  \ref{chapter:zk-protocols}, because in these cases it is possible to separate instance and witness and then check solutions to those equations ``in the exponent'' of pairing-friendly cryptographic groups.
+In this section, we will take a closer look at a particular type of quadratic equations known as Rank-1 (quadratic) Constraint Systems (R1CS), which are a widely accepted standard in zero-knowledge proof systems (cf. appendix E of \cite{sasson-2013}). We will begin with a general introduction to these constraint systems and then explore their relationship with formal languages. Finally, we will examine algebraic circuits as a common approach to computing solutions to these systems.
 
-In this section, we will have a closer look at a particular type of quadratic equations called \term{Rank-1 (quadratic) Constraint Systems} (R1CS), which are a common standard in zero-knowledge proof systems (cf. appendix E of \cite{sasson-2013}). We will start with a general introduction to those constrain systems and then look at their relation to formal languages. Then we will look into a common way to compute solutions to those systems. 
-
-\subsubsection{R1CS representation} To understand what \term{Rank-1 (quadratic) Constraint Systems} )(R1CS) are in detail, let $\F$ be a field, $n$, $m$ and $k\in\N$ three numbers and $a_j^i$, $b_j^i$ and $c_j^i\in\F$ constants from $\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Then a \concept{rank-1 constraint system} is defined as the following set of $k$ many equations:\tbdsm{font size too small} 
+\subsection{Rank-1 Constraint Systems} In order to gain a detailed understanding of Rank-1 (quadratic) Constraint Systems (R1CS), we assume the existence of a field $\F$, three natural numbers $n$, $m$ and $k$, and constants $a_j^i$, $b_j^i$ and $c_j^i\in\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Given these parameters, a rank-1 constraint system can be defined as the following set of $k$ equations: \tbdsm{font size too small}
 
 \begin{definition}[\deftitle{Rank-1 (quadratic) Constraint System}]\label{R1CS}
 \begin{align*}
@@ -309,16 +304,16 @@ In this section, we will have a closer look at a particular type of quadratic eq
 \end{align*}
 \end{definition}
 
-In a \concept{rank-1 constraint system}, the parameter $k$ is called the \term{number of constraints}, and each equation is called a \term{constraint}. If a pair of strings of field elements $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$  satisfies theses equations, $<I_1,\ldots, I_n>$ is called an \term{instance} and $<W_1,\ldots,W_m>$ is called a \term{witness} of the system.%
-\footnote{The presentation of \concept{rank-1 constraint systems} can be simplified using the notation of vectors and matrices, which abstracts over the indices. In fact, if $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, $C$ are $(n+m+1)\times k$-dimensional matrices and $\odot$ is the Schur/Hadamard product, then a R1CS can be written as follows:
+In a \concept{rank-1 constraint system}, the parameter $k$ is called the \term{number of constraints}, and each equation is called a \term{constraint}. If a pair of strings of field elements $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$ satisfies these equations, then $<I_1,\ldots, I_n>$ is referred to as an "instance" and $<W_1,\ldots,W_m>$ is called a "witness" of the system.
+\footnote{It is worth noting that the notation of vectors and matrices can be used to simplify the presentation of rank-1 constraint systems, by abstracting over the indices. Specifically, if $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, and $C$ are $(n+m+1)\times k$-dimensional matrices, and $\odot$ is the Schur/Hadamard product, then a R1CS can be expressed as:
 $$
 Ax \odot Bx = Cx
 $$
-However,  since we did not introduce vector spaces and matrix calculus in the book, we use XXX as the defining equation for \concept{rank-1 constraint systems}. We only highlighted the matrix notation because it is sometimes used in the literature.}\sme{add reference to footnote}
+However,  since we did not introduce vector spaces and matrix calculus in the book, we use \ref{R1CS} as the defining equation for \concept{rank-1 constraint systems}. We only highlighted the matrix notation because it is sometimes used in the literature.}\sme{add reference to footnote}
 
-It can be shown that every bounded computation is expressible as a \concept{rank-1 constraint system}. R1CS is therefore a universal model for bounded computations. We will derive some insights into common approaches of how to compile bounded computation into \concept{rank-1 constraint systems} in \chaptname{} \ref{chap:circuit-compilers}. 
+A \concept{rank-1 constraint system} provides a universal model for bounded computations, as it can express any bounded computation. In \chaptname{} \ref{chap:circuit-compilers}, we will explore common methods for compiling bounded computations into \concept{rank-1 constraint systems}.
 
-Generally speaking, the idea of a \concept{rank-1 constraint system} is to keep track of all the values that any variable can hold during a computation, and to bind the relationships among all those variables that are implied by the computation itself. Once relations between all steps of a computer program are constrained, program execution is then enforced to be computed in exactly in the expected way without any opportunity for deviations. In this sense, solutions to \concept{rank-1 constraint systems} are proofs of proper program execution.
+The essential idea behind a \concept{rank-1 constraint system} is to capture all the possible values that each variable can take on during a computation and to formalize the relationships between those variables that are implied by the computation itself. By doing so, the execution of a computer program is enforced to occur exactly as expected, leaving no room for deviations. In this way, solutions to \concept{rank-1 constraint systems} serve as proofs of proper program execution.
 
 \begin{example}[R1CS for 3-Factorization]\label{ex:3-factorization-r1cs} To provide a better intuition of \concept{rank-1 constraint systems}, consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the problem as a \concept{rank-1 constraint system}.
 
@@ -482,7 +477,7 @@ To be more precise, let $S_1$ and $S_2$ be two R1CS over $\F$. A new R1CS $S_3$ 
 As a consequence, developers are able to construct complex R1CS from simple ones. This modularity provides the theoretical foundation for many R1CS compilers, as we will see in \chaptname{} \ref{chap:circuit-compilers}.
 
 \subsection{Algebraic Circuits}
-\label{sec:circuits} As we have seen in the previous paragraphs, \concept{rank-1 constraint systems} are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a prover, it is therefore important to solve those equations efficiently. 
+\label{sec:circuits} As we have seen in the previous section, \concept{rank-1 constraint systems} are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a prover, it is therefore important to solve those equations efficiently. 
 
 However,  in contrast to systems of linear equations, no general methods are known that solve systems of quadratic equations efficiently. \concept{rank-1 constraint systems} are therefore impractical from a provers perspective and auxiliary information is needed that helps to compute solutions efficiently.
 
@@ -1441,5 +1436,51 @@ sage: P = F13t((2*(6*t+10)+8*(7*t+4))*(3*(6*t+10)+4*(7*t+4))-(8*(6*t+10)+11*(7*t
 sage: P == F13t(8*t^2 + 6)
 sage: P % T # remainder
 \end{sagecommandline}
+
+\end{example}
+\section{The PLONK Representation}
+% https://hackernoon.com/zero-knowledge-proof-algorithm-plonk-circuit-sin7y-tech-review-16
+% https://hackmd.io/@jake/plonk-arithmetization
+\subsection{PLONK Constraint Systems}
+In order to gain a detailed understanding of PLONK's Constraint Systems (PCS), we assume the existence of a field $\F$, the natural numbers $n$, $k$, constants $l_j, r_j, m_j, o_j\in\{0,1\}\subset\F$ for every index $0\leq j \leq k$ and a permutation
+\begin{equation}
+\sigma\left(\langle(1,1),(1,2),(1,3),(2,1),(2,2),(2,3),\ldots, (k,1),(k,2),(k,3)\rangle\right)
+\end{equation}
+Given these parameters, a PLONK constraint system can be defined as the following set of equations:
+
+\begin{equation}
+\label{Plonk-CS}
+\begin{array}{ll}
+\text{Gate Constraints}: &
+\begin{cases}
+\; l_1 \cdot W_{1,1} + r_1\cdot W_{1,2} + m_1 \cdot W_{1,1} \cdot W_{1,2} = o_1 \cdot W_{1,3} + c_1 \\
+\; l_2 \cdot W_{2,1} + r_2\cdot W_{2,2} + m_2 \cdot W_{2,1} \cdot W_{2,2} = o_2 \cdot W_{2,3} + c_2 \\
+\;\vdots \\
+\; l_k \cdot W_{k,1} + r_k\cdot W_{k,2} + m_k \cdot W_{k,1} \cdot W_{k,2} = o_k \cdot W_{k,3} + c_k
+\end{cases}\\
+\text{Equality Constraints}: &
+\begin{cases}
+\; W_{1,1} = W_{\sigma((1,1))}\\
+\; \vdots \\
+\; W_{k,3} = W_{\sigma((k,3))} 
+\end{cases}
+\end{array}
+\end{equation}
+
+
+The constants $sl_j$, $sr_j$, $sm_j$, and $so_j$ are called (boolean) selectors, and the parameter $k$ is called the \term{number of gate constraints}. If a pair of strings of field elements $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$ satisfies these equations, then $<I_1,\ldots, I_n>$ is referred to as an "instance" and $<W_1,\ldots,W_m>$ is called a "witness" of the system.
+\footnote{It is worth noting that the notation of vectors and matrices can be used to simplify the presentation of rank-1 constraint systems, by abstracting over the indices. Specifically, if $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, and $C$ are $(n+m+1)\times k$-dimensional matrices, and $\odot$ is the Schur/Hadamard product, then a R1CS can be expressed as:
+$$
+Ax \odot Bx = Cx
+$$
+However,  since we did not introduce vector spaces and matrix calculus in the book, we use \ref{R1CS} as the defining equation for \concept{rank-1 constraint systems}. We only highlighted the matrix notation because it is sometimes used in the literature.}\sme{add reference to footnote}
+
+A \concept{rank-1 constraint system} provides a universal model for bounded computations, as it can express any bounded computation. In \chaptname{} \ref{chap:circuit-compilers}, we will explore common methods for compiling bounded computations into \concept{rank-1 constraint systems}.
+
+The essential idea behind a \concept{rank-1 constraint system} is to capture all the possible values that each variable can take on during a computation and to formalize the relationships between those variables that are implied by the computation itself. By doing so, the execution of a computer program is enforced to occur exactly as expected, leaving no room for deviations. In this way, solutions to \concept{rank-1 constraint systems} serve as proofs of proper program execution.
+
+
+
+\begin{example}[PLONK for 3-Factorization]\label{ex:3-factorization-PLONK} To provide a better intuition of the \concept{PLONK representation}, consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the problem into a \concept{PLONK representation}.
 
 \end{example}
