@@ -1153,20 +1153,28 @@ Conversely, it can be shown that any point-value representation of a polynomial 
 
 Both representations have their advantages and disadvantages, but the point-value representation has a specific advantage in fast polynomial multiplication algorithms. The multiplication of a degree $m$ polynomial and a degree $n$ polynomial in coefficient form typically requires $m \cdot n$ operations, whereas in point-value representation, the same multiplication only needs $max\{m,n\}$ operations. This is because, in the point-value representation, only the values at each point need to be multiplied to compute the product of the polynomials.  
 
-\begin{example} Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of \concept{Lagrange interpolation} from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
+\begin{example}
+\label{ex:point-value-Q}
+ Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of \concept{Lagrange interpolation} from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
 \begin{align*}
-l_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
+L_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
          =  -\frac{(x+2)(x-2)}{4}\\
-       & = -\frac{1}{4}(x^2-4)\\
-l_1(x) & = \frac{x-x_0}{x_1-x_0}\cdot\frac{x-x_2}{x_1-x_2}
+       & = -\frac{1}{4}(x^2-4)
+\end{align*}
+\begin{align*}
+L_1(x) & = \frac{x-x_0}{x_1-x_0}\cdot\frac{x-x_2}{x_1-x_2}
           = \frac{x-0}{-2-0}\cdot \frac{x-2}{-2-2}
           = \frac{x(x-2)}{8}\\
-       & = \frac{1}{8}(x^2-2x)\\
-l_2(x) & = \frac{x-x_0}{x_2-x_0}\cdot\frac{x-x_1}{x_2-x_1}
+       & = \frac{1}{8}(x^2-2x)
+\end{align*}  
+\begin{align*}   
+L_2(x) & = \frac{x-x_0}{x_2-x_0}\cdot\frac{x-x_1}{x_2-x_1}
           = \frac{x-0}{2-0}\cdot\frac{x+2}{2+2}
           = \frac{x(x+2)}{8}\\
-       & = \frac{1}{8}(x^2+2x)\\
+       & = \frac{1}{8}(x^2+2x)
+\end{align*}
+\begin{align*}
 P(x)   & =  4\cdot (-\frac{1}{4}(x^2-4)) + 1\cdot \frac{1}{8}(x^2-2x) + 3\cdot \frac{1}{8}(x^2+2x)\\
        & = -x^2+4 + \frac{1}{8}x^2-\frac{1}{4} x + \frac{3}{8}x^2+\frac{3}{4} x \\
        & = -\frac{1}{2} x^2 +\frac{1}{2} x + 4
@@ -1202,7 +1210,8 @@ P(x)   & = 4\cdot (x^2+1) + 1\cdot (2x^2+x) + 3\cdot (2x^2+4x) \\
        & = 2x^2 +3x +4
 \end{align*}
 And, indeed, evaluation of $P$ on the $x$-values of $S$ gives the correct points, since $P(0)=4$, $P(-2)=1$ and $P(2)=3$. We can double check our findings using  Sage:
-\begin{sagecommandline}sage: F5 = GF(5)
+\begin{sagecommandline}
+sage: F5 = GF(5)
 sage: F5x = F5['x']
 sage: S=[(0,4),(-2,1),(2,3)]
 sage: F5x.lagrange_polynomial(S)
@@ -1222,6 +1231,66 @@ Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the
 \begin{exercise}
 Consider modular $5$ arithmetic from \examplename{} \ref{primfield_z_5}, and the polynomial $P(x) = x^2 + x +1$. Compute the point-value representation of $P$ on the following set of evaluation points $S = \{0,1,2,4\}$. Show that Lagrange's interpolation computes the same polynomial for every 3-element subset of $S$.
 \end{exercise}
+\subsection{Lagrange Base}
+In mathematics, the concept of a \term{base} typically refers to a minimal set of elements that are selected from a larger set, such that every element in the larger set can be constructed from this smaller set in a unique way. 
+
+For instance, consider the example of a sheet of paper. By introducing a coordinate system, we can represent any point on the sheet in terms of its horizontal and vertical distance from a predefined reference point. In this scenario, a base can be formed by using a point of unit length in the horizontal direction along with a point of unit length in the vertical direction. Using this base, any other point on the sheet can be constructed by scaling and adding these two points in a specific manner.
+
+The objective of this section is to utilize the point-value representation XXX of a polynomial to introduce the idea of a base for polynomials with bounded degrees. Specifically, we aim to define a set comprising of $k+1$ polynomials that can be used to construct any polynomial of degree $\leq k$ through a combination of multiples of these polynomials.
+
+To elaborate, let $S:={x_0, x_1, \ldots, x_k}$ be a set of $k+1$ distinct points from a type $R$ that has multiplicative inverses XXX, where $x_j \neq x_m$ for all $j \neq m$, and define the degree $k$ polynomial $L_j$ by
+\begin{equation}
+\label{def:lagrange-coordinate}
+L_j(x) = \frac{(x-x_0)\cdots(x-x_{j-1})(x-x_{j+1})\cdots(x-x_k)}{(x_j-x_0)\cdots(x_j-x_{j-1})(x_j-x_{j+1})\cdots(x_j-x_k)}
+\end{equation}
+Each $L_j$ is known as a \term{Lagrange base polynomial}, and by virtue of Lagrange's interpolation XXX, it is a polynomial of degree $k$ such that the following identity holds for all $x_i\in S$:
+\begin{equation}
+L_j(x_i)=
+\begin{cases}
+0 & \text{for } i\neq j \\
+1 & \text{for } i = j 
+\end{cases}
+\end{equation}
+Lagrange base polynomials are of particular interest because every other polynomial of degree $\leq k$ can be expressed as a scaled sum over those polynomials. Therefore, any set $S$ of distinct points defines a basis for polynomials of degree $\leq k$ known as a \term{Lagrange basis}, given by
+\begin{equation}
+\label{def:lagrange-base}
+L_S := {L_0, L_1, \ldots, L_k}
+\end{equation}
+To illustrate how a Lagrange basis can be utilized to construct any other polynomial of degree $\leq k$, consider the point-value form ${(x_0,y_0), (x_1,y_1), \ldots, (x_k,y_k)}$ (See XXX) of a polynomial $P$. Then, the \term{representation} of $P$ in the Lagrange basis $L_S$ is given by:
+\begin{equation}
+P(x) = \sum_{j=0}^{k} y_j L_j(x).
+\end{equation}
+Thus, it can be concluded that the use of Lagrange bases enables the conversion of a polynomial in point-value representation into its coordinate representation, without the need to explicitly invoke Lagrange's interpolation algorithm.
+\begin{example}
+\label{ex:lagrange-Q}
+Let us consider the set of evaluation points $S=\{x_0,x_1,x_2\}=\{0,-2,2\}$ from example \ref{ex:point-value-Q} again. Our task is to compute the Lagrange base $L_S$ for this set and to show how to represent polynomial of degree $\leq 2$ from $\mathbb{Q}[x]$. Starting with the Lagrange base polynomials we get
+\begin{align*}
+L_0(x) = & \frac{(x-x_{1})(x-x_2)}{(x_0-x_{1})(x_0-x_2)}
+       =  \frac{(x+2)(x-2)}{(2)(-2)}
+       =  -\frac{x^2-4}{4}\\
+       = &  -\frac{1}{4} x^2 +1
+\end{align*}
+\begin{align*}
+L_1(x) = & \frac{(x-x_0)(x-x_{2})}{(x_1-x_0)(x_1-x_{2})}
+       =  \frac{(x)(x-2)}{(-2)(-2-2)}
+       =  \frac{x^2 -2x}{8} \\
+       = & \frac{1}{8}x^2 -\frac{1}{4}x
+\end{align*}
+\begin{align*}
+L_2(x) = & \frac{(x-x_0)(x-x_{1})}{(x_2-x_0)(x_2-x_{1})}
+       =  \frac{(x)(x+2)}{(2)(2+2)}
+       =  \frac{x^2 +2x}{8} \\
+       = & \frac{1}{8}x^2 +\frac{1}{4}x
+\end{align*}
+With those polynomials at hand, we see that the Lagrange base for the evaluation points $\{0,-2,2\}$ is given by the following set
+$$
+L_S=\{-\frac{1}{4} x^2 +1, \frac{1}{8}x^2 -\frac{1}{4}x, \frac{1}{8}x^2 +\frac{1}{4}x\}
+$$
+The point of this set is, that every other polynomial $P\in\mathbb{Q}_{\leq 2}[x]$ of degree $\leq 2$ can be represented in this Lagrange base, which means that there are 'coordinates' 
+$c_0$, $c_1$ and $c_2$ that $P$ can be written as $P= c_0\cdot L_0 + c_1 \cdot L_1 + c_2\cdot L_2$ much like a point in a flat coordinate system can be written in 'x' and 'y' coordinates.
+
+To understand this in detail consider the polynomial $P$ from example XXX. As we know from that example we have $P = 4\cdot L_0 + 1\cdot L_1 + 3\cdot L_2$. The coordinates of $P$ in the base $L_S$ ar therefore given by $(4,1,3)$.  
+\end{example}
 
 \subsection{\concept{Schwartz–Zippel lemma}}
 \label{sec:point-value-form}

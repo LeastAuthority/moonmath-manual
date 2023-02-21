@@ -311,7 +311,7 @@ Ax \odot Bx = Cx
 $$
 However,  since we did not introduce vector spaces and matrix calculus in the book, we use \ref{R1CS} as the defining equation for \concept{rank-1 constraint systems}. We only highlighted the matrix notation because it is sometimes used in the literature.}\sme{add reference to footnote}
 
-A \concept{rank-1 constraint system} provides a universal model for bounded computations, as it can express any bounded computation. In \chaptname{} \ref{chap:circuit-compilers}, we will explore common methods for compiling bounded computations into \concept{rank-1 constraint systems}.
+A \concept{rank-1 constraint system} provides a universal model for bounded computations, as it can express any computation that is guaranteed to terminate in a finite number of steps. In \chaptname{} \ref{chap:circuit-compilers}, we will explore common methods for compiling bounded computations into \concept{rank-1 constraint systems}.
 
 The essential idea behind a \concept{rank-1 constraint system} is to capture all the possible values that each variable can take on during a computation and to formalize the relationships between those variables that are implied by the computation itself. By doing so, the execution of a computer program is enforced to occur exactly as expected, leaving no room for deviations. In this way, solutions to \concept{rank-1 constraint systems} serve as proofs of proper program execution.
 
@@ -1441,46 +1441,89 @@ sage: P % T # remainder
 \section{The PLONK Representation}
 % https://hackernoon.com/zero-knowledge-proof-algorithm-plonk-circuit-sin7y-tech-review-16
 % https://hackmd.io/@jake/plonk-arithmetization
+
+Some words about turbo Plonk ect, and this is classic Plonk
 \subsection{PLONK Constraint Systems}
-In order to gain a detailed understanding of PLONK's Constraint Systems (PCS), we assume the existence of a field $\F$, the natural numbers $n$, $k$, constants $l_j, r_j, m_j, o_j\in\{0,1\}\subset\F$ for every index $0\leq j \leq k$ and a permutation
+In order to gain a detailed understanding of PLONK's Constraint Systems (PCS), we assume the existence of a field $\F$, a natural number $k$, "binary" elements $l_j, r_j, m_j, o_j\in\{0,1\}\subset\F$ and constants $c_j\in \F$ for every index $1\leq j \leq k$ and a permutation
 \begin{equation}
-\sigma\left(\langle(1,1),(1,2),(1,3),(2,1),(2,2),(2,3),\ldots, (k,1),(k,2),(k,3)\rangle\right)
+\sigma: \langle 1,\ldots , 3k \rangle \to \langle 1,\ldots , 3k \rangle
 \end{equation}
 Given these parameters, a PLONK constraint system can be defined as the following set of equations:
-
 \begin{equation}
 \label{Plonk-CS}
 \begin{array}{ll}
 \text{Gate Constraints}: &
 \begin{cases}
-\; l_1 \cdot W_{1,1} + r_1\cdot W_{1,2} + m_1 \cdot W_{1,1} \cdot W_{1,2} = o_1 \cdot W_{1,3} + c_1 \\
-\; l_2 \cdot W_{2,1} + r_2\cdot W_{2,2} + m_2 \cdot W_{2,1} \cdot W_{2,2} = o_2 \cdot W_{2,3} + c_2 \\
+\; l_1 \cdot S_{1} + r_1\cdot S_{k+1} + m_1 \cdot S_{1} \cdot S_{k+1} = o_1 \cdot S_{2k+1} + c_1 \\
+\; l_2 \cdot S_{2} + r_2\cdot S_{k+2} + m_2 \cdot S_{2} \cdot S_{k+2} = o_2 \cdot S_{2k+2} + c_2 \\
 \;\vdots \\
-\; l_k \cdot W_{k,1} + r_k\cdot W_{k,2} + m_k \cdot W_{k,1} \cdot W_{k,2} = o_k \cdot W_{k,3} + c_k
+\; l_k \cdot S_{k} + r_k\cdot S_{k+k} + m_k \cdot S_{k} \cdot S_{k+k} = o_k \cdot S_{2k+k} + c_k
 \end{cases}\\
 \text{Equality Constraints}: &
 \begin{cases}
-\; W_{1,1} = W_{\sigma((1,1))}\\
+\; S_{1} = S_{\sigma(1)}\\
 \; \vdots \\
-\; W_{k,3} = W_{\sigma((k,3))} 
+\; S_{3k} = S_{\sigma(3k)} 
 \end{cases}
 \end{array}
 \end{equation}
+If there exists a pair of strings of field elements $\langle S_1,\ldots S_{3k} \rangle = (\langle I_1, \ldots I_n \rangle;\langle W_{n+1}, \ldots W_{3k}\rangle)$ that satisfies  equations \ref{Plonk-CS} for some $n\leq k$, then $<I_1,\ldots, I_n>$ is denoted as an \term{instance} and $<W_{n+1},\ldots,W_{3k}>$ is referred to as a \term{witness} of the system.
 
+The \term{copy constraints} are defined by the permutation $\sigma$, while the field elements $c_j$ are \term{system constants} that are known at compile time. The constants $l_j$, $r_j$, $m_j$, and $o_j$ are (boolean) \term{selector constants}, and the parameter $n$ represents the number of \term{public inputs} while $k$ denotes the number of \term{gate constraints}.
 
-The constants $sl_j$, $sr_j$, $sm_j$, and $so_j$ are called (boolean) selectors, and the parameter $k$ is called the \term{number of gate constraints}. If a pair of strings of field elements $(<I_1,\ldots, I_n>; <W_1,\ldots,W_m>)$ satisfies these equations, then $<I_1,\ldots, I_n>$ is referred to as an "instance" and $<W_1,\ldots,W_m>$ is called a "witness" of the system.
-\footnote{It is worth noting that the notation of vectors and matrices can be used to simplify the presentation of rank-1 constraint systems, by abstracting over the indices. Specifically, if $x= (1,I,W)\in \F^{1+n+m}$ is a $(n+m+1)$-dimensional vector, $A$, $B$, and $C$ are $(n+m+1)\times k$-dimensional matrices, and $\odot$ is the Schur/Hadamard product, then a R1CS can be expressed as:
+\concept{PLONK constraint systems} provide a universal model for bounded computations, as they can express any computation that is guaranteed to terminate in a finite number of steps.
+
+The essential idea behind a \concept{PLONK constraint system} is to capture all the possible values that each variable can take on during a computation and to formalize the relationships between those variables that are implied by the computation itself. By doing so, the execution of a computer program is enforced to occur exactly as expected, leaving no room for deviations. In this way, solutions to \concept{PLONK constraint systems} serve as proofs of proper program execution.
+
+\begin{example}[PLONK for 3-Factorization]\label{ex:3-factorization-plonk} To provide a better intuition of \concept{PLONK constraint systems}, consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the problem as a \concept{PLONK constraint system}.
+
+Since PCS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$, which contain products of more than two factors (which are therefore not quadratic) have to be rewritten in a process often called \term{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac\_zk}$, we first relabel indices and write the defining equation as $I_1 = W_2\cdot W_3\cdot W_4$. Since the multiplication on the right can be expressed by two multiplications, we can write it as follows:
+\begin{align*}
+W_{2} \cdot W_{3} & = W_{4} & \text{gate constraint } 1 \\
+W_{4} \cdot W_{5} & = W_{6} & \text{gate constraint } 2 \\
+\\
+W_{} = W_{(2,3)} & & \text{equality constraint } 1 \\
+\end{align*}
+Given some instance $I_1$, any solution $(W_1,W_2,W_3,W_4)$ to this system of equations provides a solution to the original equation $I_1 = W_1\cdot W_2\cdot W_3$ and vice versa. Both equations are therefore equivalent in the sense that solutions are in a 1:1 correspondence.
+
+Looking at both equations from this constraint system, we see how each constraint enforces a step in the computation. Constraint $1$ forces any computation to multiply the witnesses $W_1$ and $W_2$; otherwise, it would not be possible to compute the witness $W_4$ first, which is needed to solve constraint $2$. Witness $W_4$ therefore expresses the constraining of an intermediate computational state.
+
+At this point, one might ask why equation $1$ constrains the system to compute $W_1\cdot W_2$ first. In order to compute $W_1\cdot W_2 \cdot W_3$, calculating $W_2\cdot W_3$, or $W_1\cdot W_3$ in the beginning and then multiplying the result with the remaining factor gives the exact same result.  The reason is purely a matter of choice. For example, the following R1CS would define the exact same language:
+\begin{align*}
+W_2 \cdot W_3 & = W_4 & \text{constraint } 1 \\
+W_4 \cdot W_1 & = I_1 & \text{constraint } 2 
+\end{align*}
+It follows that R1CS are generally \term{not unique} descriptions of any given situation: many different R1CS are able to describe the same problem.
+
+To see that the two quadratic equations qualify as a \concept{rank-1 constraint system}, choose the parameter $n=1$, $m=4$ and $k=2$ as well as the following values:
 $$
-Ax \odot Bx = Cx
+\begin{array}{llllll}
+a_0^1 = 0 & a_1^1= 0 & a_2^1= 1 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
+a_0^2 = 0 & a_1^2= 0 & a_2^2= 0 & a_3^2 = 0 & a_4^2= 0  & a_5^2= 1 \\ 
+\\
+b_0^1 = 0 & b_1^1= 0 & b_2^1= 0 & b_3^1 = 1 & b_4^1= 0  & b_5^1= 0 \\ 
+b_0^2 = 0 & b_1^2= 0 & b_2^2= 0 & b_3^2 = 0 & b_4^2= 1  & b_5^2= 0 \\ 
+\\
+c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 0  & c_5^1= 1 \\ 
+c_0^2 = 0 & c_1^2= 1 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 0 
+\end{array} 
 $$
-However,  since we did not introduce vector spaces and matrix calculus in the book, we use \ref{R1CS} as the defining equation for \concept{rank-1 constraint systems}. We only highlighted the matrix notation because it is sometimes used in the literature.}\sme{add reference to footnote}
-
-A \concept{rank-1 constraint system} provides a universal model for bounded computations, as it can express any bounded computation. In \chaptname{} \ref{chap:circuit-compilers}, we will explore common methods for compiling bounded computations into \concept{rank-1 constraint systems}.
-
-The essential idea behind a \concept{rank-1 constraint system} is to capture all the possible values that each variable can take on during a computation and to formalize the relationships between those variables that are implied by the computation itself. By doing so, the execution of a computer program is enforced to occur exactly as expected, leaving no room for deviations. In this way, solutions to \concept{rank-1 constraint systems} serve as proofs of proper program execution.
-
-
-
-\begin{example}[PLONK for 3-Factorization]\label{ex:3-factorization-PLONK} To provide a better intuition of the \concept{PLONK representation}, consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the problem into a \concept{PLONK representation}.
-
+With this choice, the \concept{rank-1 constraint system} of our $3$-factorization problem can be written in its most general form as follows:
+\begin{equation}
+\label{Plonk-CS}
+\begin{array}{ll}
+\text{Gate Constraints}: &
+\begin{cases}
+\; l_1 \cdot S_{1} + r_1\cdot S_{k+1} + m_1 \cdot S_{1} \cdot S_{k+1} = o_1 \cdot S_{2k+1} + c_1 \\
+\; l_2 \cdot S_{2} + r_2\cdot S_{k+2} + m_2 \cdot S_{2} \cdot S_{k+2} = o_2 \cdot S_{2k+2} + c_2 \\
+\; l_3 \cdot S_{3} + r_3\cdot S_{3+3} + m_3 \cdot S_{3} \cdot S_{3+3} = o_3 \cdot S_{2\cdot 3+3} + c_3
+\end{cases}\\
+\text{Equality Constraints}: &
+\begin{cases}
+\; S_{1} = S_{\sigma(1)}\\
+\; \vdots \\
+\; S_{3k} = S_{\sigma(3k)} 
+\end{cases}
+\end{array}
+\end{equation}
 \end{example}
