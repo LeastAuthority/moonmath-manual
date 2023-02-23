@@ -1442,7 +1442,12 @@ sage: P % T # remainder
 % https://hackernoon.com/zero-knowledge-proof-algorithm-plonk-circuit-sin7y-tech-review-16
 % https://hackmd.io/@jake/plonk-arithmetization
 
-Some words about turbo Plonk ect, and this is classic Plonk
+In the previous section, Rank-1 constraint systems were introduced as a standard method to represent decision functions of formal languages \ref{sec:decision_function}. These systems are used in zero-knowledge proof systems such as Groth\_16 \ref{sec:gorth_16}.
+
+In this section, we will focus on Plonk constraint systems, which are another type of systems of quadratic equations that have become increasingly popular in modern zero-knowledge proof systems, including Plonk and its derivatives. We will provide a general introduction to these constraint systems and explore their relationship with formal languages. Additionally, we will examine how algebraic circuits are translated into Plonk constraint systems.
+
+Plonk offers flexibility in supporting constraint systems with low-degree custom gates and lookup gates. However, in this section, we will only consider the original definition of Plonk's constraint system as defined in \cite{gabizon-19}, which only defines constraints for fan-in 2 arithmetic gates.
+
 \subsection{Plonk Constraint Systems}
 To obtain a comprehensive understanding of Plonk's Constraint Systems (PlCS), we make the following assumptions: there exists a field $\F$, natural numbers $k$ and $n$, and field elements $l_j, r_j, m_j, o_j, c_j\in\F$ for every index $1\leq j \leq k$, along with a permutation $\sigma: \langle 1,\ldots , 3k \rangle \to \langle 1,\ldots , 3k \rangle$. With these parameters, we can define a Plonk constraint system as the set of equations presented below:
 \begin{equation}
@@ -1535,6 +1540,7 @@ $$
 $$
 A valid solution to the Plonk constraint system defined earlier is characterized by a pair of strings $(\langle I_1 \rangle;\langle W_1, W_2, W_3, W_4, W_5, W_6, W_7 , W_8, W_9\rangle)$ that satisfy the following equations: $W_9 = I_1$, $W_3 = W_8 $, $W_{2} \cdot W_{5} = W_{8}$ and $W_{3} \cdot W_{6} = W_{9}$. Note that the values for $W_4$ and $W_7$ are not relevant to the solution and can be arbitrarily chosen. However, they are formally included in the system for completeness.
 \end{example}
+\begin{comment}
 \begin{example}[PlCS for the points of the \curvename{Tiny-jubjub} curve ]
 \label{ex:TJJ-plonk}
 Consider the languages $L_{tiny.jj.1}$ from \examplename{} \ref{ex:tiny-jubjub-instance-witness}, which consists of words $<I_1,I_2>$ over the alphabet $\F_{13}$ such that $3\cdot I_1^2 + I_2^2 = 1 + 8\cdot I_1^2\cdot I_2^2$. 
@@ -1597,4 +1603,4 @@ Solutions to this constraint system are in 1:1 correspondence with words in $L_{
 \end{example}
 \begin{exercise} Consider the language $L_{add}$ from exercise \ref{ex:TJJ-addition-lang}. Define an R1CS such that words in $L_{add}$ are in 1:1 correspondence with solutions to this R1CS.
 \end{exercise} 
-
+\end{comment}
