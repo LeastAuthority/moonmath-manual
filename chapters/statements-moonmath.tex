@@ -5,9 +5,7 @@
 % https://docs.zkproof.org/reference.pdf
 As presented in the informal introduction, a succinct non-interactive argument of knowledge (SNARK) serves as a means of verifying the correctness of various statements, such as "The prover knows the prime factorization of a given number" or "The prover knows the preimage to a given SHA2 digest value." However, such human-readable statements are imprecise and insufficient from a formal perspective.
 
-The purpose of this chapter is to explore methods of formalizing statements in a mathematically rigorous way that is useful for SNARK development. To accomplish this, we introduce formal languages as a means of properly defining statements (\secname{} \ref{sec:formal-languages}). For a more detailed explanation of formal languages, see \cite{moll-2012}. Additionally, we examine algebraic circuits and rank-1 constraint systems (R1CS) as two particularly valuable ways of defining statements within specific formal languages. The introduction to R1CS and algebraic circuits can be found in appendix E of \cite{sasson-2013}.
-
-Given that unintended true statements can result in potentially severe and difficult-to-detect security vulnerabilities in SNARK applications, proper statement design should be a top priority in the development of SNARKs.
+This chapter explores methods for formalizing those statements in a mathematically rigorous way \ref{sec:formal-languages}), followed by an examination of rank-1 constraint systems (R1CS) and Plonk constraint systems (PlCS) and their associated algebraic circuits. These are particularly valuable ways of representing statements within formal languages that modern zero knowledge proof systems understand. Given the potential security vulnerabilities that can result from unintended true statements in SNARK applications, proper statement design should be a top priority in SNARK development. For a more detailed explanation of formal languages, see \cite{moll-2012}.
 
 \section{Formal Languages}\label{sec:formal-languages}
 
@@ -286,9 +284,11 @@ R_{L_1 \cap L_2}: \Sigma_I^* \times \Sigma_W^* \to \{true, false\}\;;\;
 Thus, the intersection of two decision-function-based languages is also decision-function-based language. This is important from an implementation point of view: it allows us to construct complex decision functions, their languages and associated statements from simple building blocks. Given a publicly known instance $I\in \Sigma_I^*$, a statement in an intersection language claims knowledge of a witness that satisfies all relations simultaneously. 
 
 \section{The R1CS Representation}\label{sec:R1CS}
-Despite the various ways in which decision functions can be expressed, some modern proving systems require decision functions to be expressed in terms of a system of quadratic equations over a finite field. This requirement is particularly true for pairing-based proving systems, such as Groth\_16 \ref{sec:gorth_16}, as it is possible to separate the instance and witness and then check solutions to those equations "in the exponent" of pairing-friendly cryptographic groups.
+Despite the various ways in which decision functions can be expressed, some modern proving systems require decision functions to be expressed in terms of a system of quadratic equations over a finite field. This requirement is particularly true for pairing-based proving systems, such as Groth\_16 \ref{sec:gorth_16}, as it is possible to separate the instance and witness and then check the verification of those equations "in the exponent" of pairing-friendly cryptographic groups.
 
 In this section, we will take a closer look at a particular type of quadratic equations known as Rank-1 (quadratic) Constraint Systems (R1CS), which are a widely accepted standard in zero-knowledge proof systems (cf. appendix E of \cite{sasson-2013}). We will begin with a general introduction to these constraint systems and then explore their relationship with formal languages. Finally, we will examine algebraic circuits as a common approach to computing solutions to these systems.
+
+The introduction to R1CS and algebraic circuits can be found in appendix E of \cite{sasson-2013}.
 
 \subsection{Rank-1 Constraint Systems} In order to gain a detailed understanding of Rank-1 (quadratic) Constraint Systems (R1CS), we assume the existence of a field $\F$, three natural numbers $n$, $m$ and $k$, and constants $a_j^i$, $b_j^i$ and $c_j^i\in\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$. Given these parameters, a rank-1 constraint system can be defined as the following set of $k$ equations: \tbdsm{font size too small}
 
@@ -1438,92 +1438,163 @@ sage: P % T # remainder
 \end{sagecommandline}
 
 \end{example}
-\section{The PLONK Representation}
+\section{The Plonk Representation}
 % https://hackernoon.com/zero-knowledge-proof-algorithm-plonk-circuit-sin7y-tech-review-16
 % https://hackmd.io/@jake/plonk-arithmetization
 
 Some words about turbo Plonk ect, and this is classic Plonk
-\subsection{PLONK Constraint Systems}
-In order to gain a detailed understanding of PLONK's Constraint Systems (PCS), we assume the existence of a field $\F$, a natural number $k$, "binary" elements $l_j, r_j, m_j, o_j\in\{0,1\}\subset\F$ and constants $c_j\in \F$ for every index $1\leq j \leq k$ and a permutation
-\begin{equation}
-\sigma: \langle 1,\ldots , 3k \rangle \to \langle 1,\ldots , 3k \rangle
-\end{equation}
-Given these parameters, a PLONK constraint system can be defined as the following set of equations:
+\subsection{Plonk Constraint Systems}
+To obtain a comprehensive understanding of Plonk's Constraint Systems (PlCS), we make the following assumptions: there exists a field $\F$, natural numbers $k$ and $n$, and field elements $l_j, r_j, m_j, o_j, c_j\in\F$ for every index $1\leq j \leq k$, along with a permutation $\sigma: \langle 1,\ldots , 3k \rangle \to \langle 1,\ldots , 3k \rangle$. With these parameters, we can define a Plonk constraint system as the set of equations presented below:
 \begin{equation}
 \label{Plonk-CS}
 \begin{array}{ll}
+\text{Public Input}: &
+\begin{cases}
+\; W_{1} = I_{1}\\
+\; \vdots \\
+\; W_{n} = I_{n} 
+\end{cases}\\
 \text{Gate Constraints}: &
 \begin{cases}
-\; l_1 \cdot S_{1} + r_1\cdot S_{k+1} + m_1 \cdot S_{1} \cdot S_{k+1} = o_1 \cdot S_{2k+1} + c_1 \\
-\; l_2 \cdot S_{2} + r_2\cdot S_{k+2} + m_2 \cdot S_{2} \cdot S_{k+2} = o_2 \cdot S_{2k+2} + c_2 \\
+\; l_{n+1} \cdot W_{n+1} + r_{n+1}\cdot W_{k+n+1} + m_{n+1} \cdot W_{n+1} \cdot W_{k+n+1} = o_{n+1} \cdot W_{2k+n+1} + c_{n+1} \\
+\; l_{n+2} \cdot W_{n+2} + r_{n+2}\cdot W_{k+n+2} + m_{n+2} \cdot W_{n+2} \cdot W_{k+n+2} = o_{n+2} \cdot W_{2k+n+2} + c_{n+2} \\
 \;\vdots \\
-\; l_k \cdot S_{k} + r_k\cdot S_{k+k} + m_k \cdot S_{k} \cdot S_{k+k} = o_k \cdot S_{2k+k} + c_k
+\; l_k \cdot W_{k} + r_k\cdot W_{k+k} + m_k \cdot W_{k} \cdot W_{k+k} = o_k \cdot W_{2k+k} + c_k
 \end{cases}\\
-\text{Equality Constraints}: &
+\text{Copy Constraints}: &
 \begin{cases}
-\; S_{1} = S_{\sigma(1)}\\
+\; W_{1} = W_{\sigma(1)}\\
 \; \vdots \\
-\; S_{3k} = S_{\sigma(3k)} 
+\; W_{3k} = W_{\sigma(3k)} 
 \end{cases}
 \end{array}
 \end{equation}
-If there exists a pair of strings of field elements $\langle S_1,\ldots S_{3k} \rangle = (\langle I_1, \ldots I_n \rangle;\langle W_{n+1}, \ldots W_{3k}\rangle)$ that satisfies  equations \ref{Plonk-CS} for some $n\leq k$, then $<I_1,\ldots, I_n>$ is denoted as an \term{instance} and $<W_{n+1},\ldots,W_{3k}>$ is referred to as a \term{witness} of the system.
+If a pair of field element strings $(\langle I_1, \ldots I_n \rangle;\langle W_{n+1}, \ldots W_{3k}\rangle)$ exists that satisfies the Plonk constraint equations \ref{Plonk-CS}, then $<I_1,\ldots, I_n>$ is defined as an \term{instance} (or public input), and $<W_{n+1},\ldots,W_{3k}>$ is referred to as a \term{witness} of the system.
 
-The \term{copy constraints} are defined by the permutation $\sigma$, while the field elements $c_j$ are \term{system constants} that are known at compile time. The constants $l_j$, $r_j$, $m_j$, and $o_j$ are (boolean) \term{selector constants}, and the parameter $n$ represents the number of \term{public inputs} while $k$ denotes the number of \term{gate constraints}.
+The permutation $\sigma$ defines the \term{copy constraints}, while the field elements $c_j$ are referred to as \term{system constants}, which are established at compile time. The constants $l_j$, $r_j$, $m_j$, and $o_j$ are \term{selector constants} and the parameter $n$ represents the number of \term{public inputs}, while $k$ represents the number of \term{gate constraints}.
 
-\concept{PLONK constraint systems} provide a universal model for bounded computations, as they can express any computation that is guaranteed to terminate in a finite number of steps.
+\concept{Plonk constraint systems} offer a universal model for bounded computations, as they can represent any computation that is guaranteed to finish within a finite number of steps.
 
-The essential idea behind a \concept{PLONK constraint system} is to capture all the possible values that each variable can take on during a computation and to formalize the relationships between those variables that are implied by the computation itself. By doing so, the execution of a computer program is enforced to occur exactly as expected, leaving no room for deviations. In this way, solutions to \concept{PLONK constraint systems} serve as proofs of proper program execution.
+The fundamental concept behind a \concept{Plonk constraint system} is to capture all possible values that each variable can assume during a computation and to formalize the connections between these variables that are inferred by the computation itself. This approach guarantees that the execution of a computer program will proceed exactly as intended, with no room for deviations. As a result, solutions to \concept{Plonk constraint systems} serve as proofs of proper program execution.
 
-\begin{example}[PLONK for 3-Factorization]\label{ex:3-factorization-plonk} To provide a better intuition of \concept{PLONK constraint systems}, consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} again. As we have seen, $L_{3.fac\_zk}$ consists of words $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$ such that $I_1 = W_1\cdot W_2\cdot W_3$. We show how to rewrite the problem as a \concept{PLONK constraint system}.
+\begin{example}[Plonk for 3-Factorization]\label{ex:3-factorization-plonk} In order to develop a more intuitive understanding of \concept{PLONK constraint systems}, let's revisit the language $L_{3.fac_zk}$ from \examplename{} \ref{ex:L-3fac-zk}. As we know, $L_{3.fac_zk}$ consists of strings $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$, with $I_1 = W_1\cdot W_2\cdot W_3$. We will now demonstrate how to convert this problem into a \concept{Plonk constraint system}.
 
-Since PCS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$, which contain products of more than two factors (which are therefore not quadratic) have to be rewritten in a process often called \term{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac\_zk}$, we first relabel indices and write the defining equation as $I_1 = W_2\cdot W_3\cdot W_4$. Since the multiplication on the right can be expressed by two multiplications, we can write it as follows:
-\begin{align*}
-W_{2} \cdot W_{3} & = W_{4} & \text{gate constraint } 1 \\
-W_{4} \cdot W_{5} & = W_{6} & \text{gate constraint } 2 \\
-\\
-W_{} = W_{(2,3)} & & \text{equality constraint } 1 \\
-\end{align*}
-Given some instance $I_1$, any solution $(W_1,W_2,W_3,W_4)$ to this system of equations provides a solution to the original equation $I_1 = W_1\cdot W_2\cdot W_3$ and vice versa. Both equations are therefore equivalent in the sense that solutions are in a 1:1 correspondence.
+Since PlCS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$, which contain products of more than two factors (and therefore aren't quadratic), must be changed first through a process often referred to as \term{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac_zk}$, we relabel indices and rewrite the defining equation as $I_1 = W_2\cdot W_5\cdot W_6$. Since the multiplication on the right-hand side can be expressed using two multiplications, we can represent the flattened equation as follows:
+$$
+\begin{array}{ll}
+\text{Instance Constraints}: &
+\begin{cases}
+\; W_{1} = I_{1}
+\end{cases}\\
+\text{Gate Constraints}: &
+\begin{cases}
+\; W_{2} \cdot W_{5} = W_{8} \\
+\; W_{3} \cdot W_{6} = W_{9}
+\end{cases}\\
+\text{Equality Constraints}: &
+\begin{cases}
+\; W_{1} = W_{9}\\
+\; W_{3} = W_{8}
+\end{cases}
+\end{array}
+$$
+For any given instance $I_1$, a solution $(W_1, W_2, W_3, W_5, W_6, W_8, W_9)$ to this system of equations provides also a solution to the original equation $I_1 = W_1 \cdot W_2 \cdot W_3$, and vice versa. This means that solutions are in a 1:1 correspondence, and the two equations are equivalent.
 
-Looking at both equations from this constraint system, we see how each constraint enforces a step in the computation. Constraint $1$ forces any computation to multiply the witnesses $W_1$ and $W_2$; otherwise, it would not be possible to compute the witness $W_4$ first, which is needed to solve constraint $2$. Witness $W_4$ therefore expresses the constraining of an intermediate computational state.
-
-At this point, one might ask why equation $1$ constrains the system to compute $W_1\cdot W_2$ first. In order to compute $W_1\cdot W_2 \cdot W_3$, calculating $W_2\cdot W_3$, or $W_1\cdot W_3$ in the beginning and then multiplying the result with the remaining factor gives the exact same result.  The reason is purely a matter of choice. For example, the following R1CS would define the exact same language:
-\begin{align*}
-W_2 \cdot W_3 & = W_4 & \text{constraint } 1 \\
-W_4 \cdot W_1 & = I_1 & \text{constraint } 2 
-\end{align*}
-It follows that R1CS are generally \term{not unique} descriptions of any given situation: many different R1CS are able to describe the same problem.
-
-To see that the two quadratic equations qualify as a \concept{rank-1 constraint system}, choose the parameter $n=1$, $m=4$ and $k=2$ as well as the following values:
+To show that these quadratic equations indeed constitute a \concept{Plonk constraint system}, we can choose $n=1$, $k=3$, and the permutation $\sigma = (9,2,8,4,5,6,7,3,1)$. We also need to set the following values:
 $$
 \begin{array}{llllll}
-a_0^1 = 0 & a_1^1= 0 & a_2^1= 1 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
-a_0^2 = 0 & a_1^2= 0 & a_2^2= 0 & a_3^2 = 0 & a_4^2= 0  & a_5^2= 1 \\ 
-\\
-b_0^1 = 0 & b_1^1= 0 & b_2^1= 0 & b_3^1 = 1 & b_4^1= 0  & b_5^1= 0 \\ 
-b_0^2 = 0 & b_1^2= 0 & b_2^2= 0 & b_3^2 = 0 & b_4^2= 1  & b_5^2= 0 \\ 
-\\
-c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 0  & c_5^1= 1 \\ 
-c_0^2 = 0 & c_1^2= 1 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 0 
+l_2 = 0 & r_2 = 0 & m_2 = 1 & o_2 = 1 & c_2 =0 \\ 
+l_3 = 0 & r_3 = 0 & m_3 = 1 & o_3 = 1 & c_3 =0 \\ 
 \end{array} 
 $$
 With this choice, the \concept{rank-1 constraint system} of our $3$-factorization problem can be written in its most general form as follows:
-\begin{equation}
-\label{Plonk-CS}
+$$
 \begin{array}{ll}
+\text{Instance Constraints}: &
+\begin{cases}
+\; W_{1} = I_{1}
+\end{cases}\\
 \text{Gate Constraints}: &
 \begin{cases}
-\; l_1 \cdot S_{1} + r_1\cdot S_{k+1} + m_1 \cdot S_{1} \cdot S_{k+1} = o_1 \cdot S_{2k+1} + c_1 \\
-\; l_2 \cdot S_{2} + r_2\cdot S_{k+2} + m_2 \cdot S_{2} \cdot S_{k+2} = o_2 \cdot S_{2k+2} + c_2 \\
-\; l_3 \cdot S_{3} + r_3\cdot S_{3+3} + m_3 \cdot S_{3} \cdot S_{3+3} = o_3 \cdot S_{2\cdot 3+3} + c_3
+\; l_{2} \cdot W_{2} + r_{2}\cdot W_{5} + m_{n+1} \cdot W_{2} \cdot W_{5} = o_{2} \cdot W_{8} + c_{n+1} \\
+\; l_{3} \cdot W_{3} + r_{3}\cdot W_{6} + m_2 \cdot W_{3} \cdot W_{6} = o_{3} \cdot W_{9} + c_{3}
 \end{cases}\\
 \text{Equality Constraints}: &
 \begin{cases}
-\; S_{1} = S_{\sigma(1)}\\
-\; \vdots \\
-\; S_{3k} = S_{\sigma(3k)} 
+\; W_{1} = W_{9}\\
+\; W_{2} = W_{2}\\
+\; W_{3} = W_{8}\\
+\; W_{4} = W_{4}\\
+\; W_{5} = W_{5}\\
+\; W_{6} = W_{6}\\
+\; W_{7} = W_{7}\\
+\; W_{8} = W_{3}\\
+\; W_{9} = W_{1}
 \end{cases}
 \end{array}
-\end{equation}
+$$
+A valid solution to the Plonk constraint system defined earlier is characterized by a pair of strings $(\langle I_1 \rangle;\langle W_1, W_2, W_3, W_4, W_5, W_6, W_7 , W_8, W_9\rangle)$ that satisfy the following equations: $W_9 = I_1$, $W_3 = W_8 $, $W_{2} \cdot W_{5} = W_{8}$ and $W_{3} \cdot W_{6} = W_{9}$. Note that the values for $W_4$ and $W_7$ are not relevant to the solution and can be arbitrarily chosen. However, they are formally included in the system for completeness.
 \end{example}
+\begin{example}[PlCS for the points of the \curvename{Tiny-jubjub} curve ]
+\label{ex:TJJ-plonk}
+Consider the languages $L_{tiny.jj.1}$ from \examplename{} \ref{ex:tiny-jubjub-instance-witness}, which consists of words $<I_1,I_2>$ over the alphabet $\F_{13}$ such that $3\cdot I_1^2 + I_2^2 = 1 + 8\cdot I_1^2\cdot I_2^2$. 
+
+We derive a \concept{Plonk constraint system} such that its solutions are in a 1:1 correspondence with words in $L_{tiny.jj.1}$.  To achieve this, we start in a similar way as in example \ref{ex:TJJ-r1cs} and rewrite the defining equation:
+\begin{align*}
+3\cdot I_1^2 + I_2^2  & = 1 + 8\cdot I_1^2\cdot I_2^2 & \Leftrightarrow \\
+ 0 & = 1 + 8\cdot I_1^2\cdot I_2^2 - 3\cdot I_1^2 - I_2^2  & \Leftrightarrow \\
+ 0 & = 1 + 8\cdot I_1^2\cdot I_2^2 + 10\cdot I_1^2 +12\cdot I_2^2
+\end{align*}
+Since PlCS are systems of quadratic equations, we have to reformulate this expression into a system of quadratic equations. To do so, we have to introduce new variables that constrain intermediate steps in the computation, and we have to decide if those variables should be instance or witness variables. We decide to declare all new variables as witness variables, and get the following system of equations:
+\begin{align*}
+I_1 \cdot I_1 & = W_1 \\
+I_2 \cdot I_2 & = W_2 \\
+(8 \cdot W_1) \cdot W_2 & = W_3 \\
+(12\cdot W_2 + W_3 + 10\cdot W_1 + 1)\cdot 1 & = 0 
+\end{align*}
+To see that these four quadratic equations qualify as a \concept{rank-1 constraint system} according to \defname{} \ref{R1CS}, choose the parameter $n=2$, $m=3$,  $k=4$, and the following values:
+$$
+\begin{array}{llllll}
+a_0^1 = 0 & a_1^1= 1 & a_2^1= 0 & a_3^1 = 0 & a_4^1= 0  & a_5^1= 0 \\ 
+a_0^2 = 0 & a_1^2= 0 & a_2^2= 1 & a_3^2 = 0 & a_4^2= 0  & a_5^2= 0 \\ 
+a_0^3 = 0 & a_1^3= 0 & a_2^3= 0 & a_3^3 = 8 & a_4^3= 0  & a_5^3= 0 \\ 
+a_0^4 = 1 & a_1^4= 0 & a_2^4= 0 & a_3^4 = 10 & a_4^4= 12  & a_5^4= 1 \\ 
+\\
+b_0^1 = 0 & b_1^1= 1 & b_2^1= 0 & b_3^1 = 0 & b_4^1= 0  & b_5^1= 0 \\ 
+b_0^2 = 0 & b_1^2= 0 & b_2^2= 1 & b_3^2 = 0 & b_4^2= 0  & b_5^2= 0 \\ 
+b_0^3 = 0 & b_1^3= 0 & b_2^3= 0 & b_3^3 = 0 & b_4^3= 1  & b_5^3= 0 \\ 
+b_0^4 = 1 & b_1^4= 0 & b_2^4= 0 & b_3^4 = 0 & b_4^4= 0  & b_5^4= 0 \\ 
+\\
+c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 1 & c_4^1= 0  & c_5^1= 0 \\ 
+c_0^2 = 0 & c_1^2= 0 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 1  & c_5^2= 0 \\
+c_0^3 = 0 & c_1^3= 0 & c_2^3= 0 & c_3^3 = 0 & c_4^3= 0  & c_5^3= 1 \\ 
+c_0^4 = 0 & c_1^4= 0 & c_2^4= 0 & c_3^4 = 0 & c_4^4= 0  & c_5^4= 0
+\end{array} 
+$$
+With this choice, the \concept{rank-1 constraint system} of our \curvename{Tiny-jubjub} curve point problem can be written in its most general form as follows:\tbdsm{font too small}
+\begin{align*}
+\scriptstyle
+\left(a_0^1 + a_1^1 I_1 + a_2^1 I_2 + a_3^1 W_1 + a_4^1 W_2 + a_5^1 W_3\right)\cdot
+\left(b_0^1 + b_1^1 I_1 + b_2^1 I_2 + b_3^1 W_1 + b_4^1 W_2 + b_5^1 W_3\right) &=
+\scriptstyle
+\left(c_0^1 + c_1^1 I_1 + c_2^1 I_2 + c_3^1 W_1 + c_4^1 W_2 + c_5^1 W_3\right)\\
+\scriptstyle
+\left(a_0^2 + a_1^2 I_1 + a_2^2 I_2 + a_3^2 W_1 + a_4^2 W_2 + a_5^2 W_3\right)\cdot
+\left(b_0^2 + b_1^2 I_1 + b_2^2 I_2 + b_3^2 W_1 + b_4^2 W_2 + b_5^2 W_3\right) &=
+\scriptstyle
+\left(c_0^2 + c_1^2 I_1 + c_2^2 I_2 + c_3^2 W_1 + c_4^2 W_2 + c_5^2 W_3\right)\\\scriptstyle
+\left(a_0^3 + a_1^3 I_1 + a_2^3 I_2 + a_3^3 W_1 + a_4^3 W_2 + a_5^3 W_3\right)\cdot
+\left(b_0^3 + b_1^3 I_1 + b_2^3 I_2 + b_3^3 W_1 + b_4^3 W_2 + b_5^3 W_3\right) &=
+\scriptstyle
+\left(c_0^3 + c_1^3 I_1 + c_2^3 I_2 + c_3^3 W_1 + c_4^3 W_2 + c_5^3 W_3\right)\\\scriptstyle
+\left(a_0^4 + a_1^4 I_1 + a_2^4 I_2 + a_3^4 W_1 + a_4^4 W_2 + a_5^4 W_3\right)\cdot
+\left(b_0^4 + b_1^4 I_1 + b_2^4 I_2 + b_3^4 W_1 + b_4^4 W_2 + b_5^4 W_3\right) &=
+\scriptstyle
+\left(c_0^4 + c_1^4 I_1 + c_2^4 I_2 + c_3^4 W_1 + c_4^4 W_2 + c_5^4 W_3\right)\\
+\end{align*}
+
+Solutions to this constraint system are in 1:1 correspondence with words in $L_{tiny.jj.1}$: if $(<I_1,I_2>; <W_1, W_2, W_3>)$ is a solution, then $<I_1,I_2>$ is a word in $L_{tiny.jj.1}$, since the defining R1CS implies that $I_1$ and $I_2$ satisfy the twisted Edwards equation of the \curvename{Tiny-jubjub} curve. On the other hand, if  $<I_1,I_2>$ is a word in $L_{tiny.jj.1}$, then $(<I_1,I_2>; <I_1^2, I_2^2, 8\cdot I_1^2\cdot I_2^2>)$ is a solution to our R1CS.
+\end{example}
+\begin{exercise} Consider the language $L_{add}$ from exercise \ref{ex:TJJ-addition-lang}. Define an R1CS such that words in $L_{add}$ are in 1:1 correspondence with solutions to this R1CS.
+\end{exercise} 
+
