@@ -1053,24 +1053,23 @@ As is common knowledge in integer arithmetic, certain integers, such as $4$, $27
 Given that an understanding of roots in prime fields is critical for solving a variety of mathematical problems and has significant practical applications in cryptography, we will look at square roots and more general $n$-th roots of elements in prime fields. So called $n$-th roots of unity are of particular interest in zero knowledge proof systems such as Plonk \ref{sec:PLONK}.
 
 \subsubsection{Square Roots}
-When dealing with prime fields, an element that can be expressed as the square of another element is known as a \term{square} or a \term{quadratic residue}, whereas an element that cannot be expressed as the square of another element is referred to as a \term{quadratic non-residue}. This differentiation is particularly relevant to our exploration of elliptic curves (\chaptname{} \ref{chap:elliptic_curves}), as only square numbers have the potential to serve as points on an elliptic curve.
+When dealing with prime fields, an element that can be expressed as the square of another element is known as a \term{square} or a \term{quadratic residue}, whereas an element that cannot be expressed as the square of another element is referred to as a \term{quadratic non-residue}. This differentiation is particularly relevant to our exploration of elliptic curves (\chaptname{} \ref{chap:elliptic_curves}), as only square numbers have the potential to serve as the $y$-coordinate for points on an elliptic curve.
 \begin{definition}
 Let $p \in \Prim $ be a prime number and $\F_p $ its associated prime field. Then a number $x\in \F_p$ is called a \textbf{square root} of another number $y\in\F_p$, if $x$ is a solution to the following equation:
 \begin{equation}
+\label{ded:square_root_def_eq}
 x^2 = y
 \end{equation}
 In this case, $y$ is called a \term{quadratic residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ a \term{quadratic non-residue}.\footnote{A more detailed introduction to quadratic residues and their square roots in addition with an introduction to algorithms that compute square roots can be found, for example, in \chaptname{} 1, \secname{} 1.5 of \cite{cohen-2010}.}
 \end{definition}
-For any field element $ y \in \F_p $, we denote the set of all square roots of $ y $ in $ \F_p $ as follows:
+Since equation \ref{ded:square_root_def_eq} often has multiple solutions, square roots form a set. To represent the set of all square roots of a field element $y \in \F_p$ in $\F_p$, we use the following notation:
 \begin{equation}
 \label{ded:square_root}
 \sqrt{y}: = \{x \in \F_p \; | \; x^2 = y \}
 \end{equation}
 In layman's terms, quadratic residues are numbers that possess a square root, whereas quadratic non-residues are numbers that lack square roots. The situation therefore parallels the familiar case of integers, where some integers like $4$ or $9$ have a square root, and others like $2$ or $3$ don't (within the ring of integers).
 
-If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. 
-
-Moreover if $y\neq 0$ is a quadratic residue, then it has precisely two square roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$ and we adopt the convention to call the smaller one (when interpreted as an integer) the \term{positive square root} and the larger one the \term{negative square root}. 
+If $ y $ is a quadratic non-residue, then $ \sqrt{y} = \emptyset $ (an empty set), and if $ y = 0 $, then $ \sqrt{y} = \{0 \} $. Moreover if $y\neq 0$ is a quadratic residue, then it has precisely two square roots $\sqrt{y}=\{x,p-x\}$ for some $x\in \F_p$ and we adopt the convention to call the smaller one (when interpreted as an integer) the \term{positive square root} and the larger one the \term{negative square root}. 
 
 If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $\F_p$, then there are precisely $(p+1)/2$ many quadratic residues and $(p-1)/2$ quadratic non-residues.
 
@@ -1078,7 +1077,7 @@ If $ p \in \Prim_{\geq 3} $ is an odd prime number with associated prime field $
 \label{example:quadratic_residue_F5}
 Let us consider the prime field $\F_5$ from \examplename{} \ref{primfield_z_5} again. All square numbers can be found on the main diagonal of the multiplication table in  \eqref{Z5_tables}. As you can see, in $ \F_5 $, only the numbers $ 0 $, $ 1 $ and $ 4 $ have square roots: $ \sqrt{0} = \{0 \} $, $ \sqrt{1} = \{1,4 \} $, $ \sqrt{2} = \emptyset $, $ \sqrt{3} = \emptyset $ and $ \sqrt{4} = \{2,3 \} $. The numbers $0$, $1$ and $4$ are therefore quadratic residues, while the numbers $2$ and $3$ are quadratic non-residues.
 \end{example}
-In order to describe whether an element of a prime field is a square number or not, the so-called \term{Legendre symbol} can sometimes be found in the literature (e.g. \chaptname{} 1, \secname{} 1.5. of \cite{cohen-2010}), defined as follows:
+In order to describe whether an element of a prime field is a square number or not, the so-called \term{Legendre symbol} can sometimes be found in the literature (e.g. \chaptname{} 1, \secname{} 1.5. of \cite{cohen-2010}).
 
 Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element from the associated prime field. Then the \textit{Legendre symbol} of $ y $ is defined as follows:
 \begin{equation}
@@ -1091,6 +1090,7 @@ Let $ p \in \Prim $ be a prime number and $ y \in \F_p $ an element from the ass
 \end{cases}
 \end{equation}
 \begin{example}
+\label{example:quadratic_residue_F5_legendre}
 Looking at the quadratic residues and non-residues in $\F_5$ from \examplename{} \ref{primfield_z_5} again, we can deduce the following Legendre symbols based on \examplename{} \ref{example:quadratic_residue_F5}.
 
 $$
@@ -1110,7 +1110,7 @@ The Legendre symbol provides a criterion to decide whether or not an element fro
 \end{equation}
 \begin{example}
 \label{example:quadratic_residue_F5_euler}
-Looking at the quadratic residues and non-residues in $\F_5$ from \examplename{} \ref{example:quadratic_residue_F5} again, we can compute the following Legendre symbols using the Euler criterion:
+Looking at the quadratic residues and non-residues in $\F_5$ from \examplename{} \ref{example:quadratic_residue_F5} and the Legendre symbols from example \ref{example:quadratic_residue_F5_legendre}, we can compute the same Legendre symbols using  Euler's criterion:
 \begin{align*}
 \left (\frac{0}{5} \right) &= 0^{\frac{5-1}{2}}= 0^2=0\\
 \left (\frac{1}{5} \right) &= 1^{\frac{5-1}{2}}= 1^2=1\\
@@ -1150,42 +1150,47 @@ Consider the prime field $\F_{13}$ from \exercisename{} \ref{prime_field_F13}. C
 
 %\begin{remark}The algorithm (\ref{def: Tonelli-Shanks}) works in prime fields for any odd prime numbers. From a practical point of view, however, it is efficient only if the prime number is congruent to $ 1 $ modulo $ 4 $, since in the other case the formula from the proposition \ref{theorem: square_roots}, which can be calculated more quickly, can be used.\end{remark}
 \subsubsection{Higher Order Roots}
-The concept of square roots and quadratic (non)-residues can be extended to higher powers beyond two. Specifically, an element that can be expressed as the $n$-th power of another element is referred to as an \term{$n$-th power residue}, while an element that cannot be expressed as the $n$-th power of another element is called an \term{$n$-th power non-residue}.
+The concept of square roots and quadratic (non)-residues from the previous section can be extended to higher powers beyond two. Specifically, an element that can be expressed as the $n$-th power of another element is referred to as an \term{$n$-th power residue}, while an element that cannot be expressed as the $n$-th power of another element is called an \term{$n$-th power non-residue}.
 
 To formally define the notions of $n$-th power residues and their roots, we adopt the definition presented in Chapter 4.1 of \cite{Lemmermeyer-00}
 
 \begin{definition}
 Let $p \in \Prim $ be a prime number, $\F_p $ its associated prime field and let $n\in \N$ be a natural number with $n\geq 2$. Then a number $x\in \F_p$ is called an \textbf{$n$-th root} of another number $y\in\F_p$, if $x$ is a solution to the following equation:
 \begin{equation}
+\label{ded:nth_root_def_eq}
 x^n = y
 \end{equation}
 In this case, $y$ is called an \term{$n$-th power residue}. On the other hand, if $y$ is given and the quadratic equation has no solution $x$ , we call $ y $ an \term{$n$-th power non-residue}.
 \end{definition}
 
-Similar to the definition of a square root \ref{ded:square_root}, we use the notation $\sqrt[n]{y}:=\{x\in\F_p ;|; x^n=y\}$ to denote the set of all $n$-th roots of a prime field element $y\in\F_p$. 
-\begin{example} [$n$ power residues and roots in $ \F_5 $]
+Similar to the definition of a square root \ref{ded:square_root}, equation \ref{ded:nth_root_def_eq} has multiple solutions in general, and we use the following notation to denote the set of all $n$-th roots of a prime field element $y\in\F_p$:
+\begin{equation}
+\label{ded:higher_root}
+\sqrt[n]{y}:=\{x\in\F_p ;|; x^n=y\}
+\end{equation} 
+\begin{example} [Third power residues and roots in $ \F_5 $]
 \label{example:higher_residue_F5}
-Let us consider the prime field $\F_5$ from \examplename{} \ref{primfield_z_5} again. Then a third root of the element $2\in \F_5$ (also sometimes called a cubic root) is given by the element $3\in F_5$, since
+Let us consider the prime field $\F_5$ from \examplename{} \ref{primfield_z_5} again. Then a third root of the element $2\in \F_5$ (also sometimes called a cubic root) is given by the element $3\in \F_5$, since
 $$
 3^3 = 3\cdot 3 \cdot 3 = 4\cdot 3 = 2
 $$ 
-While we know from example \ref{example:quadratic_residue_F5} that $2$ has no square root in $\F_5$, the element has a third root in $\F_5$. The number $2$ are therefore a third power residue in $F_5$. Moreover since $1^3=1$, $2^3=3$ and $4^3=4$, we know that $3$ is the only third root of $2$ in $\F_5$ and hence we have
+While we know from example \ref{example:quadratic_residue_F5} that $2$ has no square root in $\F_5$, the element has a third root in $\F_5$. The number $2$ is therefore a third power residue in $\F_5$. Moreover since $1^3=1$, $2^3=3$ and $4^3=4$, we know that $3$ is the only third root of $2$ in $\F_5$ and hence we have
 $$
 \sqrt[3]{2} = \{3\}
 $$
 \end{example}
-The set of all $n$-th roots of the multiplicative identity element $1\in\F_p$ is of particular interest for zero knowledge systems like Plonk \ref{sec:PLONK}. This set is referred to as the set of \term{$n$-th roots of unity}. It can be shown that the $n$-th roots of unity form a group, and generators of this group are called primitive roots of unity.
+The set of all $n$-th roots of the multiplicative identity element $1\in\F_p$ is of particular interest for zero knowledge proof systems like Plonk \ref{sec:PLONK}. This set is referred to as the set of \term{$n$-th roots of unity}. It can be shown that the $n$-th roots of unity form a group, and generators of this group are called primitive roots of unity.
 \begin{definition}[Primitive Roots of Unity]
-Let $p \in \Prim $ be a prime number, $\F_p $ its associated prime field and let $n\in \N$ be a natural number with $n\geq 2$. Then a field element $\omega\in \F_P$ is called a \term{primitive $n$-th root of unity}, if $\omega^n=1$ and $\omega^k \neq 1$ for all $1\leq k < n$. 
+Let $p \in \Prim $ be a prime number, $\F_p $ its associated prime field and let $n\in \N$ be a natural number with $n\geq 2$. Then a field element $\omega\in \F_p$ is called a \term{primitive $n$-th root of unity}, if $\omega^n=1$ and $\omega^k \neq 1$ for all $1\leq k < n$. 
 \end{definition}
-The existence of primitive $n$-th roots of unity is not guaranteed, as it has been proven that if $n$ is coprime to $q-1$ (see Definition \ref{def:coprime_integers}), then the only $n$-th root of unity is the unit itself. On the other hand, if $n$ divides $q-1$, then there are exactly $n$ roots of unity, and the set $\sqrt[n]{1}$ forms a subgroup of $\F^*$ of order $n$. This subgroup can be generated by any primitive root of unity $\omega$. Therefore, in this case, we use the following notation for the set of all $n$-th roots of unity:
+The existence of primitive $n$-th roots of unity is not guaranteed, as it has been proven that if $n$ is coprime to $p-1$ (see Definition \ref{def:coprime_integers}), then the only $n$-th root of unity is the unit itself, which is not a primitive root by definition. On the other hand, if $n$ divides $p-1$, then there are exactly $n$ roots of unity, and the set $\sqrt[n]{1}$ forms a subgroup of $\F_p^*$ of order $n$. This subgroup can be generated by any primitive root of unity $\omega$. Therefore, in this case, we use the following notation for the set of all $n$-th roots of unity:
 \begin{equation}
 \label{nth-root-unity}
 \sqrt[n]{1}= \{1,\omega,\omega^2,\ldots,\omega^{n-1}\}
 \end{equation} 
 \begin{example} [$n$ power residues and roots in $ \F_5 $]
 \label{example:roots-of-unity_F5}
-Since the multiplicative group $\F_5^*$ of the prime field $\F_5$ contains four element and $3$ and $4$ are coprime, we know that there are no primitive third roots of unity, and hence third roots of unity are the trivial group 
+Since the multiplicative group $\F_5^*$ of the prime field $\F_5$ has order $4$ four and the integers $3$ and $4$ are coprime, we know that there are no primitive third roots of unity, and hence third roots of unity are the trivial group 
 $$ 
 \sqrt[3]{1}=\{1\}
 $$
@@ -1202,12 +1207,12 @@ $$
 $$
 It is worth noting though, that not every element $y\in \sqrt[4]{1}$ with $y\neq 1$ is a primitive root of unit. To see that consider the element $4$. Since $4^2=1$ in $\F_5$ the element $4$ does not satisfy the definition of a primitive root of unity.
 
-On the other hand, we have $2^2=4$ and $2^3=3$ in $\F_5$ and hence the element $2$ is a primitive root of unity and hence a generator of the group $\sqrt[4]{1}$ in $\F_5$. Hence we can write $\sqrt[4]{1}$ in the following way:
+On the other hand, we have $2^2=4$ and $2^3=3$ in $\F_5$ and hence the element $2$ is a primitive root of unity and hence a generator of the group $\sqrt[4]{1}$ in $\F_5$. This implies that we can write $\sqrt[4]{1}$ in the following way:
 $$
 \sqrt[4]{1} =\{1,2,2^2,2^3\}
 $$
 \end{example}
-Efficient computation of quadratic residues and non-residues is possible using the Legendre symbol for square roots (see equation \ref{eq: Legendre-symbol}) and its associated Euler criterion (see equation \ref{eq: Euler_criterion}). To determine whether an element of a prime field is an $n$-th power residue or not, we can generalize both the Legendre symbol and the Euler criterion to higher order roots. To do this, let $n\in \mathbb{N}$ be an integer with $n\geq 2$, $p \in \Prim_{\geq 3}$ be an odd prime number, and $y \in \F_p$. We define the $n$-th power Legendre symbol as follows:
+Efficient computation of quadratic residues and non-residues is possible using the Legendre symbol for square roots (see equation \ref{eq: Legendre-symbol}) and its associated Euler criterion (see equation \ref{eq: Euler_criterion}). To determine whether an element of a prime field is an $n$-th power residue or not, we can generalize both the Legendre symbol and the Euler criterion to higher order roots. To do this, let $n\in \mathbb{N}$ be an integer with $n\geq 2$, $p \in \Prim_{\geq 3}$ be an odd prime number, $y \in \F_p$ and $d=gcd(n,p-1)$ (See \ref{sec:gcd}). We define the $n$-th power Legendre symbol as follows:
 \begin{equation}
 \label{eq: higher_Euler_criterion}
 \left (\frac{y}{p} \right)_n: =
@@ -1215,7 +1220,7 @@ y^{\frac{p-1}{d}}
 \end{equation}
 If $y\neq 0$, then it can be shown that the $n$-th power Legendre symbol is always an $n$-th root of unity. Furthermore, $y$ is an $n$-th power residue if and only if $\left (\frac{y}{p} \right)_n=1$.
 
-In particular, for any integer $n$ that is coprime to $p-1$, we know from Fermat's little theorem \ref{eq_fermat_lt_2} that every element of $\F_p$ is an $n$-th power residue. Additionally, since $gcd(p-1,p-1)=p-1$, we know that the only $(p-1)$-th order power residues in $\F_p$ are the field elements $0$ and $1$.
+In particular, since $gcd(n,p-1)=1$, for any integer $n$ that is coprime to $p-1$, we know from Fermat's little theorem \ref{eq_fermat_lt_2} that every element $x\in\F_p$ is an $n$-th power residue. Additionally, since $gcd(p-1,p-1)=p-1$, we know that the only $(p-1)$-th order power residues in $\F_p$ are the field elements $0$ and $1$.
  
 \begin{example}
 \label{example:nth_power_residue_F5_euler}
@@ -1227,7 +1232,7 @@ Looking at the computation of the Euler criterium for elements in $\F_5$ from \e
 \left (\frac{3}{5} \right)_3 &= 3^{\frac{5-1}{1}}= 3^4=1\\
 \left (\frac{4}{5} \right)_3 &= 4^{\frac{5-1}{1}}= 4^4=1
 \end{align*}
-Since $3$ and $4$ are coprime this was expected and it shows that in $\F_5$ every element is a third power residue and hence has a cubic root. Moreover since we know that the $n$-th power Legendre symbol compute $n$-th roots of unity for every $y\neq 0$, we see that there are no primitive third roots of unity in the field $\F_5$, since
+Because $3$ and $4$ are coprime this was expected and it shows that in $\F_5$ every element is a third power residue and hence has a cubic root. Moreover since we know that the $n$-th power Legendre symbol computes $n$-th roots of unity for every $y\neq 0$, we see that there are no primitive third roots of unity in the field $\F_5$, since
 $$
 \sqrt[3]{1} = \{1\}
 $$
@@ -1239,10 +1244,59 @@ To see how the situation looks like for $n=4$ we can compute the $4$-th power Eu
 \left (\frac{3}{5} \right)_3 &= 3^{\frac{5-1}{4}}= 3\\
 \left (\frac{4}{5} \right)_3 &= 4^{\frac{5-1}{4}}= 4
 \end{align*}
-Since the exponent in the Euler criteria is always equal to $1$ for $n=p-1$, we see that in this case the only $n$-th power residues are $0$ and $1$. Moreover since we know that the $n$-th power Legendre symbol compute $n$-th roots of unity for $y\neq 0$, we see that the multiplicative subgroup $\F_5^*$ is equal to the set of $4$-th roots of unity:
+The exponent in the Euler criteria is always equal to $1$ for $n=p-1$, and we see that in this case the only $n$-th power residues are $0$ and $1$. Moreover since we know that the $n$-th power Legendre symbol compute $n$-th roots of unity for $y\neq 0$, we know that the multiplicative subgroup $\F_5^*$ is equal to the set of $4$-th roots of unity:
 $$
 \sqrt[4]{1} = \{1,2,3,4\}
 $$
+\end{example}
+\begin{example}[$6$-th power roots of unity in $\F_{13}$]
+\label{example:6thpowers_of_unity_in_F13} Let's examine the prime field $\F_{13}$ introduced in \exercisename{} \ref{prime_field_F13}. Our objective is to determine the group of $6$-th power roots of unity in $\F_{13}$. Since $gcd(6,12)=6$, this group is non-trivial and has precisely $6$ elements. 
+
+As $\F_{13}^*$ comprises only $12$ elements, we can compute all $6$-th power roots by raising each element of $\F_{13}^*$ to the power of $6$. Thus, we obtain:
+$$
+\begin{array}{lcr}
+1^6= 1, &
+2^6=12, &
+3^6=1, \\
+4^6=1, &
+5^6=12, &
+6^6=12,\\
+7^6=12, &
+8^6=12, &
+9^6=1,\\
+10^6=1, &
+11^6=12, &
+12^6=1
+\end{array}
+$$
+An alternative approach to computing the group of $6$-th power roots of unity is to utilize Euler's criterion on each element of $\F_{13}^*$. This is a reliable method, as the $n$-th power Euler criterion computes $n$-th order roots. Thus, we obtain:
+$$
+\begin{array}{lcr}
+\left (\frac{1}{13} \right)_6 = 1^{\frac{13-1}{6}}= 1^2=1, &
+\left (\frac{2}{13} \right)_6 = 2^{\frac{13-1}{6}}= 2^2=4, &
+\left (\frac{3}{13} \right)_6 = 3^{\frac{13-1}{6}}= 3^2=9,\\
+\left (\frac{4}{13} \right)_6 = 4^{\frac{13-1}{6}}= 4^2=3, &
+\left (\frac{5}{13} \right)_6 = 5^{\frac{13-1}{6}}= 5^2=12, &
+\left (\frac{6}{13} \right)_6 = 6^{\frac{13-1}{6}}= 6^2=10,\\
+\left (\frac{7}{13} \right)_6 = 7^{\frac{13-1}{6}}= 7^2=10, &
+\left (\frac{8}{13} \right)_6 = 2^{\frac{13-1}{6}}= 8^2=12, &
+\left (\frac{9}{13} \right)_6 = 3^{\frac{13-1}{6}}= 9^2=3,\\
+\left (\frac{10}{13} \right)_6 = 4^{\frac{13-1}{6}}= 10^2=9, &
+\left (\frac{11}{13} \right)_6 = 5^{\frac{13-1}{6}}= 11^2=4, &
+\left (\frac{12}{13} \right)_6 = 6^{\frac{13-1}{6}}= 12^2=1
+\end{array}
+$$
+As expected both computations show that there are $6$ different $6$-th power roots of unity in $\F_{13}$ and using notation \ref{ded:higher_root}, we have
+$$
+\sqrt[6]{1}= \{1,3,4,9,10,12\}
+$$
+To obtain a primitive $6$-th power root of unity $\omega$, we must identify an element in $\sqrt[6]{1}$ that has an order of $6$. However, as $6$ is not a prime number and has factors of $2$ and $3$, not all elements of $\sqrt[6]{1}$ will satisfy this condition.
+
+To demonstrate, consider the element $3$. Since $3^3=3\cdot 3\cdot 3 = 9\cdot 3 = 1$, the element $3$ is not a primitive root of unity in $\F_{13}$. Nevertheless, we can find a primitive root of unity by observing that $4^2=3$, $4^3=12$, $4^4=9$, and $4^5=10$. Therefore, we conclude that $\omega = 4$ is a primitive $6$-th power root of unity in $\F_{13}$, and we can express the $6$-th power roots of unity as follows:
+$$
+\sqrt[6]{1}= \{1,\omega, \omega^2 \ldots, \omega^{n-1}\} = \{1,4,4^2,4^3,4^4,4^5\}
+$$
+This representation is particularly useful in real-world applications since, for large powers $n$, it is often impractical to express $\sqrt[n]{1}$ explicitly. Instead, we can write elements of $\sqrt[n]{1}$ as multiples of the generator $\omega$.
 \end{example}
 \begin{exercise}
 \label{roots_inF13}
