@@ -1292,11 +1292,42 @@ $$
 $$
 To obtain a primitive $6$-th power root of unity $\omega$, we must identify an element in $\sqrt[6]{1}$ that has an order of $6$. However, as $6$ is not a prime number and has factors of $2$ and $3$, not all elements of $\sqrt[6]{1}$ will satisfy this condition.
 
-To demonstrate, consider the element $3$. Since $3^3=3\cdot 3\cdot 3 = 9\cdot 3 = 1$, the element $3$ is not a primitive root of unity in $\F_{13}$. Nevertheless, we can find a primitive root of unity by observing that $4^2=3$, $4^3=12$, $4^4=9$, and $4^5=10$. Therefore, we conclude that $\omega = 4$ is a primitive $6$-th power root of unity in $\F_{13}$, and we can express the $6$-th power roots of unity as follows:
+To demonstrate, consider the element $3$. Since $3^3=3\cdot 3\cdot 3 = 9\cdot 3 = 1$, the element $3$ is not a primitive root of unity in $\F_{13}$. Nevertheless, we can find a primitive root of unity by observing that $4^2=3$, $4^3=12$, $4^4=9$, and $4^5=10$. Therefore, we conclude that $\omega = 4$ is a primitive $6$-th power root of unity in $\F_{13}$, and we can express the set of all $6$-th power roots of unity as follows:
 $$
 \sqrt[6]{1}= \{1,\omega, \omega^2 \ldots, \omega^{n-1}\} = \{1,4,4^2,4^3,4^4,4^5\}
 $$
-This representation is particularly useful in real-world applications since, for large powers $n$, it is often impractical to express $\sqrt[n]{1}$ explicitly. Instead, we can write elements of $\sqrt[n]{1}$ as multiples of the generator $\omega$.
+This representation is particularly useful in real-world applications since, for large powers $n$, it is often impractical to express $\sqrt[n]{1}$ explicitly. Instead, we can write elements of $\sqrt[n]{1}$ as powers of the generator $\omega$.
+\end{example}
+\begin{example}[Scalar Field of \curvename{alt\_bn128}] As a real world illustration of the computation of $n$-th power roots in the Plonk zero knowledge proof system, let's consider the prime number:
+$$
+r = \scriptstyle 21888242871839275222246405745257275088548364400416034343698204186575808495617
+$$
+We denote the associated prime field as $\F_{bn128}:=\F_r$, because we will later see in example \ref{BN128}, that this field is linked to an elliptic curve known as \curvename{alt\_bn128}.
+
+To find natural numbers $n\in \N$ such that the roots of unity $\sqrt[n]{1}$ form a non-trivial group, we must calculate the prime factorization of $r-1$. Each non-trivial factor corresponds to a distinct non-trivial roots of unity group. We can use Sage to compute this as follows:
+\begin{sagecommandline}
+sage: r = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+sage: (r-1).factor()
+\end{sagecommandline}
+Each of these factors defines a power $n$, such that the $n$-th roots of unity are a non trivial group. To see this, lets chose the factor $n=2^{28}=268435456$. We know that this group contains $268435456$ elements and hence it is to large to be written down explicitly. 
+
+To describe this group, we need to find a generator, which is a primitive $268435456$-th root of unity. We can do this by using Sage to compute Euler's criterion in a loop on arbitrary elements of $\F_{bn128}$ until we find an element where Euler's criterion is neither $0$ nor $1$. We then determine the order of this element, and if the order equals $2^28$, we have found the generator. 
+\begin{sagecommandline}
+sage: r = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+sage: FBN128 = GF(r)
+sage: d = gcd(2^28,r-1)
+sage: for x in FBN128:
+....:     omega= x^((r-1)/d) # Euler's criteria
+....:     if omega != 0 and omega != 1: # not primitive roots
+....:         if omega.multiplicative_order() == 2^28:
+....:             break
+sage: omega
+sage: omega^(2^28) # n-th root
+\end{sagecommandline} 
+With the generator $\omega$ at hand we can write the group of $268435456$-th roots of unity in the prime field $\F_{bn128}$ as the following set:
+$$
+\sqrt[2^{28}]{1}= \{1,\omega,\omega^2,\ldots,\omega^{2^{28}-1}\}
+$$
 \end{example}
 \begin{exercise}
 \label{roots_inF13}
