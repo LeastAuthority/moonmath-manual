@@ -1449,20 +1449,19 @@ In this section, we will focus on Plonk constraint systems, which are another ty
 Plonk offers flexibility in supporting constraint systems with low-degree custom gates and lookup gates. However, in this section, we will only consider the original definition of Plonk's constraint system as defined in \cite{gabizon-19}, which only defines constraints for fan-in 2 arithmetic gates.
 
 \subsection{Plonk Constraint Systems}
-To obtain a comprehensive understanding of Plonk's Constraint Systems (PlCS), we make the following assumptions: there exists a field $\F$, natural numbers $k$ and $n$, and field elements $l_j, r_j, m_j, o_j, c_j\in\F$ for every index $1\leq j \leq k$, along with a permutation $\sigma: \langle 1,\ldots , 3k \rangle \to \langle 1,\ldots , 3k \rangle$. With these parameters, we can define a Plonk constraint system as the set of equations presented below:
+To obtain a comprehensive understanding of Plonk's Constraint Systems (PlCS), we make the following assumptions: there exists a field $\F$, natural numbers $k$ and $n$, and field elements $l_j, r_j, m_j, o_j, c_j\in\F$ for every index $0\leq j < k$, along with a permutation $\sigma: \langle 1,\ldots , 3k \rangle \to \langle 1,\ldots , 3k \rangle$. With these parameters, we can define a Plonk constraint system as the set of equations presented below:
 \begin{equation}
 \label{Plonk-CS}
 \begin{array}{ll}
 \text{Public Input}: &
 \begin{cases}
-\; W_{1} = I_{1}\\
+\; W_{0} = I_{0}\\
 \; \vdots \\
-\; W_{n} = I_{n} 
+\; W_{n-1} = I_{n-1} 
 \end{cases}\\
 \text{Gate Constraints}: &
 \begin{cases}
-\; l_{n+1} \cdot W_{n+1} + r_{n+1}\cdot W_{k+n+1} + m_{n+1} \cdot W_{n+1} \cdot W_{k+n+1} = o_{n+1} \cdot W_{2k+n+1} + c_{n+1} \\
-\; l_{n+2} \cdot W_{n+2} + r_{n+2}\cdot W_{k+n+2} + m_{n+2} \cdot W_{n+2} \cdot W_{k+n+2} = o_{n+2} \cdot W_{2k+n+2} + c_{n+2} \\
+\; l_{n} \cdot W_{n} + r_{n}\cdot W_{k+n} + m_{n} \cdot W_{n} \cdot W_{k+n} = o_{n} \cdot W_{2k+n} + c_{n} \\
 \;\vdots \\
 \; l_k \cdot W_{k} + r_k\cdot W_{k+k} + m_k \cdot W_{k} \cdot W_{k+k} = o_k \cdot W_{2k+k} + c_k
 \end{cases}\\
@@ -1476,7 +1475,7 @@ To obtain a comprehensive understanding of Plonk's Constraint Systems (PlCS), we
 \end{equation}
 If a pair of field element strings $(\langle I_1, \ldots I_n \rangle;\langle W_{n+1}, \ldots W_{3k}\rangle)$ exists that satisfies the Plonk constraint equations \ref{Plonk-CS}, then $<I_1,\ldots, I_n>$ is defined as an \term{instance} (or public input), and $<W_{n+1},\ldots,W_{3k}>$ is referred to as a \term{witness} of the system.
 
-The permutation $\sigma$ defines the \term{copy constraints}, while the field elements $c_j$ are referred to as \term{system constants}, which are established at compile time. The constants $l_j$, $r_j$, $m_j$, and $o_j$ are \term{selector constants} and the parameter $n$ represents the number of \term{public inputs}, while $k$ represents the number of \term{gate constraints}.
+The permutation $\sigma$ defines the \term{copy constraints}, while the field elements $c_j$ are referred to as \term{system constants}, which are established at compile time. The constants $l_j$, $r_j$, $m_j$, and $o_j$ are \term{selector constants} and the parameter $n$ represents the number of \term{public inputs}, while $k$ represents the number of \term{gate constraints}. $k$ is also called the \term{size} of the constraint system.
 
 \concept{Plonk constraint systems} offer a universal model for bounded computations, as they can represent any computation that is guaranteed to finish within a finite number of steps.
 
@@ -1505,7 +1504,7 @@ $$
 $$
 For any given instance $I_1$, a solution $(W_1, W_2, W_3, W_5, W_6, W_8, W_9)$ to this system of equations provides also a solution to the original equation $I_1 = W_1 \cdot W_2 \cdot W_3$, and vice versa. This means that solutions are in a 1:1 correspondence, and the two equations are equivalent.
 
-To show that these quadratic equations indeed constitute a \concept{Plonk constraint system}, we can choose $n=1$, $k=3$, and the permutation $\sigma = (9,2,8,4,5,6,7,3,1)$. We also need to set the following values:
+To show that these quadratic equations indeed constitute a \concept{Plonk constraint system}, we can choose $n=1$, $k=3$, and the permutation $\sigma = (8,1,7,3,4,5,6,2,0)$. We also need to set the following values:
 $$
 \begin{array}{llllll}
 l_2 = 0 & r_2 = 0 & m_2 = 1 & o_2 = 1 & c_2 =0 \\ 
@@ -1526,15 +1525,15 @@ $$
 \end{cases}\\
 \text{Equality Constraints}: &
 \begin{cases}
-\; W_{1} = W_{9}\\
-\; W_{2} = W_{2}\\
-\; W_{3} = W_{8}\\
+\; W_{0} = W_{8}\\
+\; W_{1} = W_{1}\\
+\; W_{2} = W_{7}\\
+\; W_{3} = W_{3}\\
 \; W_{4} = W_{4}\\
 \; W_{5} = W_{5}\\
 \; W_{6} = W_{6}\\
-\; W_{7} = W_{7}\\
-\; W_{8} = W_{3}\\
-\; W_{9} = W_{1}
+\; W_{7} = W_{2}\\
+\; W_{8} = W_{0}
 \end{cases}
 \end{array}
 $$

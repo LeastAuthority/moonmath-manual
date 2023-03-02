@@ -1334,85 +1334,142 @@ Subsequently, a real world application may compute these expressions using the e
 \subsection{Circuit Specific Setup Phase}
 To generate zk-SNARKs from constructive proofs in the Plonk protocol, two preprocessing phases are required. The first phase XXX, is universal and involves  a multiparty computation, where at least one participant must be honest and delete their contribution to the toxic waste XXX. The second phase, which is specific to any given Plonk Constraint System XXX, doesn't require any trust assumptions on the executors. This phase must be executed once for every Plonk Constraint System and any appropriate Universal Common Reference String. The outcome of this phase is a set of polynomials, which is necessary for both the prover and the verifier to generate and verify the zk-SNARK.
 
-To be more precise, let $L_R$ be a language defined by some Plonk Constraint System $R$ of size $n$, such that $l_i$, $r_i$, $m_i$, $o_i$ and $c_i$ are the selector constants of the system for any $1,\ldots, m$ and such that $\sigma$ is is the copy constraints permutation and let $\{\G_1, \G_2, e(\cdot,\cdot), g_1, g_2, \F_r, H, \omega, k_1, k_2, L_H\}$ be a set of Plonk parameters.
+To be more specific, let $R$ denote a Plonk Constraint System having a size of $n$, with associated language $L_R$. Furthermore, let $UCRS(m)$ be a Universal Common Reference String of size $m$ such that $n\leq m$. The Plonk Constraint System has selector constants $l_i$, $r_i$, $m_i$, $o_i$, and $c_i$ for any $1\leq i \leq m$ between $1$ and $m$ and a copy constraint permutation $\sigma$. Additionally, we have a set of Plonk parameters that are denoted by ${\G_1, \G_2, e(\cdot,\cdot), g_1, g_2, \F_r, H, \omega, k_1, k_2, L_H}$.
 
-The second setup phase then computes the following set of polynomials, where the polynomials $L_i$ are the Lagrange base polynomials as computed in the universal setup phase XXX.
+The second setup phase then computes the following circuit specific \term{Common Reference String}, which consists of a set of polynomials, where the polynomials $L_i$ are the Lagrange base polynomials as computed in the universal setup phase XXX.
 \begin{equation}
+\label{def:plonk-circuit-crs}
 \begin{array}{rl}
-Z_{H}(x) = & \Pi_{i=0}^n (x-\omega^i)= x^n-1\\
-P_{m}(x) = &\sum_{i=1}^{n} {m_i}L_i(x)\\
-P_{l}(x) = &\sum_{i=1}^{n} {l_i}L_i(x)\\
-P_{r}(x) = &\sum_{i=1}^{n} {r_i}L_i(x)\\
-P_{o}(x) = &\sum_{i=1}^{n} {o_i}L_i(x)\\
-P_{c}(x) = &\sum_{i=1}^{n} {c_i}L_i(x)\\
-S_{\sigma_1}(x) =& \sum_{i=1}^{n} \sigma^(i)L_i(x)\\
-S_{\sigma_2}(x) =& \sum_{i=1}^{n} \sigma^(n+i)L_i(x)\\
-S_{\sigma_3}(x) =& \sum_{i=1}^{n} \sigma^(2n+i)L_i(x)
+P_{l}(x) = &\sum_{i=0}^{n-1} {l_i}L_i(x)\\
+P_{r}(x) = &\sum_{i=0}^{n-1} {r_i}L_i(x)\\
+P_{m}(x) = &\sum_{i=0}^{n-1} {m_i}L_i(x)\\
+P_{o}(x) = &\sum_{i=0}^{n-1} {o_i}L_i(x)\\
+P_{c}(x) = &\sum_{i=0}^{n-1} {c_i}L_i(x)\\
+S_{\sigma_1}(x) =& \sum_{i=0}^{n-1} \sigma(i)L_i(x)\\
+S_{\sigma_2}(x) =& \sum_{i=0}^{n-1} \sigma(n+i)L_i(x)\\
+S_{\sigma_3}(x) =& \sum_{i=0}^{n-1} \sigma(2n+i)L_i(x)
 \end{array}
 \end{equation}
+Circuit specific\concept{Common Reference String}s depend on Universal Common Reference Strings and as a consequence on the simulation trapdoor, and are therefore not unique to the problem. Any language $L_r$ can have more than one \concept{Common Reference String}. The  size of a \concept{Common Reference String} is linear in the size of the constraints system. The circuit specific Common Reference String is also known as the \term{prover and verifier key pair}.
 
+As the computation of these polynomials does not require any additions randomness besides the one that comes from the Universal Common Reference String, the second setup phase can be executed without the need of any trusted third party.
 
+\begin{example}[The $3$-factorization Problem]
+\label{ex:3-fac-CSCRS}
+To see how the circuit specific setup phase of a Plonk zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization} the Plonk parameters from \examplename{} \ref{ex:3-fac-plonk-params} and the Universal Common Reference String from example XXX. 
 
-samples $5$ random, invertible elements $\alpha$, $\beta$,$\gamma$, $\delta$ and $\tau$ from the scalar field $\F_r$ of the protocol and outputs the \term{simulation trapdoor} $\Tau$:
-\begin{equation}
-\label{def:groth16-trapdoor}
-\Tau = (\alpha, \beta, \gamma, \delta, \tau)
-\end{equation}
-In addition, the setup phase uses those $5$ random elements together with the two generators $g_1$ and $g_2$  and the Quadratic Arithmetic Program to generate a \term{\concept{Common Reference String}} $CRS_{QAP}= (CRS_{\mathbb{G}_1},CRS_{\mathbb{G}_2})$ of language $L$:
+As we know from XXX our $3$-factorization problem has one instance constraint and $3$ gate constraints and hence is of size $4$. This implies that every Universal Common Reference String of size $m\geq 4$ is applicable to our problem. We choose the following UCRS from example XXX:
+\begin{multline*}
+UCRS(5) =\{(13,15), (33,34), (35,28), (26,9), (38,15), \\
+(27,34), (13,28), (33,9), (35,15), (26,34), (38,28)\}
+\end{multline*}
+In the next step we have to compute the polynomials from XXX. BY ASSUMTION n<=M SO ENOUGH LAGRANGE POLYPEN
 
-\begin{definition}[\deftitle{Common \concept{reference string}}]
-\begin{align*}
-\label{def:groth16-crs}
-CRS_{\mathbb{G}_{1}} &= \textstyle\left\{ \begin{array}{c}
-g_1^\alpha,g_1^\beta,g_1^\delta,\left(g_1^{\tau^j},\ldots\right)_{j=0}^{deg(T)-1},
-\left(g_1^{\frac{\beta\cdot A_{j}(\tau)+\alpha\cdot B_{j}(\tau)+C_{j}(\tau)}{\gamma}},\ldots\right)_{j=0}^n\\
-\left(g_1^{\frac{\beta\cdot A_{j+n}(\tau)+\alpha\cdot B_{j+n}(\tau)+C_{j+n}(\tau)}{\delta}},\ldots\right)_{j=1}^m,\left(g_1^{\frac{\tau^{j}\cdot T(\tau)}{\delta}},\ldots\right)_{j=0}^{deg(T)-2}
-\end{array}\right\} \\
-CRS_{\mathbb{G}_{2}} &= \left\{g_2^\beta ,g_2^\gamma,g_2^\delta,\left(g_2^{\tau^j},\ldots\right) _{j=0}^{deg(T)-1}\right\}
-\end{align*}
-\end{definition}
-
-Common \concept{reference string}s depend on the simulation trapdoor, and are therefore not unique to the problem. Any language can have more than one \concept{Common Reference String}. The  size of a \concept{Common Reference String} is linear in the size of the instance and the size of the witness.
-
-If a simulation trapdoor $\Tau = (\alpha,\beta,\gamma,\delta, \tau)$ is given, we call the element $\tau$ a \term{secret evaluation point} of the protocol, because if $\F_r$ is the scalar field of the finite cyclic groups $\G_1$ and $\G_2$, then a key feature of any \concept{Common Reference String} is that it provides data to compute the evaluation of any polynomial $P\in \F_r[x]$ of degree $deg(P)<deg(T)$ at the point $\tau$ in the exponent of the generator $g_1$ or $g_2$, without knowing $\tau$.
-
-To be more precise, let $\tau$ be the secret evaluation point and let $P(x)=a_0\cdot x^0 + a_1\cdot x^1 + \ldots a_k\cdot x^k$ be a polynomial of degree $k<deg(T)$ with coefficients in $\F_r$. Then we can compute $g_1^{P(\tau)}$ without knowing what the actual value of $\tau$ is:
-
-\label{eq:exp_evaluation-poly}
-\begin{align}
-g_1^{P(\tau)} & = g_1^{a_0\cdot \tau^0 + a_1\cdot \tau^1 + \ldots a_k\cdot \tau^k} \notag\\
- & = g_1^{a_0\cdot \tau^0} \cdot g_1^{a_1\cdot \tau^1} \cdot \ldots \cdot g_1^{a_k\cdot \tau^k}\notag\\
- & = \Big(g_1^{\tau^0}\Big)^{a_0} \cdot \Big(g_1^{\tau^1}\Big)^{a_1} \cdot \ldots \cdot \Big(g_1^{\tau^k}\Big)^{a_k}
-\end{align}
-In this expression, all group points $g_1^{\tau^j}$ are part of the \concept{Common Reference String}, hence, they can be used to compute the result. The same holds true for the evaluation of $g_2^{P(\tau)}$, since the $\G_2$ part of the \concept{Common Reference String} contains the points $g_2^{\tau^j}$. 
-
-In practical applications, the elements $g_{1/2}^{\tau^0}$, $g_{1/2}^{\tau^1}$, $\ldots$, $g_{1/2}^{\tau^k}$ are commonly referred to as the \term{powers of tau}, a term frequently used in trusted setup computations. Additionally, the simulation trapdoor is often referred to as the \term{toxic waste} of the setup phase. As will be demonstrated in section \ref{sec:proof_simulation}, the simulation trapdoor can be utilized to generate fraud proofs, which are verifiable zk-SNARKs that can be constructed without knowledge of any witness. The Common Reference String is also known as the \term{prover and verifier key pair}.
-
-To ensure the security of the protocol, the setup must be carried out in a way that ensures the safe disposal of the simulation trapdoor. The simplest method for accomplishing this is through the use of a so-called \term{trusted third party}, where trust is placed in the party to properly generate the \concept{Common Reference String} and securely dispose of the toxic waste afterwards.
-
-However, finding a trusted third party can be challenging, thus alternative methods have been developed in practical applications. These utilize multi-party computation in the setup phase, which can be publicly verified for proper execution, and the simulation trapdoor is not recoverable if at least one participant destroys their contribution. Each participant holds only a fraction of the trapdoor, making it recoverable only if all participants collaborate and share their parts.
-
-
-
-In the Plonk protocol, the circuit specific setup phase does not require a trusted third party and depends on the Universal Common Reference String as well as the permutation $\sigma$ and the selector constants $l_i$, $r_i$, $m_i$, $o_i$ and $c_i$ of a given Plonk constraint system (See XXX).    
-\begin{equation}
+We do
+$$
 \begin{array}{rl}
-Z_{H}(x) = & \Pi_{i=0}^n (x-\omega^i)= x^n-1\\
-P_{m}(x) = &\sum_{i=1}^{n} {m_i}L_i(x)\\
-P_{l}(x) = &\sum_{i=1}^{n} {l_i}L_i(x)\\
-P_{r}(x) = &\sum_{i=1}^{n} {r_i}L_i(x)\\
-P_{o}(x) = &\sum_{i=1}^{n} {o_i}L_i(x)\\
-P_{c}(x) = &\sum_{i=1}^{n} {c_i}L_i(x)\\
-S_{\sigma_1}(x) =& \sum_{i=1}^{n} \sigma^(i)L_i(x)\\
-S_{\sigma_2}(x) =& \sum_{i=1}^{n} \sigma^(n+i)L_i(x)\\
-S_{\sigma_3}(x) =& \sum_{i=1}^{n} \sigma^(2n+i)L_i(x)
+P_{m}(x) = & \sum_{i=0}^{n-1} {m_i}L_i(x)\\         
+         = & m_0\cdot (10x^3 + 10 x^2 +10x + 10) + m_1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; m_2\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + 1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 1\cdot (3x^3 +10x^2+ 3x + 10)\\ 
+         = & (11x^3 +3x^2 +2x + 10) + (3x^3 +10x^2+ 3x + 10)\\
+         = & x^3  +5x + 7
 \end{array}
-\end{equation}
+$$
+$$
+\begin{array}{rl}
+P_{l}(x) = & \sum_{i=0}^{n-1} {l_i}L_i(x)\\         
+         = & l_0\cdot (10x^3 + 10 x^2 +10x + 10) + l_1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; l_2\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 1\cdot (10x^3 + 10 x^2 +10x + 10) + 0\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 10x^3 + 10 x^2 +10x + 10      
+\end{array}
+$$
+$$
+\begin{array}{rl}
+P_{r}(x) = & \sum_{i=0}^{n-1} {r_i}L_i(x)\\         
+         = & r_0\cdot (10x^3 + 10 x^2 +10x + 10) + r_1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; r_2\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + 0\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 0          
+\end{array}
+$$
+$$
+\begin{array}{rl}
+P_{o}(x) = & \sum_{i=0}^{n-1} {o_i}L_i(x)\\         
+         = & o_0\cdot (10x^3 + 10 x^2 +10x + 10) + o_1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; o_2\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + (-1)\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; (-1)\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & -11x^3 -3x^2 -2x - 10 -3x^3 -10x^2 -3x -10\\  
+         = & 2x^3 +10 x^2 +11x +3 +10x^3 +3x^2 +10x +3\\ 
+         = & 12x^3  +8x +6           
+\end{array}
+$$
+$$
+\begin{array}{rl}
+P_{c}(x) = & \sum_{i=0}^{n-1} {c_i}L_i(x)\\         
+         = & c_0\cdot (10x^3 + 10 x^2 +10x + 10) + c_1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; c_2\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + 0\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 0          
+\end{array}
+$$
+Since we have $\sigma = (8,1,7,3,4,5,6,2,0)$ we compute
+$$
+\begin{array}{rl}
+S_{\sigma_1}(x) = & \sum_{i=0}^{n-1} \sigma^(i)L_i(x) \\       
+         = & \sigma(0) \cdot (10x^3 + 10 x^2 +10x + 10) 
+           + \sigma(1)\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; \sigma(2)\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 8 \cdot (10x^3 + 10 x^2 +10x + 10) 
+           + 1\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 7 \cdot (3x^3 +10x^2+ 3x + 10)\\ 
+         = & (2x^3 + 2 x^2 +2x + 2) 
+           + (11x^3 +3x^2 +2x + 10) \\
+           & +\; (8x^3 +5x^2+ 8x + 5)\\ 
+         = & 8x^3 + 10 x^2 + x + 4                     
+\end{array}
+$$
+$$
+\begin{array}{rl}
+S_{\sigma_2}(x) = & \sum_{i=0}^{n-1} \sigma^(n+i)L_i(x) \\       
+         = & \sigma(3) \cdot (10x^3 + 10 x^2 +10x + 10) 
+           + \sigma(4)\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; \sigma(5)\cdot (3x^3 +10x^2+ 3x + 10)\\
+         = & 3 \cdot (10x^3 + 10 x^2 +10x + 10) 
+           + 4\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 5 \cdot (3x^3 +10x^2+ 3x + 10)\\   
+         = & (4x^3 + 4 x^2 +4x + 4) 
+           + (5x^3 +12x^2 +8x + 1) \\
+           & +\;(2x^3 +11x^2+ 2x + 11)\\  
+         = & 11x^3 + x^2 +x + 3                                        
+\end{array}
+$$
+$$
+\begin{array}{rl}
+S_{\sigma_3}(x) = & \sum_{i=0}^{n-1} \sigma^(2n+i)L_i(x) \\       
+         = & \sigma(6) \cdot (10x^3 + 10 x^2 +10x + 10) 
+           + \sigma(7)\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; \sigma(8)\cdot (3x^3 +10x^2+ 3x + 10)\\  
+         = & 6 \cdot (10x^3 + 10 x^2 +10x + 10) 
+           + 2\cdot (11x^3 +3x^2 +2x + 10) \\
+           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\                                               
+         = & (8x^3 + 8 x^2 +8x + 8) 
+           + (9x^3 +6x^2 +4x + 7) \\
+\end{array}
+$$
 
-\begin{align*}
-P_{m}(x) = & \sum_{i=1}^{n} {m_i}L_i(x)\\
-         = & m_0 10x^3 + 10 x^2 +10x + 10, 11x^3 +3x^2 +2x + 10, \\ 3x^3 +10x^2+ 3x + 10, 2x^3 + 3x^2 +11x +10
-\end{align*}
+Those polynomial can then be stored in a public place, like a blockchain, and they can be publicly verified.
+\end{example}
+
+
+
+
 
 
 

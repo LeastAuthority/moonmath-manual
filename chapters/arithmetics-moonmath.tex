@@ -1124,7 +1124,7 @@ Consider the polynomial $P=x^7 + 3 x^6 + 3 x^5 + x^4 - x^3 - 3 x^2 - 3 x - 1\in 
 \label{sec:point-value-form}
 Thus far, polynomials have been represented in their coefficient form as defined in \ref{eq:polynomial}. However, depending on the application, alternative representations may exist that lead to more efficient algorithms in specific scenarios. A significant example of such alternative representation is the \term{point-value representation} of a polynomial, which facilitates multiplication algorithms that exhibit linear complexity with respect to the polynomial's degree.
 
-The point-value form of a polynomial can be comprehended by recognizing that any polynomial of degree $m$ is uniquely determined by its values at $m+1$ distinct evaluation points, which means that we can construct a unique polynomial of degree $m$ from any point-value set $S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m);|; x_i\neq x_j\text{ for all i and j}\}$.
+The point-value form of a polynomial can be comprehended by recognizing that any polynomial of degree $m$ is uniquely determined by its values at $m+1$ distinct evaluation points, which means that we can construct a unique polynomial of degree $m$ from any point-value set $S= \{(x_1,y_1), (x_2,y_2),\ldots,(x_{m+1},y_{m+1});|; x_i\neq x_j\text{ for all i and j}\}$.
 
 To understand how this works, suppose that the type for the coefficients of the desired polynomial has multiplicative inverses. In this scenario, it is possible to use \concept{Lagrange Interpolation} to compute a degree $m$ polynomial $P$ from set $S$ such that $P(x_i)=y_i$ holds true for all $(x_i,y_i) \in S$. The procedure is described in Algorithm \ref{alg_lagrange_interplation} below:
 
@@ -1132,12 +1132,12 @@ To understand how this works, suppose that the type for the coefficients of the 
 \label{alg_lagrange_interplation}
 \begin{algorithmic}[0]
 \Require $R$ must have multiplicative inverses
-\Require $S= \{(x_0,y_0), (x_1,y_1),\ldots,(x_m,y_m)\;|\; x_i,y_i\in R, x_i\neq x_j\text{ for all indices i and j}\}$
+\Require $S= \{(x_1,y_1), (x_2,y_2),\ldots,(x_{m+1},y_{m+1});|; x_i\neq x_j\text{ for all i and j}\}$
 \Procedure{Lagrange-Interpolation}{$S$}
-\For{$j \in (0\ldots m)$}
-\State  $L_j(x) \gets \Pi_{i=0;i\neq j}^{m}\frac{x-x_i}{x_j-x_i} = \frac{(x-x_0)}{(x_j-x_0)} \cdots \frac{(x-x_{j-1})}{(x_j-x_{j - 1})} \frac{(x-x_{j+1})}{(x_j-x_{j+1})} \cdots \frac{(x-x_m)}{(x_j-x_m)}$
+\For{$j \in (1\ldots m+1)$}
+\State  $L_j(x) \gets \Pi_{i=1;i\neq j}^{m+1}\frac{x-x_i}{x_j-x_i} = \frac{(x-x_1)}{(x_j-x_1)} \cdots \frac{(x-x_{j-1})}{(x_j-x_{j - 1})} \frac{(x-x_{j+1})}{(x_j-x_{j+1})} \cdots \frac{(x-x_{m+1})}{(x_j-x_{m+1})}$
 \EndFor
-\State $P\gets \sum_{j=0}^m y_j\cdot l_j$
+\State $P\gets \sum_{j=1}^{m+1} y_j\cdot L_j$
 \State \textbf{return} $P$
 \EndProcedure
 \Ensure $P\in R[x]$ with $deg(P)=m$
@@ -1145,10 +1145,10 @@ To understand how this works, suppose that the type for the coefficients of the 
 \end{algorithmic}
 \end{algorithm}
 
-A polynomial of degree $m$, given in coefficient form as $P(x)= a_m x^m + a_{m-1}x^{m-1}+\ldots a_1 x + a_0$, can be transformed into its so-called \term{point-value representation} by evaluating it at $m+1$ different points $x_0, x_1,\ldots,x_m$:
+A polynomial of degree $m$, given in coefficient form as $P(x)= a_m x^m + a_{m-1}x^{m-1}+\ldots a_1 x + a_0$, can be transformed into its so-called \term{point-value representation} by evaluating it at $m+1$ different points $x_1, x_2,\ldots,x_{m+1}$:
 \begin{equation}
 \label{def_lagrange_interpolation_set}
-S= \{(x_0,P(x_0)), (x_1,P(x_1)),\ldots,(x_m,P(x_m));|; x_i\neq x_j\text{ for all i and j}\}
+S= \{(x_1,P(x_1)), (x_2,P(x_2)),\ldots,(x_{m+1},P(x_{m+1}));|; x_i\neq x_j\text{ for all i and j}\}
 \end{equation}
 Conversely, it can be shown that any point-value representation of a polynomial can be transformed into a coefficient representation through Langrange Interpolation, and that both transformations are inverse to each other. This establishes a 1:1 correspondence between degree $m$ polynomials and their evaluations on a given set of points. Thus, coefficient and point-value representations are two equivalent ways of presenting a polynomial.
 
@@ -1158,19 +1158,19 @@ Both representations have their advantages and disadvantages, but the point-valu
 \label{ex:point-value-Q}
  Let us consider the set $S=\{(0,4),(-2,1),(2,3)\}$. Our task is to compute a polynomial of degree $2$ in $\mathbb{Q}[x]$ with coefficients from the set of rational numbers $\Q$. Since $\mathbb{Q}$ has multiplicative inverses, we can use method of \concept{Lagrange interpolation} from Algorithm  \ref{alg_lagrange_interplation} to compute the polynomial:
 \begin{align*}
-L_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
+L_1(x) & = \frac{x-x_2}{x_1-x_2}\cdot\frac{x-x_3}{x_1-x_3}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
          =  -\frac{(x+2)(x-2)}{4}\\
        & = -\frac{1}{4}(x^2-4)
 \end{align*}
 \begin{align*}
-L_1(x) & = \frac{x-x_0}{x_1-x_0}\cdot\frac{x-x_2}{x_1-x_2}
+L_2(x) & = \frac{x-x_1}{x_2-x_1}\cdot\frac{x-x_3}{x_2-x_3}
           = \frac{x-0}{-2-0}\cdot \frac{x-2}{-2-2}
           = \frac{x(x-2)}{8}\\
        & = \frac{1}{8}(x^2-2x)
 \end{align*}  
 \begin{align*}   
-L_2(x) & = \frac{x-x_0}{x_2-x_0}\cdot\frac{x-x_1}{x_2-x_1}
+L_3(x) & = \frac{x-x_1}{x_3-x_1}\cdot\frac{x-x_2}{x_3-x_2}
           = \frac{x-0}{2-0}\cdot\frac{x+2}{2+2}
           = \frac{x(x+2)}{8}\\
        & = \frac{1}{8}(x^2+2x)
@@ -1193,21 +1193,21 @@ This implies that the polynomial $P$ can be expressed in two different forms: it
 To give another example more relevant to the topics of this book, let us consider the same set as in the previous example, $S=\{(0,4),(-2,1),(2,3)\}$ . This time, the task is to compute a polynomial $P\in\Z_5[x]$ from this data. Since we know
 from \examplename{} \ref{primfield_z_5} that multiplicative inverses exist in $\Z_5$, algorithm \ref{alg_lagrange_interplation} is applicable and we can compute a unique polynomial of degree 2 in $\Z_5[x]$ from $S$. We can use the lookup tables from  \eqref{Z5_tables} for computations in $\Z_5$ and get the following:
 \begin{align*}
-L_0(x) & = \frac{x-x_1}{x_0-x_1}\cdot\frac{x-x_2}{x_0-x_2}
+L_1(x) & = \frac{x-x_2}{x_1-x_2}\cdot\frac{x-x_3}{x_1-x_3}
          = \frac{x+2}{0+2}\cdot\frac{x-2}{0-2}
          =  \frac{(x+2)(x-2)}{-4}
          =  \frac{(x+2)(x+3)}{1}\\
        & =  x^2+1
 \end{align*}  
 \begin{align*}
-L_1(x) & =  \frac{x-x_0}{x_1-x_0}\cdot\frac{x-x_2}{x_1-x_2}
+L_2(x) & =  \frac{x-x_1}{x_2-x_1}\cdot\frac{x-x_3}{x_2-x_3}
          = \frac{x-0}{-2-0}\cdot \frac{x-2}{-2-2}
          = \frac{x}{3}\cdot \frac{x+3}{1}
          = 2(x^2+3x)\\
        & =  2x^2+x
 \end{align*}  
 \begin{align*}       
-L_2(x) & = \frac{x-x_0}{x_2-x_0}\cdot\frac{x-x_1}{x_2-x_1}
+L_3(x) & = \frac{x-x_1}{x_3-x_1}\cdot\frac{x-x_2}{x_3-x_2}
          = \frac{x-0}{2-0}\cdot\frac{x+2}{2+2}
          = \frac{x(x+2)}{3}
          = 2(x^2+2x)\\
@@ -1245,14 +1245,14 @@ In mathematics, the concept of a \term{base} typically refers to a minimal set o
 
 For instance, consider the example of a sheet of paper. By introducing a coordinate system, we can represent any point on the sheet in terms of its horizontal and vertical distance from a predefined reference point. In this scenario, a base can be formed by using a point of unit length in the horizontal direction along with a point of unit length in the vertical direction. Using this base, any other point on the sheet can be constructed by scaling and adding these two points in a specific manner.
 
-The objective of this section is to utilize the point-value representation \ref{def_lagrange_interpolation_set} of a polynomial and the polynomials $L_j$ as computed in Lagrange's interpolation \ref{alg_lagrange_interplation} to introduce the idea of a base for polynomials with bounded degrees. Specifically, we aim to define a set comprising of $k+1$ polynomials that can be used to construct any polynomial of degree $\leq k$ through a combination of multiples of these polynomials.
+The objective of this section is to utilize the point-value representation \ref{def_lagrange_interpolation_set} of a polynomial and the polynomials $L_j$ as computed in Lagrange's interpolation \ref{alg_lagrange_interplation} to introduce the idea of a base for polynomials with bounded degrees. Specifically, we aim to define a set comprising of $m+1$ polynomials that can be used to construct any polynomial of degree $\leq m$ through a combination of multiples of these polynomials.
 
-To elaborate, let $S:=\{x_0, x_1, \ldots, x_k\}$ be a set of $k+1$ distinct points from a type $R$ that has multiplicative inverses \ref{sec:modular_inverses}, where $x_i \neq x_j$ for all $i \neq j$, and define the degree $k$ polynomial $L_j$ by
+To elaborate, let $S:=\{x_1, x_2, \ldots, x_{m+1}\}$ be a set of $m+1$ distinct points from a type $R$ that has multiplicative inverses \ref{sec:modular_inverses}, where $x_i \neq x_j$ for all $i \neq j$, and define the degree $m$ polynomial $L_j$ for any $1\leq j \leq m+1$ by
 \begin{equation}
 \label{def:lagrange-coordinate}
-L_j(x) = \frac{(x-x_0)\cdots(x-x_{j-1})(x-x_{j+1})\cdots(x-x_k)}{(x_j-x_0)\cdots(x_j-x_{j-1})(x_j-x_{j+1})\cdots(x_j-x_k)}
+L_j(x) = \frac{(x-x_1)\cdots(x-x_{j-1})(x-x_{j+1})\cdots(x-x_{m+1})}{(x_j-x_1)\cdots(x_j-x_{j-1})(x_j-x_{j+1})\cdots(x_j-x_{m+1})}
 \end{equation}
-Each $L_j$ is known as a \term{Lagrange base polynomial}, and by virtue of Lagrange's interpolation \ref{alg_lagrange_interplation}, it is a polynomial of degree $k$ such that the following identity holds for all $x_i\in S$:
+Each $L_j$ is known as a \term{Lagrange base polynomial}, and by virtue of Lagrange's interpolation \ref{alg_lagrange_interplation}, it is a polynomial of degree $m$ such that the following identity holds for all $x_i\in S$:
 \begin{equation}
 L_j(x_i)=
 \begin{cases}
@@ -1260,33 +1260,33 @@ L_j(x_i)=
 1 & \text{for } i = j 
 \end{cases}
 \end{equation}
-As utilized in algorithm \ref{alg_lagrange_interplation}, Lagrange base polynomials are of particular interest because every other polynomial of degree $\leq k$ can be expressed as a scaled sum over those polynomials. Therefore, any set $S$ of distinct points defines a basis for polynomials of degree $\leq k$ known as a \term{Lagrange basis}:
+As utilized in algorithm \ref{alg_lagrange_interplation}, Lagrange base polynomials are of particular interest because every other polynomial of degree $\leq m$ can be expressed as a scaled sum over those polynomials. Therefore, any set $S$ of $m+1$ distinct points defines a basis for polynomials of degree $\leq m$ known as a \term{Lagrange basis}:
 \begin{equation}
 \label{def:lagrange-base}
-L_S := \{L_0, L_1, \ldots, L_k\}
+L_S := \{L_1, L_2, \ldots, L_{m+1}\}
 \end{equation}
-To illustrate how a Lagrange basis can be utilized to construct any other polynomial of degree $\leq k$, consider the point-value form $\{(x_0,y_0), (x_1,y_1), \ldots, (x_k,y_k)\}$ (See \ref{def_lagrange_interpolation_set}) of a polynomial $P$. Then, the \term{representation} of $P$ in the Lagrange basis $L_S$ is given by:
+To illustrate how a Lagrange basis can be utilized to construct any other polynomial of degree $\leq m$, consider the point-value form $\{(x_1,y_1), (x_2,y_2), \ldots, (x_{m+1},y_{m+1})\}$ (See \ref{def_lagrange_interpolation_set}) of a polynomial $P$. Then, the \term{representation} of $P$ in the Lagrange basis $L_S$ is given by:
 \begin{equation}
-P(x) = \sum_{j=0}^{k} y_j L_j(x).
+P(x) = \sum_{j=1}^{m+1} y_j L_j(x).
 \end{equation}
 If a polynomial $P$ is given in coordinate representation, its coordinates in a Lagrange base over the evaluation point set $S$ is therefore given by evaluating $P$ at the elements of $S$.
 \begin{example}
 \label{ex:lagrange-Q}
-Let us consider the set of evaluation points $S=\{x_0,x_1,x_2\}=\{0,-2,2\}$ from example \ref{ex:point-value-Q} again. Our task is to compute the Lagrange base $L_S$ for this set and to show how to represent polynomial of degree $\leq 2$ from $\mathbb{Q}[x]$. Starting with the Lagrange base polynomials we get
+Let us consider the set of evaluation points $S=\{x_1,x_2,x_3\}=\{0,-2,2\}$ from example \ref{ex:point-value-Q} again. Our task is to compute the Lagrange base $L_S$ for this set and to show how to represent polynomial of degree $\leq 2$ from $\mathbb{Q}[x]$. Starting with the Lagrange base polynomials we get
 \begin{align*}
-L_0(x) = & \frac{(x-x_{1})(x-x_2)}{(x_0-x_{1})(x_0-x_2)}
+L_1(x) = & \frac{(x-x_{2})(x-x_3)}{(x_1-x_{2})(x_1-x_3)}
        =  \frac{(x+2)(x-2)}{(2)(-2)}
        =  -\frac{x^2-4}{4}\\
        = &  -\frac{1}{4} x^2 +1
 \end{align*}
 \begin{align*}
-L_1(x) = & \frac{(x-x_0)(x-x_{2})}{(x_1-x_0)(x_1-x_{2})}
+L_2(x) = & \frac{(x-x_1)(x-x_{3})}{(x_2-x_1)(x_2-x_{3})}
        =  \frac{(x)(x-2)}{(-2)(-2-2)}
        =  \frac{x^2 -2x}{8} \\
        = & \frac{1}{8}x^2 -\frac{1}{4}x
 \end{align*}
 \begin{align*}
-L_2(x) = & \frac{(x-x_0)(x-x_{1})}{(x_2-x_0)(x_2-x_{1})}
+L_23(x) = & \frac{(x-x_1)(x-x_{2})}{(x_3-x_1)(x_3-x_{2})}
        =  \frac{(x)(x+2)}{(2)(2+2)}
        =  \frac{x^2 +2x}{8} \\
        = & \frac{1}{8}x^2 +\frac{1}{4}x
@@ -1297,15 +1297,15 @@ L_S=\{-\frac{1}{4} x^2 +1, \frac{1}{8}x^2 -\frac{1}{4}x, \frac{1}{8}x^2 +\frac{1
 $$
 The purpose of this set is to provide a basis that can represent any other polynomial $P\in\mathbb{Q}_{\leq 2}[x]$ of degree $\leq 2$. This means that for any such polynomial $P$, we can express it as a linear combination of the Lagrange basis polynomials, that is, $P= c_0\cdot L_0 + c_1 \cdot L_1 + c_2\cdot L_2$. This is similar to how we represent a point in a flat coordinate system using 'x' and 'y' coordinates.
 
-To illustrate this in more detail, let us consider the polynomial $P=-\frac{1}{2} x^2 +\frac{1}{2} x + 4$ from example \ref{ex:point-value-Q}. As we know from that example, we have $P = 4\cdot L_0 + 1\cdot L_1 + 3\cdot L_2$. Therefore, the coordinates of $P$ in the basis $L_S$ are given by $(4,1,3)$. 
+To illustrate this in more detail, let us consider the polynomial $P=-\frac{1}{2} x^2 +\frac{1}{2} x + 4$ from example \ref{ex:point-value-Q}. As we know from that example, we have $P = 4\cdot L_1 + 1\cdot L_2 + 3\cdot L_3$. Therefore, the coordinates of $P$ in the basis $L_S$ are given by $(4,1,3)$. 
 
 Now consider the polynomial $Q$ in its coordinate representation $Q(x) = 2x^2 +x -4$. To represent this polynomial in the Lagrange base $L_S$, we evaluate $Q$ at the elements of $S$, which gives:
 \begin{align*}
-c_0 = & Q(x_0) = 2x_0^2 +x_0 -4 = -4 \\
-c_1 = & Q(x_1) = 2x_1^2 +x_1 -4 = 2(-2)^2 + (-2) -4 = 2 \\
-c_1 = & Q(x_2) = 2x_2^2 +x_2 -4 = 2(2)^2 + (2) - 4 = 6 \\
+c_1 = & Q(x_1) = 2x_1^2 +x_1 -4 = -4 \\
+c_2 = & Q(x_2) = 2x_2^2 +x_2 -4 = 2(-2)^2 + (-2) -4 = 2 \\
+c_3 = & Q(x_3) = 2x_3^2 +x_3 -4 = 2(2)^2 + (2) - 4 = 6 \\
 \end{align*}
-Therefore, the coordinates of the polynomial $Q$ in the basis $L_S$ are given by $(-4,2,6)$ and we have $Q = -4\cdot L_0 + 2\cdot L_1 + 6\cdot L_2$. 
+Therefore, the coordinates of the polynomial $Q$ in the basis $L_S$ are given by $(-4,2,6)$ and we have $Q = -4\cdot L_1 + 2\cdot L_2 + 6\cdot L_3$. 
 \end{example}
 \begin{exercise}
 Consider example \ref{ex:point-value-Z5} and compute the Lagrange base for the evaluation point set $\{0,3,2\}$. Compute the coordinates of $P(x)=2x^2 +3x +4$ and $Q(2x^2 + x+1)$ in that base.
