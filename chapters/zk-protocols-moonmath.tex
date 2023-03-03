@@ -1159,14 +1159,14 @@ To obtain a primitive $4$-th power root of unity $\omega$, we must identify an e
 
 To demonstrate, consider the element $12$. Since $12^2=12\cdot 12 = 1$, the element $12$ is not a primitive root of unity in $\F_{13}$. Nevertheless, we can find a primitive root of unity by observing that $5^2=12$, $5^3=8$. Therefore, we conclude that $\omega = 5$ is a primitive $4$-th power root of unity in $\F_{13}$, and we can express the set $H$ of all $4$-th power roots of unity as follows:
 $$
-H = \{1,\omega, \omega^2 \ldots, \omega^{n-1}\} = \{1,5,5^2,5^3\} = \{1,5,12,8\}
+H = \{\omega, \omega^2 \ldots, \omega^{n-1}, 1\} = \{5,5^2,5^3,1\} = \{5,12,8,1\}
 $$
 
 TODO: COSETS
 
 In addition we have to find two field elements $k1$ and $k2$ in $\F_{13}^*$, such that the sets $k1\cdot H$ and $k2\cdot H$ are disjunct (contain different element) and are disjunct from $H$ itself. To achieve this, we can choose $k1$ to be any element not contained in $H$, so we choose $k1=2$. In addition we can choose $k2$ to be any element not containt in $H$ or $k1\cdot H$, so we choose $k2=4$ and hence we get
 $$
-k1\cdot H = \{2, 10, 11, 3\} \text{ and } k2\cdot H = \{4, 7, 9, 6\} 
+k1\cdot H = \{10, 11, 3, 2\} \text{ and } k2\cdot H = \{7, 9, 6, 4\} 
 $$ 
 
 This gives the Plonk parameter set:
@@ -1177,55 +1177,55 @@ It should be noted that our choice is not unique. Every pair of finite cyclic gr
 
 In the next step, the protocol requires a Lagrange Base XXX on the set $H$, that is we need to compute a set of Lagrange base polynomials of degree $m-1$, where $m$ is the number of elements in $H$. Using equation XXX and the enumeration 
 $$
-H= \{\omega_0, \omega_1, \omega_2, \omega_3\} = \{\omega^0,\omega^1,\omega^2,\omega^3\} =  \{1,5,12,8\}
+H= \{\omega_1, \omega_2, \omega_3, \omega_4\} = \{\omega^1,\omega^2,\omega^3, \omega^4\} =  \{5,12,8,1\}
 $$
  we get the following
 \begin{equation}
 \begin{array}{rl}
-L_0(x) = &  \frac{(x-\omega^1)(x-\omega^2)(x-\omega^3)}{(\omega^0-\omega^1)(\omega^0-\omega^2)(\omega^0-\omega^3)}\\
+L_1(x) = &  \frac{(x-\omega^2)(x-\omega^3)(x-\omega^4)}{(\omega^1-\omega^2)(\omega^1-\omega^3)(\omega^1-\omega^4)}\\
+       = &  \frac{(x-12)(x-8)(x-1)}{(5-12)(5-8)(5-1)}
+       = \frac{(x+1)(x+5)(x+12)}{6\cdot 10\cdot 4}
+       = \frac{(x^2+6x+5)(x+12)}{6} \\
+       = & (x^3 +5x^2 +12x + 8)\cdot 11 \\
+       = & 11x^3 +3x^2 +2x + 10\\
+L_2(x) = &  \frac{(x-\omega^1)(x-\omega^3)(x-\omega^4)}{(\omega^2-\omega^1)(\omega^2-\omega^3)(\omega^2-\omega^4)}\\
+       = &  \frac{(x-5)(x-8)(x-1)}{(12-5)(12-8)(12-1)}
+       =    \frac{(x+8)(x+5)(x+12)}{7\cdot 4\cdot 11}
+       =    \frac{(x^2+1)(x+1)}{9} \\
+       = &   (x^3 +12x^2+x + 12)\cdot 3 \\
+       = &  3x^3 +10x^2+ 3x + 10\\
+L_3(x) = &  \frac{(x-\omega^1)(x-\omega^2)(x-\omega^4)}{(\omega^3-\omega^1)(\omega^3-\omega^2)(\omega^3-\omega^4)}\\
+       = &  \frac{(x-5)(x-12)(x-1)}{(8-5)(8-12)(8-1)}
+       =   \frac{(x+8)(x+1)(x+12)}{3\cdot 9\cdot 7}
+       =   \frac{(x^2+9x+8)(x+12)}{7} \\
+       = &   (x^3 + 8x^2 +12x +5) \cdot 2\\
+       = &  2x^3 + 3x^2 +11x +10 \\
+L_4(x) = &  \frac{(x-\omega^1)(x-\omega^2)(x-\omega^3)}{(\omega^4-\omega^1)(\omega^4-\omega^2)(\omega^4-\omega^3)}\\
        = &  \frac{(x-5)(x-12)(x-8)}{(1-5)(1-12)(1-8)}
        = \frac{(x+8)(x+1)(x+5)}{9\cdot 2\cdot 6}
        = \frac{(x^2 +9x + 8)(x+5)}{4} \\
        = & (x^3 + x^2 +x + 1)\cdot 10 \\
-       = & 10x^3 + 10 x^2 +10x + 10\\
-L_1(x) = &  \frac{(x-\omega^0)(x-\omega^2)(x-\omega^3)}{(\omega^1-\omega^0)(\omega^1-\omega^2)(\omega^1-\omega^3)}\\
-       = &  \frac{(x-1)(x-12)(x-8)}{(5-1)(5-12)(5-8)}
-       = \frac{(x+12)(x+1)(x+5)}{4\cdot 6\cdot 10}
-       = \frac{(x^2+12)(x+5)}{6} \\
-       = & (x^3 +5x^2 +12x + 8)\cdot 11 \\
-       = & 11x^3 +3x^2 +2x + 10\\
-L_2(x) = &  \frac{(x-\omega^0)(x-\omega^1)(x-\omega^3)}{(\omega^2-\omega^0)(\omega^2-\omega^1)(\omega^2-\omega^3)}\\
-       = &  \frac{(x-1)(x-5)(x-8)}{(12-1)(12-5)(12-8)}
-       =    \frac{(x+12)(x+8)(x+5)}{11\cdot 7\cdot 4}
-       =    \frac{(x^2+7x +5)(x+5)}{9} \\
-       = &   (x^3 +12x^2+x + 12)\cdot 3 \\
-       = &  3x^3 +10x^2+ 3x + 10\\
-L_3(x) = &  \frac{(x-\omega^0)(x-\omega^1)(x-\omega^2)}{(\omega^3-\omega^0)(\omega^3-\omega^1)(\omega^3-\omega^2)}\\
-       = &  \frac{(x-1)(x-5)(x-12)}{(8-1)(8-5)(8-12)}
-       =   \frac{(x+12)(x+8)(x+1)}{7\cdot 3\cdot 9}
-       =   \frac{(x^2 +7x +5)(x+1)}{7} \\
-       = &   (x^3 + 8x^2 +12x +5) \cdot 2\\
-       = &  2x^3 + 3x^2 +11x +10
+       = & 10x^3 + 10 x^2 +10x + 10
 \end{array}
 \end{equation}
 Hence we have the Lagrange base
 \begin{multline}
-L_H = \{ 10x^3 + 10 x^2 +10x + 10, 11x^3 +3x^2 +2x + 10, \\ 3x^3 +10x^2+ 3x + 10, 2x^3 + 3x^2 +11x +10 \}
+L_H = \{ 11x^3 +3x^2 +2x + 10, 3x^3 +10x^2+ 3x + 10, \\ 2x^3 + 3x^2 +11x +10, 10x^3 + 10 x^2 +10x + 10\}
 \end{multline}
 
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: F13x = F13['x'] # Polynomial Ring over F13
 sage: # point-value representation
-sage: S0 = [(1,1),(5,0),(12,0),(8,0)] # L0
-sage: S1 = [(1,0),(5,1),(12,0),(8,0)] # L1
-sage: S2 = [(1,0),(5,0),(12,1),(8,0)] # L2
-sage: S3 = [(1,0),(5,0),(12,0),(8,1)] # L3
+sage: S1 = [(5,1),(12,0),(8,0),(1,0)] # L1
+sage: S2 = [(5,0),(12,1),(8,0),(1,0)] # L2
+sage: S3 = [(5,0),(12,0),(8,1),(1,0)] # L3
+sage: S4 = [(5,0),(12,0),(8,0),(1,1)] # L4
 sage: # coefficient representation
-sage: F13x.lagrange_polynomial(S0)
 sage: F13x.lagrange_polynomial(S1)
 sage: F13x.lagrange_polynomial(S2)
 sage: F13x.lagrange_polynomial(S3)
+sage: F13x.lagrange_polynomial(S4)
 \end{sagecommandline}
 \end{example}
 
@@ -1297,27 +1297,24 @@ Assuming that we have eliminated the simulation trapdoor, let's explore how the 
 
 To illustrate this, let's examine the Lagrange base polynomials $L_0$, $L_1$, $L_2$, and $L_3$ from XXX. To evaluate these polynomials within the exponent of $g_1$ at the secret point $\tau$ (which, in our case, is $2$) without knowledge of the value of $\tau$, we may use the \concept{Universal Common Reference String} in combination with equation XXX. If we employ scalar product notation XXX instead of exponentiation, we obtain the following:
 \begin{align*}
-[L_0(\tau)]g_1 & = [10\tau^3 + 10 \tau^2 +10\tau + 10] g_1 \\
-               & = [10]([\tau^3]g_1) + [10]([\tau^2]g_1) + [10]([\tau]g_1) + [10]([\tau^0] g_1)\\
 [L_1(\tau)]g_1 & = [11\tau^3 +3\tau^2 +2\tau + 10] g_1 \\
                & = [11]([\tau^3]g_1) +[3]([\tau^2]g_1) +[2]([\tau]g_1) + [10]([\tau^0] g_1) \\
 [L_2(\tau)]g_1 & = [3\tau^3 +10\tau^2+ 3\tau + 10] g_1 \\
                & = [3]([\tau^3]g_1) + [10]([\tau^2]g_1) + [3]([\tau]g_1) + [10]([\tau^0]g_1) \\
 [L_3(\tau)]g_1 & = [2\tau^3 + 3\tau^2 +11\tau +10 ] g_1 \\
-               & = [2]([\tau^3]g_1) + [3]([\tau^2]g_1) +[11]([\tau]g_1) +[10]([\tau^0]g_1)
+               & = [2]([\tau^3]g_1) + [3]([\tau^2]g_1) +[11]([\tau]g_1) +[10]([\tau^0]g_1)\\
+[L_4(\tau)]g_1 & = [10\tau^3 + 10 \tau^2 +10\tau + 10] g_1 \\
+               & = [10]([\tau^3]g_1) + [10]([\tau^2]g_1) + [10]([\tau]g_1) + [10]([\tau^0] g_1)
 \end{align*}
 In these expressions the terms $[\tau^0]g_1$, $[\tau]g_1$, $[\tau^2]g_1$ and $[\tau^3]g_1$ are elements from the UCRS, so we can substitute them and get the following results
 \begin{align*}
-[L_0(\tau)]g_1 & = [10](26,9)+[10](35,28)+[10](33,34) + [10](13,15)\\
 [L_1(\tau)]g_1 & = [11](26,9) +[3](35,28) +[2](33,34) + [10](13,15)\\
 [L_2(\tau)]g_1 & = [3](26,9) + [10](35,28) + [3](33,34) + [10](13,15)\\
-[L_3(\tau)]g_1 & = [2](26,9) + [3](35,28) +[11](33,34) +[10](13,15)
+[L_3(\tau)]g_1 & = [2](26,9) + [3](35,28) +[11](33,34) +[10](13,15)\\
+[L_4(\tau)]g_1 & = [10](26,9)+[10](35,28)+[10](33,34) + [10](13,15)
 \end{align*}
 Subsequently, a real world application may compute these expressions using the elliptic curve scalar multiplication law. During our calculation however, we can accelerate the process by utilizing the logarithmic order XXX of $\G_1$. This approach allows us to regain access to the secret point $\tau=2$. However, we can only execute this strategy since we know the logarithmic order of $\G_1$, which is infeasible in cryptographically secure curves. The result is as follows:
 \begin{align*}
-[L_0(\tau)]g_1 & = [10][8](13,15) + [10][4](13,15) + [10][2](13,15) + [10](13,15)\\
-               & = [10*8 + 10*4 + 10*2 + 10](13,15) = [7] (13,15)\\
-               & = (27,9)\\
 [L_1(\tau)]g_1 & = [11][8](13,15) +[3][4](13,15) +[2][2](13,15) + [10](13,15) \\
                & = [11*8+3*4+2*2+10](13,15) = [10](13,15) \\
                & = (38,28)\\
@@ -1326,7 +1323,10 @@ Subsequently, a real world application may compute these expressions using the e
                & = (33,34)\\
 [L_3(\tau)]g_1 & = [2][8](13,15) + [3][4](13,15) +[11][2](13,15) +[10](13,15)\\
                & = [2*8+3*4+11*2+10](13,15) = [8](13,15)\\
-               & = (26,9)
+               & = (26,9)\\
+[L_4(\tau)]g_1 & = [10][8](13,15) + [10][4](13,15) + [10][2](13,15) + [10](13,15)\\
+               & = [10*8 + 10*4 + 10*2 + 10](13,15) = [7] (13,15)\\
+               & = (27,9)
 \end{align*}
 \end{example}
 
@@ -1340,14 +1340,14 @@ The second setup phase then computes the following circuit specific \term{Common
 \begin{equation}
 \label{def:plonk-circuit-crs}
 \begin{array}{rl}
-P_{l}(x) = &\sum_{i=0}^{n-1} {l_i}L_i(x)\\
-P_{r}(x) = &\sum_{i=0}^{n-1} {r_i}L_i(x)\\
-P_{m}(x) = &\sum_{i=0}^{n-1} {m_i}L_i(x)\\
-P_{o}(x) = &\sum_{i=0}^{n-1} {o_i}L_i(x)\\
-P_{c}(x) = &\sum_{i=0}^{n-1} {c_i}L_i(x)\\
-S_{\sigma_1}(x) =& \sum_{i=0}^{n-1} \sigma(i)L_i(x)\\
-S_{\sigma_2}(x) =& \sum_{i=0}^{n-1} \sigma(n+i)L_i(x)\\
-S_{\sigma_3}(x) =& \sum_{i=0}^{n-1} \sigma(2n+i)L_i(x)
+P_{l}(x) = &\sum_{i=1}^{n} {l_i}L_i(x)\\
+P_{r}(x) = &\sum_{i=1}^{n} {r_i}L_i(x)\\
+P_{m}(x) = &\sum_{i=1}^{n} {m_i}L_i(x)\\
+P_{o}(x) = &\sum_{i=1}^{n} {o_i}L_i(x)\\
+P_{c}(x) = &\sum_{i=1}^{n} {c_i}L_i(x)\\
+S_{\sigma_1}(x) =& \sum_{i=1}^{n} \sigma(i)L_i(x)\\
+S_{\sigma_2}(x) =& \sum_{i=1}^{n} \sigma(n+i)L_i(x)\\
+S_{\sigma_3}(x) =& \sum_{i=1}^{n} \sigma(2n+i)L_i(x)
 \end{array}
 \end{equation}
 Circuit specific\concept{Common Reference String}s depend on Universal Common Reference Strings and as a consequence on the simulation trapdoor, and are therefore not unique to the problem. Any language $L_r$ can have more than one \concept{Common Reference String}. The  size of a \concept{Common Reference String} is linear in the size of the constraints system. The circuit specific Common Reference String is also known as the \term{prover and verifier key pair}.
@@ -1365,104 +1365,80 @@ UCRS(5) =\{(13,15), (33,34), (35,28), (26,9), (38,15), \\
 \end{multline*}
 In the next step we have to compute the polynomials from XXX. BY ASSUMTION n<=M SO ENOUGH LAGRANGE POLYPEN
 
-We do
+We do selector polynomials
 $$
 \begin{array}{rl}
-P_{m}(x) = & \sum_{i=0}^{n-1} {m_i}L_i(x)\\         
-         = & m_0\cdot (10x^3 + 10 x^2 +10x + 10) + m_1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; m_2\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + 1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 1\cdot (3x^3 +10x^2+ 3x + 10)\\ 
-         = & (11x^3 +3x^2 +2x + 10) + (3x^3 +10x^2+ 3x + 10)\\
-         = & x^3  +5x + 7
+P_{m}(x) = & \sum_{i=1}^{n} {m_i}L_i(x)\\         
+         = & m_1\cdot(11x^3 +3x^2 +2x + 10) + m_2\cdot (3x^3 +10x^2+ 3x + 10) + m_3\cdot (2x^3 + 3x^2 +11x +10) \\        
+         = &  1\cdot (3x^3 +10x^2+ 3x + 10) + 1\cdot (2x^3 + 3x^2 +11x +10) +  0 \cdot (2x^3 + 3x^2 +11x +10)\\
+         = & 5x^3 + x + 7
 \end{array}
 $$
 $$
 \begin{array}{rl}
-P_{l}(x) = & \sum_{i=0}^{n-1} {l_i}L_i(x)\\         
-         = & l_0\cdot (10x^3 + 10 x^2 +10x + 10) + l_1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; l_2\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 1\cdot (10x^3 + 10 x^2 +10x + 10) + 0\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 10x^3 + 10 x^2 +10x + 10      
+P_{l}(x) = & \sum_{i=1}^{n} {l_i}L_i(x)\\         
+         = & l_1\cdot(11x^3 +3x^2 +2x + 10) + l_2\cdot (3x^3 +10x^2+ 3x + 10) + l_3\cdot (2x^3 + 3x^2 +11x +10) \\            
+         = & 1\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & 11x^3 +3x^2 +2x + 10 
 \end{array}
 $$
 $$
 \begin{array}{rl}
-P_{r}(x) = & \sum_{i=0}^{n-1} {r_i}L_i(x)\\         
-         = & r_0\cdot (10x^3 + 10 x^2 +10x + 10) + r_1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; r_2\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + 0\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\
+P_{r}(x) = & \sum_{i=1}^{n} {r_i}L_i(x)\\         
+         = & r_1\cdot(11x^3 +3x^2 +2x + 10) + r_2\cdot (3x^3 +10x^2+ 3x + 10) + r_3\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & 0\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\          
          = & 0          
 \end{array}
 $$
 $$
 \begin{array}{rl}
-P_{o}(x) = & \sum_{i=0}^{n-1} {o_i}L_i(x)\\         
-         = & o_0\cdot (10x^3 + 10 x^2 +10x + 10) + o_1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; o_2\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + (-1)\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; (-1)\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & -11x^3 -3x^2 -2x - 10 -3x^3 -10x^2 -3x -10\\  
-         = & 2x^3 +10 x^2 +11x +3 +10x^3 +3x^2 +10x +3\\ 
-         = & 12x^3  +8x +6           
+P_{o}(x) = & \sum_{i=1}^{n} {o_i}L_i(x)\\         
+         = & o_1\cdot(11x^3 +3x^2 +2x + 10) + o_2\cdot (3x^3 +10x^2+ 3x + 10) + o_3\cdot (2x^3 + 3x^2 +11x +10) \\
+         = & 0\cdot(11x^3 +3x^2 +2x + 10) + (-1)\cdot (3x^3 +10x^2+ 3x + 10) + (-1)\cdot (2x^3 + 3x^2 +11x +10) \\  
+         = & (-3x^3 -10x^2 - 3x - 10) + (-2x^3 - 3x^2 -11x -10) \\ 
+         = & 8x^3 + 12x + 6              
 \end{array}
 $$
 $$
 \begin{array}{rl}
-P_{c}(x) = & \sum_{i=0}^{n-1} {c_i}L_i(x)\\         
-         = & c_0\cdot (10x^3 + 10 x^2 +10x + 10) + c_1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; c_2\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 0\cdot (10x^3 + 10 x^2 +10x + 10) + 0\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\
+P_{c}(x) = & \sum_{i=1}^{n} {c_i}L_i(x)\\         
+         = & c_1\cdot(11x^3 +3x^2 +2x + 10) + c_2\cdot (3x^3 +10x^2+ 3x + 10) + c_3\cdot (2x^3 + 3x^2 +11x +10) \\
+         = & 0\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\
          = & 0          
 \end{array}
 $$
-Since we have $\sigma = (8,1,7,3,4,5,6,2,0)$ we compute
+By design, these polynomials evaluate to the $j$-th selector constants if evaluated on the $j$-th element of $H$. For example $P_o(2)=-1$ because $o_2=-1$, or $P_l(1)=1$ because $l_1=1$ and so on. 
+
+Since we have $\sigma = (9,2,8,4,5,6,7,3,1)$ we compute the permutation polynomials
 $$
 \begin{array}{rl}
-S_{\sigma_1}(x) = & \sum_{i=0}^{n-1} \sigma^(i)L_i(x) \\       
-         = & \sigma(0) \cdot (10x^3 + 10 x^2 +10x + 10) 
-           + \sigma(1)\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; \sigma(2)\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 8 \cdot (10x^3 + 10 x^2 +10x + 10) 
-           + 1\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 7 \cdot (3x^3 +10x^2+ 3x + 10)\\ 
-         = & (2x^3 + 2 x^2 +2x + 2) 
-           + (11x^3 +3x^2 +2x + 10) \\
-           & +\; (8x^3 +5x^2+ 8x + 5)\\ 
-         = & 8x^3 + 10 x^2 + x + 4                     
+S_{\sigma_1}(x) = & \sum_{i=1}^{n} \sigma(i)L_i(x) \\       
+         = & \sigma(1)\cdot(11x^3 +3x^2 +2x + 10) + \sigma(2)\cdot (3x^3 +10x^2+ 3x + 10) + \sigma(3)\cdot (2x^3 + 3x^2 +11x +10) \\            
+         = & 9\cdot(11x^3 +3x^2 +2x + 10) + 2\cdot (3x^3 +10x^2+ 3x + 10) + 8\cdot (2x^3 + 3x^2 +11x +10) \\           
+         = & (8x^3 + x^2 + 5x + 12) + (6x^3 + 7x^2 + 6x + 7) + (3x^3 + 11x^2 + 10x + 2) \\    
+         = & 4x^3 + 6x^2 + 8x + 8             
 \end{array}
 $$
 $$
 \begin{array}{rl}
-S_{\sigma_2}(x) = & \sum_{i=0}^{n-1} \sigma^(n+i)L_i(x) \\       
-         = & \sigma(3) \cdot (10x^3 + 10 x^2 +10x + 10) 
-           + \sigma(4)\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; \sigma(5)\cdot (3x^3 +10x^2+ 3x + 10)\\
-         = & 3 \cdot (10x^3 + 10 x^2 +10x + 10) 
-           + 4\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 5 \cdot (3x^3 +10x^2+ 3x + 10)\\   
-         = & (4x^3 + 4 x^2 +4x + 4) 
-           + (5x^3 +12x^2 +8x + 1) \\
-           & +\;(2x^3 +11x^2+ 2x + 11)\\  
-         = & 11x^3 + x^2 +x + 3                                        
+S_{\sigma_2}(x) = & \sum_{i=1}^{n} \sigma(n+i)L_i(x) \\       
+         = & \sigma(4)\cdot(11x^3 +3x^2 +2x + 10) + \sigma(5)\cdot (3x^3 +10x^2+ 3x + 10) + \sigma(6)\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & 4\cdot(11x^3 +3x^2 +2x + 10) + 5\cdot (3x^3 +10x^2+ 3x + 10) + 6\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = &  (5x^3 + 12x^2 + 8x + 1) + (2x^3 + 11x^2 + 2x + 11) + (12x^3 + 5x^2 + x + 8) \\
+         = & 6x^3 + 2x^2 + 11x + 7
 \end{array}
 $$
 $$
 \begin{array}{rl}
-S_{\sigma_3}(x) = & \sum_{i=0}^{n-1} \sigma^(2n+i)L_i(x) \\       
-         = & \sigma(6) \cdot (10x^3 + 10 x^2 +10x + 10) 
-           + \sigma(7)\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; \sigma(8)\cdot (3x^3 +10x^2+ 3x + 10)\\  
-         = & 6 \cdot (10x^3 + 10 x^2 +10x + 10) 
-           + 2\cdot (11x^3 +3x^2 +2x + 10) \\
-           & +\; 0\cdot (3x^3 +10x^2+ 3x + 10)\\                                               
-         = & (8x^3 + 8 x^2 +8x + 8) 
-           + (9x^3 +6x^2 +4x + 7) \\
+S_{\sigma_3}(x) = & \sum_{i=1}^{n} \sigma(2n+i)L_i(x) \\       
+         = & \sigma(7)\cdot(11x^3 +3x^2 +2x + 10) + \sigma(8)\cdot (3x^3 +10x^2+ 3x + 10) + \sigma(9)\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & 7\cdot(11x^3 +3x^2 +2x + 10) + 3\cdot (3x^3 +10x^2+ 3x + 10) + 1\cdot (2x^3 + 3x^2 +11x +10) \\  
+         = & (12x^3 + 8x^2 + x + 5) + (9x^3 + 4x^2 + 9x + 4) + (2x^3 + 3x^2 + 11x + 10)\\
+         = & 10x^3 + 2x^2 + 8x + 6
 \end{array}
 $$
+By design, the first permutation polynomial evaluates to $\sigma(j)$ if evaluated on the $j$-th element of $H$ for $j<n$. For example $S_{\sigma_1}(1)=9$ because $\sigma(1)=9$, or $S_{\sigma_1}(3)=8$ because $\sigma(3)=8$ and so on. Similar the second permutation polynomial evaluates to $\sigma(3+j)$ if evaluated on the $j$-th element of $H$ for $j<n$. For example $S_{\sigma_2}(1)=4$ because $\sigma(4)=9$, or $S_{\sigma_2}(2)=5$ because $\sigma(5)=8$ . The same pattern holds true for the third permutation polynomial.
+
 
 Those polynomial can then be stored in a public place, like a blockchain, and they can be publicly verified.
 \end{example}
