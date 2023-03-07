@@ -1354,7 +1354,9 @@ To be more specific, let $\F_p$ be a prime field with prime modulus $p\in\Prim$,
 E_k(\cdot): \F_p \to \F_p\; x \mapsto F_{r-1}\left(\cdots F_1\left(F_0(x)\right)\ldots\right)
 \end{equation}
 In this expression the function $F_i$ is defined as $F_i(x)= (x+k+c_i)^n$ for all natural numbers $0\leq 1 < r$.
-\begin{example}[MimC block cypher in $\F_{13}$] To give a better understanding of the MimC block cypher construction, consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. In order to construct a MimC block cypher for plaintexts $x\in \F_{13}$, we first have to find the smallest integer $n\in\N$, such that the greatest common divisior of of $n$ and $12=(13-1)$ is $1$. Since the integers $2$, $3$ and $4$ are all factors of $12$, we see $n=5$. Choosing $n$ coprime to $p-1$, i.e $gcd(n,12)=1$ in our case, guarantees that the function $(\cdot)^n: \F_{13}\to \F_{13}$ is invertible and hence a 1:1 correspondence (also called a permutation).
+\begin{example}[MimC block cypher in $\F_{13}$]
+\label{ex:mimc-block-cypher-f13}
+ To give a better understanding of the MimC block cypher construction, consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. In order to construct a MimC block cypher for plaintexts $x\in \F_{13}$, we first have to find the smallest integer $n\in\N$, such that the greatest common divisior of of $n$ and $12=(13-1)$ is $1$. Since the integers $2$, $3$ and $4$ are all factors of $12$, we see $n=5$. Choosing $n$ coprime to $p-1$, i.e $gcd(n,12)=1$ in our case, guarantees that the function $(\cdot)^n: \F_{13}\to \F_{13}$ is invertible and hence a 1:1 correspondence (also called a permutation).
 
 In the next step we have to compute the round number $r$, which defines the number of functions $F_i$ that occur in the nested expression \ref{def:mimc-block-cypher}. We use sage's ceil function, which computes the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and get:
 \begin{sagecommandline}
@@ -1364,6 +1366,14 @@ Hence the number of rounds is $r=2$ in our case, which implies that we need to c
 $$
 E_k(\cdot): \F_{13} \to \F_{13}: x \mapsto  ( (x+k)^5 + k + 7 )^5 + k 
 $$
+To see how the block cypher is computed consider the key $k=12$ and the cleartext $x=7$. In this case the expression $E_{12}(7)$ is computed as follows:
+\begin{align*}
+E_{12}(7) = & ( (7 + 12)^5 + 12 + 7 )^5 + 12 \\ 
+          = & ( (6)^5 + 12 + 7 )^5 + 12
+          = (2 + 12 + 7)^5 + 12
+          =  8 + 12 \\
+          = & 7
+\end{align*}
 We can implement the block cypher as a function in sage and apply it to all elements in $\F_{13}$ to see that it is indeed a permutation (a 1:1 correspondence): 
 \begin{sagecommandline}
 sage: F13= GF(13)
@@ -1372,11 +1382,11 @@ sage: def MimC(x,k):
 ....:     return ( (x+k)^5 + k + F13(7) )^5 + k  
 sage: # apply to the field
 sage: L_F13 = [x for x in F13]
-sage: Perm_F13_k4 = [MimC(x,4) for x in L_F13] # key=4
-sage: Perm_F13_k1 = [MimC(x,1) for x in L_F13] # key=1
+sage: Perm_F13_k0 = [MimC(x,0) for x in L_F13] # key=0
+sage: Perm_F13_k12 = [MimC(x,12) for x in L_F13] # key=12
 sage: L_F13
-sage: Perm_F13_k4
-sage: Perm_F13_k1
+sage: Perm_F13_k0
+sage: Perm_F13_k12
 \end{sagecommandline}
 \end{example}
 In the literature, various constructions such as the Merkle–Damgård construction \cite{Mirvaziri-07}, the Miyaguchi–Preneel construction \cite{Mirvaziri-07}, and the Sponge construction \cite{Bertoni-01} are known to transform block ciphers like \ref{def:mimc-block-cypher} into a cryptographic hash function or a one-way compression function in general.
@@ -1388,15 +1398,38 @@ To give an example, lets look at how the Miyaguchi–Preneel construction can be
 \Require $E_{(\cdot)}(\cdot)$ MimC block cypher for field $\F_p$
 \Require $X=\langle x_1,x_2,\ldots, x_k\rangle\in (\F_p)^*$ message 
 \Procedure{MimC-Hash}{$X$}
-\State $H_0 \gets 0$ \Comment{Initialize}
+\State $H_0 \gets 0$ \Comment{initialize}
 \For{$1\leq j \leq k$}
 	\State $H_j = E_{H_{j-1}}(x_j) + H_{j-1} + x_j $ \Comment{update}
 \EndFor
-\State \textbf{return} $H_k$ \Comment{finalize}
+\State \textbf{return} $H_k$ \Comment{digest}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-
+\begin{example}[MimC Hash Function in $\F_{13}$]
+\label{ex:mimc-hash-f13} To give a better understanding of the Miyaguchi–Preneel construction, consider the MimC block cypher from example \ref{ex:mimc-block-cypher-f13}. We can use this cypher and compute a Miyaguchi–Preneel MimC hash of the message $\langle 3, 7\rangle\in (\F_{13})^*$ using the computations from \ref{ex:mimc-block-cypher-f13}:
+\begin{align*}
+H(\langle 3, 7\rangle): & \#\; H_0 = 0\\
+                        & \#\; H_1 = E_0(3) + 0 + 3 = 12 \\
+                        & \#\; H_2 = E_{12}(7) + 12 + 7 = 0 \\
+                       = &\;  0
+\end{align*}
+Since we will use this hash function extensively in our Plonk example XXX, we implement the hash function according to algorithm \ref{alg_mpmimc} in sage:
+\begin{sagecommandline}
+sage: def MimC_Hash(m):
+....:     H= F13(0) # init
+....:     for x in m:
+....:         H = MimC(x,H) + H + x # update
+....:     return H # digest
+sage: # apply to message string 
+sage: m = []
+sage: m0 = [F13(0) ]
+sage: m1 = [F13(3), F13(7) ]
+sage: MimC_Hash(m) # digest of empty string
+sage: MimC_Hash(m0)
+sage: MimC_Hash(m1)
+\end{sagecommandline}
+\end{example}
 \subsection{Prime Field Extensions}
 \label{field-extension}
 % references https://blog.plover.com/math/se/finite-fields.html
