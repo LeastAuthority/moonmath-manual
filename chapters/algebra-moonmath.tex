@@ -1332,19 +1332,70 @@ $$
 
 
 \subsection{Hashing into prime fields}\label{hashing-prime-fields}
-An important problem in cryptography is the ability to hash to (various subsets) of elliptic curves. As we will see in \chaptname{} \ref{chap:elliptic_curves}, those curves are often defined over prime fields, and hashing to a curve might start with hashing to the prime field. It is therefore important to understand how to hash into prime fields.
+In cryptography, a crucial challenge is the ability to hash data to specific subsets of elliptic curves. In \ref{chap:elliptic_curves}, we will explore how these curves are often defined over prime fields, which means that hashing to a curve may involve hashing to the prime field first. Therefore, it is crucial to have a clear understanding of how to hash into prime fields.
 
-In \secname{} \ref{hash-to-modular-arithmetics}, we looked at a few methods of hashing into the modular arithmetic rings $\Z_n$ for arbitrary $n>1$. As prime fields are just special instances of those rings, all methods for hashing into $\Z_n$ functions can be used for hashing into prime fields, too.
+Previously, in \ref{hash-to-modular-arithmetics}, we examined various methods of hashing into modular arithmetic rings $\Z_n$ for any $n>1$. Since prime fields are a type of modular arithmetic ring, all the hashing methods for $\Z_n$ rings can be utilized for hashing into prime fields.
 
-\begin{comment}
-\subsection{MiMC Hash functions} As we will see in XXX, 
 
-To define a MiMC hash function, let $\F_p$ be a prime field with prime modulus $p\in\Prim$, let $n$ be the smallest natural number such that  $gcd(n, p-1) = 1$. Let $r$ be the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and let $C=\{c_i\in \F_p \;|\; 0\leq i \leq r\}$ be a set of randomly generated field elements. The definition of the MiMC hash function then starts with an invertible map
+\subsubsection{MiMC Hash functions} 
+In the context of zk-SNARKs, having access to cryptographically secure hash functions that map strings of elements from prime fields to elements of prime fields is essential:
 \begin{equation}
-E(\cdot) : \F_p \to \F_p\; x \mapsto F_{r-1}(\cdots F_1(F_0(x))\ldots)
+H_p : (\F_p)^* \to \F_p
 \end{equation}
-where $F_i(x)= (x+c_i)^n$
-\end{comment}
+This is because many real-world zk-SNARKs are based on computational models that use elements of prime fields as their most basic computational units, similar to how traditional computational models use bits as their most basic computation units. In these cases, it can be computationally expensive to implement common hash functions like SHA2 in the new models.
+
+One family of a hash function suitable for use with zk-SNARKs is called MimC hashes, that was introduced in 2016 by Albrecht et al. \cite{albrecht-16}. MimC is designed to have low multiplicative complexity, which means that the number of multiplications is low in its execution. This is especially useful in protocols like Groth\_16, where multiplications are more costly than additions, as we will see in \ref{sec:gorth_16}.
+
+Central to the family of MimC hashes are the MimC symmetric cyphers, which are invertible functions, that take a key and a plaintext and transform the plaintext reversibly into a cyphertext. 
+
+To be more specific, let $\F_p$ be a prime field with prime modulus $p\in\Prim$, let $n$ be the smallest natural number such that $gcd(n, p-1) = 1$, let $r$ be the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$  and let $C=\{c_i\in \F_p \;|\; 0\leq i < r\; , c_0 =0 \}$ be a set of randomly generated field elements. Then MimC's \term{symmetric (or block) cypher} for key $k\in \F_p$ is defined as follows: 
+\begin{equation}
+\label{def:mimc-block-cypher}
+E_k(\cdot): \F_p \to \F_p\; x \mapsto F_{r-1}\left(\cdots F_1\left(F_0(x)\right)\ldots\right)
+\end{equation}
+In this expression the function $F_i$ is defined as $F_i(x)= (x+k+c_i)^n$ for all natural numbers $0\leq 1 < r$.
+\begin{example}[MimC block cypher in $\F_{13}$] To give a better understanding of the MimC block cypher construction, consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. In order to construct a MimC block cypher for plaintexts $x\in \F_{13}$, we first have to find the smallest integer $n\in\N$, such that the greatest common divisior of of $n$ and $12=(13-1)$ is $1$. Since the integers $2$, $3$ and $4$ are all factors of $12$, we see $n=5$. Choosing $n$ coprime to $p-1$, i.e $gcd(n,12)=1$ in our case, guarantees that the function $(\cdot)^n: \F_{13}\to \F_{13}$ is invertible and hence a 1:1 correspondence (also called a permutation).
+
+In the next step we have to compute the round number $r$, which defines the number of functions $F_i$ that occur in the nested expression \ref{def:mimc-block-cypher}. We use sage's ceil function, which computes the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and get:
+\begin{sagecommandline}
+sage: ceil(log(13)/log(3,2))  
+\end{sagecommandline}
+Hence the number of rounds is $r=2$ in our case, which implies that we need to choose a single 'random' constant $c_1\in \F_{13}$, which we decide to be $c_1=7$. For given key $k\in \F_{13}$ our MimC block cypher is then defined as the following polynomial:
+$$
+E_k(\cdot): \F_{13} \to \F_{13}: x \mapsto  ( (x+k)^5 + k + 7 )^5 + k 
+$$
+We can implement the block cypher as a function in sage and apply it to all elements in $\F_{13}$ to see that it is indeed a permutation (a 1:1 correspondence): 
+\begin{sagecommandline}
+sage: F13= GF(13)
+sage: # define our block cypher
+sage: def MimC(x,k):
+....:     return ( (x+k)^5 + k + F13(7) )^5 + k  
+sage: # apply to the field
+sage: L_F13 = [x for x in F13]
+sage: Perm_F13_k4 = [MimC(x,4) for x in L_F13] # key=4
+sage: Perm_F13_k1 = [MimC(x,1) for x in L_F13] # key=1
+sage: L_F13
+sage: Perm_F13_k4
+sage: Perm_F13_k1
+\end{sagecommandline}
+\end{example}
+In the literature, various constructions such as the Merkle–Damgård construction \cite{Mirvaziri-07}, the Miyaguchi–Preneel construction \cite{Mirvaziri-07}, and the Sponge construction \cite{Bertoni-01} are known to transform block ciphers like \ref{def:mimc-block-cypher} into a cryptographic hash function or a one-way compression function in general.
+
+To give an example, lets look at how the Miyaguchi–Preneel construction can be used to construct a cryptographic hash function that compresses strings of field elements $X:=\langle x_1,x_2,\ldots, x_k\rangle\in (\F_p)^*$ of arbitrary length $k\in \N$ onto a single field element $H(X)$.
+\begin{algorithm}\caption{Miyaguchi–Preneel MimC Hash}
+\label{alg_mpmimc}
+\begin{algorithmic}[0]
+\Require $E_{(\cdot)}(\cdot)$ MimC block cypher for field $\F_p$
+\Require $X=\langle x_1,x_2,\ldots, x_k\rangle\in (\F_p)^*$ message 
+\Procedure{MimC-Hash}{$X$}
+\State $H_0 \gets 0$ \Comment{Initialize}
+\For{$1\leq j \leq k$}
+	\State $H_j = E_{H_{j-1}}(x_j) + H_{j-1} + x_j $ \Comment{update}
+\EndFor
+\State \textbf{return} $H_k$ \Comment{finalize}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Prime Field Extensions}
 \label{field-extension}
