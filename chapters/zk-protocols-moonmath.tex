@@ -50,6 +50,10 @@ If, on the other hand, $W$ exists and $P$ is honest, $P$ can use its unlimited c
 The system is non-interactive because the prover only sends a single message to the verifier, which contains the proof itself. However the proof system is \term{not} succinct, since the proof is the witness. The proof system is also not zero knowledge, since the verifier has access to the witness and hence learns everything about the witness.
 \end{example}
 \section{The Fiat Shamir Heuristic}
+TODO: Define "virual output" for everything that the transcript should use. We also adopt the convention to put the instance into $T_0$.
+
+
+
 In the previous section, we learned that proof systems can be categorized as either interactive or non-interactive. However, in this section, we will explore a specific subset of interactive protocols that can be converted into non-interactive protocols, given certain assumptions on cryptographic hash functions. This transformation enables the non-interactive proof to retain the key security properties of the original interactive version. The most common and efficient construction for such a transformation is the so called \term{Fiat-Shamir heuristic} as developed in \cite{fiat-86}. 
 
 Interactive protocols can be defined by the number of interactions needed for a prover to convince a verifier. Assuming that the prover must send at least one message to the verifier in any protocol, whether interactive or not, and that for each additional message sent by the prover, the verifier sends one message back, a k-move interactive proof system entails the following number of messages:
@@ -445,7 +449,7 @@ The Circom trusted setup therefore enables the creation of the Common Reference 
 Consider exercise \ref{ex:baby-jubjub-circom} and execute a 3-party trusted setup phase for the baby-jubjub circuit.
 \end{exercise}
 
-\subsection{The Prover Phase} Given some Rank-1 Constraint System $R$ and instance $I=<I_1,\ldots, I_n>$, the objective of the prover phase is to convince any verifier that a prover knows a witness $W$ to instance $I$ such that  $(I;W)$ is a word in the language $L_R$ of the system, without revealing anything about $W$. 
+\subsection{The Prover Phase} Given some Rank-1 Constraint System $R$ and instance $I=<I_1,\ldots, I_n>$, the objective of the prover phase is to convince any verifier that the prover knows a witness $W$ to instance $I$ such that  $(I;W)$ is a word in the language $L_R$ of the system, without revealing anything about $W$. 
 
 To achieve this in the Groth\_16 protocol, we assume that any prover has access to the Rank-1 Constraint System of the problem, in addition to some algorithm that tells the prover how to compute constructive proofs for the R1CS. In addition, the prover has access to a \concept{Common Reference String} and its associated Quadratic Arithmetic Program. 
 
@@ -1539,12 +1543,221 @@ By design, the first permutation polynomial evaluates to $\sigma(j)$ if evaluate
 Those polynomial can then be stored in a public place, like a blockchain, and they can be publicly verified.
 \end{example}
 
+\subsection{Prover Phase}
+The goal of the prover phase is to demonstrate to any verifier that they possess knowledge of a witness $W$ for the instance $I=<I_1,\ldots, I_n>$ that satisfies the language $L_R$ of the Plonk Constraint System $R$, without disclosing any information about $W$.
 
+To accomplish this in the Plonk protocol, we assume that the prover has access to the Plonk Constraint System of the problem, as well as an algorithm to generate constructive proofs for the Plonk Constraint System. Additionally, the prover can use a circuit-specific Common Reference String and its corresponding Universal Common Reference String.
 
+To generate a zk-SNARK for the given instance, the prover starts by computing a valid constructive proof using the method described in TODO. This involves creating a suitable witness $W=<W_{1},\ldots,W_{3m}>$ such that $(<I_1,\ldots, I_n>; <W_{1},\ldots,W_{3m}>)$ is a valid solution to the Plonk Constraint System $R$.
 
+Plonk's zk-SNARK, is derived from a 5-move interactive argument of knowledge, utilizing the Fiat Shamir Heuristic as explained in XXX. In order to explain the prover algorithm, we will use the structure of the 5-move protocol:
 
+In \term{round 1}, the prover computes the 'wire polynomials $A,B,C\in \F_r[x]$, which, loosely speaking, encode the left inputs, right inputs and outputs of addition and multiplication gates. To do so, the prover first generates blinding factors, by sampling $6$ random field elements $b_1, \ldots, b_6 \in F_r$ from the underlying field of the PlCS. Using those blinding factors, the witness $W$ XXX, the vanishing polynomial XXX, and the Lagrange base XXX of the problem, they then compute the following polynomials:
+\begin{equation}
+\begin{array}{rl}
+A(X) =& (b_1X + b_2)Z_H(X) + \sum_{i=1}^n w_i\cdot L_i(X)\\
+B(X) =& (b_3X + b_4)ZH(X) + \sum_{i=1}^n w_{n+i}\cdot L_i(X)\\
+C(X) =& (b_5X + b_6)ZH(X) + \sum_{i=1}^n w_{2n+i}\cdot L_i(X)
+\end{array}
+\end{equation}
+These polynomials are of degree $\leq n$ and the prover can use the Universal Common Reference String $UCRS(m)$ of the problem, to evaluate those polynomials in the exponent of the generator $g_1$ at the secret evaluation point $\tau$ as explained in XXX. To be more precise the prover computes the following set of elements in $\G_1$: 
 
+TODO: In CRS and examples $g_1^{Z_H(\tau)}$ and $g_1^{\tau\cdot Z_H(\tau)}$.
 
+\begin{equation}
+\begin{array}{rl}
+g_1^A = & g_1^{A(\tau)} = \left(g_1^{\tau\cdot Z_H(\tau)}\right)^{b_1}\cdot\left(g_1^{Z_H(\tau)}\right)^{b_2}\cdot \left(g_1^{L_1(\tau)}\right)^{w_1}\cdot\ldots\cdot \left(g_1^{L_n(\tau)}\right)^{w_n}\\
+g_1^B = & g_1^{B(\tau)} = \left(g_1^{\tau\cdot Z_H(\tau)}\right)^{b_3}\cdot\left(g_1^{Z_H(\tau)}\right)^{b_4}\cdot \left(g_1^{L_1(\tau)}\right)^{w_{n+1}}\cdot\ldots\cdot \left(g_1^{L_n(\tau)}\right)^{w_{2n}}\\
+g_1^C = & g_1^{C(\tau)} = \left(g_1^{\tau\cdot Z_H(\tau)}\right)^{b_5}\cdot\left(g_1^{Z_H(\tau)}\right)^{b_6}\cdot \left(g_1^{L_1(\tau)}\right)^{w_{2n+1}}\cdot\ldots\cdot \left(g_1^{L_n(\tau)}\right)^{w_{3n}}
+\end{array}
+\end{equation}
+The interactive protocol would then send $m_1=(g_1^A, g_1^B, g_1^C)$ as the first move to the verifier. However since Plonk uses the Fiat Shamir Heuristic to generate a zk-SNARK, $(g_1^A, g_1^B, g_1^C)$ is considered as a virtual message only, and hence must be considered as the input to the first transcript.
 
+TODO: DEFINE THE TRANSCRIPT AS A FAMILY OF PSEUDO RANDOM FUNCTIONS AND MAKE SENSE OF SOMETHING LIKE PRF(TRANSCRIPT(x1,x2,x3))
 
+In \term{round 2}, the prover computes the 'permutation polynomial $Z\in \F_r[x]$ (not to be confused with the vanishing polynomial $Z_H$ as defined in XXX), which, loosely speaking, encode the equality constraints of a given PlCS. To do so, the prover computes the virtual verifier response XXX from the virtual message of round $1$. Since the verifier is required to respond with two field elements in the non-interactive protocol, the prover needs to generate two different challenges from the first transcript $T_1$: 
+\begin{equation}
+\beta=PRF(T_1 || 0), \gamma=PRF(T_1 || 1)
+\end{equation}
+Using those challenges, the blinding factors, the witness $W$ XXX, the vanishing polynomial XXX, and the Lagrange base XXX of the problem, they then compute the following field elements TODO:DESCRIPTIVE-NAME:. Using the description $H=\{\omega,\omega^2, \ldots, \omega^n\}$ of the $n$-th power roots of unity group $H$ in terms of a primitive $n$-th power root of unity $\omega$ as explained in XXX, we have
+\begin{equation}
+\begin{array}{rll}
+c_1 = & 1\\
+c_{i+1} = & \prod_{j=1}^i \frac{(w_j+\beta\omega^j+\gamma)(w_{n+j}+\beta k_1\omega^jj+\gamma)(w_{2n+j}+\beta k_2\omega^j+\gamma)}{(w_j+\sigma(j)\beta+\gamma)(w_{n+j}+\sigma(n+j)\beta+\gamma)(w_{2n+j}+\sigma(2n+j)\beta+\gamma)} & 1\leq i <n
+\end{array}
+\end{equation}
+With the permutation coefficients at hand, the prover generates blinding factors, by sampling $3$ random field elements $b_7$, $b_8$, and $b_9$ from the underlying field of the PlCS $F_r$ and then compute the permutation polynomial as follows:
+\begin{equation}
+\begin{array}{rl}
+Z(x) = & (b_7x^2+b_8x+b_9)Z_H(x)+\sum_{i=1}^{n} c_i\cdot L_{i}(x)
+\end{array}
+\end{equation}
+The permutation polynomial is of degree $\leq n$ and the prover can use the Universal Common Reference String $UCRS(m)$ of the problem, to evaluate it in the exponent of the generator $g_1$ at the secret evaluation point $\tau$ as explained in XXX. To be more precise the prover computes the following element in $\G_1$: 
+
+TODO: $g_1^{\tau^2\cdot Z_H(\tau)}$.
+
+\begin{equation}
+\begin{array}{rl}
+g_1^Z = & g_1^{z(\tau)} = \left(g_1^{\tau^2\cdot Z_H(\tau)}\right)^{b_7}\cdot
+\left(g_1^{\tau\cdot Z_H(\tau)}\right)^{b_8}\cdot\left(g_1^{Z_H(\tau)}\right)^{b_9}\cdot \left(g_1^{L_1(\tau)}\right)^{c_1}\cdot\ldots\cdot \left(g_1^{L_n(\tau)}\right)^{c_n}
+\end{array}
+\end{equation}
+The interactive protocol would then send $m_2=(g_1^Z)$ as the second move to the verifier. However since Plonk uses the Fiat Shamir Heuristic to generate a zk-SNARK, $(g_1^z)$ is considered as a virtual message only, and hence must be considered as the input to the second transcript.
+
+In \term{round 3}, the prover computes the 'quotient polynomial $t\in \F_r[x]$, which, loosly speaking, encode the equality constraints of a given PlCS. Given instance $\langle I_1,\ldots I_n\rangle$ the prover first computes the instance polynomial $PI\in \F_[r]$ as follows
+
+TODO: THE $n$ is wrong here. It collides with the order of $H$.
+
+\begin{equation}
+PI(x) = \textstyle \sum_{i=1}^n I_i\cdot L_i(x)
+\end{equation}
+The prover then computes the virtual verifier response XXX from the virtual message of round $1$ and hence from the second transcript $T_2$: 
+\begin{equation}
+\alpha=PRF(T_2)
+\end{equation}
+The prover then computes the following polynomials
+\begin{equation}
+\begin{array}{rl}
+T_1(x) = & \left(A(x)P_l(x) + B(x)P_r(x) +A(x)B(x)P_m(x) + C(x)P_o(x) + PI(x) + P_c(x)\right)
+\end{array}
+\end{equation}
+As explained in XXX, $T_1$ is divisible by $Z_H$ if and only if $W$ is a witness to the PlCS. 
+\begin{equation}
+\begin{array}{rl}
+T_2(x) = & \alpha\left((A(x) + \beta x + \gamma)(B(x) + \beta k_1 x + \gamma)(C(x) + \beta k_2 x + \gamma\right)\cdot Z(x)
+\end{array}
+\end{equation}
+\begin{equation}
+\begin{array}{rl}
+T_3(x) = & \alpha\left((A(x) + \beta S_{\sigma_1}(x) + \gamma)(B(x) + \beta S_{\sigma_2}(x) + \gamma)(C(x) + \beta S_{\sigma_3}(x) + \gamma\right)\cdot Z(x\cdot\omega) 
+\end{array}
+\end{equation}
+\begin{equation}
+\begin{array}{rl}
+T_4(x) = &  \alpha^2(Z(x) - 1)L_1(X)
+\end{array}
+\end{equation}
+Since the polynomials $T_1$, $T_2$, $T_3$ and $T_4$ are all divisible by the vanishing polynomial $Z_H$, providing that the witness $W$ is indeed a a solution to the Plonk Constraint System $R$, the following expression is a polynomial if and only if $W$ is a solution to $R$:
+\begin{equation}
+T(x) = \left( T_1(x) + T_2(x) - T_3(x) + T_4(x)\right)\cdot \frac{1}{Z_H(x)}
+\end{equation}
+The polynomial $T$ is of degree $\leq ?$ and hence it is possible to compute three polynomials $T'_{lo}(x)$, $T'_{mid}(x)$ and $T'_{hi}(x)$, such that the degree of $T'_{lo}$ and $T'_{mid}$ are smaller then $n$ and the degree of $T'_{hi}$ is at most $n+5$ and such that the following equation holds:
+\begin{equation}
+T(x) = T'_{lo}(x) + x^n T'_{mid}(X) + x^{2n} T'_{hi}(x)
+\end{equation}
+The prover generates blinding factors, by sampling $2$ random field elements $b_{10}$, and $b_{11}$ from the underlying field of the PlCS $F_r$ and then computes:
+\begin{equation}
+\begin{array}{rl}
+T^{lo}(x)  = & b_{10} x^n + T'_{lo}(x) \\
+T^{mid}(x) = & - b_{10} + b_{11} x^n +T'_{mid}(x) \\
+T^{hi}(x)  = & - b_{11} + T'_{hi}(x)
+\end{array}
+\end{equation}
+The split quotient polynomials are all of degree $\leq n+5$ and the prover can use the Universal Common Reference String $UCRS(m)$ of the problem, to evaluate them in the exponent of the generator $g_1$ at the secret evaluation point $\tau$ as explained in XXX. To be more precise the prover computes the following element in $\G_1$: 
+\begin{equation}
+\begin{array}{rl}
+g_1^{T_{lo}} = & g_1^{T_{lo}(\tau)} = \left(g_1^{\tau^n}\right)^{b_{10}}\cdot
+\left(g_1^{\tau^{n-1}}\right)^{T^{lo}_{n-1}}\cdot\ldots\cdot \left(g_1^{\tau}\right)^{T^{lo}_{1}}\cdot \left(g_1\right)^{T^{lo}_{0}}\\
+g_1^{T_{mid}} = & g_1^{T_{mid}(\tau)} = \left(g_1^{\tau^n}\right)^{b_{11}}\cdot
+\left(g_1^{\tau^{n-1}}\right)^{T^{mid}_{n-1}}\cdot\ldots\cdot \left(g_1^{\tau}\right)^{T^{mid}_{1}}\cdot \left(g_1\right)^{(T^{mid}_{0}-b_{10})}\\
+g_1^{T_{hi}} = & g_1^{T_{hi}(\tau)} =
+\left(g_1^{\tau^{n+5}}\right)^{T^{hi}_{n+1}}\cdot\ldots\cdot \left(g_1^{\tau}\right)^{T^{hi}_{1}}\cdot \left(g_1\right)^{(T^{hi}_{0}-b_{11})}
+\end{array}
+\end{equation}
+The interactive protocol would then send $m_3=(g_1^{T_{lo}}, g_1^{T_{mid}}, g_1^{T_{hi}})$ as the third move to the verifier. However since Plonk uses the Fiat Shamir Heuristic to generate a zk-SNARK, $(g_1^{T_{lo}}, g_1^{T_{mid}}, g_1^{T_{hi}})$ is considered as a virtual message only, and hence must be considered as the input to the third transcript.
+
+In \term{round 4}, the prover computes an evaluation point for the wire polynomials as well as the permutation polynomial. It also evaluates the ??? polynomials at the evaluation challenge  
+\begin{equation}
+z=PRF(T_3)
+\end{equation}
+\begin{equation}
+\begin{array}{lll}
+\bar{a}=A(z), & \bar{b}=B(z), & \bar{c}=C(z), \\ 
+\bar{s}_{\sigma_1}=S_{\sigma_1}(z), & \bar{s}_{\sigma_2}=S_{\sigma_2}(z), &\bar{z}_{\omega}=Z(z{\omega})
+\end{array}
+\end{equation}
+The interactive protocol would then send $m_4=(\bar{a}, \bar{b}, \bar{c}, \bar{s}_{\sigma_1},
+\bar{s}_{\sigma_2}, \bar{z}_{\omega})$ as the fourth move to the verifier. However since Plonk uses the Fiat Shamir Heuristic to generate a zk-SNARK, $(\bar{a}, \bar{b}, \bar{c}, \bar{s}_{\sigma_1},\bar{s}_{\sigma_2}, \bar{z}_{\omega})$ is considered as a virtual message only, and hence must be considered as the input to the fourth transcript.
+
+In \term{round 5}, the prover computes the linearization polynomial  $W\in \F_r[x]$, which, loosely speaking, does something.
+\begin{equation}
+PI(x) = \textstyle \sum_{i=1}^n I_i\cdot L_i(x)
+\end{equation}
+The prover then computes the virtual verifier response XXX from the virtual message of round $1$ and hence from the second transcript $T_2$: 
+\begin{equation}
+\alpha=PRF(T_2)
+\end{equation}
+Assuming that $PI(z)$ is the evaluation of the instance polynomial $PI$ at the evaluation challange $z$, the prover then computes the following polynomials
+\begin{equation}
+\begin{array}{rl}
+R_1(x) = & \left(\bar{a} \cdot P_l(x) + \bar{b} \cdot P_r(x) + \bar{a}\bar{b} \cdot P_m(x) + \bar{c} \cdot P_o(x) + PI(z) + P_c(x)\right)
+\end{array}
+\end{equation}
+
+SHOW FOR EACH OF THE $R_i$' why it is divisible by $\frac{1}{x-z}$.
+
+As explained in XXX, $T_1$ is divisible by $Z_H$ if and only if $W$ is a witness to the PlCS. 
+\begin{equation}
+\begin{array}{rl}
+T_2(x) = & \alpha\left((\bar{a} + \beta z + \gamma)(\bar{b} + \beta k_1 z + \gamma)(\bar{c} + \beta k_2 z + \gamma)\right)\cdot Z(x)
+\end{array}
+\end{equation}
+
+QUESTION TO THE AUTHORS: WHY ARE THE $\bar{s}_{\sigma_1}$'s PART OF THE TRANSCRIPT OF THE PREVIOUS ROUND BUT $PI(Z)$ IS NOT?
+
+\begin{equation}
+\begin{array}{rl}
+T_3(x) = & \alpha\left(\bar{a} + \beta \bar{s}_{\sigma_1} + \gamma)(\bar{b} + \beta \bar{s}_{\sigma_2} + \gamma)(\bar{c} + \beta \cdot S_{\sigma_3(X)} + \gamma)\right)\bar{z}_\omega
+\end{array}
+\end{equation}
+\begin{equation}
+\begin{array}{rl}
+T_4(x) = &  \alpha^2 (Z(X) - 1)L_1(z)
+\end{array}
+\end{equation}
+\begin{equation}
+\begin{array}{rl}
+T_5(x) = & Z_H(z) \cdot \left(t_{lo}(x) + z^n t_{tmid}(x) + z^{2n} \cdot t_{hi}(x)\right)
+\end{array}
+\end{equation}
+
+The prover then computes the opening challenge 
+\begin{equation}
+v=PRF(T_4)
+\end{equation}
+Compute the opening proof polynomial
+\begin{multline}
+W'_z(x) = R_1(x) + R_2(x) - R_3(x) + R_4(x)-R_5(x) + v(A(x) - \bar{a}) + \\
+v^2(B(x) - \bar{b}) + v^3(C(x) - \bar{c}) + v^4(S_{\sigma_1}(x) - \bar{s}_{\sigma_1})
++ v^5(S_{\sigma_2}(x) - \bar{s}_{\sigma_2})
+\end{multline}
+Since everything is divisible by $(x-z)$, the following polynomial division is guaranteed to give a polynomial:
+\begin{equation}
+W_z(x) = \frac{W'_z(x)}{x-z}
+\end{equation} 
+Compute opening proof polynomial.
+\begin{equation}
+W_{z\omega}(x) = \frac{Z(x) - \bar{z}_\omega}{x - z\omega}
+\end{equation}
+Both opening proof polynomials are of degree $\leq ?$ and the prover can use the Universal Common Reference String $UCRS(m)$ of the problem, to evaluate these polynomials in the exponent of the generator $g_1$ at the secret evaluation point $\tau$ as explained in XXX. To be more precise the prover computes the following element in $\G_1$: 
+\begin{equation}
+\begin{array}{rl}
+g_1^{W_z} = & g_1^{W_z(\tau)} = \left(g_1^{\tau^{?}}\right)^{(W_z)_{?}}\cdot\ldots\cdot \left(g_1^{\tau}\right)^{(W_z)_{1}}\cdot \left(g_1\right)^{(W_z)_{0}}\\
+g_1^{W_{z\omega}} = & g_1^{W_{z\omega}(\tau)} = \left(g_1^{\tau^{?}}\right)^{(W_{z\omega})_{?}}\cdot\ldots\cdot \left(g_1^{\tau}\right)^{(W_{z\omega})_{1}}\cdot \left(g_1\right)^{(W_{z\omega})_{0}}\\
+\end{array}
+\end{equation}
+The interactive protocol would then send $m_5=(g_1^{W_{z}}, g_1^{W_{z\omega}})$ as the fifth move to the verifier. However since Plonk uses the Fiat Shamir Heuristic to generate a zk-SNARK, $(g_1^{W_{z}}, g_1^{W_{z\omega}})$ is considered as a virtual message only.
+
+Finally the prover sends the following zk-SNARK to the verifier:
+
+\begin{equation}
+\pi = \left(
+\begin{array}{l}
+g_1^A, g_1^B, g_1^C, g_1^Z, g_1^{T_{lo}},g_1^{T_{mid}}, g_1^{T_{hi}}, g_1^{W_z}, g_1^{W_{z\omega}}, \\
+\bar{a}, \bar{b}, \bar{c}, \bar{s}_{\sigma_1}, \bar{s}_{\sigma_2}, \bar{z}_{\omega}
+\end{array}
+\right)
+\end{equation}
+
+QUESTION TO THE AUTHORS: WHY IS U DERIVED FROM THE TRANSCRIPT A LA FIAT SHAMIR? IT SEEMS THE VERIFIER CAN SIMPLY CHOOSE ANY U INDEPENDENT OF EVERYTHING ELSE.
 
