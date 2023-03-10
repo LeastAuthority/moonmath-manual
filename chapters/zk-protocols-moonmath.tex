@@ -632,7 +632,10 @@ Consider exercise \ref{ex:baby-jubjub-circom} and the CRS from exercise \ref{ex:
 
 \subsection{The Verification Phase}
 \label{sec:groth16-verifier}
-The objective of the verification phase in a Groth\_16 zk-SNARK, given a Rank-1 Constraint System $R$, an instance $I = <I_1, \ldots, I_n>$, and a zk-SNARK $\pi$ (as defined in \ref{def:groth16-snark}), is to confirm that $\pi$ constitutes a valid proof. If the simulation trapdoor is no longer present and the proof passes the verification checks, the verifier can be convinced that there exists a witness $W = <W_1, \ldots, W_m>$ such that $(I;W)$ belongs to the language of $R$. 
+
+TODO: CHECK THAT ALL ELEMENTS OF THE SNARK HAVE THE CORRECT TYPE
+
+The objective of the verification phase in a Groth\_16 zk-SNARK, given a Rank-1 Constraint System $R$, an instance $I = <I_1, \ldots, I_n>$, and a zk-SNARK $\pi$ (as defined in \ref{def:groth16-snark}), is to confirm that $\pi$ constitutes a valid proof. If the simulation trapdoor is no longer present and the proof passes the verification checks, the verifier can be convinced that there exists a witness $W = <W_1, \ldots, W_m>$ such that $(I;W)$ is a word in the language of $R$. 
 
 To achieve this in the Groth\_16 protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently, and has access to the \concept{Common Reference String} used to produce the zk-SNARK $\pi$. In order to verify the zk-SNARK with respect to the instance $<I_1,\ldots, I_n>$, the verifier computes the following curve point:
 \begin{align*}
@@ -1450,6 +1453,22 @@ S_{\sigma_2}(x) =& \sum_{i=1}^{n} \sigma(n+i)L_i(x)\\
 S_{\sigma_3}(x) =& \sum_{i=1}^{n} \sigma(2n+i)L_i(x)
 \end{array}
 \end{equation}
+
+Verifier key;
+\begin{equation}
+\label{def:plonk-circuit-crs}
+\begin{array}{rl}
+g_1^{P_l} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{l_i}\\
+g_1^{P_r} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{r_i}\\
+g_1^{P_m} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{m_i}\\
+g_1^{P_o} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{o_i}\\
+g_1^{P_c} = = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{c_i}\\
+g_1^{S_{\sigma_1}} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{\sigma(i)}\\
+g_1^{S_{\sigma_2}} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{\sigma(n+i)}\\
+g_1^{S_{\sigma_3}} = &\prod_{i=1}^{n} \left(g_1^{L_i(\tau)}\right)^{\sigma(2n+i)}
+\end{array}
+\end{equation}
+
 Circuit specific\concept{Common Reference String}s depend on Universal Common Reference Strings and as a consequence on the simulation trapdoor, and are therefore not unique to the problem. Any language $L_r$ can have more than one \concept{Common Reference String}. The  size of a \concept{Common Reference String} is linear in the size of the constraints system. The circuit specific Common Reference String is also known as the \term{prover and verifier key pair}.
 
 As the computation of these polynomials does not require any additions randomness besides the one that comes from the Universal Common Reference String, the second setup phase can be executed without the need of any trusted third party.
@@ -1761,3 +1780,52 @@ g_1^A, g_1^B, g_1^C, g_1^Z, g_1^{T_{lo}},g_1^{T_{mid}}, g_1^{T_{hi}}, g_1^{W_z},
 
 QUESTION TO THE AUTHORS: WHY IS U DERIVED FROM THE TRANSCRIPT A LA FIAT SHAMIR? IT SEEMS THE VERIFIER CAN SIMPLY CHOOSE ANY U INDEPENDENT OF EVERYTHING ELSE.
 
+\subsection{Verification Phase}
+The objective of the verification phase in a Plonk zk-SNARK, given a Plonk Constraint System $R$, an instance $I = <I_1, \ldots, I_n>$, and a zk-SNARK $\pi$ (as defined in XXX), is to confirm that $\pi$ constitutes a valid proof. If the simulation trapdoor is no longer present and the proof passes the verification checks, the verifier can be convinced that there exists a witness $W = <W_1, \ldots, W_{3k}>$ such that $(I;W)$ is a word in the language of $R$. 
+
+To achieve this in the Plonk protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently, has access to the \concept{Verifier key} and to the zk-SNARK $\pi$. In order to verify $\pi$ with respect to the instance $<I_1,\ldots, I_n>$, the verifier computes executes the following steps:
+
+In a first step the prover has to verify that the zk-SNARK has the proper type. In order to do so the verifier needs to check that the data points $g_1^A$, $g_1^B$, $g_1^C$, $g_1^Z$, $g_1^{T_{lo}}$, $g_1^{T_{mid}}$, $g_1^{T_{hi}}$, $g_1^{W_z}$, $g_1^{W_{z\omega}}$ are all elements from the group $\G_1$ and that the data points $\bar{a}$, $\bar{b}$, $\bar{c}$, $\bar{s}_{\sigma_1}$, $\bar{s}_{\sigma_2}$, $\bar{z}_{\omega}$ are all elements from the scalar field $\F_r$ of $\G_1$.
+
+In the next step the verifier needs to compute the transcripts $T_0$, $T_1$, $T_2$, $T_3$, $T_4$ from the elements of $\pi$ and then compute the challenges $\beta$, $\gamma$, $\alpha$, $z$, $v$, $\in \F_r$
+TODO MAKE THIS EXPLICIT
+
+The verifier then evaluates the vanishing polynomial $Z_H$ and the first Lagrange base polynomial $L_1$ at the evaluation point challenge $z$. As explained in XXX, this can be done efficiently
+\begin{equation}
+\begin{array}{rl}
+Z_H(z) = & z^n -1\\
+L_1(z) = \frac{\omega\cdot z^n-1}{n(z-\omega)} 
+\end{array}
+\end{equation}
+After that the public input polynomial, must be evaluated at the evaluation point challenge. Since the verifier has access to the instance, they do the following computation:
+\begin{equation}
+PI(z) = \sum{j=1}^l I_j\cdot L_j(z)
+\end{equation}
+This computation is linear in the number of public inputs and hence is a limiting factor in the efficiency of the verifier algorithm. 
+
+The verifier then SAMPLES A RANDOM FIELD ELEMENT $u\in \F_r$ (NOTE THIS IS FROM THE TRANSCRIPT IN THE PAPER, BUT THAT MAKES NO SENSE TO ME)
+In order to compute the batched polynomial commitment, the verifier computes the following two field elements using STUFF:
+\begin{equation}
+\begin{array}{rl}
+c_1 = & \left((\bar{a}+\beta z+\gamma)(\bar{b}+\beta k_1 z+\gamma)(\bar{c}+\beta k_2 z+\gamma)\alpha+L_1(z)\alpha^2+u\right)\\
+c_2 = & (\bar{a}+\beta \bar{s}_{\sigma_1}+\gamma)(\bar{b}+\beta \bar{s}_{\sigma_2}+\gamma)\alpha\beta\bar{z}_\omega\\
+c_3 = & v\bar{a} + v^2\bar{b} + v^3\bar{c} + v^4\bar{s}_{\sigma_1} + v^5\bar{s}_{\sigma_2} + u\bar{z}_\omega\\
+r_0 = & \text{PI}(z) - \text{L1}(z)\alpha^2 - \alpha(\bar{a} + \beta\bar{s}_{\sigma_1} + \gamma)(\bar{b} + \beta\bar{s}_{\sigma_2} + \gamma)(\bar{c} + \gamma)\bar{z}_\omega
+\end{array}
+\end{equation} 
+the verifier then computes
+\begin{multline}
+g_1^D = \left(g_1^{P_m}\right)^{\bar{a}\bar{b}} \cdot \left(g_1^{P_l}\right)^{\bar{a}} \cdot \left(g_1^{P_r}\right)^{\bar{b}} \cdot \left(g_1^{P_o}\right)^{\bar{c}} \cdot g_1^{P_c} \cdot \left(g_1^Z\right)^{c_1} \cdot \left(g_1^{s_{\sigma_3}}\right)^{-c_2}\\ \cdot \left(g_1^{T_{lo}}\right)^{-Z_H(z)} \cdot \left(g_1^{T_{mid}}\right)^{-z^n\cdot Z_H(z)} \cdot \left(g_1^{T_{hi}}\right)^{-z^{2n}Z_H(z)}
+\end{multline}
+\begin{equation}
+g_1^F = g_1^D \cdot \left(g_1^A\right)^{v}\cdot \left(g_1^B\right)^{v^2}\cdot \left(g_1^C\right)^{v^3}\cdot \left(g_1^{S_{\sigma_1}}\right)^{v^4}\cdot \left(g_1^{S_{\sigma_2}}\right)^{v^5}  
+\end{equation}
+
+\begin{equation}
+g_1^E = g_1^{-r_0+c_3}
+\end{equation}
+
+\begin{equation}
+e(g_1^{W_z} \cdot u \cdot g_1^{W_{z\omega}},g_2^{\tau}) = 
+e(\left(g_1^{W_z}\right)^z \cdot \left(g_1^{W_{z\omega}}\right)^{uz})\cdot g_1^F \cdot \left(g_1^{F}\right)^{-1}, g_2)
+\end{equation}
