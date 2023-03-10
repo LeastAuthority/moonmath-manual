@@ -50,65 +50,101 @@ If, on the other hand, $W$ exists and $P$ is honest, $P$ can use its unlimited c
 The system is non-interactive because the prover only sends a single message to the verifier, which contains the proof itself. However the proof system is \term{not} succinct, since the proof is the witness. The proof system is also not zero knowledge, since the verifier has access to the witness and hence learns everything about the witness.
 \end{example}
 \section{The Fiat Shamir Heuristic}
-TODO: Define "virual output" for everything that the transcript should use. We also adopt the convention to put the instance into $T_0$.
+In the previous section, we learned that proof systems can be categorized as either interactive or non-interactive. However, in this section, we will explore a specific subset of interactive protocols that can be converted into non-interactive protocols, assuming that the protocol has access to a family of pseudo random functions\footnote{As shown in \cite{chen-20}, there are zero knowledge protocols that can use much simpler function families then pseudo random function families, but we won't delve into this topic any further. The utilization of pseudo random function families was suggested in the the original work of Fiat and Shamir in \cite{fiat-86}}. This transformation enables the non-interactive proof to retain the key security properties of the original interactive version. The most common and efficient construction for such a transformation is the so called \term{Fiat-Shamir heuristic} as developed in \cite{fiat-86}. 
 
-
-
-In the previous section, we learned that proof systems can be categorized as either interactive or non-interactive. However, in this section, we will explore a specific subset of interactive protocols that can be converted into non-interactive protocols, given certain assumptions on cryptographic hash functions. This transformation enables the non-interactive proof to retain the key security properties of the original interactive version. The most common and efficient construction for such a transformation is the so called \term{Fiat-Shamir heuristic} as developed in \cite{fiat-86}. 
-
-Interactive protocols can be defined by the number of interactions needed for a prover to convince a verifier. Assuming that the prover must send at least one message to the verifier in any protocol, whether interactive or not, and that for each additional message sent by the prover, the verifier sends one message back, a k-move interactive proof system entails the following number of messages:
+To understand the Fiat-Shamir heuristic, observe that interactive protocols can be classified by the number of interactions needed for a prover to convince a verifier. Assuming that the prover must send at least one message to the verifier in any protocol, whether interactive or not, and that for each additional message sent by the prover, the verifier sends one message back, a k-move interactive proof system entails the following number of messages:
 \begin{equation}
 \label{def:k-move-interactive-protocol}
-m = 2\cdot k +1
+\#m = 2\cdot k +1
 \end{equation}
 In this classification, a non-interactive proof system is a 0-move interactive proof system, where the prover sends precisely one message (the proof) to the verifier. 
 
-In terms of historical significance, $1$-move protocols are particularly noteworthy, in which the verifier's response message is simply a randomly chosen element from a pre-agreed upon set. Such systems are known as \term{Sigma Models}, and they were the first systems in which the Fiat-Shamir heuristic was defined.
+In terms of historical significance, $1$-move protocols are particularly noteworthy, in which the verifier's response message is simply a randomly chosen element from a pre-agreed upon response-set. Such systems are known as \term{Sigma Models}, and they were the first systems in which the Fiat-Shamir heuristic was defined.
 
-To provide a more precise definition, let $\Sigma$ be an alphabet, $L$ a formal language defined over $\Sigma$, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$. Then, a Sigma Model for language $L$ is a $1$-move interactive proof system $(P,V)$ that proceeds through three messages.
+To provide a more precise definition, let $\Sigma$ be an alphabet, $L$ a formal language defined over $\Sigma$, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$. Then, a Sigma Model for language $L$ is a $1$-move interactive proof system $(P,V)$ that proceeds through three messages in the following way:
 \begin{enumerate}
 \label{def_sigma-model}
 \item Prover $P$ sends the first message $m_1$.
-\item Verifier $V$ randomly chooses a challenge $c$ from a finite challenge space $C$, and sends it as the second message.
-\item Prover $P$ generates a response $m_3$ and sends it as the third and final message.
+\item Verifier $V$ randomly chooses a challenge $c_1\in C$ from a finite challenge space $C$, and sends it as the second message.
+\item Prover $P$ generates a response $m_2$ and sends it as the third and final message.
 \end{enumerate}
-Finally, the verifier must output either "accept" or "reject" by computing a deterministic function on $I$ and the values $u$, $c$, and $z$.
+Finally, the verifier must output either "accept" or "reject" by computing a deterministic function on $I$, as well as the values $u$, $c$, and $z$.
+\begin{example}[Schnorr's Protocol: Proof of Knowledge of Discrete Log]
+One of the simplest and frequently used Sigma protocols, is a proof of knowledge of a discrete logarithm,  due to Schnorr. To see this, let $\G$ be a DL-secure \ref{def:DL-secure} finite cyclic group of prime order $p\in\Prim$ and let $g$ be a generator of $\G$. Given a group element $y\in \G$, the protocol proves knowledge of some $x \in \F_p$, such that $x$ is a discrete logarithm of $y$:
+$$
+y = g^x
+$$
+The protocol is zero knowledge in the sense, that the verifier does not learn anything about $x$ besides its existence, given $y$.
 
-Assuming that cryptographic hash functions can serve as a good approximation of Random Oracles, the Fiat-Shamir heuristic, as developed in \cite{fiat-86}, allows for the transformation of every sigma model into a non-interactive proof system.
-The transformation's concept is simple and appealing: using a cryptographic hash function, the prover can simulate the verifier's response by computing it as the hash of the first message the prover would have sent to the verifier.
+To see how this problem can be modeled as a Sigma protocol, consider the instance alphabet $\Sigma_I:=\G$ and the witness alphabet $\Sigma_W= \F_p$ together with the following decision function \ref{sec:instance-witness} and its associated language $L_{Schnorr}$:
+\begin{multline*}
+R_{Schnorr} : (\G)^* \times (\F_p)^* \to \{true, false\}\;;\;\\
+(<i_1,\ldots,i_n>;<w_1,\ldots, w_m>) \mapsto
+\begin{cases}
+true & n=1,\; m=1 \text{ and } i_1 = g^{w_1}\\
+false & else
+\end{cases}
+\end{multline*}
+Constructive knowledge proofs in the language $L_{Schnorr}$ consists of pairs $(i,w)$, where the instance $i$ is an element from the group $\G$ and the witness $w$ is number from the prime field $\F_p$, such that the condition $i=g^w$ must hold true.
 
-To provide a more precise definition, let $H$ be a cryptographic hash function that approximates a random oracle and maps into the challenge space $C$, $\Sigma$ be an alphabet, $L$ a formal language defined over $\Sigma$, and $\langle I, W\rangle$ be a constructive proof for a membership or knowledge claim in $L$. Then, a sigma model $(P,V)$ can be transformed into a non-interactive proof system $(P',V')$ through the following steps:
+Given some instance $i$, Schnorr's Sigma protocol provides a way for a prover $P$ and a verifier $V$ to transform any constructive proof of knowledge $(i,w)$ for language $L_{Schnorr}$ into a $1$-move interactive zero knowledge argument of knowledge in the following way:
+\begin{enumerate}
+\item $P$ chooses a random value $r$ from the scalar field $\F_p$, and sends the first message $m_1=g^r$. 
+\item $V$ responds with a randomly chosen challenge $c_1\in \F^*_p$.
+\item $P$ sends its second message $m_2=r+w\cdot c_1$.
+\end{enumerate}
+In this instance, a total of $3=2\cdot 1 + 1$ messages are sent, and the challenge space of the Sigma model consists of all invertible elements in the scalar field of $\G$.
+
+The verifier accepts the proof if $g^{m_2} = m_1\cdot i^{\;c_1}$ and reject the proof otherwise, because the following equivalences are true, if and only if $(i,w)$ is a word in $L_{Schnorr}$ and $m_1$ and $m_2$ are computed as expected:
+\begin{align*}
+g^{m_2} =\; & m_1\cdot i^{\;c_1} & \Leftrightarrow\\
+g^{r+w\cdot c_1} =\; & g^{r} \cdot i^{\;c_1} &\Leftrightarrow \\
+g^r \cdot (g^w)^{c_1} =\; & g^{r} \cdot i^{\;c_1} & \Leftrightarrow \\
+g^w =\; & i
+\end{align*}
+\end{example}
+Assuming that the protocol has access to a family of pseudo random functions, the Fiat-Shamir heuristic, as developed in \cite{fiat-86}, allows for the transformation of every sigma model into a non-interactive proof system. The transformation's concept is simple and appealing: using a family of pseudo random functions, the prover can simulate the verifier's response by evaluating a pseudo random function on the first message the prover would have sent to the verifier.
+
+To give a more precise definition, assume that $\Sigma$ is an alphabet, $L$ is a formal language defined over $\Sigma$, and $(P,V)$ is a Sigma protocol with challenge space $C$. The Fiat-Shamir heuristic asserts that $(P,V)$ can be transformed into a non-interactive proof system $(P',V')$, provided that there exists a family of pseudo-random functions, parametrized by a \term{seed} $s\in\{0,1\}^*$ that map into $C$:
+\begin{equation}
+\mathtt{PRF}_s: \{0,1\}^* \to C    
+\end{equation}
+If a $\mathtt{PRF}$ is given, the transformed protocol is initialized by selecting a seed $s$ for the PRF and defining a function called the \term{transcript} that provides a deterministic way of representing prover messages as binary strings, which are then used as inputs to the pseudo-random function $\mathtt{PRF}_s$. If $\mathtt{Message}$ represents the type of all messages, including a description of the language, then the transcript is the following mapping:
+\begin{equation}
+\mathtt{transcript}: \mathtt{Messages} \to \{0,1\}^*    
+\end{equation}
+Assuming that $\langle I, W\rangle$ represents a constructive proof for a membership or knowledge claim in the language $L$, the prover $P'$ in the transformed non-interactive system utilizes the prover $P$ of the original system and performs the following steps:
 \begin{enumerate}
 \label{def_sigma-model-fiat-shamir}
-\item Prover $P'$ computes the commit message $u$ using $P$.
-\item Prover $P'$ computes a $\mathtt{transcript}(L,I,u)$ consisting of a deterministic representation of the language $L$, the instance $I$ and the commit $u$.
-\item Prover $P'$ computes the challenge $c=H(\mathtt{transcript}(L,I,u))$.
-\item Prover $P$ generates a response $z$ and $P'$ sends $(u,z)$ as a single message.
+\item $P'$ computes an initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I,s)$ consisting of a deterministic representation of the language $L$, the instance $I$ and the seed $s$.
+\item $P'$ computes the first message $m_1$ using $P$.
+\item $P'$ computes the simulated challenge $c_1=\mathtt{PRF}_s(\mathtt{transcript}(T_0,m_1))$ from the initial transcript and the first message $m_1$.
+\item $P'$ computes the second message $m_2$ using $P$.
+\item $P'$ sends the non-interactive proof $\pi=(m_1,m_2)$.
 \end{enumerate}
-Finally, the verifier $v'$ computes $\mathtt{transcript}(L,I,u)$ as well as $c=H(\mathtt{transcript}(L,I,u))$ and uses $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $u$, $c$, and $z$.
+The verifier $V'$ computes the transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I,s)$ and the simulated challenge $c_1=\mathtt{PRF}_s(\mathtt{transcript}(T_0,m_1))$ and invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_1$, $c_1$, and $m_2$.
 
-As can be observed, our definition of the Fiat-Shamir heuristic for Sigma models entails not only the inclusion of the prover's first message but also a representation of the language and the public input in the transcript. As demonstrated in \cite{bernhard-16}, this requirement has implications in terms of the systems security. The general guideline for the transcript is that it should contain all the information that the verifier would possess at the time of generating its random challenge. As shown by \href{https://blog.trailofbits.com/2022/04/18/the-frozen-heart-vulnerability-in-plonk/}{Trail-Of-Bits}, the exclusion of certain data from the transcript is a common issue in real-world applications, with severe security consequences.
+As can be observed, our definition of the Fiat-Shamir heuristic for Sigma models entails not only the inclusion of the prover's first message but also a representation of the language, the instance and the PRF seed in the transcript. As demonstrated in \cite{bernhard-16}, this requirement has implications in terms of the systems security. The general guideline for the transcript is that it should contain all the information that the verifier would possess at the time of generating its random challenge. As shown by \href{https://blog.trailofbits.com/2022/04/18/the-frozen-heart-vulnerability-in-plonk/}{Trail-Of-Bits}, the exclusion of certain data from the transcript is a common issue in real-world applications, with potentially severe security consequences.
 
-While $1$-move interactive proof systems like Sigma models are traditional targets for the Fiat Shamir Heuristic, the same approach can be generalized to certain $k$-move interactive proof systems, providing the verifier is required to send challenges as random elements only. We call those proof systems $k$-Sigma models. Care must be taken though regarding the security of the transformed non-interactive, as it is expected to be lower then the expected security of the interactive system (See \cite{attema-21} for an analysis). 
+While $1$-move interactive proof systems like Sigma protocols are traditional targets for the Fiat Shamir Heuristic, the same approach can be generalized to certain $k$-move interactive proof systems, providing the verifier is required to send challenges as random elements from some agreed on challenge space only. We call those proof systems \term{$k$-Sigma protocols}. Care must be taken though regarding the security of the transformed non-interactive protocols, as the security is generally expected to be lower then the security of the interactive proof system (See \cite{attema-21} for an analysis). 
 
-To provide a more precise definition, let $H$ be a cryptographic hash function that approximates a random oracle, $\Sigma$ be an alphabet, $L$ a formal language defined over $\Sigma$, and $\langle I, W\rangle$ be a constructive proof for a membership or knowledge claim in $L$. Then, a $k$-Sigma model $(P,V)$ can be transformed into a non-interactive proof system $(P',V')$ through the following steps:
+To provide a more precise definition, let $\mathtt{PRF}$ be a family of pseudo random functions, $\mathtt{transcript}$ a transcription map, $\Sigma$ an alphabet, $L$ a formal language defined over $\Sigma$, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$. Then the generalized Fiat-Shamir heuristic transforms any $k$-Sigma model $(P,V)$ into a non-interactive proof system $(P',V')$ in the following way:
 \begin{enumerate}
 \label{def_sigma-model-fiat-shamir}
-\item Prover $P'$ computes the initial transcript $T_0=\mathtt{transcript}(L,I)$ consisting of a deterministic representation of the language $L$ and the instance $I$ of the constructive proof.
-\item Prover $P'$ computes the first message $m_1$ using $P$.
-\item Prover $P'$ computes transcript $T_1=\mathtt{transcript}_1(T_0,m_1)$ consisting of a deterministic representation of the initial transcript and the first message $m_1$.
-\item Prover $P'$ computes the first challenge $c_1=H(\mathtt{transcript}(T_1,m_1)$.
-\item Prover $P$ generates the second message $m_2$ using $c_1$.
-
-\item Prover $P'$ computes transcript $T_2=\mathtt{transcript}_1(T_1,m_2)$ consisting of a deterministic representation of the first transcript and the first message $m_1$.
-\item Prover $P'$ computes the second challenge $c_2=H(\mathtt{transcript}(T_2,m_2)$.
-\item Prover $P$ generates the third commit message $m_3$ using $c_c$.
-\item $\cdots$
-\item Prover $P$ generates the final message $m_{(k+1)}$ $z$ and $P'$ sends a string of messages
-$(m_1,m_2,\ldots,m_{k+1})$ as a single message.
+\item $P'$ computes an initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I,s)$ consisting of a deterministic representation of the language $L$, the instance $I$ and the seed $s$.
+\item $P'$ computes the first message $m_1$ using $P$.
+\item $P'$ computes the first transcript $\mathtt{T}_1 = \mathtt{transcript}(T_0,m_1)$ consisting of a deterministic representation of the initial transcript and the first message.
+\item $P'$ computes the first simulated challenge $c_1=\mathtt{PRF}_s(T_1)$ from the first transcript.
+\item $P'$ computes the second message $m_2$ using $c_1$ and $P$.
+\item $P'$ computes the second transcript $\mathtt{T}_2 = \mathtt{transcript}(T_1,m_2)$ consisting of a deterministic representation of the first transcript and the second message.
+\item $P'$ computes the second simulated challenge $c_2=\mathtt{PRF}_s(T_2)$ from the second transcript.
+\item $P'$ computes the third message $m_3$ using $c_2$ and $P$.
+\item $\vdots$
+\item $P'$ computes the $(k+1)$-th message $m_{k+1}$ using $c_k$ and $P$.
+\item $P'$ sends the non-interactive proof $\pi=(m_1,m_2,\ldots,m_{k+1})$.
 \end{enumerate}
-Finally, the verifier $v'$ computes all transcripts $T_0$, $T_1$, $\ldots$, $T_k$ from the language, the instance and the received messages and all virtual challenges $c_1$, $c_2$, $\ldots$, $c_k$. It then uses
-$V$ to output either "accept" or "reject" by computing a deterministic function on $I$, the challenges $c_j$, and the messages $m_i$.
+The verifier $V'$ computes the initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I,s)$ and all challenge transcripts $\mathtt{T}_i = \mathtt{transcript}(T_{i-1},m_i)$ as well as all simulated challenges $c_i=\mathtt{PRF}_s(\mathtt{T}_i)$ for all $1\leq i \leq k$ and invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_i$, and $c_j$.
+
 
 
 \begin{example}[Schnorr's Protocol: Proof of Knowledge of Discrete Log]
