@@ -55,7 +55,7 @@ In the previous section, we learned that proof systems can be categorized as eit
 To understand the Fiat-Shamir heuristic, observe that interactive protocols can be classified by the number of interactions needed for a prover to convince a verifier. Assuming that the prover must send at least one message to the verifier in any protocol, whether interactive or not, and that for each additional message sent by the prover, the verifier sends one message back, a $k$-move interactive proof system entails the following number of messages:
 \begin{equation}
 \label{def:k-move-interactive-protocol}
-\#m = 2\cdot k +1
+N(m) = 2\cdot k +1
 \end{equation}
 In this classification, a non-interactive proof system is a $0$-move interactive proof system, where the prover sends precisely one message (the proof) to the verifier. 
 
@@ -64,7 +64,7 @@ In terms of historical significance, $1$-move protocols are particularly notewor
 To provide a more precise definition, let $\Sigma$ be an alphabet XXX, $L$ a formal language XX defined over $\Sigma$, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$ XXX. Then, a Sigma Model for language $L$ is a $1$-move interactive proof system $(P,V)$ that proceeds through three messages in the following way:
 \begin{enumerate}
 \label{def_sigma-model}
-\item Prover $P$ sends the initial message $m_0$.
+\item Prover $P$ sends an initial message $m_0$.
 \item Verifier $V$ randomly chooses a challenge $c_1\in C$ from a challenge set $C$, and sends it as the second message.
 \item Prover $P$ generates a response $m_1$ and sends it as the third and final message.
 \end{enumerate}
@@ -75,7 +75,7 @@ One of the simplest and frequently used Sigma protocols, is a proof of knowledge
 $$
 y = g^x
 $$
-The protocol is zero knowledge in the sense, that the verifier does not learn anything about $x$ besides its existence, given $y$.
+The protocol is zero knowledge in the sense, that the verifier does not learn anything about $x$ besides the fact that the prover knows such an $x$, given $y$.
 
 To see how this problem can be modeled as a Sigma protocol, consider the instance alphabet $\Sigma_I:=\G$ and the witness alphabet $\Sigma_W= \F_p$ together with the following decision function \ref{sec:instance-witness} and its associated language $L_{Schnorr}$:
 \begin{multline*}
@@ -86,7 +86,7 @@ true & n=1,\; m=1 \text{ and } i_1 = g^{w_1}\\
 false & else
 \end{cases}
 \end{multline*}
-Constructive knowledge proofs in the language $L_{Schnorr}$ consists of pairs $(i,w)$, where the instance $i$ is an element from the group $\G$ and the witness $w$ is number from the prime field $\F_p$, such that the condition $i=g^w$ holds true.
+Constructive knowledge proofs XXX in the language $L_{Schnorr}$ consists of pairs $(i,w)$, where the instance $i$ is an element from the group $\G$ and the witness $w$ is number from the prime field $\F_p$, such that the condition $i=g^w$ holds true.
 
 Given some instance $i$, Schnorr's Sigma protocol provides a way for a prover $P$ and a verifier $V$ to transform any constructive proof of knowledge $(i,w)$ for language $L_{Schnorr}$ into a $1$-move interactive zero knowledge argument of knowledge in the following way:
 \begin{enumerate}
@@ -104,13 +104,21 @@ g^r \cdot (g^w)^{c_1} =\; & g^{r} \cdot i^{\;c_1} & \Leftrightarrow \\
 g^w =\; & i
 \end{align*}
 \end{example}
-Assuming that the protocol has access to a family of pseudo random functions, the \term{Fiat-Shamir heuristic} allows for the transformation of every sigma model into a non-interactive proof system. The transformation's concept is simple and appealing: using a family of pseudo random functions, the prover can simulate the verifier's response by evaluating an instantiation of the family of pseudo random functions on the initial message the prover would have sent to the verifier.
+Assuming that a Sigma model has access to a family of pseudo random functions XXX, the \term{Fiat-Shamir heuristic} allows for its transformation into a non-interactive proof system (a $0$-move protocol). The transformation's concept is simple and appealing: using a family of pseudo random functions, the prover can simulate the verifier's response by evaluating an instantiation on the initial message the prover would have sent to the verifier.
 
-To give a more precise definition, assume that $\Sigma$ is an alphabet, $L$ is a formal language defined over $\Sigma$, and $(P,V)$ is a Sigma protocol with challenge set $C$. The Fiat-Shamir heuristic asserts that $(P,V)$ can be transformed into a non-interactive proof system $(P',V')$, provided that there exists a family of pseudo-random functions, parametrized by a \term{seed} $s\in\{0,1\}^*$ that map strings of elements from a domain set $D$ into the challenge set $C$:
+To give a more precise definition, assume that $\Sigma$ is an alphabet, $L$ is a formal language defined over $\Sigma$, and $(P,V)$ is a Sigma protocol with challenge set $C$. The Fiat-Shamir heuristic asserts that $(P,V)$ can be transformed into a non-interactive proof system $(P',V')$, provided that there exists a family of pseudo-random functions, parametrized by a seed $s\in\{0,1\}^*$ that maps strings from the set of all messages $\mathtt{Messages}$ onto the set of all challenges $C$:
 \begin{equation}
-\mathtt{PRF}_s: D^* \to C    
+\mathtt{PRF}_s: \mathtt{Messages}^* \to C    
 \end{equation}
-If a $\mathtt{PRF}$ is given, the transformed protocol is initialized by selecting a seed $s$ for the PRF and defining a function called the \term{transcript} that provides a deterministic way of representing prover messages as inputs to the pseudo-random function $\mathtt{PRF}_s$. If $\mathtt{Message}$ represents the type of all messages, including a description of the language, then we describe a transcript as the following mapping:
+A frequent problem in Sigma model constructions is the lack of precision in theoretical work regarding the specific data to include in $\mathtt{PRF}_s$. However, this is essential for the non-interactive protocol to be as secure as the interactive one. Instead it is often common practice to abstract over the details and simply say that 'all relevant data' should be included into a so called  \term{transcript} of the previous round.
+
+Research, such as in \cite{dao-23} and \cite{bernhard-16}, shows that inadequate transcripts lead to security issues in practical applications. It is therefore crucial to implement the Fiat-Shamir heuristic correctly for real-world use and the basic rule for the transcript is to include everything the verifier would know when creating their random challenge.
+
+Bernhard and others categorized systems that incorporate not only past messages but also the proof relation, system parameters, and public inputs in the transcript as 'strong Fiat-Shamir transformations.' Those that don't are called 'weak Fiat-Shamir transformations.'
+
+That said, we won't use the specifics of transcripts and Pseudo Random functions within the context of Fiat Shamir transformations. Instead, we will opt for the widely recognized sponge construction. As detailed in XXX, sponge protocols provide $\mathtt{Absorb}$ and $\mathtt{Squeeze}$ functions and can be configured as families of pseudo-random functions. This characteristic makes them particularly suitable for complicated multi-move Fiat Shamir transformations, which is a common approach in real-world applications such as zk-EVMs (REF) or the MINA blockchain (REF).
+
+that provides a deterministic way of representing prover messages as inputs to the pseudo-random function $\mathtt{PRF}_s$. If $\mathtt{Message}$ represents the type of all messages, including a description of the language, then we describe a transcript as the following mapping:
 \begin{equation}
 \mathtt{transcript}: D^*\times\mathtt{Messages} \to D^*    
 \end{equation}
@@ -119,17 +127,16 @@ We define transcripts as mappings of pairs of elements from the PRF's domain $D$
 Assuming that $\langle I, W\rangle$ represents a constructive proof for a membership or knowledge claim in the language $L$, the prover $P'$ in the transformed non-interactive system utilizes the prover $P$ of the original system and performs the following steps:
 \begin{enumerate}
 \label{def_sigma-model-fiat-shamir}
-\item $P'$ computes an initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I)$ consisting of a deterministic representation of the language $L$ and the instance $I$.
+\item $P'$ computes an initial sponge state $\mathtt{Absorb}(D,L,I)$ consisting of a domain separator, a deterministic representation of the language $L$ and the instance $I$.
 \item $P'$ computes the initial message $m_0$ using $P$.
-\item $P'$ computes the simulated challenge $c_1=\mathtt{PRF}_s(\mathtt{transcript}(T_0,m_0))$ from the initial transcript and the initial message $m_0$.
+\item $P'$ absorbs the initial message into the sponge state $\mathtt{Absorb}(m_0)$
+\item $P'$ computes the simulated challenge $c_1=\mathtt{Squeeze}$.
 \item $P'$ computes the response message $m_1$ using $P$ and $c_1$.
 \item $P'$ sends the non-interactive proof $\pi=(m_0,m_1)$.
 \end{enumerate}
-The verifier $V'$ computes the initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I)$ and the simulated challenge $c_1=\mathtt{PRF}_s(\mathtt{transcript}(T_0,m_0))$ and invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_0$, $c_1$, and $m_1$.
+The verifier $V'$ computes the sponge state $\mathtt{Absorb}(D,L,I,m_0)$ and the simulated challenge $c_1=\mathtt{Squeeze}$ and invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_0$, $c_1$, and $m_1$.
 
-As can be observed, our definition of the Fiat-Shamir heuristic for Sigma models entails not only the inclusion of the prover's initial message but also a representation of the language and the instance in the initial transcript. As demonstrated in \cite{bernhard-16}, this requirement has implications in terms of the systems security and as shown in \cite{dao-23} not implementing a proper initial transcript lead to many security issues in real world applications. The general guideline for the transcript is that it should contain all the information that the verifier would possess at the time of generating its random challenge. 
 
-According to \cite{bernhard-16}, it is not always necessary to include the initial transcript $\mathtt{T}_0$ in a Fiat-Shamir transformation. Bernhard et al. referred to systems that include $\mathtt{T}_0$ as a \term{strong Fiat-Shamir transformation}, while those that do not include it are called a \term{weak Fiat-Shamir transformation}. However, determining which case applies to a particular problem is currently not an easy task. Therefore, we have chosen to always include $\mathtt{T}_0$.
 \begin{example}[Fiat-Shamir Heuristics for Schnorr's Protocol]
 \label{ex:Schnorr-SNARK}
 To given an example of how the Fiat Shamir Heuristic can be used to transform a Sigma protocol into a non interactive proof system, lets look at Shnorr's interactive protocol from example  \ref{ex:interactive-Schnorr} again. In this example we will transform an instantiation of the protocol into a non interactive protocol using the strong Fiat Shamir heuristic.  
@@ -1317,16 +1324,16 @@ $$
 $$
 To obtain a primitive $4$-th power root of unity $\omega$, we must identify an element in $\sqrt[4]{1}$ that has an order of $4$. However, as $4$ is not a prime number and has a factor of $2$, not all elements of $\sqrt[4]{1}$ will satisfy this condition.
 
-To demonstrate, consider the element $12$. Since $12^2=12\cdot 12 = 1$, the element $12$ is not a primitive root of unity in $\F_{13}$. Nevertheless, we can find a primitive root of unity by observing that $5^2=12$, $5^3=8$. Therefore, we conclude that $\omega = 5$ is a primitive $4$-th power root of unity in $\F_{13}$, and we can express the set $H$ of all $4$-th power roots of unity as follows:
+To demonstrate, consider the element $12$. Since $12^2=12\cdot 12 = 1$, the element $12$ is not a primitive root of unity in $\F_{13}$ ($12$ has order $2$ not order $4$ as expected). Nevertheless, we can find a primitive root of unity by observing that $5^2=12$, and $5^3=8$. Therefore, we conclude that $\omega = 5$ is a primitive $4$-th power root of unity in $\F_{13}$, and we can express the set $H$ of all $4$-th power roots of unity as follows:
 $$
 H = \{\omega, \omega^2 \ldots, \omega^{n-1}, 1\} = \{5,5^2,5^3,1\} = \{5,12,8,1\}
 $$
 
 TODO: COSETS
 
-In addition we have to find two field elements $k1$ and $k2$ in $\F_{13}^*$, such that the sets $k1\cdot H$ and $k2\cdot H$ are disjunct (contain different element) and are disjunct from $H$ itself. To achieve this, we can choose $k1$ to be any element not contained in $H$, so we choose $k1=2$. In addition we can choose $k2$ to be any element not containt in $H$ or $k1\cdot H$, so we choose $k2=4$ and hence we get
+In addition we have to find two field elements $k_1$ and $k-2$ in $\F_{13}^*$, such that the sets $k_1\cdot H$ and $_k2\cdot H$ are disjoint (contain different element) and are disjoint from $H$ itself. To achieve this, we can choose $k_1$ to be any element not contained in $H$, so we choose $k_1=2$. In addition we can choose $k_2$ to be any element not contained in $H$ and not contained in $k_1\cdot H$, so we choose $k_2=4$ and hence we get
 $$
-k1\cdot H = \{10, 11, 3, 2\} \text{ and } k2\cdot H = \{7, 9, 6, 4\} 
+k_1\cdot H = \{10, 11, 3, 2\} \text{ and } k_2\cdot H = \{7, 9, 6, 4\} 
 $$ 
 
 This gives the Plonk parameter set:

@@ -1337,7 +1337,7 @@ In cryptography, a crucial challenge is the ability to hash data to specific sub
 Previously, in \ref{hash-to-modular-arithmetics}, we examined various methods of hashing into modular arithmetic rings $\Z_n$ for any $n>1$. Since prime fields are a type of modular arithmetic ring, all the hashing methods for $\Z_n$ rings can be utilized for hashing into prime fields.
 
 
-\subsubsection{MiMC Hash functions} 
+\subsubsection{MiMC Symmetric Cyphers} 
 In the context of zk-SNARKs, having access to cryptographically secure hash functions that map strings of elements from prime fields to elements of prime fields is essential:
 \begin{equation}
 H_p : (\F_p)^* \to \F_p
@@ -1391,6 +1391,7 @@ sage: Perm_F13_k0
 sage: Perm_F13_k12
 \end{sagecommandline}
 \end{example}
+\subsubsection{MiMC Hash Functions} 
 In the literature, various constructions such as the Merkle–Damgård construction \cite{Mirvaziri-07}, the Miyaguchi–Preneel construction \cite{Mirvaziri-07}, or the Sponge construction \cite{Bertoni-01} are known to transform block ciphers like \ref{def:mimc-block-cypher} into a cryptographic hash function or a one-way compression function in general.
 
 To give an example, lets look at how the Miyaguchi–Preneel construction can be used to construct a cryptographic hash function that compresses strings of field elements $X:=\langle x_1,x_2,\ldots, x_j\rangle\in (\F_p)^*$ of arbitrary length $j\in \N$ onto a single field element $H(X)$.
@@ -1436,7 +1437,118 @@ sage: MimC_Hash(m1)
 \label{ex:mimc-f43}
 Consider the prime field $\F_{43}$ and define a Miyaguchi–Preneel MimC hash function $H: (\F_{43})^*\to \F_{43}$.
 \end{exercise}
-\subsubsection{A Family of MiMC Pseudo random functions}
+\subsubsection{The Poseidon Sponge Construction}
+The sponge construction [Bertoni et al.] builds upon symmetric cyphers and can be used to achieve various goals such as encryption, authentication, or hashing. 
+
+At its core, a sponge operates on a state comprising $b$ bits, which can be further divided into an inner portion of $c$ bits (known as the \term{capacity}) and an outer portion of $r$ bits (referred to as the \term{rate}), with the equation $b=c+r$ holding true. This sponge design encompasses both an absorbing phase and a squeezing phase. During the absorbing phase, data is compressed into the state $r$ bits at a time, intertwined with the evaluation of a $b$-bit pseudo random permutation $P$. Subsequently, in the squeezing phase, a digest is extracted from the state $r$ bits at a time, once again interleaved with the evaluation of $P$.
+
+\term{Algebraic sponge constructions} like Poseidon [REF] adopt a similar mechanism but for a state of $n$ field elements, partitioned into an inner section of capacity $c$ field elements and an outer section of $r$ field elements, adhering to the same constraint $n=r+c$. The random permutation usually preserves the structure, meaning it bijectively maps $n$ field elements to $n$ field elements.  
+
+To be more precise, let $n,r,c \in \N$ be natural numbers such that $n = r + c$, and where $r$ is called an \term{algebraic rate} and $c$ is called an \term{algebraic capacity}. Moreover let $\F$ be a finite field and let $P: \F^n \to \F^n$ be a permutation (a bijective map). Then a \term{sponge construction} (sponge function or sponge object) consists of a \term{state} $S$ and a triple of algorithms
+\begin{itemize}
+\item (Initialization-Phase): $S\leftarrow \textsc{Start}(c,r)$: Algorithm $\textsc{Start}$ takes a capacity $c$ and rate $r$ as input and computes an initial state $S=[0,\ldots,0\;|\;0,\ldots,0]$ consisting of $r+c$ zero field elements.
+\item (Absorbance-Phase): $S\leftarrow \textsc{Absorb}((x_1,\ldots,x_r),S)$: For any given state of the sponge construction $S=[a_1,\ldots,a_r|b_1,\ldots,b_c]$ and sequence of field elements $(x_1,\ldots,x_r)$, algorithm $\textsc{Absorb}$ computes an update of $S$ as follows: 
+\begin{equation}
+S \leftarrow P\left([a_1+x_1,\ldots,a_r+x_r|b_1,\ldots,b_c]\right)
+\end{equation}
+\item (Squeeze-Phase): $((x_1,\ldots,x_r), S)\leftarrow\textsc{Squeeze}(S)$: For any given state of the sponge construction $S=[a_1,\ldots,a_r|b_1,\ldots,b_c]$, algorithm $\textsc{Squeeze}$ generates a sequence $(x_1,\ldots,x_r)$ and an updated state $S$ as follows: 
+\begin{equation}
+((x_1,\ldots,x_r),S) \leftarrow ((a_1,\ldots,a_r), P(S))
+\end{equation}
+\end{itemize}
+This is a simplified definition and more nuanced algebraic sponge constructions are known (REF Poseidon, REF SAFE), designed to be more secure in real world applications.
+
+As shown in Poseidon [REF], there is a general way to construct the required permutation $P$ in the following way:
+
+ The following example derives a pen and paper friendly sponge construction which we will utilize throughout this book to apply the so called Fiat Shamir transformation XXX to zero knowledge proof systems like Plonk XXX.
+\begin{example}[The moon-math-sponge] We define a sponge construction for the prime field $\F_{13}$ following the techniques from [Posaidon] suitable for our pen \& paper computations. 
+
+To do so we first decide on the algebraic rate $r=1$ and the capacity $c=1$, which are common choices in real world applications (REF MINA). This choice means that the absorb function can absorb one field element at a time into the sponge and that the squeeze function will provide one element at time, too. 
+
+In a first step we construct the underlying permutation $F: \F_{13}\to \F_{13}$, which in the case of the Poseidon sponge is equal to a MimC symmetric cypher for round number $r=1$ and key $k=0$. We therefore get
+$$
+E_0(\cdot): \F_{13} \to \F_{13}\;;\; x \mapsto x^5
+$$
+and we know from example XXX that this map is indeed a permutation, because $gcd(5,12)=1$.
+
+In a second step, we have to extend the permutation $E_(\cdot)$ into a permutation that maps states onto states. Since in our case $r=1$ and $c=1$, a state is given by a tuple of field elements $S=[a|b]$ and the state permutation therefore has to be a function $ P : \F_{13}\times \F_{13} \to \F_{13}\times \F_{13}$.
+
+As explained in the Poseidon construction, a common way to achieve this is to define a so called \term{maximum distance separable} (MDS) matrix. Since we did not define matrices in this book, we can think of an MDS matrix as a set of field elements
+$$
+M = \{m_{1,1}, m_{1,2}, m_{2,1},  m_{2,2}\}
+$$
+such that any permutation $ E : \F_{13} \to \F_{13}$ on a single field element can be transformed into a permutation of a state $S=[a|b]$ by
+$$
+P([a|b]) = [m_{1,1}\cdot E(a) + m_{1,2}\cdot E_(b), 
+m_{2,1}\cdot E(a) + m_{2,2}E(b)]
+$$
+One way to find the parameters $m_{i,j}$ of $M$ is to choose pairwise disjoint elements $x_i,y_i$ from $\F_{13}$, such that $x_i+y_j\neq 0$ and then to define 
+$m_{i,j}=\frac{1}{x_i+y_j}$. We follow this approach and choose
+$$
+x_1=1, x_2=2, y_1=3, y_2=4
+$$
+and get the set of MDS coefficients
+\begin{align}
+MDS = & \{\frac{1}{x_1+y_1},\frac{1}{x_1+y_2}, \frac{1}{x_2+y_1},\frac{1}{x_2+y_2}\}\\
+    = & \{\frac{1}{4},\frac{1}{5}, \frac{1}{5},\frac{1}{6}\}\\
+    = & \{10,8,8,11\}
+\end{align}
+Combining all this we get the following state permutation function for our Poseidon mon-math sponge
+\begin{align}
+P([a|b]) &= [10\cdot E_0(a) + 8\cdot E_0(b) | 8\cdot E_0(a) + 11\cdot E_0(b)]\\
+  &= [10\cdot a^5 + 8\cdot b^5 | 8\cdot a^5 + 11\cdot b^5]
+\end{align}
+With our state permutation ad hand, we can define the three algorithms of the moon-math-sponge:
+
+\begin{itemize}
+\item $\textsc{Start}(1,1)$: The algorithm computes the initial state $S=[0|0]$  consisting of a single zero field element from $F_{13}$ for the arity and a single zero field element for the capacity.
+\item $\textsc{Absorb}(x,S)$: Given a state $S=[a|b]$ and a field element $x\in \F_{13}$ the sponge absorbs the field element and computes a new state  in the following way:
+$$
+S \leftarrow [10\cdot (a+x)^5 + 8\cdot b^5 | 8\cdot (a+x)^5 + 11\cdot b^5]
+$$
+\item $\textsc{Squeeze}(S)$: For any given state $S=[a|b]$, algorithm $\textsc{Squeeze}$ computes a field element $x$ and an updated state $S$ as follows:
+\begin{align*}
+x \leftarrow & a \\
+S \leftarrow & [10\cdot a^5 + 8\cdot b^5 | 8\cdot a^5 + 11\cdot b^5]
+\end{align*} 
+\end{itemize}
+Applications like Plonk often require the input values to be from other algebraic types the the return type of the squeeze function. For example it is common to consider curve points defined over different fields as input values. 
+
+In cases like this it is common practice to simply project the elements of the other field onto the field of the sponge construction. It should be noted however that this is potentially dangerous as it opens to possibility of collision attacks. 
+
+To see this consider the two elements from the prime field $\F_{41}$....
+
+TODO put this under attacks on Fiat Shamir:
+
+Consider the elements $(35, 28) , (35, 15) \in \G_1[13]$. If we apply a simple mod reduction they are a collision under the moon-math sponge construction, because 
+$(\Zmod{35}{13}, \Zmod{28}{13}) = (9,2) = (\Zmod{35}{13}, \Zmod{15}{13})$. So
+ 
+
+
+Since we will use the moon-math-sponge frequently for Fiat Shamir transformations (see e.g. XXX) we will implement it in sage
+\begin{sagecommandline}
+sage: F13 = GF(13) # prime field
+sage: def mm_sponge_start():
+....:     return (F13(0), F13(0))
+sage: def mm_sponge_absorb(x, S):
+....:     a, b = S
+....:     return (F13(10)*(a+x)**5 + F13(8)*b**5, F13(8)*(a+x)**5 + F13(11)*b**5)
+sage: def mm_sponge_squeeze(S):
+....:     a, b = S
+....:     return a, (F13(10) * a**5 + F13(8) * b**5, F13(8) * a**5 + F13(11) * b**5)
+sage: S = mm_sponge_start()
+sage: S = mm_sponge_absorb(F13(4), S)
+sage: mm_sponge_squeeze(S)
+\end{sagecommandline}
+
+
+\end{example}   
+
+\begin{exercise}
+Define a Poseidon sponge construction for the parameters $r=2$, $c=1$ over the prime field $\F_{41}$.
+\end{exercise}
+
+
 \subsection{Prime Field Extensions}
 \label{field-extension}
 % references https://blog.plover.com/math/se/finite-fields.html
