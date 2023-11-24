@@ -358,7 +358,7 @@ H_p : (\F_p)^* \to \F_p
 \end{equation}
 This is because many real-world zk-SNARKs are based on computational models that use elements of prime fields as their most basic computational units, similar to how traditional computational models use bits as their most basic computation units. In these cases, it can be computationally expensive to implement common hash functions like SHA2 in the new models.
 
-One family of a hash function suitable for use with zk-SNARKs is called MimC hashes, that was introduced in 2016 by Albrecht et al. \cite{albrecht-16}. MimC is designed to have low multiplicative complexity, which means that the number of multiplications is low in its execution. This is especially useful in protocols like Groth\_16, where multiplications are more costly than additions, as we will see in \ref{sec:gorth_16}.
+One family of a hash function suitable for use with zk-SNARKs is called MimC hashes, introduced in 2016 by Albrecht et al. \cite{albrecht-16}. MimC is designed to have low multiplicative complexity, which means that the number of multiplications is low in its execution. This is especially useful in protocols like Groth\_16, where multiplications are more costly than additions, as we will see in \ref{sec:gorth_16}.
 
 Central to the family of MimC hashes are the MimC symmetric cyphers, which are invertible functions, that take a key and a plaintext and transform the plaintext reversibly into a cyphertext. 
 
@@ -372,7 +372,7 @@ In this expression the function $F_i$ is defined as $F_i(x)= (x+k+c_i)^n$ for al
 \label{ex:mimc-block-cypher-f13}
  To give a better understanding of the MimC block cypher construction, consider the prime field $\F_{13}$ from exercise \ref{prime_field_F13}. In order to construct a MimC block cypher for plaintexts $x\in \F_{13}$, we first have to find the smallest integer $n\geq 2$, such that the greatest common divisior of $n$ and $12=(13-1)$ is $1$. Since the integers $2$, $3$ and $4$ are all factors of $12$, we conclude $n=5$. 
 
-Choosing $n$ coprime to $p-1$, i.e $gcd(n,12)=1$ in our case, guarantees that the function $(\cdot)^n: \F_{13}\to \F_{13}\; x \mapsto x^n$ is invertible and hence a 1:1 correspondence (also called a permutation).
+Choosing $n$ coprime to $p-1$, i.e $gcd(n,12)=1$ in our case, guarantees that the function $(\cdot)^n: \F_{13}\to \F_{13}\;;\; x \mapsto x^n$ is invertible and hence a 1:1 correspondence (also called a permutation).
 
 In the next step we have to compute the round number $r$, which defines the number of functions $F_i$ that occur in the nested expression \ref{def:mimc-block-cypher}. We use sage's ceil function, which computes the smallest integer greater than or equal to $\frac{log(p)}{log_2(3)}$ and get:
 \begin{sagecommandline}
@@ -408,7 +408,7 @@ sage: Perm_F13_k12
 \subsubsection{MiMC Hash Functions} 
 In the literature, various constructions such as the Merkle–Damgård construction \cite{Mirvaziri-07}, the Miyaguchi–Preneel construction \cite{Mirvaziri-07}, or the Sponge construction \cite{Bertoni-01} are known to transform block ciphers like \ref{def:mimc-block-cypher} into a cryptographic hash function or a one-way compression function in general.
 
-To give an example, lets look at how the Miyaguchi–Preneel construction can be used to construct a cryptographic hash function that compresses strings of field elements $X:=\langle x_1,x_2,\ldots, x_j\rangle\in (\F_p)^*$ of arbitrary length $j\in \N$ onto a single field element $H(X)$.
+To give an example, look at how the Miyaguchi–Preneel construction is used to construct a cryptographic hash function that compresses strings of field elements $X:=\langle x_1,x_2,\ldots, x_j\rangle\in (\F_p)^*$ of arbitrary length $j\in \N$ onto a single field element $H(X)$.
 \begin{algorithm}\caption{Miyaguchi–Preneel MimC Hash}
 \label{alg_mpmimc}
 \begin{algorithmic}[0]
@@ -423,15 +423,15 @@ To give an example, lets look at how the Miyaguchi–Preneel construction can be
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-\begin{example}[MimC Hash Function in $\F_{13}$]
-\label{ex:mimc-hash-f13} To get a better understanding of the Miyaguchi–Preneel construction, consider the MimC block cypher from example \ref{ex:mimc-block-cypher-f13}. We can use this cypher and compute a Miyaguchi–Preneel MimC hash of the string $\langle 3, 7\rangle\in (\F_{13})^*$ using the computations from \ref{ex:mimc-block-cypher-f13}:
+\begin{example}[Miyaguchi-Preneel-MimC Hash in $\F_{13}$]
+\label{ex:mimc-hash-f13} To get a better understanding of the Miyaguchi-Preneel construction, consider the MimC block cypher from example \ref{ex:mimc-block-cypher-f13}. We can use this cypher and compute a Miyaguchi–Preneel MimC hash of the string $\langle 3, 7\rangle\in (\F_{13})^*$ using the computations from \ref{ex:mimc-block-cypher-f13}:
 \begin{align*}
 H(\langle 3, 7\rangle): & \#\; H_0 = 0\\
                         & \#\; H_1 = E_0(3) + 0 + 3 = 12 \\
                         & \#\; H_2 = E_{12}(7) + 12 + 7 = 0 \\
                        = &\;  0
 \end{align*}
-Since we will use this hash function extensively in our Plonk example XXX, we implement the hash function according to algorithm \ref{alg_mpmimc} in sage:
+For testing the hash function more easily on various inputs, we implement it according to algorithm \ref{alg_mpmimc} in sage:
 \begin{sagecommandline}
 sage: def MimC_Hash(m):
 ....:     H= F13(0) # init
@@ -494,8 +494,8 @@ In the second step, we construct what is known as a \term{maximum distance separ
 It's important to note though, that not every set of field elements $\{m_{i,j}\in \F \; | \; 1 \leq i, j \leq n\}$ qualifies as a suitable MDS matrix, and developers must exercise caution in their design choices. One fundamental option is to define $m_{i,j}=(x_i+y_j)^{-1}$ for $x_i\in \F$ and $y_j\in \F$, with the condition that $x_i \neq y_j$ and $x_i + y_j \neq 0$ for all indices $i$ and $j$.
 
 Once a properly constructed permutation $P$ is available, the algorithms outlined in \ref{def:algebraic-sponge} come together to form a sponge construction known as a \term{Poseidon sponge}.
-\subsubsection{Poseidon Sponges for the Moon-Math-Curve}
-In this section, we will apply the Poseidon protocol from the previous section \ref{sec:poseidon-sponge} and discuss two sponge constructions for the moon-math-curve \ref{BLS6}, which are crucial for complex multi-move Fiat Shamir constructions as explained in \ref{sec:Fiat-Shamir}. The Poseidon protocols was  chosen for its simplicity in pen and paper computations due to its low algebraic complexity.
+\subsubsection{Poseidon Sponges for $BLS6\_6$}\label{sec:bls-scalar-sponge}
+In this section, we will apply the Poseidon protocol from the previous section \ref{sec:poseidon-sponge} and discuss two sponge constructions for the moon-math-curve $BLS6\_6$\ref{BLS6}, which are crucial for complex pend \& paper multi-move Fiat Shamir constructions as explained in \ref{sec:Fiat-Shamir}. The Poseidon protocols was  chosen for its simplicity in pen and paper computations due to its low algebraic complexity.
 
 To elaborate, the first construction, denoted as $BLS6\_6\_\textsc{scalar}$, will absorb and squeeze field elements from the scalar field $\F_{13}$ of the moon-math-curve $BLS6\_6$ and the second construction $BLS6\_6\_\textsc{base}$, will absorb field elements from the base field $\F_{43}$ of $BLS6\_6$ and squeeze field elements from $\F_{13}$. 
 
@@ -504,9 +504,9 @@ To do so we first decide on the algebraic rate $r=1$ and the capacity $c=1$ for 
 $$
 \textsc{S-Box}: \F_{13} \to \F_{13}\;;\; x \mapsto x^5
 $$
-Since both, the capacity and the rate are $1$ in our case,  the sponge state consists of $2$ elements $S=[o\;||\;i]$ and the permutation $P$ therefore has to be a map 
+Since both, the capacity and the rate are $1$ in our case,  the sponge state consists of $2$ elements $S=[o_1\;||\;i_1]$ and the permutation $P$ therefore has to be a map 
 $$ 
-P : \F_{13}\times \F_{13} \to \F_{13}\times \F_{13}
+P : [\F_{13}\;||\; \F_{13}] \to [\F_{13}\;||\; \F_{13}]
 $$
 From this follows that our MDS matrix is a set of four field elements $M = \{m_{1,1}, m_{1,2}, m_{2,1},  m_{2,2}\}$, which we can define as explained in \ref{sec:poseidon-sponge}. We follow the approach and choose four field elements
 $x_1=1$, $x_2=2$, $y_1=3$ and $y_2=4$, which gives
@@ -517,7 +517,7 @@ $x_1=1$, $x_2=2$, $y_1=3$ and $y_2=4$, which gives
 \end{align*}
 Combining our S-Box definition with our choice of an MDS matrix, we get the following state permutation function for the scalar field sponge construction:
 \begin{align}
-P([o\;||\;i]) &= [10\cdot \textsc{S-Box}(o_1) + 8\cdot \textsc{S-Box}(i_1) \;||\; 8\cdot \textsc{S-Box}(o_1) + 11\cdot \textsc{S-Box}(i_1)]\\
+P([o_1\;||\;i_1]) &= [10\cdot \textsc{S-Box}(o_1) + 8\cdot \textsc{S-Box}(i_1) \;||\; 8\cdot \textsc{S-Box}(o_1) + 11\cdot \textsc{S-Box}(i_1)]\\
   &= [10\cdot o_1^5 + 8\cdot i_1^5 \;||\; 8\cdot o_1^5 + 11\cdot i_1^5]
 \end{align}
 With our state permutation ad hand, we can define the three algorithms of the scalar field moon-math-sponge $BLS6\_6\_\textsc{scalar}$:
@@ -546,38 +546,57 @@ sage: def mm_scalar_sponge_squeeze(S):
 ....:     return o, (F13(10) * o^5 + F13(8) * i^5, F13(8) * o^5 + F13(11) * i^5)
 sage: S = mm_scalar_sponge_start()
 sage: S = mm_scalar_sponge_absorb(F13(4), S)
-sage: mm_scalar_sponge_squeeze(S)
+sage: x1, S = mm_scalar_sponge_squeeze(S)
+sage: x2, S = mm_scalar_sponge_squeeze(S)
+sage: x1, x2
 \end{sagecommandline}
-
-\paragraph{The Base Field Sponge}
-Since the base field sponge is required to absorb from base and squeeze to scalar, we have to make choices. Either the internal state consist of base field elements o scalar fiel. If base field then we have to project onto scalar and since base larger we get trouble with collisions. Hence state scalar. But naive projection gives also collision EXAMPLE. HENCE MORE ELABORATE
-
-
- 
-For the base field sponge we need a way to map base
-
-Applications like Plonk often require the input values to be from other algebraic types the the return type of the squeeze function. For example it is common to consider curve points defined over different fields as input values. 
-
-In cases like this it is common practice to simply project the elements of the other field onto the field of the sponge construction. It should be noted however that this is potentially dangerous as it opens to possibility of collision attacks. 
-
-To see this consider the two elements from the prime field $\F_{41}$....
-
-TODO put this under attacks on Fiat Shamir:
-
-Consider the elements $(35, 28) , (35, 15) \in \G_1[13]$. If we apply a simple mod reduction they are a collision under the moon-math sponge construction, because 
-$(\Zmod{35}{13}, \Zmod{28}{13}) = (9,2) = (\Zmod{35}{13}, \Zmod{15}{13})$. So
- 
-
-
-
-
-   
-
 \begin{exercise}
-Define a Poseidon sponge construction for the parameters $r=2$, $c=1$ over the prime field $\F_{41}$.
+Consider the base field $\F_{43}$ of the moon-math-curve $BLS6\_6$ and construct a Poseidon sponge over $\F_{43}$. Use this construction as the basic building block to write a sage function that absorbs sequences $(x_1,\ldots,x_l)$ of field elements $x_j\in \F_{43}$ of arbitrary (potentially empty) length into the sponge.
+\end{exercise}
+\begin{exercise}\label{exercise-wider-f13-sponge}
+Define a Poseidon sponge construction for the parameters $r=2$, $c=1$ over the prime field $\F_{13}$.
 \end{exercise}
 
+\paragraph{The Base Field Sponge} The scalar field sponge, as detailed in section \ref{sec:bls-scalar-sponge}, operates on states comprising elements from the $BLS6\_6$ scalar field. It performs absorption from $\F_{13}$ and squeezes elements into $\F_{13}$.
 
+As elucidated in \ref{def:algebraic-sponge}, this represents the fundamental operational mode of algebraic sponges. However, in applications like Plonk and complex multi-move Fiat-Shamir constructions (as discussed in \ref{sec:Fiat-Shamir}), there's often a need to expand the functionality of the $\textsc{Absorb}$ algorithm, in such a way that it is able to absorb elements from diverse algebraic structures, such as points on elliptic curves defined over distinct fields.
+
+To provide an illustrative example of this common practice, we will extend the scalar field sponge from the previous section (\ref{sec:bls-scalar-sponge}) to transform it into a sponge capable of absorbing elements from the base field $\F_{43}$ of the moon-math-curve $BLS6\_6$.   
+
+Care has to be taken though when attempting this extension in a secure manner. To show this, let's explore a naive approach where elements $x\in \F_{43}$ are absorbed into the sponge $BLS6\_6\_\textsc{scalar}$ by naively applying $\textsc{Absorb}(\Zmod{x}{13})$. Since the computation of $\Zmod{(\cdot)}{13}$ defines a map from $\F_{43}$ to $\F_{13}$, this operation is well-defined. However, it has the drawback of mapping multiple elements to the same element in $\F_{13}$, introducing the potential for collisions within the sponge construction.
+
+To see this, consider two points, $15$ and $28$, both from $\F_{43}$. Since $\Zmod{15}{13}=2=\Zmod{28}{13}$, this results in a collision, which can have significant consequences in various applications.
+
+As a consequence, assume that we apply the naive approach to absorb curve points from the $BLS6\_6$ pairing group $\G_1[13]$ into the $BLS6\_6$ sponge, a task crucially required in the Plonk zero knowledge proof system (See \ref{sec:PLONK}). As we know from \ref{BLS6-G1-log}, the two curve points $(35, 28)$ and $(35, 15)$ are elements from $\G_1[13]$ and since $28$ and $15$ project onto the same value $2\in \F_{13}$, both curve points would result in the same sponge state and hence would lead to a collision in the squeeze algorithm.
+
+Because of the risk of collisions, it is a standard practice to partition field elements from a larger prime field $\F_p$ into multiple field elements from a smaller prime field. These smaller field elements are then sequentially absorbed into the sponge. It's crucial to note though, that this approach is only well-defined in case the elements from the large prime fields are in reduced form, that is they are representatives $x$ from the remainder classes \ref{def:remainder_class_representation} in the range $0\leq x < p$. 
+
+Since $43 = 3\cdot 13 +4$, we know that for every \term{reduced} representative $x\in \F_{43}$, integer modulus $r=\Zmod{x}{4}$ and division $h=\Zdiv{x}{4}$ define elements $h\in \F_{13}$ and $r\in \F_{13}$ and since $x=4\cdot h + r$ is unique by Euclidean division \ref{Euclidean_division}, we know that this representation is unique. 
+
+We can use this to define an absorb function for elements from $\F_{43}$ into the $BLS6\_5$ sponge:
+\begin{equation}
+\textsc{Absorb\_Base}(x,S):= \textsc{Absorb}(\Zmod{x}{4},\textsc{Absorb}(\Zdiv{x}{4},S))
+\end{equation}
+All other parts of the sponge construction remain unchanged. Since we will use the base field moon-math-sponge frequently for Fiat Shamir transformations (see e.g. XXX) we will extend the sponge definition in sage
+\begin{sagecommandline}
+sage: F43 = GF(43)
+sage: def mm_base_sponge_absorb(x, S):
+....:     S = mm_scalar_sponge_absorb(F13(ZZ(x)/4), S)
+....:     S = mm_scalar_sponge_absorb(F13(ZZ(x)%4), S)
+....:     return S
+sage: S1 = S
+sage: S2 = S
+sage: S1 = mm_base_sponge_absorb(F43(30), S1)
+sage: S2 = mm_base_sponge_absorb((30+43), S2) # non-reduced representative
+sage: S1
+sage: S2 # should be equal
+\end{sagecommandline}
+\begin{exercise}
+Consider the Poseidon sponge construction for the parameters $r=2$, $c=1$ over the prime field $\F_{13}$ from exercise \ref{exercise-wider-f13-sponge}. Define an absorb function that absorbs reduced field elements from $\F_{71}$ into the sponge.
+\end{exercise} 
+\begin{exercise}
+Let $p$ and $q$ with $q>p$ be prime numbers and let $\textsc{Sponge}$ be a sponge construction for the prime field $\F_p$. Define an $\textsc{Absorb}$ algorithm that safely absorbs elements from $\F_q$ into the sponge, independent of their representation. Post the results on Github.
+\end{exercise}
 \section{Hashing to Curves} Elliptic curve cryptography frequently requires the ability to hash data onto elliptic curves. If the order of the curve is not a prime number, hashing to prime order subgroups is of importance, too and in the context of pairing-friendly curves, it is sometimes necessary to hash specifically onto the pairing group $\G_1$ or $\G_2$ as introduced in \ref{sec:pairing_groups}.
 
 As we have seen in section \ref{sec:hashing-to-groups}, some general methods are known for hashing into finite cyclic groups and since elliptic curves over finite fields are finite and cyclic groups, those methods can be utilized in this case, too. However, in what follows we want to describe some methods specific to elliptic curves that are frequently used in real-world applications. 
