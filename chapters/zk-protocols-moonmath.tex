@@ -59,9 +59,10 @@ N(m) = 2\cdot k +1
 \end{equation}
 In this classification, a non-interactive proof system is a $0$-move interactive proof system, where the prover sends precisely one message (the proof) to the verifier. 
 
+\subsection{Sigma Protocols}
 In terms of historical significance, $1$-move protocols are particularly noteworthy, in which the verifier's response message is simply a randomly chosen element from a pre-agreed upon response-set. Such systems are known as \term{Sigma Models}, and they were the first systems in which the Fiat-Shamir heuristic was defined.
 
-To provide a more precise definition, let $\Sigma$ be an alphabet XXX, $L$ a formal language XX defined over $\Sigma$, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$ XXX. Then, a Sigma Model for language $L$ is a $1$-move interactive proof system $(P,V)$ that proceeds through three messages in the following way:
+To provide a more precise definition, let $\Sigma$ be an alphabet, $L$ a formal language defined over $\Sigma$ \ref{sec:formal-languages}, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$ \ref{def:constructive-proof}. Then, a Sigma Model for language $L$ is a $1$-move interactive proof system $(P,V)$ that proceeds through three messages in the following way:
 \begin{enumerate}
 \label{def_sigma-model}
 \item Prover $P$ sends an initial message $m_0$.
@@ -71,13 +72,13 @@ To provide a more precise definition, let $\Sigma$ be an alphabet XXX, $L$ a for
 Finally, the verifier must output either "accept" or "reject" by computing a deterministic function on $I$, as well as the values $m_0$, $c_1$, and $m_1$.
 \begin{example}[Schnorr's Protocol: Proof of Knowledge of Discrete Log]
 \label{ex:interactive-Schnorr}
-One of the simplest and frequently used Sigma protocols, is a proof of knowledge of a discrete logarithm,  due to Schnorr. To see this, let $\G$ be a DL-secure \ref{def:DL-secure} finite cyclic group of prime order $p\in\Prim$ and let $g$ be a generator XXX of $\G$. Given a group element $y\in \G$, the protocol proves knowledge of some $x \in \F_p$, such that $x$ is a discrete logarithm of $y$:
+One of the simplest and frequently used Sigma protocols, is a proof of knowledge of a discrete logarithm,  due to Schnorr. To see this, let $\G$ be a DL-secure \ref{def:DL-secure} finite cyclic group of prime order $p\in\Prim$ and let $g$ be a generator \ref{cyclic-groups} of $\G$. Given a group element $y\in \G$, the protocol proves knowledge of some $x \in \F_p$, such that $x$ is a discrete logarithm of $y$:
 $$
 y = g^x
 $$
 The protocol is zero knowledge in the sense, that the verifier does not learn anything about $x$ besides the fact that the prover knows such an $x$, given $y$.
 
-To see how this problem can be modeled as a Sigma protocol, consider the instance alphabet $\Sigma_I:=\G$ and the witness alphabet $\Sigma_W= \F_p$ together with the following decision function \ref{sec:instance-witness} and its associated language $L_{Schnorr}$:
+To see how this problem can be modeled as a Sigma protocol, consider the instance alphabet $\Sigma_I:=\G$ and the witness alphabet $\Sigma_W= \F_p$ together with the following decision function \ref{sec:instance-witness} and its associated language $L_{Schnorr}$ \ref{sec:instance-witness}:
 \begin{multline*}
 R_{Schnorr} : (\G)^* \times (\F_p)^* \to \{true, false\}\;;\;\\
 (<i_1,\ldots,i_n>;<w_1,\ldots, w_m>) \mapsto
@@ -86,7 +87,7 @@ true & n=1,\; m=1 \text{ and } i_1 = g^{w_1}\\
 false & else
 \end{cases}
 \end{multline*}
-Constructive knowledge proofs XXX in the language $L_{Schnorr}$ consists of pairs $(i,w)$, where the instance $i$ is an element from the group $\G$ and the witness $w$ is number from the prime field $\F_p$, such that the condition $i=g^w$ holds true.
+Constructive knowledge proofs \ref{def:refined_language} in the language $L_{Schnorr}$ consists of pairs $(i,w)$, where the instance $i$ is an element from the group $\G$ and the witness $w$ is number from the prime field $\F_p$, such that the condition $i=g^w$ holds true.
 
 Given some instance $i$, Schnorr's Sigma protocol provides a way for a prover $P$ and a verifier $V$ to transform any constructive proof of knowledge $(i,w)$ for language $L_{Schnorr}$ into a $1$-move interactive zero knowledge argument of knowledge in the following way:
 \begin{enumerate}
@@ -104,107 +105,129 @@ g^r \cdot (g^w)^{c_1} =\; & g^{r} \cdot i^{\;c_1} & \Leftrightarrow \\
 g^w =\; & i
 \end{align*}
 \end{example}
-Assuming that a Sigma model has access to a family of pseudo random functions XXX, the \term{Fiat-Shamir heuristic} allows for its transformation into a non-interactive proof system (a $0$-move protocol). The transformation's concept is simple and appealing: using a family of pseudo random functions, the prover can simulate the verifier's response by evaluating an instantiation on the initial message the prover would have sent to the verifier.
+Assuming that a Sigma model has access to a family of pseudo random functions, the \term{Fiat-Shamir heuristic} allows for its transformation into a non-interactive proof system (a $0$-move protocol). The transformation's concept is simple and appealing: using a family of pseudo random functions, the prover can simulate the verifier's response by evaluating an instantiation on the initial message the prover would have sent to the verifier.
 
 To give a more precise definition, assume that $\Sigma$ is an alphabet, $L$ is a formal language defined over $\Sigma$, and $(P,V)$ is a Sigma protocol with challenge set $C$. The Fiat-Shamir heuristic asserts that $(P,V)$ can be transformed into a non-interactive proof system $(P',V')$, provided that there exists a family of pseudo-random functions, parametrized by a seed $s\in\{0,1\}^*$ that maps strings from the set of all messages $\mathtt{Messages}$ onto the set of all challenges $C$:
 \begin{equation}
 \mathtt{PRF}_s: \mathtt{Messages}^* \to C    
 \end{equation}
-A frequent problem in Sigma model constructions is the lack of precision in theoretical work regarding the specific data to include in $\mathtt{PRF}_s$. However, this is essential for the non-interactive protocol to be as secure as the interactive one. Instead it is often common practice to abstract over the details and simply say that 'all relevant data' should be included into a so called  \term{transcript} of the previous round.
+A frequent problem in Sigma model constructions is the lack of precision in theoretical work regarding the specific data to include in $\mathtt{PRF}_s$. However, understanding what data to absorb into the $\mathtt{PRF}$ is essential for the non-interactive protocol to be as secure as the interactive one. Instead it is often common practice to abstract over the details and simply say that 'all relevant data' should be included into a so called  \term{transcript} of the previous round.
 
-Research, such as in \cite{dao-23} and \cite{bernhard-16}, shows that inadequate transcripts lead to security issues in practical applications. It is therefore crucial to implement the Fiat-Shamir heuristic correctly for real-world use and the basic rule for the transcript is to include everything the verifier would know when creating their random challenge.
+Research, such as in \cite{dao-23} and \cite{bernhard-16}, shows that inadequate transcripts lead to security issues in practical applications. It is therefore crucial to implement the Fiat-Shamir heuristic correctly for real-world use and the basic rule for the transcript is \textit{'to include everything the verifier would know when creating their random challenge.'}
 
 Bernhard and others categorized systems that incorporate not only past messages but also the proof relation, system parameters, and public inputs in the transcript as 'strong Fiat-Shamir transformations.' Those that don't are called 'weak Fiat-Shamir transformations.'
 
-That said, we won't use the specifics of transcripts and Pseudo Random functions within the context of Fiat Shamir transformations. Instead, we will opt for the widely recognized sponge construction. As detailed in XXX, sponge protocols provide $\mathtt{Absorb}$ and $\mathtt{Squeeze}$ functions and can be configured as families of pseudo-random functions. This characteristic makes them particularly suitable for complicated multi-move Fiat Shamir transformations, which is a common approach in real-world applications such as zk-EVMs (REF) or the MINA blockchain (REF).
+Fortunately, algebraic sponge constructions \ref{def:algebraic-sponge} provide an interface that allows for a clean way to define Fiat Shamir transformations in complex multi-move situations. We therefore won't use the more common but dangerous definition in terms of of \textit{transcripts} and Pseudo Random functions as mostly found in more academic work, but utilize the $\mathtt{Absorb}$ and $\mathtt{Squeeze}$ functions of a sponge directly.
 
-that provides a deterministic way of representing prover messages as inputs to the pseudo-random function $\mathtt{PRF}_s$. If $\mathtt{Message}$ represents the type of all messages, including a description of the language, then we describe a transcript as the following mapping:
-\begin{equation}
-\mathtt{transcript}: D^*\times\mathtt{Messages} \to D^*    
-\end{equation}
-We define transcripts as mappings of pairs of elements from the PRF's domain $D$ and messages onto $S$, because this definition indicates that transcripts typically incorporate transcripts of previous rounds of interactions as inputs.
-
-Assuming that $\langle I, W\rangle$ represents a constructive proof for a membership or knowledge claim in the language $L$, the prover $P'$ in the transformed non-interactive system utilizes the prover $P$ of the original system and performs the following steps:
+Assuming that $(P,V)$ is a Sigma protocol and that $\langle I, W\rangle$ represents a constructive proof for a membership or knowledge claim in the associated language $L$, the prover $P'$ in the transformed non-interactive system utilizes the prover $P$ of the original system and performs the following steps:
 \begin{enumerate}
 \label{def_sigma-model-fiat-shamir}
-\item $P'$ computes an initial sponge state $\mathtt{Absorb}(D,L,I)$ consisting of a domain separator, a deterministic representation of the language $L$ and the instance $I$.
+\item $P'$ initializes the sponge and computes $\mathtt{Absorb}(D)$, $\mathtt{Absorb}(L)$ and $\mathtt{Absorb}(I)$ by absorbing a domain separator $D$, a deterministic representation of the language $L$ and the instance $I$ into the sponge.
 \item $P'$ computes the initial message $m_0$ using $P$.
-\item $P'$ absorbs the initial message into the sponge state $\mathtt{Absorb}(m_0)$
-\item $P'$ computes the simulated challenge $c_1=\mathtt{Squeeze}$.
+\item $P'$ absorbs the initial message into the sponge $\mathtt{Absorb}(m_0)$
+\item $P'$ squeezes the simulated challenge $c_1=\mathtt{Squeeze}$.
 \item $P'$ computes the response message $m_1$ using $P$ and $c_1$.
-\item $P'$ sends the non-interactive proof $\pi=(m_0,m_1)$.
+\item $P'$ sends the non-interactive proof $\pi=(D,L,I,m_0,m_1)$.
 \end{enumerate}
-The verifier $V'$ computes the sponge state $\mathtt{Absorb}(D,L,I,m_0)$ and the simulated challenge $c_1=\mathtt{Squeeze}$ and invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_0$, $c_1$, and $m_1$.
+The verifier $V'$ then computes the same sponge state $\mathtt{Absorb}(D)$, $\mathtt{Absorb}(L)$, $\mathtt{Absorb}(I)$ as well as $\mathtt{Absorb}(m_0)$ and squeezes the simulated challenge $c_1=\mathtt{Squeeze}$. It then invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_0$, $c_1$, and $m_1$.
 
 
 \begin{example}[Fiat-Shamir Heuristics for Schnorr's Protocol]
 \label{ex:Schnorr-SNARK}
-To given an example of how the Fiat Shamir Heuristic can be used to transform a Sigma protocol into a non interactive proof system, lets look at Shnorr's interactive protocol from example  \ref{ex:interactive-Schnorr} again. In this example we will transform an instantiation of the protocol into a non interactive protocol using the strong Fiat Shamir heuristic.  
+To given an example of how the Fiat Shamir Heuristic can be used to transform a Sigma protocol into a non interactive proof system, lets look at Shnorr's interactive protocol from example \ref{ex:interactive-Schnorr} again. In this example we will transform an instantiation of the protocol into a non interactive protocol using the strong Fiat Shamir heuristic.  
 
 To instantiate the protocol, we use the large prime order subgroup $\G_1[13]$ of the moon-math-curve $BLS6\_6$ \ref{def:BLS6613} as our prime order group $\G$ together with the scalar field$\F_{13}$ and the generator $g=(13,15)\in \G_1[13]$
 
-To apply the Fiat-Shamir heuristic to this setting, we need to select a suitable family of pseudo-random functions. From example \ref{ex:interactive-Schnorr}, we know that challenges are invertible field elements $c_1\in \F_{13}^*$. A pseudo random function family is therefore a set of maps that has to map into the challenge set $C= \F_{13}^*$, i.e $\mathtt{PRF}_s : S^* \to \F_{13}^*$. Since this function family should be computable by pen-and-paper, we use the MimC PRF as defined in example XXX:
-$$
-MimC_s : (\F_{13})^* \to \F_{13}
-$$
-Since the domain $D^*$ of this PRF are strings of field elements and prover messages consists of elements from $\G_1[13]$, our transcript function has the following type:
-$$
-\mathtt{transcript}: (\F_{13})^* \times (\G[13])^* \to (\F_{13})^*
-$$
- 
-We instantiate this map, by mapping the empty string onto the empty string and by mapping curve points $(x,y)\in \G_1$ onto a string of two field elements $\langle \Zmod{x}{13},\Zmod{x}{13}\rangle$ and by mapping the neutral element $\mathcal{O}\in \G_1[13]$ onto $0\in \F_{13}$. Tuples of strings are concatenated. This gives the following transcript
-\begin{multline*}
-\mathtt{transcript}(\langle z_1,\ldots z_n\rangle; \langle(x_1,y_1),\ldots (x_m,y_m)\rangle)= \\
-\langle z_1,\ldots, z_n, \Zmod{x_1}{13}, \Zmod{y_1}{13},\ldots, \Zmod{x_m}{13},\Zmod{y_m}{13} \rangle   
-\end{multline*}
+To apply the Fiat-Shamir heuristic to this setting, we choose the pen and paper Poseidon sponge for $BLS6\_6$ from \ref{sec:bls-scalar-sponge}. This sponge has two absorb functions: $\textsc{Absorb}_S(x,S)$ that absorbs elements from the $BLS6\_6$ scalar field $\F_{13}$ and the base field sponge $\textsc{Absorb}_B(x,S)$ which safely absorbs elements from the $BLS6\_6$ base field $\F_{43}$. In addition the sponge has a squeeze functions that generates elements from the scalar field $\F_{13}$.
 
-Real world applications often use well known cryptographic hash functions in constructions like HMAC in order to instantiate a Fiat-Shamir PRF, in which case the transcript function is usually only the concatenation of the binary representations of all involved inputs. However as those hash functions are not well suited for pen-and-paper computations, we prefer the MimC Hash in combination with our custom transcript function
+Real world applications often use well known cryptographic sponge constructions like keccak or Poseidon in order to instantiate a Fiat-Shamir PRF. However it is not uncommon to use other cryptographic hash functions like SHA2, in which case care has to be taken to get the implementation details right. 
 
-To compute an example of a non-interactive Shnorr proof, assume that the instance $I=(35,28)$ from $\G_1[13]$ is given. We know from XXX, that $w=4\in F_{13}$ is a discrete log of $I$ for the generator $g=(13,15)$, since $[4](13,15)=(35,28)$. 
+To compute an example of a non-interactive Shnorr proof, assume that the instance $I=(35,28)$ from $\G_1[13]$ is given. Since $[4](13,15)=(35,28)$ \ref{BLS6-G1-log}, we know that $w=4\in F_{13}$ is a discrete log of $I$ for the generator $g=(13,15)$. 
 
-In order to compute a non-interactive proof of knowledge for the witness $w=4$, the prover $P'$ computes the initial transcript. Since the decision function XXX of $L_{Schnorr}$ consists of a single constraint $y=g^x$, we choose the generator $g$ as our representation of that language. Since both, this representation and the instance (public input) are required to be part of the initial transcript, the prover compute as follows:
-\begin{align*}
-T_0 = & \mathtt{transcript}(\langle\rangle; \langle g,I\rangle) \\
-    = & \mathtt{transcript}(\langle\rangle; \langle(13,15),(35,28)\rangle) \\
-    = & \langle \Zmod{13}{13}, \Zmod{15}{13},\Zmod{35}{13},\Zmod{28}{13} \rangle \\  
-    = & \langle 0,2,9,2 \rangle
-\end{align*}
-In the next step the non-interactive prover invokes the interactive prover $P$ in order to compute the initial message $m_0=[r](13,15)$ for some random field element $r\in \F_{13}$. We chose $r=9$ and use XXX to compute the initial message as
+In order to compute a non-interactive proof of knowledge for the witness $w=4$, the prover $P'$ first initializes the sponge's state by computing
 $$
-m_0 = [7](13,15) = (27,9)
+S=[o_1\;||\;i_1]=[0\;||\;0]
 $$
-Instead of sending this message to the verifier as in the interactive protocol, the non-interactive prover uses this message together with the initial transcript $T_0$ to simulate the verifiers response. It computes the transcript $T_1$ as
+The prover then has to decide on a domain separator $D$ and a representation of the language $L$. We arbitrarily choose $D=2 \in \F_{13}$ for the domain separator and we use the generator $g=(13,15)$ as the language representation because the defining equation $y = g ^x$ has $g$ as its only parameter. 
+
+In a next step the prover then has to absorb all these values into the sponge. Since the domain separator is an element of the scalar field we use \ref{bls-6-scalar-sponge} compute
 \begin{align*}
-T_1 = & \mathtt{transcript}(T_0; \langle m_0\rangle) \\
-    = & \mathtt{transcript}(\langle 0,2,9,2\rangle; \langle(27,9)\rangle) \\
-    = & \langle 0,2,9,2,\Zmod{27}{13},\Zmod{9}{13} \rangle \\  
-    = & \langle 0,2,9,2,1,9 \rangle
-\end{align*}
-The transcript $T_1$ is then used as input to the pseudo random function $MimC_s$ in order to simulate the verifiers response message $c_1$:
+S = & [10\cdot (o_1+D)^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+D)^5 + 11\cdot i_1^5] \\
+  = & [10\cdot (0+2)^5 + 8\cdot 0^5 \;||\; 8\cdot (0+2)^5 + 11\cdot 0^5] \\
+  = & [10\cdot 2^5 \;||\; 8\cdot 2^5]
+  =  [10\cdot 6 \;||\; 8\cdot 6] \\
+  = & [8 \;||\; 9]
+\end{align*}  
+In order to absorb the representation $(13,15)$ of $L$ into the sponge, we have to apply the base field absorb function to both the $x$ and the $y$ coordinate of this curve point. Using $S=[8 \;||\; 9]$ and \ref{bls-6-base-sponge}, we compute to sponge update for the $x$-coordinate in two steps:
 \begin{align*}
-c_1 = & MimC_s(\langle 0,2,9,2,1,9 \rangle)
+S = & [10\cdot (o_1+(\Zdiv{x}{4}))^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+(\Zdiv{x}{4}))^5 + 11\cdot i_1^5]\\ 
+ = & [10\cdot (8+3)^5 + 8\cdot 9^5 \;||\; 8\cdot (8+3)^5 + 11\cdot 9^5]\\ 
+ = & [10\cdot 7 + 8\cdot 3 \;||\; 8\cdot 7 + 11\cdot 3]
+ =  [5 + 11 \;||\; 4 + 7]\\ 
+ = & [3 \;||\; 11]\\
+\\
+S = & [10\cdot (o_1+(\Zmod{x}{4}))^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+(\Zmod{x}{4}))^5 + 11\cdot i_1^5]\\ 
+  = & [10\cdot (3+1)^5 + 8\cdot 11^5 \;||\; 8\cdot (3+1)^5 + 11\cdot 11^5]\\ 
+  = & [10\cdot 10 + 8\cdot 7 \;||\; 8\cdot 10 + 11\cdot 7] 
+  =  [9 + 4 \;||\; 2 + 12]\\ 
+  = & [0 \;||\; 1] 
 \end{align*}
+After the $x$ coordinate has been absorbed into the sponge we can continue and absorb the $y$-coordinate as well. Then we have to apply the exact same procedure to absorb the instance $I=(35,28)$ into the sponge using the the base field absorb function again. Since the process is clar now we use our sage implementation of the 
+$BLS6\_6$ sponge from \ref{bls-6-base-sponge} to first verify the previous computation and to update the sponge:
+\begin{sagecommandline}
+sage: F43 = GF(43)
+sage: S = mm_scalar_sponge_start() # init sponge state
+sage: S = mm_scalar_sponge_absorb(F13(2), S)
+sage: S
+sage: S = mm_base_sponge_absorb(F43(13), S)
+sage: S 
+sage: S = mm_base_sponge_absorb(F43(15), S)
+sage: S = mm_base_sponge_absorb(F43(35), S)
+sage: S = mm_base_sponge_absorb(F43(28), S)
+sage: S
+\end{sagecommandline}
+In the next step the non-interactive prover invokes the interactive prover $P$ in order to compute the initial message $m_0=[r](13,15)$ for some random field element $r\in \F_{13}$. We chose $r=3$ and use \ref{BLS6-G1-log} to compute the initial message as
+$$
+m_0 = [3](13,15) = (38,15)
+$$
+Instead of sending this message to the verifier as in the interactive protocol, the non-interactive prover first absorbs the message $m_0$ into the sponge and then squeezes a field element $c_1$ from the sponge in order to simulate the verifiers response. Invoking our sage implementation again, we get: 
+\begin{sagecommandline}
+sage: S = mm_base_sponge_absorb(F43(38), S)
+sage: S = mm_base_sponge_absorb(F43(15), S)
+sage: c1, S = mm_sponge_squeeze(S)
+sage: c1, S
+\end{sagecommandline}
+The Schnorr protocol requires $c_1$ to be invertible, which in our construction might not happen with some high probability. However in real word applications this probability is usually neglectable as it is in the order of $1/2^{256}$.
+
+The non-interactive prover invokes the interactive prover $P$ again in order to compute the simulated initial response message $m_1=r+w\cdot c_1= 3+4\cdot 12 = 12$. It then sends the following non-interactive proof to the verifier:
+$$
+\pi = (D,L,I,m_0,m_1) = (2, (13,15) , (35,28), (38,15), 12)
+$$
+So while the interactive protocol requires three messages to be send, this non-interactive protocol sends a single message only.
+
+Since the sponge construction is deterministic, the verifier can use $D$, $L$, $I$ and $m_0$ from the proof $\pi$ in order to compute the exact same challange $c_1=12$ in order to invoke the interactive verifier $V$, which accepts the proof if $g^{m_1} = m_0\cdot i^{\;c_1}$ and reject the proof otherwise.
 \end{example}
+\begin{exercise} Consider the group $\G_1[13]$ as in the previous example and the instance $I=(13,28)$. Compute a witness $W$ for $I$ and a non-interactive zero knowledge proof of knowledge for $I$ using the Schnorr protocol and the $BLS6\_6$ sponge. 
+\end{exercise}
+\subsection{Multi-move Sigma Protocols}
+While $1$-move interactive proof systems like Sigma protocols are traditional targets for the Fiat Shamir Heuristic, the same approach can be generalized to certain $k$-move interactive proof systems, providing the verifier is required to send challenges as random elements from some agreed on challenge set only. We call those proof systems \term{$k$-move Sigma protocols}. While $1$-move Sigma models essential preserve the security guarantees of the interactive system, care must be taken regarding the security of the transformed non-interactive protocols, as the security is generally expected to be lower then the security of the interactive proof system (See \cite{attema-21} for an analysis). 
 
-
-While $1$-move interactive proof systems like Sigma protocols are traditional targets for the Fiat Shamir Heuristic, the same approach can be generalized to certain $k$-move interactive proof systems, providing the verifier is required to send challenges as random elements from some agreed on challenge set only. We call those proof systems \term{$k$-Sigma protocols}. While $1$-move Sigma models essential preserve the security guarantees of the interactive system, care must be taken regarding the security of the transformed non-interactive protocols, as the security is generally expected to be lower then the security of the interactive proof system (See \cite{attema-21} for an analysis). 
-
-To provide a more precise definition, let $\mathtt{PRF}$ be a family of pseudo random functions, $\mathtt{transcript}$ a suitable transcription map, $\Sigma$ an alphabet, $L$ a formal language defined over $\Sigma$, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$. Then the generalized Fiat-Shamir heuristic transforms any $k$-Sigma model $(P,V)$ into a non-interactive proof system $(P',V')$ in the following way:
+To provide a more precise definition, let $\mathtt{Sponge}$ be a sponge construction \ref{def:algebraic-sponge}, $\Sigma$ be an alphabet, $L$ a formal language defined over $\Sigma$ \ref{sec:formal-languages}, and $\langle I, W\rangle$ a constructive proof for a membership or knowledge claim in $L$ \ref{def:constructive-proof}. Then the generalized Fiat-Shamir heuristic transforms any $k$-move Sigma model $(P,V)$ into a non-interactive proof system $(P',V')$ in the following way:
 \begin{enumerate}
 \label{def_sigma-model-fiat-shamir}
-\item $P'$ computes an initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I)$ consisting of a deterministic representation of the language $L$ and the instance $I$.
+\item $P'$ initializes the sponge and computes $\mathtt{Absorb}(D)$, $\mathtt{Absorb}(L)$ and $\mathtt{Absorb}(I)$ by absorbing a domain separator $D$, a deterministic representation of the language $L$ and the instance $I$ into the sponge.
 \item $P'$ computes the initial message $m_0$ using $P$.
-\item $P'$ computes the first transcript $\mathtt{T}_1 = \mathtt{transcript}(T_0,m_0)$ from the initial transcript and the initial message.
-\item $P'$ computes the first simulated challenge $c_1=\mathtt{PRF}_s(T_1)$ from the first transcript.
+\item $P'$ absorbs the initial message into the sponge $\mathtt{Absorb(m_0)}$
+\item $P'$ squeezes the first simulated challenge $c_1=\mathtt{Squeeze}$ from the sponge.
 \item $P'$ computes the first response message $m_1$ using $c_1$ and $P$.
-\item $P'$ computes the second transcript $\mathtt{T}_2 = \mathtt{transcript}(T_1,m_2)$ from the first transcript and the first response message.
-\item $P'$ computes the second simulated challenge $c_2=\mathtt{PRF}_s(T_2)$ from the second transcript.
+\item $P'$ absorbs the first message into the sponge $\mathtt{Absorb(m_1)}$
+\item $P'$ squeezes the second simulated challenge $c_2=\mathtt{Squeeze}$ from the sponge.
 \item $P'$ computes the second response message $m_2$ using $c_2$ and $P$.
 \item $\vdots$
 \item $P'$ computes the $k$-th response message $m_{k}$ using $c_k$ and $P$.
-\item $P'$ sends the non-interactive proof $\pi=(m_0,m_1,\ldots,m_{k})$.
+\item $P'$ sends the non-interactive proof $\pi=(D,L,I, m_0,m_1,\ldots,m_{k})$.
 \end{enumerate}
-The verifier $V'$ computes the initial transcript $\mathtt{T}_0 = \mathtt{transcript}(L,I)$ and all challenge transcripts $\mathtt{T}_i = \mathtt{transcript}(T_{i-1},m_{i-1})$ as well as all simulated challenges $c_i=\mathtt{PRF}_s(\mathtt{T}_i)$ for all $1\leq i \leq k$ and invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_i$, and $c_j$.
+The verifier $V'$ follows the same pattern of absorption and squeezing then the prover using the data from $\pi$, after that it invokes $V$ to output either "accept" or "reject" by computing a deterministic function on $I$ and the values $m_i$, and $c_i$.
 
 
 

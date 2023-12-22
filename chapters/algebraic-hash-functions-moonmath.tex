@@ -522,8 +522,9 @@ P([o_1\;||\;i_1]) &= [10\cdot \textsc{S-Box}(o_1) + 8\cdot \textsc{S-Box}(i_1) \
 \end{align}
 With our state permutation ad hand, we can define the three algorithms of the scalar field moon-math-sponge $BLS6\_6\_\textsc{scalar}$:
 \begin{itemize}
+\label{bls-6-scalar-sponge}
 \item $\textsc{Start}(1,1)$: The algorithm computes the initial state $S=[0\;||\;0]$  consisting of a single zero field element from $F_{13}$ for the rate and a single zero field element for the capacity.
-\item $\textsc{Absorb}(x,S)$: Given a state $S=[o_1\;||\;i_1]$ and a field element $x\in \F_{13}$ the sponge absorbs the field element and computes a new state in the following way:
+\item $\textsc{Absorb}_S(x,S)$: Given a state $S=[o_1\;||\;i_1]$ and a field element $x\in \F_{13}$ the sponge absorbs the field element and computes a new state in the following way:
 $$
 S \leftarrow [10\cdot (o_1+x)^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+x)^5 + 11\cdot i_1^5]
 $$
@@ -541,13 +542,13 @@ sage: def mm_scalar_sponge_start():
 sage: def mm_scalar_sponge_absorb(x, S):
 ....:     o, i = S
 ....:     return (F13(10)*(o+x)^5 + F13(8)*i^5, F13(8)*(o+x)^5 + F13(11)*i^5)
-sage: def mm_scalar_sponge_squeeze(S):
+sage: def mm_sponge_squeeze(S):
 ....:     o, i = S
 ....:     return o, (F13(10) * o^5 + F13(8) * i^5, F13(8) * o^5 + F13(11) * i^5)
 sage: S = mm_scalar_sponge_start()
 sage: S = mm_scalar_sponge_absorb(F13(4), S)
-sage: x1, S = mm_scalar_sponge_squeeze(S)
-sage: x2, S = mm_scalar_sponge_squeeze(S)
+sage: x1, S = mm_sponge_squeeze(S)
+sage: x2, S = mm_sponge_squeeze(S)
 sage: x1, x2
 \end{sagecommandline}
 \begin{exercise}
@@ -575,13 +576,14 @@ Since $43 = 3\cdot 13 +4$, we know that for every \term{reduced} representative 
 
 We can use this to define an absorb function for elements from $\F_{43}$ into the $BLS6\_5$ sponge:
 \begin{equation}
+\label{bls-6-base-sponge}
 \textsc{Absorb\_Base}(x,S):= \textsc{Absorb}(\Zmod{x}{4},\textsc{Absorb}(\Zdiv{x}{4},S))
 \end{equation}
 All other parts of the sponge construction remain unchanged. Since we will use the base field moon-math-sponge frequently for Fiat Shamir transformations (see e.g. XXX) we will extend the sponge definition in sage
 \begin{sagecommandline}
 sage: F43 = GF(43)
 sage: def mm_base_sponge_absorb(x, S):
-....:     S = mm_scalar_sponge_absorb(F13(ZZ(x)/4), S)
+....:     S = mm_scalar_sponge_absorb(F13(ZZ(x)//4), S)
 ....:     S = mm_scalar_sponge_absorb(F13(ZZ(x)%4), S)
 ....:     return S
 sage: S1 = S
