@@ -111,13 +111,14 @@ To give a more precise definition, assume that $\Sigma$ is an alphabet, $L$ is a
 \begin{equation}
 \mathtt{PRF}_s: \mathtt{Messages}^* \to C    
 \end{equation}
-A frequent problem in Sigma model constructions is the lack of precision in theoretical work regarding the specific data to include in $\mathtt{PRF}_s$. However, understanding what data to absorb into the $\mathtt{PRF}$ is essential for the non-interactive protocol to be as secure as the interactive one. Instead it is often common practice to abstract over the details and simply say that 'all relevant data' should be included into a so called  \term{transcript} of the previous round.
+A frequent problem in Sigma model constructions is the lack of precision in theoretical work regarding the specific data to include in $\mathtt{PRF}_s$. However, understanding what data to absorb into the $\mathtt{PRF}$ is essential for the non-interactive protocol to be as secure as the interactive one. Instead it is often common practice to abstract over the details and simply say that 'all relevant data' should be included into a so-called \term{transcript} of the previous round.
 
 Research, such as in \cite{dao-23} and \cite{bernhard-16}, shows that inadequate transcripts lead to security issues in practical applications. It is therefore crucial to implement the Fiat-Shamir heuristic correctly for real-world use and the basic rule for the transcript is \textit{'to include everything the verifier would know when creating their random challenge.'}
 
 Bernhard and others categorized systems that incorporate not only past messages but also the proof relation, system parameters, and public inputs in the transcript as 'strong Fiat-Shamir transformations.' Those that don't are called 'weak Fiat-Shamir transformations.'
 
-Fortunately, algebraic sponge constructions \ref{def:algebraic-sponge} provide an interface that allows for a clean way to define Fiat Shamir transformations in complex multi-move situations. We therefore won't use the more common but dangerous definition in terms of of \textit{transcripts} and Pseudo Random functions as mostly found in more academic work, but utilize the $\mathtt{Absorb}$ and $\mathtt{Squeeze}$ functions of a sponge directly.
+To effectively mitigate the risks associated with improper implementation of the Fiat-Shamir heuristic, we advocate for the use of algebraic sponge constructions as defined in \ref{def:algebraic-sponge}. This approach, favoring direct utilization of the $\mathtt{Absorb}$ and $\mathtt{Squeeze}$ functions, allows for a more precise and secure definition of Fiat-Shamir transformations in complex multi-move scenarios, moving away from the ambiguous and potentially insecure reliance on \textit{transcripts} in more general Pseudo Random functions predominantly seen in academic research.
+
 
 Assuming that $(P,V)$ is a Sigma protocol and that $\langle I, W\rangle$ represents a constructive proof for a membership or knowledge claim in the associated language $L$, the prover $P'$ in the transformed non-interactive system utilizes the prover $P$ of the original system and performs the following steps:
 \begin{enumerate}
@@ -134,23 +135,23 @@ The verifier $V'$ then computes the same sponge state $\mathtt{Absorb}(D)$, $\ma
 
 \begin{example}[Fiat-Shamir Heuristics for Schnorr's Protocol]
 \label{ex:Schnorr-SNARK}
-To given an example of how the Fiat Shamir Heuristic can be used to transform a Sigma protocol into a non interactive proof system, lets look at Shnorr's interactive protocol from example \ref{ex:interactive-Schnorr} again. In this example we will transform an instantiation of the protocol into a non interactive protocol using the strong Fiat Shamir heuristic.  
+To illustrate the application of the Fiat-Shamir Heuristic in converting a Sigma protocol into a non-interactive proof system, let us revisit Shnorr's interactive protocol from example \ref{ex:interactive-Schnorr}. Here, we will demonstrate the transformation of this protocol into a non-interactive format utilizing the strong Fiat-Shamir heuristic.
 
-To instantiate the protocol, we use the large prime order subgroup $\G_1[13]$ of the moon-math-curve $BLS6\_6$ \ref{def:BLS6613} as our prime order group $\G$ together with the scalar field$\F_{13}$ and the generator $g=(13,15)\in \G_1[13]$
+For the protocol instantiation, we select the large prime order subgroup $\G_1[13]$ within the moon-math-curve $BLS6_6$ (see \ref{def:BLS6613}) as our prime order group $\G$. Accompanying this, we employ the scalar field $\F_{13}$ and designate the generator $g=(13,15)$, which is a member of $\G_1[13]$.
 
-To apply the Fiat-Shamir heuristic to this setting, we choose the pen and paper Poseidon sponge for $BLS6\_6$ from \ref{sec:bls-scalar-sponge}. This sponge has two absorb functions: $\textsc{Absorb}_S(x,S)$ that absorbs elements from the $BLS6\_6$ scalar field $\F_{13}$ and the base field sponge $\textsc{Absorb}_B(x,S)$ which safely absorbs elements from the $BLS6\_6$ base field $\F_{43}$. In addition the sponge has a squeeze functions that generates elements from the scalar field $\F_{13}$.
+To effectively integrate the Fiat-Shamir heuristic into this framework, we choose the $BLS6\_6$ pen and paper Poseidon sponge, as detailed in \ref{sec:bls-scalar-sponge}. This sponge is equipped with dual absorption functions: $\textsc{Absorb}S(x,S)$, capable of absorbing elements from the $BLS6_6$ scalar field $\F{13}$, and $\textsc{Absorb}B(x,S)$, adept at securely absorb elements from the $BLS6_6$ base field $\F{43}$. Furthermore, the sponge includes a squeeze function that squeezes elements from the scalar field $\F_{13}$.
 
-Real world applications often use well known cryptographic sponge constructions like keccak or Poseidon in order to instantiate a Fiat-Shamir PRF. However it is not uncommon to use other cryptographic hash functions like SHA2, in which case care has to be taken to get the implementation details right. 
+In practical scenarios, renowned cryptographic sponge constructions like Keccak or Poseidon are frequently employed to establish a Fiat-Shamir PRF. Nonetheless, it's not unusual to see other cryptographic hash functions, such as SHA2, in use, in which case care has to be taken to get the implementation details right. 
 
-To compute an example of a non-interactive Shnorr proof, assume that the instance $I=(35,28)$ from $\G_1[13]$ is given. Since $[4](13,15)=(35,28)$ \ref{BLS6-G1-log}, we know that $w=4\in F_{13}$ is a discrete log of $I$ for the generator $g=(13,15)$. 
+To illustrate a non-interactive Shnorr proof, consider the instance $I=(35,28)$ from $\G_1[13]$. Since $[4](13,15)=(35,28)$ \ref{BLS6-G1-log}, we know that $w=4\in F_{13}$ is a discrete log of $I$ for the generator $g=(13,15)$. 
 
-In order to compute a non-interactive proof of knowledge for the witness $w=4$, the prover $P'$ first initializes the sponge's state by computing
+For the generation of a non-interactive proof of knowledge concerning the witness $w=4$, the prover $P'$ starts by setting up the initial state of the sponge. This is achieved through the computation:
 $$
 S=[o_1\;||\;i_1]=[0\;||\;0]
 $$
-The prover then has to decide on a domain separator $D$ and a representation of the language $L$. We arbitrarily choose $D=2 \in \F_{13}$ for the domain separator and we use the generator $g=(13,15)$ as the language representation because the defining equation $y = g ^x$ has $g$ as its only parameter. 
+Continuing the process, the prover is tasked with selecting a domain separator $D$ and a representation for the language $L$. For this purpose, we arbitrarily opt for $D=2 \in \F_{13}$ as the domain separator. The generator $g=(13,15)$ is chosen to represent the language, in alignment with the defining equation $y = g^x$, where $g$ is the single parameter.
 
-In a next step the prover then has to absorb all these values into the sponge. Since the domain separator is an element of the scalar field we use \ref{bls-6-scalar-sponge} compute
+Subsequent to these choices, the prover's next step involves the integration of all these values into the sponge. Given that the domain separator is an element of the scalar field, we employ \ref{bls-6-scalar-sponge} to facilitate this absorption process:
 \begin{align*}
 S = & [10\cdot (o_1+D)^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+D)^5 + 11\cdot i_1^5] \\
   = & [10\cdot (0+2)^5 + 8\cdot 0^5 \;||\; 8\cdot (0+2)^5 + 11\cdot 0^5] \\
@@ -158,7 +159,7 @@ S = & [10\cdot (o_1+D)^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+D)^5 + 11\cdot i_1^5]
   =  [10\cdot 6 \;||\; 8\cdot 6] \\
   = & [8 \;||\; 9]
 \end{align*}  
-In order to absorb the representation $(13,15)$ of $L$ into the sponge, we have to apply the base field absorb function to both the $x$ and the $y$ coordinate of this curve point. Using $S=[8 \;||\; 9]$ and \ref{bls-6-base-sponge}, we compute to sponge update for the $x$-coordinate in two steps:
+In order to absorb the representation $(13,15)$ of $L$ into the sponge, we have to apply the base field absorb function to both the $x$ and the $y$ coordinate of this curve point. Using $S=[8 \;||\; 9]$ and \ref{bls-6-base-sponge}, we compute the sponge update for the $x$-coordinate in two steps:
 \begin{align*}
 S = & [10\cdot (o_1+(\Zdiv{x}{4}))^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+(\Zdiv{x}{4}))^5 + 11\cdot i_1^5]\\ 
  = & [10\cdot (8+3)^5 + 8\cdot 9^5 \;||\; 8\cdot (8+3)^5 + 11\cdot 9^5]\\ 
@@ -172,8 +173,9 @@ S = & [10\cdot (o_1+(\Zmod{x}{4}))^5 + 8\cdot i_1^5 \;||\; 8\cdot (o_1+(\Zmod{x}
   =  [9 + 4 \;||\; 2 + 12]\\ 
   = & [0 \;||\; 1] 
 \end{align*}
-After the $x$ coordinate has been absorbed into the sponge we can continue and absorb the $y$-coordinate as well. Then we have to apply the exact same procedure to absorb the instance $I=(35,28)$ into the sponge using the the base field absorb function again. Since the process is clar now we use our sage implementation of the 
-$BLS6\_6$ sponge from \ref{bls-6-base-sponge} to first verify the previous computation and to update the sponge:
+Following the absorption of the $x$ coordinate into the sponge, the procedure progresses with the absorption of the $y$-coordinate. Subsequently, the same method is applied to integrate the instance $I=(35,28)$ into the sponge, employing the base field absorb function again. 
+
+As the process has now been clearly established, we turn to our Sage implementation of the $BLS6_6$ sponge, as referenced in \ref{bls-6-base-sponge} to first verify the previous computation and to update the sponge:
 \begin{sagecommandline}
 sage: F43 = GF(43)
 sage: S = mm_scalar_sponge_start() # init sponge state
@@ -186,26 +188,26 @@ sage: S = mm_base_sponge_absorb(F43(35), S)
 sage: S = mm_base_sponge_absorb(F43(28), S)
 sage: S
 \end{sagecommandline}
-In the next step the non-interactive prover invokes the interactive prover $P$ in order to compute the initial message $m_0=[r](13,15)$ for some random field element $r\in \F_{13}$. We chose $r=3$ and use \ref{BLS6-G1-log} to compute the initial message as
+In the subsequent phase, the non-interactive prover calls upon the interactive prover $P$ to generate the initial message $m_0=r$, where $r$ is a randomly selected element from $\F_{13}$. Opting for $r=3$, we calculate the initial message using \ref{BLS6-G1-log} as follows:
 $$
 m_0 = [3](13,15) = (38,15)
 $$
-Instead of sending this message to the verifier as in the interactive protocol, the non-interactive prover first absorbs the message $m_0$ into the sponge and then squeezes a field element $c_1$ from the sponge in order to simulate the verifiers response. Invoking our sage implementation again, we get: 
+Contrary to the interactive protocol where this message would be sent to the verifier, the non-interactive prover absorbs $m_0$ into the sponge. Subsequently, a field element $c_1$ is squeezed from the sponge, simulating the verifier's response. Utilizing our Sage implementation for this step, we proceed with: 
 \begin{sagecommandline}
 sage: S = mm_base_sponge_absorb(F43(38), S)
 sage: S = mm_base_sponge_absorb(F43(15), S)
 sage: c1, S = mm_sponge_squeeze(S)
 sage: c1, S
 \end{sagecommandline}
-The Schnorr protocol requires $c_1$ to be invertible, which in our construction might not happen with some high probability. However in real word applications this probability is usually neglectable as it is in the order of $1/2^{256}$.
+In the Schnorr protocol, it's crucial for $c_1$ to be invertible. In our case, the chance of non-invertibility might appear significant, yet in practical applications, this probability is typically negligible, being on the order of $1/2^{256}$.
 
-The non-interactive prover invokes the interactive prover $P$ again in order to compute the simulated initial response message $m_1=r+w\cdot c_1= 3+4\cdot 12 = 12$. It then sends the following non-interactive proof to the verifier:
+The non-interactive prover once again engages the interactive prover $P$ to calculate the simulated initial response message $m_1=r+w\cdot c_1= 3+4\cdot 12 = 12$. The prover then compiles and dispatches the following non-interactive proof to the verifier:
 $$
 \pi = (D,L,I,m_0,m_1) = (2, (13,15) , (35,28), (38,15), 12)
 $$
-So while the interactive protocol requires three messages to be send, this non-interactive protocol sends a single message only.
+Thus, in contrast to the three-message exchange required in the interactive protocol, this non-interactive variant conveys all necessary information in a single message.
 
-Since the sponge construction is deterministic, the verifier can use $D$, $L$, $I$ and $m_0$ from the proof $\pi$ in order to compute the exact same challange $c_1=12$ in order to invoke the interactive verifier $V$, which accepts the proof if $g^{m_1} = m_0\cdot i^{\;c_1}$ and reject the proof otherwise.
+Given that the sponge construction operates deterministically, the verifier can utilize $D$, $L$, $I$, and $m_0$ from the proof $\pi$ to independently compute the identical challenge $c_1=12$. This enables the verifier to invoke the interactive verifier $V$, which will accept the proof if the condition $g^{m_1} = m_0\cdot I^{c_1}$ is met, and reject it otherwise.
 \end{example}
 \begin{exercise} Consider the group $\G_1[13]$ as in the previous example and the instance $I=(13,28)$. Compute a witness $W$ for $I$ and a non-interactive zero knowledge proof of knowledge for $I$ using the Schnorr protocol and the $BLS6\_6$ sponge. 
 \end{exercise}
