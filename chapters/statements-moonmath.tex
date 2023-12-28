@@ -1485,6 +1485,59 @@ The fundamental concept behind a \concept{Plonk constraint system} is to capture
 
 \begin{example}[Plonk for 3-Factorization]\label{ex:3-factorization-plonk} In order to develop a more intuitive understanding of \concept{PLONK constraint systems}, let's revisit the language $L_{3.fac_zk}$ from \examplename{} \ref{ex:L-3fac-zk}. As we know, $L_{3.fac_zk}$ consists of strings $(<I_1>;<W_1,W_2,W_3>)$ over the alphabet $\F_{13}$, with $I_1 = W_1\cdot W_2\cdot W_3$. We will now demonstrate how to convert this problem into a \concept{Plonk constraint system}.
 
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|ccc|ccc|cccc|c|}
+\hline
+$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & \multicolumn{3}{c|}{$\sigma(\;x_l,\;\; x_r,\;\; x_o\;)$} & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ \\ 
+\hline
+$\omega^1$ & $x_l^{(1)}$ & $x_r^{(1)}$ & $x_o^{(1)}$ & 
+$x_l^{(1)}$ & $x_r^{(1)}$ & $x_l^{(2)}$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$\omega^2$ & $x_l^{(2)}$ & $x_r^{(2)}$ & $x_o^{(2)}$ & 
+$x_o^{(1)}$ & $x_r^{(2)}$ & $x_l^{(3)}$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$\omega^3$ & $x_l^{(3)}$ & $x_r^{(3)}$ & $x_o^{(3)}$ & 
+$x_o^{(2)}$ & $x_r^{(3)}$ & $x_o^{(3)}$ & $1$ & $0$ & $0$ & $0$ & $I$ \\
+$\omega^4$ & $x_l^{(4)}$ & $x_r^{(4)}$ & $x_o^{(4)}$ & 
+$x_l^{(4)}$ & $x_r^{(4)}$ & $x_o^{(4)}$ & $0$ & $0$ & $0$ & $0$ & $0$ \\ \hline
+\end{tabular}
+\end{table}
+
+Lets parallel example XXX and consider the witness $I=<11>$. As we know from example XXX, a witness, is given by $W=<2,3,4,6>$. Executing the circuit XXX and using the transformation of circuit execution to Plonk constraints systems from XXX we get 
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|ccc|ccc|cccc|c|}
+\hline
+$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & \multicolumn{3}{c|}{$\sigma(\;x_l,\;\; x_r,\;\; x_o\;)$} & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ \\ 
+\hline
+$\omega^1$ & $2$ & $3$ & $6$ & $2$ & $3$ & $6$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$\omega^2$ & $6$ & $4$ & $11$ & $6$ & $4$ & $11$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$\omega^3$ & $11$ & $\bullet$ & $\bullet$ & $11$ & $\bullet$ & $\bullet$ & $1$ & $0$ & $0$ & $0$ & $11$ \\
+$\omega^4$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $0$ & $0$ & $0$ & $0$ & $0$ \\ 
+\hline
+\end{tabular}
+\end{table}
+
+the '$\bullet$' entries indicate that any inserted value will give a solution to the Plonk constraints system. From our representation it is visually imediately clear, that all equality constraints are satisfied, since both the witness table and the permuted witness table are equal. To see that the table also solves Plonk's arithmetic constraint
+$$
+s_l^{(i)} \cdot x_l^{(i)} + s_r^{(i)} \cdot x_r^{(i)} + s_m^{(i)} \cdot x_l^{(i)}\cdot x_r^{(i)} = s_o^{(i)} \cdot x_o^{(i)} + c^{(i)}
+$$
+for all rows $1\leq i \leq 4$, lets insert each row into the constraining equation, assuming that $\bullet\in \F_{13}$ is any arbitrarily chosen field element. We get
+\begin{align*}
+s_l^{(1)} \cdot x_l^{(1)} + s_r^{(1)} \cdot x_r^{(1)} + s_m^{(1)} \cdot x_l^{(1)} \cdot x_r^{(1)} &= s_o^{(1)} \cdot x_o^{(1)} + c^{(1)}\\
+0 \cdot 2 + 0 \cdot 3 + 1 \cdot 2 \cdot 3 &= 1 \cdot 6 + 0\\
+2 \cdot 3 &= 6\\
+s_l^{(2)} \cdot x_l^{(2)} + s_r^{(2)} \cdot x_r^{(2)} + s_m^{(2)} \cdot x_l^{(2)} \cdot x_r^{(2)} &= s_o^{(2)} \cdot x_o^{(2)} + c^{(2)}\\
+0 \cdot 6 + 0 \cdot 4 + 1 \cdot 6 \cdot 4 &= 1 \cdot 11 + 0\\
+6 \cdot 4 &= 11\\
+s_l^{(3)} \cdot x_l^{(3)} + s_r^{(3)} \cdot x_r^{(3)} + s_m^{(3)} \cdot x_l^{(3)} \cdot x_r^{(3)} &= s_o^{(3)} \cdot x_o^{(3)} + c^{(3)}\\
+1 \cdot 11 + 0\cdot\bullet + 0 \cdot 11 \cdot \bullet &= 0 \cdot \bullet + 11\\
+11 &= 11\\
+s_l^{(4)} \cdot x_l^{(4)} + s_r^{(4)} \cdot x_r^{(4)} + s_m^{(4)} \cdot x_l^{(4)} \cdot x_r^{(4)} &= s_o^{(4)} \cdot x_o^{(4)} + c^{(4)}\\
+0 \cdot \bullet + 0 \cdot \bullet + 0 \cdot \bullet \cdot \bullet &= 0 \cdot \bullet + 0\\
+0 &= 0
+\end{align*}
+If we had decided on an $m$-th roots of unity group for $m>4$ we would have to add more rows, but similar to the $4$-th row in our example the witness elements for these rows are completely arbitrary and do not change anything, because every combination of elements will satisfy the associated Plonk constraints. From a practical perspective it is therefore advantageous to chose all of them to be zero, because as shown in XX they will then not contribute to the associated polynomials or the proof. 
+
 Since PlCS are systems of quadratic equations, expressions like $W_1\cdot W_2\cdot W_3$, which contain products of more than two factors (and therefore aren't quadratic), must be changed first through a process often referred to as \term{flattening}. To flatten the defining equation $I_1 = W_1\cdot W_2\cdot W_3$ of $L_{3.fac_zk}$, we relabel indices and rewrite the defining equation as $I_1 = W_2\cdot W_5\cdot W_6$. Since the multiplication on the right-hand side can be expressed using two multiplications, we can represent the flattened equation as follows:
 $$
 \begin{array}{ll}

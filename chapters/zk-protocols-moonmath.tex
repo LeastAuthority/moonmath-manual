@@ -1434,6 +1434,15 @@ UCRS(5) =\{(13,15), (33,34), (35,28), (26,9), (38,15), \\
 \end{multline*}
 This string of curve points can be computed once and used for arbitrary Plonk constraints systems of degree smaller then $5$, which is an improvement with regard to the Groth16 protocol, where every constraints system requires its own secret evaluation point and hence trusted setup phase.
 
+\begin{sagecommandline}
+sage: F43 = GF(43)
+sage: BLS6 = EllipticCurve(F43, [0,6])
+sage: g1=BLS6(13,15)
+sage: UCRS = []
+sage: for i in range(11):
+....:     UCRS.append(2^i*g1)
+\end{sagecommandline} 
+
 In the next step, we expand our UCRS by computing the Lagrange Base XXX of $H$. We therefore need to compute a set of Lagrange base polynomials of degree $m-1$, where $m$ is the number of elements in $H$. Using equation XXX and the enumeration 
 $$
 H= \{\omega_1, \omega_2, \omega_3, \omega_4\} = \{\omega^1,\omega^2,\omega^3, \omega^4\} =  \{5,12,8,1\}
@@ -1481,18 +1490,20 @@ Z_H(x) = & (x-5)\cdot(x-12)\cdot(x-8)\cdot(x-1) = (x+8)\cdot(x+1)\cdot(x+5)\cdot
 We double check our computation using sage:
 \begin{sagecommandline}
 sage: F13 = GF(13)
-sage: F13x = F13['x'] # Polynomial Ring over F13
+sage: F13t.<t> = F13[] # Polynomial Ring over F13
 sage: # point-value representation
 sage: S1 = [(5,1),(12,0),(8,0),(1,0)] # L1
 sage: S2 = [(5,0),(12,1),(8,0),(1,0)] # L2
 sage: S3 = [(5,0),(12,0),(8,1),(1,0)] # L3
 sage: S4 = [(5,0),(12,0),(8,0),(1,1)] # L4
 sage: # coefficient representation
-sage: F13x.lagrange_polynomial(S1)
-sage: F13x.lagrange_polynomial(S2)
-sage: F13x.lagrange_polynomial(S3)
-sage: F13x.lagrange_polynomial(S4)
-sage: F13x((x-5)*(x-12)*(x-8)*(x-1)) # ZH
+sage: L1 = F13t.lagrange_polynomial(S1)
+sage: L2 = F13t.lagrange_polynomial(S2)
+sage: L3 = F13t.lagrange_polynomial(S3)
+sage: L4 = F13t.lagrange_polynomial(S4)
+sage: ZH = F13t((t-5)*(t-12)*(t-8)*(t-1))
+sage: LH = [L1,L2,L3,L4]
+sage: LH, ZH
 \end{sagecommandline} 
 Assuming that we have eliminated the simulation trapdoor, let's see how the \concept{Universal Common Reference String} can aid in evaluating the Lagrange base polynomials at the secret evaluation point within the generator exponent. Without the simulation trapdoor, and provided that our group is DL-secure XX, we no longer have access to the secret evaluation point. As a result, we are unable to evaluate polynomials at that point. Nonetheless, we can still evaluate polynomials with a degree less than $m+5$ within the exponent of the generator at that point. Using the \concept{Universal Common Reference String} in combination with equation XXX, we obtain the following:
 \begin{align*}
@@ -1544,6 +1555,23 @@ Again, the elliptic curve scalar multiplication law would be applied by real wor
                & = [6](13,15) \oplus [12][2](13,15) = [6+12*2](13,15)= [4](13,15)\\
                & = (35,28)              
 \end{align*}
+We can use sageimagi
+\begin{sagecommandline}
+sage: def scalar_sum(coef, base):
+....:     result = BLS6(0)
+....:     for i in range(len(coef)):
+....:         result += ZZ(coef[i]) * base[i]
+....:     return result
+sage: gL1 = scalar_sum(L1.coefficients(sparse=False), UCRS)
+sage: gL2 = scalar_sum(L2.coefficients(sparse=False), UCRS)
+sage: gL3 = scalar_sum(L3.coefficients(sparse=False), UCRS)
+sage: gL4 = scalar_sum(L4.coefficients(sparse=False), UCRS)
+sage: gZH = scalar_sum(ZH.coefficients(sparse=False), UCRS)
+sage: tZH = ZH*t
+sage: gtZH = scalar_sum(tZH.coefficients(sparse=False), UCRS)
+sage: gLH = [gL1, gL2, gL3, gL4]
+sage: gLH, gZH, gtZH
+\end{sagecommandline}
 \end{example}
 
 
@@ -1553,15 +1581,17 @@ To generate zk-SNARKs from constructive proofs in the Plonk protocol, two prepro
 To be more specific, let $\mathtt{Plonk-Param}(m)=(r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2, H, k_1,k_2, \mathtt{Sponge})$ be a set of Plonk parameters, $UCRS(m)$ a Universal Common Reference String of size $m$, $L=\{L_1,\cdot,L_m\}$ a Lagrange base for the set $H$ and let $R$ denote the following Plonk Constraint System of size $n\leq m$ with copy constraint permutation $\sigma$:
 \begin{table}[H]
 \centering
-\begin{tabular}{|c|ccc|cccc|c|}
+\begin{tabular}{|c|ccc|cccc|c|ccc|}
 \hline
-$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ \\ \hline
-$\omega^1$ & $x_l^{(1)}$ & $x_r^{(1)}$ & $x_o^{(1)}$ & $s_l^{(1)}$ & $s_r^{(1)}$ & $s_m^{(1)}$ & $s_o^{(1)}$ & $c^{(1)}$ \\
-$\omega^2$ & $x_l^{(2)}$ & $x_r^{(2)}$ & $x_o^{(2)}$ & $s_l^{(2)}$ & $s_r^{(2)}$ & $s_m^{(2)}$ & $s_o^{(2)}$ & $c^{(2)}$ \\
-$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
-$\omega^n$ & $x_l^{(n)}$ & $x_r^{(n)}$ & $x_o^{(n)}$ & $s_l^{(n)}$ & $s_r^{(n)}$ & $s_m^{(n)}$ & $s_o^{(n)}$ & $c^{(n)}$ \\ \hline
+$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ & \multicolumn{3}{c|}{$\sigma(\;x_l,\;\; x_r,\;\; x_o\;)$} \\ \hline
+$\omega^1$ & $x_l^{(1)}$ & $x_r^{(1)}$ & $x_o^{(1)}$ & $s_l^{(1)}$ & $s_r^{(1)}$ & $s_m^{(1)}$ & $s_o^{(1)}$ & $c^{(1)}$ & $\sigma(1)$ & $\sigma(n+1)$ & $\sigma(2n+1)$ \\
+$\omega^2$ & $x_l^{(2)}$ & $x_r^{(2)}$ & $x_o^{(2)}$ & $s_l^{(2)}$ & $s_r^{(2)}$ & $s_m^{(2)}$ & $s_o^{(2)}$ & $c^{(2)}$ & $\sigma(2)$ & $\sigma(n+2)$ & $\sigma(2n+2)$ \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+$\omega^n$ & $x_l^{(n)}$ & $x_r^{(n)}$ & $x_o^{(n)}$ & $s_l^{(n)}$ & $s_r^{(n)}$ & $s_m^{(n)}$ & $s_o^{(n)}$ & $c^{(n)}$ & $\sigma(n)$ & $\sigma(n+n)$ & $\sigma(2n+n)$ \\ \hline
 \end{tabular}
 \end{table}
+
+
 The second setup phase then computes the following constraint specific \term{Prover key}, which consists of the following set of polynomials.
 \begin{equation*}
 \label{def:plonk-circuit-pk}
@@ -1590,99 +1620,88 @@ Both the prover key and the verifier key depend on Universal Common Reference St
 To see how the circuit specific setup phase of a Plonk zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization} the Plonk parameters from \examplename{} \ref{ex:3-fac-plonk-params}, the Universal Common Reference String from example XXX and the following Plonk constraint system from example XXX: 
 \begin{table}[H]
 \centering
-\begin{tabular}{|c|ccc|cccc|c|}
+\begin{tabular}{|c|ccc|cccc|c|ccc|}
 \hline
-$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ \\ 
-\hline
-$\omega^1$ & $x_l^{(1)}$ & $x_r^{(1)}$ & $x_o^{(1)}$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
-$\omega^2$ & $x_l^{(2)}$ & $x_r^{(2)}$ & $x_o^{(2)}$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
-$\omega^3$ & $x_l^{(3)}$ & $x_r^{(3)}$ & $x_o^{(3)}$ & $1$ & $0$ & $0$ & $0$ & $I$ \\
-$\omega^4$ & $x_l^{(4)}$ & $x_r^{(4)}$ & $x_o^{(4)}$ & $0$ & $0$ & $0$ & $0$ & $0$ \\ \hline
+$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ & \multicolumn{3}{c|}{$\sigma(\;x_l,\;\; x_r,\;\; x_o\;)$} \\ \hline
+$5$ & $x_l^{(1)}$ & $x_r^{(1)}$ & $x_o^{(1)}$ & $0$ & $0$ & $1$ & $1$ & $0$ & $1$ & $5$ & $2$ \\
+$12$ & $x_l^{(2)}$ & $x_r^{(2)}$ & $x_o^{(2)}$ & $0$ & $0$ & $1$ & $1$ & $0$ & $9$ & $6$ & $3$ \\
+$8$ & $x_l^{(3)}$ & $x_r^{(3)}$ & $x_o^{(3)}$ & $1$ & $0$ & $0$ & $0$ & $I$ & $10$ & $7$ & $11$ \\
+$1$ & $x_l^{(4)}$ & $x_r^{(4)}$ & $x_o^{(4)}$ & $0$ & $0$ & $0$ & $0$ & $0$ & $4$ & $8$ & $12$ \\ \hline
 \end{tabular}
 \end{table}
-with copy constraint permutation $\sigma(1,2,3,4,5,6,7,8,9) = (1,2,4,3,5,7,6,8,9)$
-
 Since the $3$-factorization problem has $3$ constraints and hence is of size $4$, the  UCRS from example XXX applies:
 \begin{multline*}
 UCRS(5) =\{(13,15), (33,34), (35,28), (26,9), (38,15), \\
 (27,34), (13,28), (33,9), (35,15), (26,34), (38,28)\}
 \end{multline*}
-We do selector polynomials
+Computing the selector polynomials we first observe that since compiling the 3-fac circuit into a Plonk constraints system only requires 3 constraints XXX, all selector entries in the forth row are zero, which implies that we can exclude that summand from the computation of those polynomials. Using the Lagrange base $L_H$ from the universal setup phase XXX, we get:
 $$
 \begin{array}{rl}
-P_{m}(x) = & \sum_{i=1}^{n} {m_i}L_i(x)\\         
-         = & m_1\cdot(11x^3 +3x^2 +2x + 10) + m_2\cdot (3x^3 +10x^2+ 3x + 10) + m_3\cdot (2x^3 + 3x^2 +11x +10) \\        
-         = &  1\cdot (3x^3 +10x^2+ 3x + 10) + 1\cdot (2x^3 + 3x^2 +11x +10) +  0 \cdot (2x^3 + 3x^2 +11x +10)\\
-         = & 5x^3 + x + 7
+P_{l}(x) = & \sum_{i=1}^{n} s_l^{(i)}L_i(x)\\         
+         = & 0\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 1\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & 2x^3 + 3x^2 +11x +10 \\
+P_{r}(x) = & \sum_{i=1}^{n} s_r^{(i)}L_i(x)\\         
+         = & 0\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & 0 \\
+P_{s_m}(x) = & \sum_{i=1}^{n} s_m^{(i)}L_i(x)\\         
+         = &  1\cdot(11x^3 +3x^2 +2x + 10) + 1\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10)\\
+         = & x^3 + 5x + 7\\
+P_{o}(x) = & \sum_{i=1}^{n} s_o^{(i)}L_i(x)\\         
+         = & 1\cdot(11x^3 +3x^2 +2x + 10) + 1\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\ 
+         = & x^3 +5x +7 
 \end{array}
 $$
-$$
-\begin{array}{rl}
-P_{l}(x) = & \sum_{i=1}^{n} {l_i}L_i(x)\\         
-         = & l_1\cdot(11x^3 +3x^2 +2x + 10) + l_2\cdot (3x^3 +10x^2+ 3x + 10) + l_3\cdot (2x^3 + 3x^2 +11x +10) \\            
-         = & 1\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\ 
-         = & 11x^3 +3x^2 +2x + 10 
-\end{array}
-$$
-$$
-\begin{array}{rl}
-P_{r}(x) = & \sum_{i=1}^{n} {r_i}L_i(x)\\         
-         = & r_1\cdot(11x^3 +3x^2 +2x + 10) + r_2\cdot (3x^3 +10x^2+ 3x + 10) + r_3\cdot (2x^3 + 3x^2 +11x +10) \\ 
-         = & 0\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\          
-         = & 0          
-\end{array}
-$$
-$$
-\begin{array}{rl}
-P_{o}(x) = & \sum_{i=1}^{n} {o_i}L_i(x)\\         
-         = & o_1\cdot(11x^3 +3x^2 +2x + 10) + o_2\cdot (3x^3 +10x^2+ 3x + 10) + o_3\cdot (2x^3 + 3x^2 +11x +10) \\
-         = & 0\cdot(11x^3 +3x^2 +2x + 10) + (-1)\cdot (3x^3 +10x^2+ 3x + 10) + (-1)\cdot (2x^3 + 3x^2 +11x +10) \\  
-         = & (-3x^3 -10x^2 - 3x - 10) + (-2x^3 - 3x^2 -11x -10) \\ 
-         = & 8x^3 + 12x + 6              
-\end{array}
-$$
-$$
-\begin{array}{rl}
-P_{c}(x) = & \sum_{i=1}^{n} {c_i}L_i(x)\\         
-         = & c_1\cdot(11x^3 +3x^2 +2x + 10) + c_2\cdot (3x^3 +10x^2+ 3x + 10) + c_3\cdot (2x^3 + 3x^2 +11x +10) \\
-         = & 0\cdot(11x^3 +3x^2 +2x + 10) + 0\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) \\
-         = & 0          
-\end{array}
-$$
-By design, these polynomials evaluate to the $j$-th selector constants if evaluated on the $j$-th element of $H$. For example $P_o(2)=-1$ because $o_2=-1$, or $P_l(1)=1$ because $l_1=1$ and so on. 
+By design, these polynomials evaluate to the $j$-th selector constants if evaluated on the $j$-th power of $\omega$. For example $P_o(12)=1$ because $s_o^{(2)}=1$, or $P_o(8)=0$ because $s_o^{(3)}=0$ and so on. 
 
-Since we have $\sigma = (9,2,8,4,5,6,7,3,1)$ we compute the permutation polynomials
+Using our sage definition XXX of the Lagrange base $L_H$ for the three-fuc propblem, we can double check the previous computationas follows:
+\begin{sagecommandline}
+sage: def linear_combination(coef, base):
+....:     result = F13t(0)
+....:     for i in range(len(coef)):
+....:         result += coef[i] * base[i] 
+....:     return result
+sage: sl = [0,0,1,0] # left input selector
+sage: sr = [0,0,0,0] # right input selector
+sage: sm = [1,1,0,0] # multiplication selector
+sage: so = [1,1,0,0] # output selector
+sage: Pl = linear_combination(sl,LH)
+sage: Pr = linear_combination(sr,LH)
+sage: Pm = linear_combination(sm,LH)
+sage: Po = linear_combination(so,LH)
+sage: Pl,Pr,Pm,Po
+sage: Po(F13(12)), Po(F13(8))
+\end{sagecommandline}
 $$
 \begin{array}{rl}
 S_{\sigma_1}(x) = & \sum_{i=1}^{n} \sigma(i)L_i(x) \\       
-         = & \sigma(1)\cdot(11x^3 +3x^2 +2x + 10) + \sigma(2)\cdot (3x^3 +10x^2+ 3x + 10) + \sigma(3)\cdot (2x^3 + 3x^2 +11x +10) \\            
-         = & 9\cdot(11x^3 +3x^2 +2x + 10) + 2\cdot (3x^3 +10x^2+ 3x + 10) + 8\cdot (2x^3 + 3x^2 +11x +10) \\           
-         = & (8x^3 + x^2 + 5x + 12) + (6x^3 + 7x^2 + 6x + 7) + (3x^3 + 11x^2 + 10x + 2) \\    
-         = & 4x^3 + 6x^2 + 8x + 8             
-\end{array}
-$$
-$$
-\begin{array}{rl}
+         = & 1\cdot(11x^3 +3x^2 +2x + 10) + 9\cdot (3x^3 +10x^2+ 3x + 10) \\
+           & + 10\cdot (2x^3 + 3x^2 +11x +10) + 4\cdot (10x^3 + 10x^2 +10x +10)\\
+    = &  7x^3 + 7x^2 + 10x + 6 \\    
 S_{\sigma_2}(x) = & \sum_{i=1}^{n} \sigma(n+i)L_i(x) \\       
-         = & \sigma(4)\cdot(11x^3 +3x^2 +2x + 10) + \sigma(5)\cdot (3x^3 +10x^2+ 3x + 10) + \sigma(6)\cdot (2x^3 + 3x^2 +11x +10) \\ 
-         = & 4\cdot(11x^3 +3x^2 +2x + 10) + 5\cdot (3x^3 +10x^2+ 3x + 10) + 6\cdot (2x^3 + 3x^2 +11x +10) \\ 
-         = &  (5x^3 + 12x^2 + 8x + 1) + (2x^3 + 11x^2 + 2x + 11) + (12x^3 + 5x^2 + x + 8) \\
-         = & 6x^3 + 2x^2 + 11x + 7
-\end{array}
-$$
-$$
-\begin{array}{rl}
+         = & 5\cdot(11x^3 +3x^2 +2x + 10) + 6\cdot (3x^3 +10x^2+ 3x + 10) \\
+           & + 7\cdot (2x^3 + 3x^2 +11x +10) + 8\cdot (10x^3 + 10x^2 +10x +10)\\
+    = &  11x^3 + 7x^2 + 3x \\ 
 S_{\sigma_3}(x) = & \sum_{i=1}^{n} \sigma(2n+i)L_i(x) \\       
-         = & \sigma(7)\cdot(11x^3 +3x^2 +2x + 10) + \sigma(8)\cdot (3x^3 +10x^2+ 3x + 10) + \sigma(9)\cdot (2x^3 + 3x^2 +11x +10) \\ 
-         = & 7\cdot(11x^3 +3x^2 +2x + 10) + 3\cdot (3x^3 +10x^2+ 3x + 10) + 1\cdot (2x^3 + 3x^2 +11x +10) \\  
-         = & (12x^3 + 8x^2 + x + 5) + (9x^3 + 4x^2 + 9x + 4) + (2x^3 + 3x^2 + 11x + 10)\\
-         = & 10x^3 + 2x^2 + 8x + 6
+         = & 2\cdot(11x^3 +3x^2 +2x + 10) + 3\cdot (3x^3 +10x^2+ 3x + 10) \\
+           & + 11\cdot (2x^3 + 3x^2 +11x +10) + 12\cdot (10x^3 + 10x^2 +10x +10)\\
+    = &  4x^3 + 7x^2 + 7x + 7           
 \end{array}
 $$
-By design, the first permutation polynomial evaluates to $\sigma(j)$ if evaluated on the $j$-th element of $H$ for $j<n$. For example $S_{\sigma_1}(1)=9$ because $\sigma(1)=9$, or $S_{\sigma_1}(3)=8$ because $\sigma(3)=8$ and so on. Similar the second permutation polynomial evaluates to $\sigma(3+j)$ if evaluated on the $j$-th element of $H$ for $j<n$. For example $S_{\sigma_2}(1)=4$ because $\sigma(4)=9$, or $S_{\sigma_2}(2)=5$ because $\sigma(5)=8$ . The same pattern holds true for the third permutation polynomial.
+By design, the first permutation polynomial evaluates to $\sigma(j)$ if evaluated on the $j$-th power of $\omega$. For example $S_{\sigma_1}(5)=1$ because $\sigma(1)=1$, or $S_{\sigma_1}(12)=9$ because $\sigma(2)=9$ and so on. Similar the second permutation polynomial evaluates to $\sigma(4+j)$ if evaluated on the $j$-th power of $\omega$. For example $S_{\sigma_2}(5)=5$ because $\sigma(5)=5$, or $S_{\sigma_2}(8)=7$ because $\sigma(7)=7$ . The same pattern holds true for the third permutation polynomial.
 
+\begin{sagecommandline}
+sage: sigma1 = [1,9,10,4]
+sage: sigma2 = [5,6,7,8]
+sage: sigma3 = [2,3,11,12]
+sage: Psigma1 = linear_combination(sigma1,LH)
+sage: Psigma2 = linear_combination(sigma2,LH)
+sage: Psigma3 = linear_combination(sigma3,LH)
+sage: Psigma1,Psigma2,Psigma3
+sage: Psigma1(F13(5)), Psigma1(F13(12))
+sage: Psigma2(F13(5)), Psigma2(F13(8))
+\end{sagecommandline}
 
-Those polynomial can then be stored in a public place, like a blockchain, and they can be publicly verified.
+Those polynomial can then be stored in a public place, like a blockchain, because they can be publicly verified against the Plonk constraint system.
 \end{example}
 
 \subsection{Prover Phase}
@@ -1694,12 +1713,14 @@ To generate a zk-SNARK for the given instance, the prover starts by computing a 
 
 Plonk's zk-SNARK, is derived from a 5-move interactive argument of knowledge, utilizing the Fiat Shamir Heuristic as explained in XXX. In order to explain the prover algorithm, we will use the structure of the 5-move protocol:
 
-\subsubsection{Round 1}: In \term{round 1}, the prover computes the 'wire polynomials $A,B,C\in \F_r[x]$, which, loosely speaking, encode the left inputs, right inputs and outputs of addition and multiplication gates. To do so, the prover first generates blinding factors, by sampling $6$ random field elements $b_1, \ldots, b_6 \in F_r$ from the underlying field of the PlCS. Using those blinding factors, the witness $W$ XXX, the vanishing polynomial XXX, and the Lagrange base XXX of the problem, they then compute the following polynomials:
+\subsubsection{Round 0}: While not explicitly stated in the original paper, the importance of proper initialization of the Fiat Shamir sponge construction
+
+\subsubsection{Round 1} In \term{round 1}, the prover computes the 'wire polynomials $A,B,C\in \F_r[x]$, which, loosely speaking, encode the left inputs, right inputs and outputs of addition and multiplication gates. To do so, the prover first generates blinding factors, by sampling $6$ random field elements $b_1, \ldots, b_6 \in F_r$ from the underlying field of the PlCS. Using those blinding factors, the witness $W$ XXX, the vanishing polynomial XXX, and the Lagrange base XXX of the problem, they then compute the following polynomials:
 \begin{equation}
 \begin{array}{rl}
-A(X) =& (b_1X + b_2)Z_H(X) + \sum_{i=1}^n w_i\cdot L_i(X)\\
-B(X) =& (b_3X + b_4)ZH(X) + \sum_{i=1}^n w_{n+i}\cdot L_i(X)\\
-C(X) =& (b_5X + b_6)ZH(X) + \sum_{i=1}^n w_{2n+i}\cdot L_i(X)
+A(x) =& (b_1x + b_2)Z_H(x) + \sum_{i=1}^n w_i\cdot L_i(x)\\
+B(x) =& (b_3x + b_4)Z_H(x) + \sum_{i=1}^n w_{n+i}\cdot L_i(x)\\
+C(x) =& (b_5x + b_6)Z_H(x) + \sum_{i=1}^n w_{2n+i}\cdot L_i(x)
 \end{array}
 \end{equation}
 These polynomials are of degree $\leq n$ and the prover can use the Universal Common Reference String $UCRS(m)$ of the problem, to evaluate those polynomials in the exponent of the generator $g_1$ at the secret evaluation point $\tau$ as explained in XXX. To be more precise the prover computes the following set of elements in $\G_1$: 
@@ -1716,8 +1737,47 @@ g_1^C = & g_1^{C(\tau)} = \left(g_1^{\tau\cdot Z_H(\tau)}\right)^{b_5}\cdot\left
 The interactive protocol would then send $m_1=(g_1^A, g_1^B, g_1^C)$ as the first move to the verifier. However since Plonk uses the Fiat Shamir Heuristic to generate a zk-SNARK, $(g_1^A, g_1^B, g_1^C)$ is considered as a virtual message only, and hence must be considered as the input to the first transcript.
 
 TODO: DEFINE THE TRANSCRIPT AS A FAMILY OF PSEUDO RANDOM FUNCTIONS AND MAKE SENSE OF SOMETHING LIKE PRF(TRANSCRIPT(x1,x2,x3))
-\begin{example}[3-fac]
+\begin{example}[3-fac]  In order to develop a more intuitive understanding of the first round in Plonk's prover phase, let's revisit the language $L_{3.fac_zk}$ from \examplename{} \ref{ex:L-3fac-zk}. As we know from example XXX, given instance $I$ Plonk's constraint system is satisfied by the following witness:
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|ccc|ccc|cccc|c|}
+\hline
+$\mathbb{H}$ & $x_l$ & $x_r$ & $x_o$ & \multicolumn{3}{c|}{$\sigma(\;x_l,\;\; x_r,\;\; x_o\;)$} & $s_l$ & $s_r$ & $s_m$ & $s_o$ & $c$ \\ 
+\hline
+$\omega^1$ & $2$ & $3$ & $6$ & $2$ & $3$ & $6$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$\omega^2$ & $6$ & $4$ & $11$ & $6$ & $4$ & $11$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$\omega^3$ & $11$ & $\bullet$ & $\bullet$ & $11$ & $\bullet$ & $\bullet$ & $1$ & $0$ & $0$ & $0$ & $11$ \\
+$\omega^4$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $\bullet$ & $0$ & $0$ & $0$ & $0$ & $0$ \\ 
+\hline
+\end{tabular}
+\end{table}
 
+In order to compute the wire polynomials $A$, $B$ and $C$ for this witness, we first have to randomly sample $6$ blinding factors from the underlying field $\F_{13}$ of the problem. We 'randomly' chose $b_1=1$, $b_2=2$, $b_3=3$, $b_4=4$, $b_5=5$ and $b_6=6$. With these choices and the Lagrange base $L_H$ from XXX and the vanishing polynom $Z_H$ from XXX, we compute
+$$
+\begin{array}{rl}
+A(x) = & (b_1x + b_2)Z_H(x) + \sum_{i=1}^n w_i\cdot L_i(x) \\       
+         = & (1\cdot x + 2)(x^4+12)+ 2\cdot(11x^3 +3x^2 +2x + 10) \\
+           & + 6\cdot (3x^3 +10x^2+ 3x + 10) + 11\cdot (2x^3 + 3x^2 +11x +10) + 0\cdot (10x^3 + 10x^2 +10x +10)\\
+    = &  x^5 + 2x^4 + 10x^3 + 8x^2 + 12x + 6 \\   
+B(x) = & (b_3x + b_4)Z_H(x) + \sum_{i=1}^n w_{n+i}\cdot L_i(x) \\       
+         = & (3\cdot x + 4)(x^4+12)+ 3\cdot(11x^3 +3x^2 +2x + 10) \\
+           & + 4\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) + 0\cdot (10x^3 + 10x^2 +10x +10)\\
+    = &  3x^5 + 4x^4 + 6x^3 + 10x^2 + 2x + 1 \\  
+C(x) = & (b_1x + b_2)Z_H(x) + \sum_{i=1}^n w_{2n+i}\cdot L_i(x) \\       
+         = & (5\cdot x + 6)(x^4+12)+ 6\cdot(11x^3 +3x^2 +2x + 10) \\
+           & + 11\cdot (3x^3 +10x^2+ 3x + 10) + 0\cdot (2x^3 + 3x^2 +11x +10) + 0\cdot (10x^3 + 10x^2 +10x +10)\\
+    = &  5x^5 + 6x^4 + 8x^3 + 11x^2 + x + 8                
+\end{array}
+$$
+\begin{sagecommandline}
+sage: Wl = [2,6,11,0]
+sage: Wr = [3,4,0,0]
+sage: Wo = [6,11,0,0]
+sage: A = F13t(1*t+2)*ZH + linear_combination(Wl,LH)
+sage: B = F13t(3*t+4)*ZH + linear_combination(Wr,LH)
+sage: C = F13t(5*t+6)*ZH + linear_combination(Wo,LH)
+sage: A,B,C
+\end{sagecommandline}
 \end{example}
 
 
