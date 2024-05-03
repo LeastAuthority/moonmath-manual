@@ -790,22 +790,23 @@ H(s)_0\cdot 2^0 + H(s)_1\cdot 2^1 + \ldots + H(s)_{k-2}\cdot 2^{k-2}
 A drawback of this hash function is that the distribution of the hash values in $\Z_n$ is not necessarily uniform. In fact, if $n$ is larger than $2^{k-1}$, then by design $H_{|n|_2-1}$ will never hash onto values $z\geq 2^{k-1}$. Using this hashing method therefore generates approximately uniform hashes only if $n$ is very close to $2^{k-1}$. In the worst case, when $n=2^k-1$, it misses almost half of all elements from $\Z_n$.
 
 An advantage of this approach is that properties like preimage resistance or collision resistance (see \secname{} \ref{sec:hash-functions}) of the original hash function $H(\cdot)$ are preserved.
-\begin{example} To analyze a particular implementation of a $H_{|n|_2-1}$ hash function, we use a $5$-bit truncation of the $SHA256$ hash from \examplename{} \ref{ex:SHA256} and define a hash into $\Z_{16}$ as follows:
+\begin{example} To examine the uniformity of hashing into $\Z_n$ using the method described in \ref{eq:hash-Zr}, consider a modulus $n$ that representable as a 5-bit binary number, indicating that $n$ is an integer within the range $16 \leq n < 32$.
+
+The most uniform hash distribution occurs when $n = 16$, because the ring $\Z_{16}$ consists of the elements $\{0, 1, \ldots, 15\}$. In this scenario, we can utilize the hash function $H_{|n|2-1}$ by truncating the $SHA256$ hash, as demonstrated in \examplename{} \ref{ex:SHA256}, to the first $4$ bits. This allows us to define a hash function into $\Z_{16}$ as follows:
 $$
 H_{|16|_2-5}: \{0,1\}^* \to \Z_{16}:\; s\mapsto
-SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_4\cdot 2^4
+SHA256(s)_0\cdot 2^0 + SHAH256(s)_1\cdot 2^1 + \ldots + SHA256(s)_3\cdot 2^3
 $$
 Since $k=|16|_2=5$ and $16-2^{k-1}=0$, this hash maps uniformly onto $\Z_{16}$. We can use Sage to implement it:
 \begin{sagecommandline}
 sage: import hashlib
 sage: def Hash5(x):
-....:     Z16 = Integers(16)
 ....:     hasher = hashlib.sha256(x) # compute SHA56
 ....:     digest = hasher.hexdigest()
 ....:     d = ZZ(digest, base=16) # cast to integer
-....:     d = d.str(2)[-4:] # keep 5 least significant bits
+....:     d = d.str(2)[-4:] # keep 4 least significant bits
 ....:     d = ZZ(d, base=2) # cast to integer
-....:     return Z16(d) # cast to Z16
+....:     return d
 sage: Hash5(b'')
 \end{sagecommandline}
 We can then use Sage to apply this function to a large set of input values in order to plot a visualization of the distribution over the set $\{0,\ldots,15\}$. Executing over $500$ input values gives the following plot:
@@ -826,7 +827,7 @@ H2 = list_plot(arr, ymin=0,ymax=10000)
 \begin{center}
 \sageplot[scale=.5]{H2}
 \end{center}
-The lack of uniformity becomes apparent if we want to construct a similar hash function for $\Z_n$ for any other $5$ bit integer $n$ in the range $17\leq n \leq 31$. In this case, the definition of the hash function is exactly the same as for $\Z_{16}$, and hence, the images will not exceed the value $15$. So, for example, even in the case of hashing to $\Z_{31}$, the hash function never maps to any value larger than $15$, leaving almost half of all numbers out of the image range.
+The lack of uniformity becomes apparent if we want to construct a similar hash function for $\Z_n$ for any other $5$ bit integer $n$ in the range $17\leq n < 32$. In this case, the definition of the hash function is exactly the same as for $\Z_{16}$, and hence, the images will not exceed the value $15$. So, for example, even in the case of hashing to $\Z_{31}$, the hash function never maps to any value larger than $15$, leaving almost half of all numbers out of the image range.
 \begin{sagesilent}
 arr = []
 arr = [0 for i in range(31)]
