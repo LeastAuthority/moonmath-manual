@@ -140,6 +140,7 @@ To ensure the security of the protocol, the setup must be carried out in a way t
 However, finding a trusted third party can be challenging, thus alternative methods have been developed in practical applications. These utilize multi-party computation in the setup phase, which can be publicly verified for proper execution, and the simulation trapdoor is not recoverable if at least one participant destroys their contribution. Each participant holds only a fraction of the trapdoor, making it recoverable only if all participants collaborate and share their parts.
 
 \begin{example}[The $3$-factorization Problem]
+\label{ex:3-fac-groth-16-crs}
 To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization} and the Groth\_16 parameters from \examplename{} \ref{ex:3-fac-groth-16-params}. As we have seen in \ref{ex:3-fac-QAP}, an associated Quadratic Arithmetic Program is given by the following set:
 \begin{multline*}
 QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
@@ -200,7 +201,7 @@ To compute the curve points on the right side of these expressions, we need the 
 \end{align*}
 Putting all those values together, we see that the $\mathbb{G}_1$ part of the \concept{Common Reference String} is given by the following set of $12$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_1$: 
 \begin{equation}
-\label{ex:3-fac-groth-16-crs}
+\label{eq:3-fac-groth-16-crs}
 CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
 (27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
 \Big(\mathcal{O}, (33,9)\Big)\\
@@ -392,7 +393,7 @@ It can be observed that a Groth\_16 zk-SNARK comprises of three curve points, wi
 The witness in a zk-SNARK is encoded in the exponent of a generator of a secure elliptic curve, making it invisible to anyone except the prover. Additionally, the presence of random field elements $r$ and $t$ randomizes each proof, ensuring that no two proofs correspond to the same witness.
 
 \begin{example}[The $3$-factorization Problem]\label{3-fac-snark-compute} To see how a prover might compute 
-a zk-SNARK, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params} as well as the \concept{Common Reference String} from \eqref{ex:3-fac-groth-16-crs}.
+a zk-SNARK, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params} as well as the \concept{Common Reference String} from \eqref{eq:3-fac-groth-16-crs}.
 
 Our task is to compute a zk-SNARK for the instance $I_1=<11>$ and its constructive proof $<W_1,W_2,W_3,W_4>=<2,3,4,6>$ as computed in \examplename{} \ref{ex:3-fac-R1CS-constr-proof}. As we know from \examplename{} \ref{ex:3-fac-QAP}, the associated polynomial $P_{(I;W)}$ of the Quadratic Arithmetic Program from \examplename{} \ref{ex:3-fac-QAP} is given as follows:
 $$
@@ -402,7 +403,7 @@ Since $P_{(I;W)}$ is identical to the target polynomial $T(x)=x^2+x + 9$ in this
 $$
 H(x)= H_0 \cdot x^0 = 1 \cdot x^0
 $$
-We therefore use $[\frac{\tau^0\cdot T(\tau)}{\delta}]g_1=(26,34)$ from our \concept{Common Reference String} \eqref{ex:3-fac-groth-16-crs} of the $3$-factorization problem and compute as follows:
+We therefore use $[\frac{\tau^0\cdot T(\tau)}{\delta}]g_1=(26,34)$ from our \concept{Common Reference String} \eqref{eq:3-fac-groth-16-crs} of the $3$-factorization problem and compute as follows:
 \begin{align*}
 [\frac{H(\tau)\cdot T(\tau)}{\delta}]g_1 &= [H_0](26,34)=[1](26,34)\\
                                    &= (26,34)
