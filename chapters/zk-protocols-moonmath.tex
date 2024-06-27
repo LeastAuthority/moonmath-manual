@@ -241,7 +241,7 @@ We then publish this data to everyone who wants to participate in the generation
 To understand how this \concept{Common Reference String} can be used to evaluate polynomials at the secret evaluation point in the exponent of a generator, let's assume that we have deleted the simulation trapdoor. In that case, assuming that the discrete logarithm problem is hard in our groups, we have no way to know the secret evaluation point anymore, hence, we cannot evaluate polynomials at that point. However, we can evaluate polynomials of smaller degree than the degree of the target polynomial in the exponent of both generators at that point. 
 
 To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secret point $\tau$ without knowing the value of $\tau$ (which is $2$ in our case), we can use the \concept{Common Reference String} and equation \ref{eq:exp_evaluation-poly}. Using the scalar product notation instead of exponentiation, we get the following:
-\begin{align*}
+\begin{align} \label{eq:3-fac-A2-A5-g1}
 [A_2(\tau)]g_1 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_1 \\
      & = [6](33,34) + [10](13,15) & \text{\# } [\tau^0]g_1 = (13,15), [\tau^1]g_1 = (33,34)\\
      & = [6\cdot 2](13,15) + [10](13,15) = [9](13,15) & \text{\# logarithmic order on } \G_1 \\   
@@ -250,10 +250,10 @@ To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ fr
      & = [7](33,34) + [4](13,15) \\
      & = [7\cdot 2](13,15) + [4](13,15) = [5](13,15)\\
      & = (26,34)     
-\end{align*}
+\end{align}
 
 Indeed, we are able to evaluate the polynomials in the exponent at a secret evaluation point, because that point is encrypted in the curve point $(33,34)$ and its secrecy is protected by the discrete logarithm assumption. Of course, in our computation, we recovered the secret point $\tau=2$, but that was only possible because we know the logarithmic order of our groups with respect to the generators. Such an order is infeasible in cryptographically secure curves. We can do the same computation on $\G_2$ and get the following:
-\begin{align*}
+\begin{align} \label{eq:3-fac-A2-A5-g2}
 [A_2(\tau)]g_2 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_2 \\
      & = [6](10v^2,28v^3) + [10](7v^2,16v^3) \\
      & = [6\cdot 2](7v^2,16v^3) + [10](7v^2,16v^3) = [9](7v^2,16v^3) \\   
@@ -262,7 +262,7 @@ Indeed, we are able to evaluate the polynomials in the exponent at a secret eval
      & = [7](10v^2,28v^3) + [4](7v^2,16v^3) \\
      & = [7\cdot 2](7v^2,16v^3) + [4](7v^2,16v^3) = [5](7v^2,16v^3)\\
      & = (16v^2,28v^3)     
-\end{align*}
+\end{align}
 
 Apart from the target polynomial $T$, all other polynomials of the Quadratic Arithmetic Program can be evaluated in the exponent this way.
 \end{example}
@@ -433,7 +433,7 @@ In a next step, we compute $g_1^A$. We sample the random point $r=11$ from $\F_{
        & \oplus [W_3][A_4(\tau)]g_1\oplus [W_4][A_5(\tau)]g_1\oplus [r][\delta]g_1
 \end{align*}
 
-Since we don't know what $\alpha$, $\delta$ and $\tau$ are, we look up $[\alpha]g_1$ and $[\delta]g_1$ from the \concept{Common Reference String}. According to \examplename{} \ref{ex:3-fac-groth-16-crs}, we have $[A_2(\tau)]g_1=(35,15)$, $[A_5(\tau)]g_1=(26,34)$ and $[A_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
+Since we don't know what $\alpha$, $\delta$ and $\tau$ are, we look up $[\alpha]g_1$ and $[\delta]g_1$ from the \concept{Common Reference String}. According to \examplename{} \ref{ex:3-fac-groth-16-crs}, equation \eqref{eq:3-fac-A2-A5-g1}, we have $[A_2(\tau)]g_1=(35,15)$, $[A_5(\tau)]g_1=(26,34)$ and $[A_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
 \begin{align*}
 [A]g_1 &= (27,34) \oplus \mathcal{O} \oplus [11]\mathcal{O}\oplus [2](35,15) \oplus [3]\mathcal{O} \oplus [4]\mathcal{O}\oplus [6](26,34)\oplus [11](38,15)\\
  &=  (27,34)\oplus [2](35,15)\oplus [6](26,34)\oplus [11](38,15)\\
@@ -451,7 +451,7 @@ In order to compute the two curve points $[B]g_1$ and $[B]g_2$, we sample anothe
        & \oplus [W_3][B_4(\tau)]g_2\oplus [W_4][B_5(\tau)]g_2\oplus [t][\delta]g_2\\       
 \end{align*}
 
-Since we don't know what $\beta$, $\delta$ and $\tau$ are, we look up the associated group elements from the \concept{Common Reference String}. Recall from \ref{ex:3-fac-groth-16-crs} that we can evaluate $[B_j(\tau)]g_1$ without knowing the secret evaluation point $\tau$. Since $B_3=A_2$ and $B_4=A_5$, we have $[B_3(\tau)]g_1=(35,15)$, $[B_4(\tau)]g_1=(26,34)$ according to the computation in \ref{ex:3-fac-groth-16-crs}, and $[B_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
+Since we don't know what $\beta$, $\delta$ and $\tau$ are, we look up the associated group elements from the \concept{Common Reference String}. Recall from \examplename{} \ref{ex:3-fac-groth-16-crs} that we can evaluate $[B_j(\tau)]g_1$ without knowing the secret evaluation point $\tau$. Since $B_3=A_2$ and $B_4=A_5$, we have $[B_3(\tau)]g_1=(35,15)$, $[B_4(\tau)]g_1=(26,34)$ according to the computation in eq. \eqref{eq:3-fac-A2-A5-g1}, and $[B_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
 \begin{align*}
 [B]g_1 &= (26,34) \oplus \mathcal{O}\oplus [11]\mathcal{O}\oplus [2]\mathcal{O} \oplus [3](35,15) \oplus [4](26,34)\oplus [6]\mathcal{O}\oplus [4](38,15)\\    
        &= (26,34)\oplus [3](35,15) \oplus [4](26,34)\oplus [4](38,15)\\  
