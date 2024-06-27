@@ -371,12 +371,12 @@ g_1^{\frac{H(\tau)\cdot T(\tau)}{\delta}}
 \end{align*}
 
 After this has been done, the prover samples two random field elements $r,t\in \F_r$, and uses the \concept{Common Reference String}, the instance variables $I_1$, $\ldots$, $I_n$ and the witness variables $W_1$, $\ldots$, $W_m$ to compute the following curve points:
-\begin{align}\label{eq:groth16_prover}
-g_1^W & = \Big( g_1^{\frac{\beta\cdot A_{1+n}(\tau)+\alpha\cdot B_{1+n}(\tau)+C_{1+n}(\tau)}{\delta}}\Big)^{W_1}\cdots \Big(g_1^{\frac{\beta\cdot A_{m+n}(\tau)+\alpha\cdot B_{m+n}(\tau)+C_{m+n}(\tau)}{\delta}}\Big)^{W_m}\\
-g_1^A & = g_1^\alpha \cdot g_1^{A_0(\tau)} \cdot \Big(g_1^{A_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{A_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{A_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{A_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^r \\
-g_1^B & = g_1^\beta \cdot g_1^{B_0(\tau)} \cdot \Big(g_1^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^t\\
-g_2^B & = g_2^\beta \cdot g_2^{B_0(\tau)} \cdot \Big(g_2^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_2^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_2^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_2^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_2^\delta\Big)^t \\
-g_1^C & = g_1^W\cdot g_1^{\frac{H(\tau)\cdot T(\tau)}{\delta}} \cdot \Big(g_1^A\Big)^t \cdot \Big(g_1^B\Big)^r \cdot \Big(g_1^\delta\Big)^{-r\cdot t}
+\begin{align}
+g_1^W & = \Big( g_1^{\frac{\beta\cdot A_{1+n}(\tau)+\alpha\cdot B_{1+n}(\tau)+C_{1+n}(\tau)}{\delta}}\Big)^{W_1}\cdots \Big(g_1^{\frac{\beta\cdot A_{m+n}(\tau)+\alpha\cdot B_{m+n}(\tau)+C_{m+n}(\tau)}{\delta}}\Big)^{W_m} \label{eq:groth16_prover:g1W} \\
+g_1^A & = g_1^\alpha \cdot g_1^{A_0(\tau)} \cdot \Big(g_1^{A_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{A_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{A_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{A_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^r \label{eq:groth16_prover:g1A} \\
+g_1^B & = g_1^\beta \cdot g_1^{B_0(\tau)} \cdot \Big(g_1^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^t \label{eq:groth16_prover:g1B} \\
+g_2^B & = g_2^\beta \cdot g_2^{B_0(\tau)} \cdot \Big(g_2^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_2^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_2^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_2^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_2^\delta\Big)^t \label{eq:groth16_prover:g2B}\\
+g_1^C & = g_1^W\cdot g_1^{\frac{H(\tau)\cdot T(\tau)}{\delta}} \cdot \Big(g_1^A\Big)^t \cdot \Big(g_1^B\Big)^r \cdot \Big(g_1^\delta\Big)^{-r\cdot t} \label{eq:groth16_prover:g1C}
 \end{align}
 
 During this calculation, the group elements $g_1^{A_j(\tau)}$, $g_1^{B_j(\tau)}$, and $g_2^{B_j(\tau)}$ can be obtained from the Common Reference String and the Quadratic Arithmetic Program associated with the problem, as demonstrated in \ref{eq:exp_evaluation-poly}. These points only need to be computed once, and can be made public and reused for multiple proof generations as they are consistent across all instances and witnesses. The remaining group elements are part of the Common Reference String.
@@ -409,7 +409,7 @@ We therefore use $[\frac{\tau^0\cdot T(\tau)}{\delta}]g_1=(26,34)$ from our \con
                                    &= (26,34)
 \end{align*}
 
-In the next step, we have to compute all group elements required for a proper Groth16 zk-SNARK \eqref{def:groth16-snark}. We start with $g_1^W$ (see eq. \eqref{eq:groth16_prover}). Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \curvename{BLS6\_6} curve, we have to compute the point $[W]g_1$:
+In the next step, we have to compute all group elements required for a proper Groth16 zk-SNARK \eqref{def:groth16-snark}. We start with $g_1^W$ \eqref{eq:groth16_prover:g1W}. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \curvename{BLS6\_6} curve, we have to compute the point $[W]g_1$:
 \begin{align*}
 [W]g_1 = & \phantom{\oplus} [W_1] g_1^{\frac{\beta\cdot A_{2}(\tau)+\alpha\cdot B_{2}(\tau)+C_{2}(\tau)}{\delta}}
         \oplus [W_2] g_1^{\frac{\beta\cdot A_{3}(\tau)+\alpha\cdot B_{3}(\tau)+C_{3}(\tau)}{\delta}}        
@@ -426,7 +426,7 @@ To compute this point, we have to remember that a prover should not be in posses
       & = (38,28)
 \end{align*} 
 
-In a next step, we compute $g_1^A$ (see eq. \eqref{eq:groth16_prover}). We sample the random point $r=11$ from $\F_{13}$, using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve. We then have to compute the following expression:
+In a next step, we compute $g_1^A$ \eqref{eq:groth16_prover:g1A}. We sample the random point $r=11$ from $\F_{13}$, using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve. We then have to compute the following expression:
 
 \begin{align*}
 [A]g_1 = &\phantom{\oplus} [\alpha]g_1 \oplus [A_0(\tau)]g_1 \oplus [I_1][A_1(\tau)]g_1\oplus [W_1][A_2(\tau)]g_1 \oplus [W_2][A_3(\tau)]g_1\\ 
@@ -442,7 +442,7 @@ Since we don't know what $\alpha$, $\delta$ and $\tau$ are, we look up $[\alpha]
  &= (35,15)
 \end{align*}
 
-In order to compute the two curve points $[B]g_1$ and $[B]g_2$ (see eq. \eqref{eq:groth16_prover}), we sample another random element $t=4$ from $\F_{13}$. Using the scalar product instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the following expressions:
+In order to compute the two curve points $[B]g_1$ \eqref{eq:groth16_prover:g1B} and $[B]g_2$ \eqref{eq:groth16_prover:g2B}, we sample another random element $t=4$ from $\F_{13}$. Using the scalar product instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the following expressions:
 
 \begin{align*}
 [B]g_1 = &\phantom{\oplus} [\beta]g_1 \oplus [B_0(\tau)]g_1 \oplus [I_1][B_1(\tau)]g_1\oplus [W_1][B_2(\tau)]g_1 \oplus [W_2][B_3(\tau)]g_1\\ 
@@ -468,7 +468,7 @@ Since we don't know what $\beta$, $\delta$ and $\tau$ are, we look up the associ
          &= (7v^2,27v^3)     
 \end{align*}
 
-In a last step, we combine the previous computations to compute the point $[C]g_1$ (see eq. \eqref{eq:groth16_prover}) in the group $\G_1$ as follows:
+In a last step, we combine the previous computations to compute the point $[C]g_1$ \eqref{eq:groth16_prover:g1C} in the group $\G_1$ as follows:
 \begin{align*}
 [C]g_1 & = [W]g_1\oplus [\frac{H(s)\cdot T(\tau)}{\delta}]g_1 \oplus [t][A]g_1 \oplus [r][B]g_1 \oplus [-r\cdot t][\delta]g_1\\
        & = (38,28)\oplus (26,34) \oplus [4](35,15) \oplus [11](13,28) \oplus [-11\cdot 4](38,15)\\       
