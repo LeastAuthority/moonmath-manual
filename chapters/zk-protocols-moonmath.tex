@@ -60,7 +60,7 @@ The generated zk-SNARK is zero-knowledge, has completeness and soundness in the 
 To be more precise, let $R$ be a Rank-1 Constraint System defined over some finite field $\F_r$. Then \term{Groth\_16 parameters} for $R$ are given by the following set:
 \begin{equation}
 \label{groth16-parameters}
-\mathtt{Groth\_16-Param}(R)=(r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2)
+\mathtt{Groth\_16-Param}(R)= \{ r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2 \}
 \end{equation}
 
 Here, $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a generator of $\G_1$, $g_2$ is a generator of $\G_2$ and $e: \G_1 \times \G_2 \to \G_T$ is an efficiently computable, non-degenerate, bilinear pairing for some target group $\G_T$. In real-world applications, the parameter set is usually agreed on in advance. 
@@ -77,13 +77,13 @@ We will explain these algorithms together with detailed examples in the remainde
 Assuming a trusted third party or the presence of a corresponding multi-party computation for the setup, the protocol is capable of deriving a zk-SNARK from a constructive proof for $R$, provided that the group order $r$ is suitably large, with the requirement being particularly applicable to being larger than the number of constraints in the associated R1CS.
 
 \begin{example}[The 3-Factorization Problem]
-\label{ex:3-fac-groth-16-params} Consider the $3$-factorization problem from \ref{ex:3-factorization} and its associated algebraic circuit \ref{ex:3-fac-zk-circuit} as well the Rank-1 Constraint System from \ref{ex:3-factorization-r1cs}. In this example, we want to agree on a parameter set $(r, \G_1, \G_2, e(\cdot,\cdot), g_1, g_2)$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
+\label{ex:3-fac-groth-16-params} Consider the $3$-factorization problem from \ref{ex:3-factorization} and its associated algebraic circuit \ref{ex:3-fac-zk-circuit} as well the Rank-1 Constraint System from \ref{ex:3-factorization-r1cs}. In this example, we want to agree on a parameter set $\{r, \G_1, \G_2, e(\cdot,\cdot), g_1, g_2\}$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
 
 To find proper parameters, first observe that the circuit \ref{ex:3-fac-zk-circuit}, as well as its associated R1CS $R_{3.fac\_zk}$ \ref{ex:3-factorization-r1cs} and the derived QAP \ref{ex:3-fac-QAP}, are defined over the field $\F_{13}$. We therefore have to choose pairing groups $\G_1$ and $\G_2$ of order $13$. 
 
 We know from \ref{BLS6} that the moon-math curve \texttt{BLS6\_6} has two subgroups $\G_1[13]$ and $\G_2[13]$, which are both of order $13$. The associated Weil pairing $e(\cdot,\cdot)$ \ref{BLS6-weil-pairing} is efficiently computable, bilinear as well as non-degenerate. We therefore choose those groups and the Weil pairing together with the generators $g_1 = (13,15) $ and $g_2=(7v^2,16v^3)$ of $\G_1[13]$ and $\G_2[13]$, as a parameter set:
 $$
-\mathtt{Groth\_16-Param}(R_{3.fac\_zk})=(13, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3))
+\mathtt{Groth\_16-Param}(R_{3.fac\_zk})= \{ 13, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3) \}
 $$
 It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has an efficiently computable, non-degenerate, bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real-world applications, where SNARKs with equivalent behavior are defined over different curves, used in different applications.
 \end{example}
