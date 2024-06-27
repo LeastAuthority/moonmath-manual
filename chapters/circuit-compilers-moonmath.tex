@@ -2025,11 +2025,19 @@ Brain-compiling this code into a circuit, we first draw box nodes for all input 
 \subsection{Binary Field Representations} In applications, it is often necessary to enforce a binary representation of elements from the \texttt{field} type. To derive an appropriate circuit over a prime field $\F_p$, let $m=|p|_2$ be the smallest number of bits necessary to represent the prime modulus $p$. Then a bitstring $<b_0,\ldots,b_{m-1}>\in \{0,1\}^m$ is a binary representation of a field element $x\in\F_p$, if and only if
 \begin{equation}
 \label{def:binary_field_rep}
-x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^{m-1}
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{m-1}\cdot 2^{m-1}
 \end{equation}
-In this expression, addition and exponentiation is considered to be executed in $\F_p$, which is well defined since all terms $2^j$ for $0\leq j < m$ are elements of $\F_p$. Note, however, that in contrast to the binary representation of unsigned integers $n\in\N$, this representation is not unique in general, since the modular $p$ equivalence class might contain more than one binary representative. 
+In this expression, addition and exponentiation is considered to be
+executed in $\F_p$, which is well defined since all terms $2^j$ for
+$0 \leq j \leq m$ are elements of $\F_p$. Note, however, that in
+contrast to the binary representation of unsigned integers $n\in\N$,
+this representation is not unique in general, since the modular $p$
+equivalence class might contain more than one binary representative.
 
-Considering that the underlying prime field is fixed and the most significant bit of the prime modulus is $m$, the following circuit flattens equation \ref{def:binary_field_rep}, assuming all inputs $b_1$, $\ldots$, $b_m$ are of boolean type.
+Considering that the underlying prime field is fixed and the most
+significant bit of the prime modulus is $m-1$, the following circuit
+flattens equation \ref{def:binary_field_rep}, assuming all inputs
+$b_0$, $\ldots$, $b_{m-1}$ are of boolean type.
 \begin{center}
 \digraph[scale=0.3]{BINARYREP}{
 	forcelabels=true;
