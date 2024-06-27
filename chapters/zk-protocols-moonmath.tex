@@ -554,7 +554,7 @@ According to \cite{Groth16}, the minimum number of pairings required for any pro
 \label{3-fac-snark-verifier} To see how a verifier might verify  
 a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params}, the \concept{Common Reference String} from \eqref{ex:3-fac-groth-16-crs} as well as the zk-SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$ from \examplename{}  \eqref{ex:3-fac-groth-16-snark}, which claims to be an argument of knowledge for a witness for the instance $I_1=<11>$.
 
-In order to verify the zk-SNARK for that instance, we first compute the curve point $g_1^I$ (see eq. \eqref{eq:groth16_verify}). Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[I]g_1$ as follows:
+In order to verify the zk-SNARK for that instance, we first compute the curve point $g_1^I$ \eqref{eq:groth16_verify}. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[I]g_1$ as follows:
 
 \begin{align*}
 [I]g_1 = & [\frac{\beta\cdot A_{0}(\tau)+\alpha\cdot B_{0}(\tau)+C_{0}(\tau)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(\tau)+\alpha\cdot B_{1}(\tau)+C_{1}(\tau)}{\gamma}]g_1
@@ -645,10 +645,10 @@ Given some instance $I$, the forger's task is to generate a zk-SNARK for this in
 
 To achieve this in the Groth\_16 protocol, the forger can use the simulation trapdoor in combination with the QAP and two arbitrary field elements $A$ and $B$ from the scalar field $\F_r$ of the pairing groups to compute $g_1^C$ for the instance $<I_1,\ldots,I_n>$ as follows:
 
-\begin{align}
+\begin{equation}
 \label{def:groth16-simulated-proof}
-g_1^C = g_1^{\frac{A\cdot B}{\delta}}\cdot g_1^{-\frac{\alpha\cdot \beta}{\delta}}\cdot g_1^{-\frac{\beta A_0(\tau) + \alpha B_0(\tau)+ C_0(\tau)}{\delta}}\cdot \Big(g_1^{-\frac{\beta A_1(\tau) + \alpha B_1(\tau)+ C_1(\tau)}{\delta}}\Big)^{I_1}\cdots \Big(g_1^{-\frac{\beta A_n(\tau) + \alpha B_n(\tau)+ C_n(\tau)}{\delta}}\Big)^{I_n}\
-\end{align} 
+g_1^C = g_1^{\frac{A\cdot B}{\delta}}\cdot g_1^{-\frac{\alpha\cdot \beta}{\delta}}\cdot g_1^{-\frac{\beta A_0(\tau) + \alpha B_0(\tau)+ C_0(\tau)}{\delta}}\cdot \Big(g_1^{-\frac{\beta A_1(\tau) + \alpha B_1(\tau)+ C_1(\tau)}{\delta}}\Big)^{I_1}\cdots \Big(g_1^{-\frac{\beta A_n(\tau) + \alpha B_n(\tau)+ C_n(\tau)}{\delta}}\Big)^{I_n}
+\end{equation}
 
 The forger then publishes the zk-SNARK $\pi_{forged} = (g_1^A, g_1^C, g_2^B)$, which will pass the verification process and is computable without the existence of a witness $<W_1,\ldots,W_m>$.
 
