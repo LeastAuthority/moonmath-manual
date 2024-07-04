@@ -1392,7 +1392,7 @@ sage: for P in TJJF13_4_5:
 ....:         L_TJJ_G1.append(P)
 sage: TJJ_G1 = Set(L_TJJ_G1)
 \end{sagecommandline}
-We get $\G_1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$ and as expected, $\G_1$ is identical to the $5$-torsion group of the (unextended) curve over the prime field $TJJ_13$ as computed in \examplename{} \ref{eq:TJJ13-logarithmic-order}.
+We get $\G_1= \{\Oinf, (7,2), (8,8), (8,5), (7,11)\}$ and as expected, $\G_1$ is identical to the $5$-torsion group of the (unextended) curve over the prime field $TJJ\_13$ as computed in \examplename{} \ref{eq:TJJ13-logarithmic-order}.
 
 In order to compute the group $\G_2$ for the tiny jubjub curve, we can use almost the same algorithm as we used for the computation of $\G_1$. Since $p=13$ we get the following:
 \begin{sagecommandline}
@@ -1465,7 +1465,7 @@ The extension field elements $f_{r,P}(Q), f_{r,Q}(P)\in \F_{p^k}$ in the definit
 \end{algorithmic}
 \end{algorithm}
 
-Understanding the details of how and why this algorithm works requires the concept of \term{divisors}, which is outside of the scope this book. The interested reader might look at \chaptname{} 6, \secname{} 6.8.3 in \cite{hoffstein-2008}, or at \href{https://static1.squarespace.com/static/5fdbb09f31d71c1227082339/t/5ff394720493bd28278889c6/1609798774687/PairingsForBeginners.pdf}{Craig Costello’s great tutorial on elliptic curve pairings}.\tbds{add this to references}  As we can see, the algorithm is more efficient on prime numbers $r$, that have a low Hamming weight \ref{def:binary_representation_integer}.
+Understanding the details of how and why this algorithm works requires the concept of \term{divisors}, which is outside of the scope this book. The interested reader might look at \chaptname{} 6, \secname{} 6.8.3 in \cite{hoffstein-2008}, or at \chaptname {} 3 in \cite{costello-pairings}.  As we can see, the algorithm is more efficient on prime numbers $r$, that have a low Hamming weight \ref{def:binary_representation_integer}.
 
 We call an elliptic curve $E(\F_p)$ \term{pairing-friendly} if there is a prime factor of the groups order such that the Weil pairing is efficiently computable with respect to that prime factor. In real-world applications of pairing-friendly elliptic curves, the embedding degree is usually a small number like $2$, $4$, $6$ or $12$, and the number $r$ is the largest prime factor of the curve's order. 
 
@@ -1555,7 +1555,7 @@ The try-and-increment method is relatively easy to implement, and it maintains t
 
 Since the curve $TJJ\_13$ is defined over the field $\F_{13}$, and the binary representation of $13$ is $Bits(13)=<1,1,0,1>$, one way to implement a try-and-increment function is to apply SHA256 from Sage's hashlib library on the concatenation $s||c$ for some binary counter string $c$, and use the first $4$ bits of the image to try to hash into $\F_{13}$. In case we are able to hash to a value $x$ such that $x^3 +8\cdot x + 8$ is a quadratic residue in $\F_{13}$, we use the fifth bit to decide which of the two possible roots of $x^3 + 8\cdot x + 8$ we will choose as the $y$ coordinate. The result is a curve point different from the point at infinity. To project it onto the large prime order subgroup $TJJ\_13[5]$, we multiply it with the cofactor $4$. If the result is not the point at infinity, it is the result of the hash.
 
-To make this concrete, let $s=<1,1,1,0,0,1,0,0,0,0>$ be our binary string that we want to hash onto $TJJ_13[5]$. We use a binary counter string starting at zero, that is, we choose $c=<0>$. Invoking Sage, we define the try-hash function as follows:
+To make this concrete, let $s=<1,1,1,0,0,1,0,0,0,0>$ be our binary string that we want to hash onto $TJJ\_13[5]$. We use a binary counter string starting at zero, that is, we choose $c=<0>$. Invoking Sage, we define the try-hash function as follows:
 \begin{sagecommandline}
 sage: import hashlib
 sage: def try_hash(s,c):
@@ -1595,7 +1595,7 @@ H_{TJJ\_13[5]}(<1,1,1,0,0,0,0,0>) = (8,8)
 $$
 \end{example}
 \begin{exercise}
-Use our definition of the $try\_hash$ algorithm to implement a hash function $H_{TJJ\_13[5]} : \{0,1\}^*\to TJJ\_13(\F_{13})[5]$ that maps binary strings of arbitrary length onto the $5$-torsion group of $TJJ13(\F_{13})$. 
+Use our definition of the $try\_hash$ algorithm to implement a hash function $H_{TJJ\_13[5]} : \{0,1\}^*\to TJJ\_13(\F_{13})[5]$ that maps binary strings of arbitrary length onto the $5$-torsion group of $TJJ\_13(\F_{13})$. 
 \end{exercise}
 \begin{exercise}
 Implement a cryptographic hash function $H_{secp256k1} : \{0,1\}^*\to secp256k1$ that maps binary strings of arbitrary length onto the elliptic curve \curvename{secp256k1}. 
