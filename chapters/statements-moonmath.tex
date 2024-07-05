@@ -451,7 +451,7 @@ $$
 \label{ex:3-fac-R1CS-constr-proof}
 Consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} and the R1CS defined in \examplename{} \ref{ex:3-factorization-r1cs}. As we have seen in \ref{ex:3-factorization-r1cs}, solutions to the R1CS are in 1:1 correspondence with solutions to the decision function of $L_{3.fac\_zk}$. Both languages are therefore equivalent in the sense that there is a 1:1 correspondence between words in both languages.
 
-To give an intuition of what constructive R1CS-based proofs in $L_{3.fac\_zk}$ look like, consider the instance $I_1= 11$. To prove the statement ``There exists a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$'' constructively, a proof has to provide a solution to the R1CS from \examplename{} \ref{ex:3-factorization-r1cs}, that is, an assignments to all witness variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, an example assignment is given by
+To give an intuition of what constructive R1CS-based proofs in $L_{3.fac\_zk}$ look like, consider the instance $I_1= 11$. To prove the statement ``There exists a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_zk}$'' constructively, a proof has to provide a solution to the R1CS from \examplename{} \ref{ex:3-factorization-r1cs}, that is, an assignment to all witness variables $W_1$, $W_2$, $W_3$ and $W_4$. Since the alphabet is $\F_{13}$, an example assignment is given by
 $W=<2,3,4,6>$ since $(I_1;W)$ satisfies the R1CS:
 \begin{align*}
 W_1 \cdot W_2 &= W_4 & \text{\# } 2\cdot 3 = 6\\
@@ -486,14 +486,14 @@ As a consequence, developers are able to construct complex R1CS from simple ones
 \subsection{Algebraic Circuits}
 \label{sec:circuits} As we have seen in the previous paragraphs, \concept{rank-1 constraint systems} are quadratic equations such that solutions are knowledge proofs for the existence of words in associated languages. From the perspective of a prover, it is therefore important to solve those equations efficiently. 
 
-However,  in contrast to systems of linear equations, no general methods are known that solve systems of quadratic equations efficiently. \concept{rank-1 constraint systems} are therefore impractical from a provers perspective and auxiliary information is needed that helps to compute solutions efficiently.
+However,  in contrast to systems of linear equations, no general methods are known that solve systems of quadratic equations efficiently. \concept{rank-1 constraint systems} are therefore impractical from a prover's perspective and auxiliary information is needed to help compute solutions efficiently.
 
 Methods which compute R1CS solutions are sometimes called \term{witness generator functions}.  To provide a common example, we introduce another class of decision functions called \term{algebraic circuits}. As we will see, every algebraic circuit defines an associated R1CS and also provides an efficient way to compute solutions for that R1CS. This method is introduced, for example, in \cite{sasson-2013}.
 
 It can be shown that every space- and time-bounded computation is expressible as an algebraic circuit. Transforming high-level computer programs into those circuits is a process often called \term{flattening}. We will look at those transformations in \chaptname{} \ref{chap:circuit-compilers}.
 
 In this section we will introduce our model for algebraic circuits and look at the concept of circuit execution and valid assignments. After that, we will show how to derive \concept{rank-1 constraint systems} from circuits and how circuits are useful to compute solutions to associated R1CS efficiently.
-\subsubsection{Algebraic circuit representation} To see what algebraic circuits are, let $\F$ be a field. An algebraic circuit is then a directed acyclic (multi)graph that computes a polynomial function over $\F$. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the field operations \term{addition} as well as \term{multiplication}. Graph edges are directed and represent the flow of the computation along the nodes.
+\subsubsection{Algebraic circuit representation} To see what algebraic circuits are, let $\F$ be a field. An algebraic circuit is then a directed acyclic multi-graph that computes a polynomial function over $\F$. Nodes with only outgoing edges (source nodes) represent the variables and constants of the function and nodes with only incoming edges (sink nodes) represent the outcome of the function. All other nodes have exactly two incoming edges and represent the field operations \term{addition} as well as \term{multiplication}. Graph edges are directed and represent the flow of the computation along the nodes.
 
 To be more precise, in this book, we call a directed acyclic multi-graph $C(\F)$  an \term{algebraic circuit} over $\F$ if the following conditions hold:
 
@@ -505,7 +505,7 @@ To be more precise, in this book, we call a directed acyclic multi-graph $C(\F)$
 \item Every node that is neither a source nor a sink has exactly two incoming edges and a label from the set $\{+,*\}$ that represents either addition or multiplication in $\F$.
 \item All outgoing edges from a node have the same label.
 \item Outgoing edges from a node with a label that represents a variable have a label.
-\item Outgoing edges from a node with a label that represents multiplication have a label, if there is at least one labeled edge in both input path.
+\item Outgoing edges from a node with a label that represents multiplication have a label, if there is at least one labeled edge in both input paths.
 \item All incoming edges to sink nodes have a label.
 \item If an edge has two labels $S_i$ and $S_j$ it gets a new label $S_i = S_j$.
 \item No other edge has a label.
@@ -641,7 +641,7 @@ Since we haven't decided which part of the computation should be instance and wh
 	n16 [shape=box, label="f_tiny-jj" /*, color=lightgray */];		
 }
 \end{center}
-This circuit is not a graph, but a multigraph, since there is more than one edge between some of the nodes. 
+This circuit is not a graph, but a multi-graph, since there is more than one edge between some of the nodes. 
 
 In the process of designing  of circuits from functions, it should be noted that circuit representations are not unique in general. In case of the function $f_{tiny-jj}$, the circuit shape is dependent on our choice of bracketing above.%in \ref{ex:tiny_circuit_brackets}. 
 An alternative design is for example, given by the following circuit, which occurs when the bracketed expression $8\cdot ( (x\cdot x) \cdot (y\cdot y) )$ is replaced by the expression $(x\cdot x) \cdot ( 8 \cdot (y\cdot y) )$. 
@@ -783,7 +783,7 @@ It can be shown that every space- and time-bounded computation can be transforme
 
 \subsubsection{Circuit Execution} Algebraic circuits are directed, acyclic multi-graphs, where nodes represent variables, constants, or addition and multiplication gates. In particular, every algebraic circuit with $n$ input nodes decorated with variable symbols and $m$ output nodes decorated with variables can be seen as a function that transforms an input string $(x_1,\ldots, x_n)$ from $\F^n$ into an output string $(f_1,\ldots,f_m)$ from $\F^m$. The transformation is done by sending values associated to nodes along their outgoing edges to other nodes. If those nodes are gates, then the values are transformed according to the gate label and the process is repeated along all edges until a sink node is reached. We call this computation \term{circuit execution}.
 
-When executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges, and, in particular, for all edge labels in the circuit. The result is a string $<S_1,S_2,\ldots, S_n>$ of field elements associated to all labeled edges, which we call a \term{valid assignment} to the circuit. In contrast, any assignment $<S'_1,S'_2,\ldots, S'_n>$ of field elements to edge labels that can not arise from circuit execution is called an \term{invalid assignment}.
+When executing a circuit, it is possible to not only compute the output values of the circuit but to derive field elements for all edges, and, in particular, for all edge labels in the circuit. The result is a string $<S_1,S_2,\ldots, S_n>$ of field elements associated to all labeled edges, which we call a \term{valid assignment} to the circuit. In contrast, any assignment $<S'_1,S'_2,\ldots, S'_n>$ of field elements to edge labels that cannot arise from circuit execution is called an \term{invalid assignment}.
 
 Valid assignments can be interpreted as \term{proofs for proper circuit execution} because they keep a record of the computational result as well as intermediate computational steps. 
 \begin{example}[3-factorization]
@@ -902,7 +902,7 @@ $$
 R_{C(\F)} : \F^* \times \F^* \to \{true, false\}\;;\;
 (I;W) \mapsto
 \begin{cases}
-true & (I;W) \text{is valid assignment to } C(\F)\\
+true & (I;W) \text{ is a valid assignment to } C(\F)\\
 false & else
 \end{cases}
 \end{equation}
@@ -910,16 +910,16 @@ Every algebraic circuit therefore defines a formal language. The grammar of this
 
 In the context of zero-knowledge proof systems, executing circuits is also often called \term{witness generation}, since in applications the instance part is usually public, while its the task of a prover to compute the witness part.
 
-\begin{remark}[Circuit satisfiability] Similar to \ref{r1cs-satisfiability}, it should be noted that, in our definition, every circuit defines its own language. However, in more theoretical approaches another language usually called \term{circuit satisfiability} is often considered, which is useful when it comes to more abstract problems like expressiveness, or computational complexity of the class of \term{all} algebraic circuits over a given field. From our perspective, the circuit satisfiability language is obtained by union of all circuit languages that are in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
+\begin{remark}[Circuit satisfiability] Similar to \ref{r1cs-satisfiability}, it should be noted that, in our definition, every circuit defines its own language. However, in more theoretical approaches another language usually called \term{circuit satisfiability} is often considered, which is useful when it comes to more abstract problems like expressiveness, or computational complexity of the class of \term{all} algebraic circuits over a given field. From our perspective, the circuit satisfiability language is obtained by the union of all circuit languages that are in our definition. To be more precise, let the alphabet $\Sigma=\F$ be a field. Then 
 $$
-L_{CIRCUIT\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a circuit } C(\F) \text{ such that } (i;w) \text{ is valid assignment}\}
+L_{CIRCUIT\_SAT(\F)} = \{(i;w)\in \Sigma^*\times \Sigma^*\;|\; \text{there is a circuit } C(\F) \text{ such that } (i;w) \text{ is a valid assignment}\}
 $$
 \end{remark}
 \begin{example}[3-Factorization]Consider the circuit $C_{3.fac}$ from \examplename{} \ref{ex:3-fac-zk-circuit} again. We call the associated language $L_{3.fac\_circ}$.
 
 To understand how a constructive proof of a statement in $L_{3.fac\_circ}$ looks like, consider the instance $I_1= 11$. To provide a proof for the statement ``There exists a witness $W$ such that $(I_1;W)$ is a word in $L_{3.fac\_circ}$'' a proof therefore has to consists of proper values for the variables $W_1$, $W_2$, $W_3$ and $W_4$. Any prover therefore has to find input values for $W_1$, $W_2$ and $W_3$ and then execute the circuit to compute $W_4$ under the assumption $I_1=11$. 
 
-Example \ref{ex:3-fac-zk-circuit_2}implies that $<2,3,4,6>$ is a proper constructive proof and in order to verify the proof a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
+Example \ref{ex:3-fac-zk-circuit_2} implies that $<2,3,4,6>$ is a proper constructive proof. In order to verify the proof, a verifier needs to execute the circuit with instance $I_1=11$ and inputs $W_1=2$, $W_2=3$ and $W_3=4$ to decide whether the proof is a valid assignment or not. 
 \end{example}
 \begin{exercise}
 Consider the circuit $C_{tiny-jj}(\F_{13})$ from \examplename{} \ref{ex:TJJ-circuit_1}, with its associated language $L_{tiny-jj}$. Construct a proof $\pi$ for the instance $<11,6>$ and verify the proof.
@@ -937,23 +937,23 @@ To see this, let $C(\F)$ be an algebraic circuit over a finite field $\F$, with 
 \begin{equation}
 (\text{left input})\cdot (\text{right input}) = S_j
 \end{equation} 
-In this expression $(\text{left input})$ is the output from the symbolic execution of the subgraph that consists of the left input edge of this gate and all edges and nodes that have  this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes. 
+In this expression, $(\text{left input})$ is the output from the symbolic execution of the subgraph that consists of the left input edge of this gate and all edges and nodes that have  this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes. 
 
-In the same way $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
+In the same way, $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
 \item If the edge label $S_j$ is an outgoing edge of an addition gate, the R1CS gets a new quadratic constraint
 \begin{equation}
 (\text{left input} + \text{right input})\cdot 1 = S_j
 \end{equation}  
-In this expression $(\text{left input})$ is the output from the symbolic execution of the subgraph that consists of the left input edge of this gate and all edges and nodes that have  this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes. 
+In this expression, $(\text{left input})$ is the output from the symbolic execution of the subgraph that consists of the left input edge of this gate and all edges and nodes that have  this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes. 
 
-In the same way $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
+In the same way, $(\text{right input})$ is the output from the symbolic execution of the subgraph that consists of the right input edge of this gate and all edges and nodes that have this edge in their path, starting with constant inputs or labeled outgoing edges of other nodes.
 \item No other edge label adds a constraint to the system.
 \end{itemize}
 
 If an algebraic circuit $C(\F)$ is constructed according to the rules from \ref{def:algebraic-circuit}, the result of this method is a \concept{rank-1 constraint system}, and, in this sense, every algebraic circuit $C(\F)$ generates a R1CS $R$, which we call the \term{associated R1CS} of the circuit. It can be shown that a string of field elements $<S_1,S_2,\ldots, S_n>$ is a valid assignment to a circuit if and only if the same string is a solution to the associated R1CS. Circuit executions therefore compute solutions to \concept{rank-1 constraint systems} efficiently. 
 
 To understand the contribution of algebraic gates to the number of constraints, note that,
-according to construction \ref{def:algebraic-circuit}, multiplication gates have labels on their outgoing edges if and only if there is at least one labeled edge in both input paths, or if the outgoing edge is an input to a sink node. This implies that multiplication with a constant is essentially free in the sense that it doesn't add a new constraint to the system, as long as that multiplication gate is not am input to an output node. 
+according to construction \ref{def:algebraic-circuit}, multiplication gates have labels on their outgoing edges if and only if there is at least one labeled edge in both input paths, or if the outgoing edge is an input to a sink node. This implies that multiplication with a constant is essentially free in the sense that it doesn't add a new constraint to the system, as long as that multiplication gate is not an input to an output node. 
 
 Moreover, addition gates have labels on their outgoing edges if and only if they are inputs to sink nodes. This implies that addition is essentially free in the sense that it doesn't add a new constraint to the system, as long as that addition gate is not an input to an output node. 
 
@@ -1235,7 +1235,7 @@ The last edge label is the constant $S_6=0$. To see how it implies a constraint,
 	n16 [shape=box, label="0" /*, color=lightgray */];		
 }
 \end{center}
-Both the left and the right input are  unlabeled, but have a labeled edges in their path. Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in the sub-circuit. We get
+Both the left and the right input are  unlabeled, but have labeled edges in their path. Since the gate is an addition gate, the right factor in the quadratic constraint is always $1$ and the left factor is computed by symbolically executing all inputs to all gates in the sub-circuit. We get
 $$
 (12\cdot S_4 + S_5 + 10\cdot S_3 + 1)\cdot 1 = 0
 $$
@@ -1247,17 +1247,17 @@ Since there are no more labeled outgoing edges, we are done deriving the constra
  (S_4\cdot 8)\cdot S_3 &= S_5\\
  (12\cdot S_4 + S_5 + 10\cdot S_3 + 1)\cdot 1 &= 0
 \end{align*}
-which is equivalent to the R1CS we derived in \examplename{} \ref{ex:TJJ-r1cs} both the circuit as well as the R1CS are just two different ways to express the same language.
+which is equivalent to the R1CS we derived in \examplename{} \ref{ex:TJJ-r1cs}. Thus, both the circuit as well as the R1CS are just two different ways to express the same language.
 \end{example}
 \subsection{Quadratic Arithmetic Programs}
 \label{sec:QAP}
- We have introduced algebraic circuits and their associated \concept{rank-1 constraint systems} as two particular models able to represent bounded computation. Both models define formal languages, and associated membership as well as knowledge claims can be proofed in a constructive way by executing the circuit in order to compute solutions to its associated R1CS. 
+ We have introduced algebraic circuits and their associated \concept{rank-1 constraint systems} as two particular models able to represent bounded computation. Both models define formal languages, and associated membership as well as knowledge claims can be proven in a constructive way by executing the circuit in order to compute solutions to its associated R1CS. 
 
 One reason why those systems are useful in the context of succinct zero-knowledge proof systems is because any R1CS can be transformed into another computational model called a \term{Quadratic Arithmetic Program} [QAP], which serves as the basis for some of the most efficient succinct non-interactive zero-knowledge proof generators that currently exist. 
 
 As we will see, proving statements for languages that have decision functions defined by Quadratic Arithmetic Programs can be achieved by providing certain polynomials, and those proofs can be verified by checking a particular divisibility property of those polynomials.
  
-\subsubsection{QAP representation} To understand what Quadratic Arithmetic Programs are in detail, let $\F$ be a field and $R$ a \concept{rank-1 constraint system} over $\F$ such that the number of non-zero elements in $\F$ is strictly larger than the number $k$ of constraints in $R$. Moreover, let $a_j^i$, $b_j^i$ and $c_j^i\in\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$, be the defining constants of the R1CS and $m_1$, $\ldots$, $m_k$ be arbitrary, invertible and distinct elements from $\F$.
+\subsubsection{QAP representation} To understand what Quadratic Arithmetic Programs are in detail, let $\F$ be a field and $R$ a \concept{rank-1 constraint system} over $\F$ such that the number of non-zero elements in $\F$ is strictly greater than the number $k$ of constraints in $R$. Moreover, let $a_j^i$, $b_j^i$ and $c_j^i\in\F$ for every index $0\leq j \leq n+m$ and $1\leq i \leq k$, be the defining constants of the R1CS and $m_1$, $\ldots$, $m_k$ be arbitrary, invertible and distinct elements from $\F$.
   
 Then a \term{Quadratic Arithmetic Program} associated to the R1CS $R$ is the following set of polynomials over $\F$:
 \begin{equation}
@@ -1271,13 +1271,13 @@ Here $T(x) := \Pi_{l=1}^k (x- m_l)$ is a polynomial of degree $k$, called the \t
 A_j(m_i)=a_j^i, & B_j(m_i)=b_j^i, & C_j(m_i)=c_j^i & \text{ for all } j= 1, \ldots , n+m+1, i=1,\ldots,k 
 \end{array}
 \end{equation}
-Given some \concept{rank-1 constraint system}, an associated Quadratic Arithmetic Program is therefore a set of polynomials, computed from the constants in the R1CS. To see that the polynomials $A_j$, $B_j$ and $C_j$ are uniquely defined by the equations \ref{def:QAP-polynomials}, recall that a polynomial of degree $k-1$ is completely determined by $k$ evaluation points and it can be computed for example by Lagrange interpolation \ref{alg_lagrange_interplation}.
+Given some \concept{rank-1 constraint system}, an associated Quadratic Arithmetic Program is therefore a set of polynomials, computed from the constants in the R1CS. To see that the polynomials $A_j$, $B_j$ and $C_j$ are uniquely defined by the equations \ref{def:QAP-polynomials}, recall that a polynomial of degree $k-1$ is completely determined by $k$ evaluation points and it can be computed for example by Lagrange interpolation, described above in Algorithm \ref{alg_lagrange_interplation}.
 
-Computing a QAP from any given R1CS can be achieved in the following three steps. If the R1CS consists of $k$ constraints, first choose $k$ different, invertible element from the field $\F$. Every choice defines a different QAP for the same R1CS. Then compute the target polynomial $T$ according to its definition \ref{def:QAP-target-poly}. After that use Lagrange's method \ref{alg_lagrange_interplation} to compute the polynomials $A_j$ for every $1\leq j \leq k$ from the set 
+Computing a QAP from any given R1CS can be achieved in the following three steps. If the R1CS consists of $k$ constraints, first choose $k$ different, invertible elements from the field $\F$. Every choice defines a different QAP for the same R1CS. Then compute the target polynomial $T$ according to its definition in \ref{def:QAP-target-poly}. After that, use Lagrange interpolation via Algorithm \ref{alg_lagrange_interplation} to compute the polynomials $A_j$ for every $1\leq j \leq k$ from the set 
 \begin{equation}
 S_{A_j} = \{(m_1,a^1_j),\ldots,(m_k,a^k_j)\}
 \end{equation}
-After that is done, execute the analog computation for the polynomials $B_j$ and $C_j$ for every $1\leq j \leq k$. 
+After that, use the same method to compute the polynomials $B_j$ and $C_j$ for every $1\leq j \leq k$. 
 \begin{example}[3-factorization]
 \label{ex:3-fac-QAP}  To provide a better intuition of Quadratic Arithmetic Programs and how they are computed from their associated \concept{rank-1 constraint systems}, consider the language $L_{3.fac\_zk}$ from \examplename{} \ref{ex:L-3fac-zk} and its associated R1CS from \examplename{} \ref{ex:3-factorization-r1cs}:
 \begin{align*}
@@ -1297,14 +1297,14 @@ c_0^1 = 0 & c_1^1= 0 & c_2^1= 0 & c_3^1 = 0 & c_4^1= 0  & c_5^1= 1 \\
 c_0^2 = 0 & c_1^2= 1 & c_2^2= 0 & c_3^2 = 0 & c_4^2= 0  & c_5^2= 0 
 \end{array} 
 $$
-Since the R1CS is defined over the field $\F_{13}$ and since it has two constraints, we need to choose two arbitrary but invertible and distinct elements $m_1$ and $m_2$ from $\F_{13}$. We choose $m_{1}=5$, and $m_{2}=7$ and with this choice we get the target polynomial
+Since the R1CS is defined over the field $\F_{13}$ and has two constraints, we need to choose two arbitrary but invertible and distinct elements $m_1$ and $m_2$ from $\F_{13}$. We choose $m_{1}=5$, and $m_{2}=7$ and with this choice we get the target polynomial
 \begin{align*}
 T(x) & = (x-m_1)(x-m_2) & \text{\# Definition of T}\\
-     & = (x-5)(x-7)  & \text{\# Insert our choice}\\
-     & = (x+8)(x+6)  & \text{\# Negatives in } \F_{13}\\
-     & = x^2 + x +9 & \text{\# expand}
+     & = (x-5)(x-7)  & \text{\# Insert our chosen values}\\
+     & = (x+8)(x+6)  & \text{\# Additive inverses in } \F_{13}\\
+     & = x^2 + x +9 & \text{\# Expand}
 \end{align*}
-Then we have to compute the polynomials $A_j$, $B_j$ and $C_j$ by their defining equation from the R1CS coefficients. Since the R1CS has two constraining equations, those polynomials are of degree $1$ and they are defined by their evaluation at the point $m_1=5$ and the point $m_2=7$. 
+Then, we have to compute the polynomials $A_j$, $B_j$ and $C_j$ by their defining equation from the R1CS coefficients. Since the R1CS has two constraining equations, those polynomials are of degree $1$ and they are defined by their evaluations at $m_1=5$ and $m_2=7$. 
 
 At point $m_1$, each polynomial $A_j$ is defined to be $a_j^1$ and at point $m_2$, each polynomial $A_j$ is defined to be $a_j^2$. The same holds true for the polynomials $B_j$ as well as $C_j$. Writing all these equations down, we get:
 $$
@@ -1319,9 +1319,9 @@ C_0(5)=0, & C_1(5)=0, & C_2(5)=0, & C_3(5)=0, & C_4(5)=0, & C_5(5)=1 \\
 C_0(7)=0, & C_1(7)=1, & C_2(7)=0, & C_3(7)=0, & C_4(7)=0, & C_5(7)=0
 \end{array}
 $$
-Lagrange's interpolation implies that a polynomial of degree $k$, that is zero on $k+1$ points has to be the zero polynomial. Since our polynomials are of degree $1$ and determined on $2$ points, we therefore know that the only non-zero polynomials in our QAP are $A_2$, $A_5$, $B_3$, $B_4$, $C_1$ and $C_5$, and that we can use Lagrange's interpolation to compute them. 
+The Fundamental Theorem of Algebra implies that a polynomial of degree $k$ that is zero on $k+1$ points must be the zero polynomial. Since our polynomials are of degree $1$ and are determined on $2$ points, we therefore know that the only non-zero polynomials in our QAP are $A_2$, $A_5$, $B_3$, $B_4$, $C_1$ and $C_5$, and that we can use Lagrange interpolation to compute them. 
 
-To compute $A_2$ we note that the set $S_{A_2}$ in our version of Lagrange's interpolation  is given by $S_{A_2}=\{(m_1,a^1_2), (m_2,a_2^2)\} = \{(5,1), (7,0)\}$. Using this set we get:
+To compute $A_2$, we note that the set $S_{A_2}$ in our example is given by $S_{A_2}=\{(m_1,a^1_2), (m_2,a_2^2)\} = \{(5,1), (7,0)\}$. Using this set, we get:
 \begin{align*}
 A_2(x) & = a^1_2\cdot(\frac{x-m_2}{m_1-m_2}) + a^2_2\cdot(\frac{x-m_1}{m_2-m_1})
       = 1\cdot(\frac{x-7}{5-7}) + 0\cdot(\frac{x-5}{7-5}) \\
@@ -1330,7 +1330,7 @@ A_2(x) & = a^1_2\cdot(\frac{x-m_2}{m_1-m_2}) + a^2_2\cdot(\frac{x-m_1}{m_2-m_1})
     & = 6(x-7) 
       = 6x + 10 & \text{\# } -7 = 6 \text{ and } 6\cdot 6 = 10
 \end{align*}
-To compute $A_5$, we note that the set $S_{A_5}$ in our version of Lagrange's method  is given by $S_{A_5}=\{(m_1,a^1_5), (m_2,a^2_5)\} = \{(5,0), (7,1)\}$. Using this set we get:
+To compute $A_5$, we note that the set $S_{A_5}$ in our example is given by $S_{A_5}=\{(m_1,a^1_5), (m_2,a^2_5)\} = \{(5,0), (7,1)\}$. Using this set, we get:
 \begin{align*}
 A_5(x) & = a^1_5\cdot(\frac{x-m_2}{m_1-m_2}) + a^2_5\cdot(\frac{x-m_1}{m_2-m_1})
       = 0\cdot(\frac{x-7}{5-7}) + 1\cdot(\frac{x-5}{7-5}) \\
@@ -1338,7 +1338,7 @@ A_5(x) & = a^1_5\cdot(\frac{x-m_2}{m_1-m_2}) + a^2_5\cdot(\frac{x-m_1}{m_2-m_1})
     & = 7(x-5) 
       = 7x + 4 & \text{\# } -5 = 8 \text{ and } 7\cdot 8 = 4
 \end{align*}
-Using Lagrange's interpolation, we can deduce that $A_2=B_3=C_5$ as well as $A_5=B_4=C_1$, since they are polynomials of degree $1$ that evaluate to the same values on $2$ points. Using this, we get the following set of polynomials
+Using Lagrange interpolation, we can deduce that $A_2=B_3=C_5$ as well as $A_5=B_4=C_1$, since they are polynomials of degree $1$ that evaluate to the same values on $2$ points. Using this, we get the following set of polynomials:
 \begin{center}
 \begin{tabular}{|l|l|l|}\hline 
 $A_{0}(x)=0 $ &$ B_{0}(x)=0   $ & $C_{0}(x)=0$ \tabularnewline\hline 
@@ -1349,7 +1349,7 @@ $A_4(x)=0$ &$ B_4(x)=7x+4  $ & $C_4(x)=0$ \tabularnewline\hline
 $A_5(x)=7x+4$ &$ B_5(x)=0      $ & $C_5(x)=6x+10$ \tabularnewline\hline 
 \end{tabular}
 \end{center}
-We can use Sage to verify our computation. In Sage, every polynomial ring has a function \code{lagrange\_polynomial} that takes the defining points as inputs and the associated Lagrange polynomial as output.
+We can use Sage to verify our computation. In Sage, every polynomial ring has a function \code{lagrange\_polynomial} that takes the defining points as inputs and returns the associated Lagrange polynomial.
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
@@ -1362,7 +1362,6 @@ sage: A5 == F13t(7*t + 4)
 \end{sagecommandline}
 
 Combining this computation with the target polynomial we derived earlier, a Quadratic Arithmetic Program associated to the \concept{rank-1 constraint system} $R_{3.fac\_zk}$ is given as follows:
-
 \begin{multline}
 \label{QAP-R3-fac-zk}
 QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\notag\\
@@ -1372,7 +1371,7 @@ QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\notag\\
 \begin{exercise}
 Consider the \concept{rank-1 constraint system} for points on the \curvename{Tiny-jubjub} curve from \examplename{} \ref{ex:TJJ-r1cs}. Compute an associated QAP for this R1CS and double check your computation using sage.
 \end{exercise}
-\subsubsection{QAP Satisfiability} One of the major points of Quadratic Arithmetic Programs in proving systems is that solutions of their associated \concept{rank-1 constraint systems} are in 1:1 correspondence with certain polynomials $P$ divisible by the target polynomial $T$ of the QAP. Verifying solutions to the R1CS and hence, checking proper circuit execution is then achievable by polynomial division of $P$ by $T$.
+\subsubsection{QAP Satisfiability} One of the major advantages of Quadratic Arithmetic Programs in proving systems is that solutions of their associated \concept{rank-1 constraint systems} are in 1:1 correspondence with certain polynomials $P$ divisible by the target polynomial $T$ of the QAP. Verifying solutions to the R1CS and hence, checking proper circuit execution is then achievable by polynomial division of $P$ by $T$.
 
 To be more specific, let $R$ be some \concept{rank-1 constraint system} with associated variables $(<I_1,\ldots,I_n>; <W_1,\ldots, W_m>)$ and let $QAP(R)$ be a Quadratic Arithmetic Program of $R$. Then the string $(<I_1,\ldots,I_n>; <W_1,\ldots, W_m>)$ is a solution to the R1CS if and only if the following polynomial is divisible by the target polynomial $T$:
 \begin{equation}\label{polynomial-P-IW}
@@ -1397,10 +1396,10 @@ To compute a constructive proof for a statement in $L_{QAP}$ given some instance
 
 Verifying a constructive proof in the case of a circuit is achieved by executing the circuit and then by comparing the result against the given proof. Verifying the same proof in the R1CS picture means checking if the elements of the proof satisfy the R1CS equations. In contrast, verifying a proof in the QAP picture is done by polynomial division of the proof $P$ by the target polynomial $T$. The proof is verified if and only if $P$ is divisible by $T$.
 
-\begin{example} Consider the Quadratic Arithmetic Program $QAP(R_{3.fac\_zk})$ from \examplename{} \ref{ex:3-fac-QAP} and its associated R1CS from equation \ref{ex:3-factorization-r1cs}. To give an intuition of how proofs in the language $L_{QAP(R_{3.fac\_zk})}$ look like, lets consider the instance $I_1=11$. As we know from \examplename{} \ref{ex:3-fac-zk-circuit_2}, $(W_1,W_2,W_3,W_5)=(2,3,4,6)$ is a proper witness, since 
+\begin{example} Consider the Quadratic Arithmetic Program $QAP(R_{3.fac\_zk})$ from \examplename{} \ref{ex:3-fac-QAP} and its associated R1CS from equation \ref{ex:3-factorization-r1cs}. To give an intuition of how proofs in the language $L_{QAP(R_{3.fac\_zk})}$ look like, let's consider the instance $I_1=11$. As we know from \examplename{} \ref{ex:3-fac-zk-circuit_2}, $(W_1,W_2,W_3,W_5)=(2,3,4,6)$ is a proper witness, since 
 $(<I_1>;<W_1,W_2,W_3,W_5>)=(<11>;<2,3,4,6>)$ is a valid circuit assignment and hence, a solution to $R_{3.fac\_zk}$ and a constructive proof for language $L_{R_{3.fac\_zk}}$. 
 
-In order to transform this constructive proof into a knowledge proof in language $L_{QAP(R_{3.fac\_zk})}$, a prover has to use the elements of the constructive proof, to compute the polynomial $P_{(I;W)}$. 
+In order to transform this constructive proof into a knowledge proof in language $L_{QAP(R_{3.fac\_zk})}$, a prover has to use the elements of the constructive proof to compute the polynomial $P_{(I;W)}$. 
 
 In the case of $(<I_1>;<W_1,W_2,W_3,W_5>)=(<11>;<2,3,4,6>)$,  the associated proof is computed as follows: 
 \begin{align*}
@@ -1413,7 +1412,7 @@ P_{(I;W)}  = & \scriptstyle \left(A_0 + \sum_{j}^n I_j\cdot A_j + \sum_{j}^m W_j
 = & (x^{2}+x+9x+9)-(9x) \\
 = & x^{2}+x+9
 \end{align*}
-Given instance $I_1=11$ a prover therefore provides the polynomial $x^2+x+9$ as proof. To verify this proof, any verifier can then look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example, $P_{(I;W)}$ is equal to the target polynomial $T$, and hence, it is divisible by $T$ with $P/T=1$. The verifier therefore verifies the proof.
+Given instance $I_1=11$, a prover provides the polynomial $x^2+x+9$ as proof. To verify this proof, any verifier can look up the target polynomial $T$ from the QAP and divide $P_{(I;W)}$ by $T$. In this particular example, $P_{(I;W)}$ is equal to the target polynomial $T$, and hence, it is divisible by $T$ with $P/T=1$. The verifier thus verifies the proof.
 \begin{sagecommandline}
 sage: F13 = GF(13)
 sage: F13t.<t> = F13[]
