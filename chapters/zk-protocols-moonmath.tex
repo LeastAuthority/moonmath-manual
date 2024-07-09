@@ -32,7 +32,7 @@ The previous definition of proof systems is very general, and many subclasses of
 
 A proof system is usually called \term{succinct} if the size of the proof is shorter than the witness necessary to generate the proof. Moreover, a proof system is called \term{computationally sound} if soundness only holds under the assumption that the computational capabilities of the prover are polynomial bound. To distinguish general proofs from computationally sound proofs, the latter are often called \term{arguments}.
 
-Since the term \term{zk-SNARKs} is an abbreviation for "Zero-knowledge, succinct, non-interactive argument of knowledge". These proof systems are able to generate zk-SNARKS therefore have the zero-knowledge property, are able to generate proofs that require less space than the original witness and require no interaction between prover and verifier, other than transmitting the zk-SNARK itself. However those systems are only sound under the assumption that the prover's computational capabilities are polynomial bound.
+The term \term{zk-SNARKs} is an abbreviation for "Zero-knowledge, succinct, non-interactive argument of knowledge". These proof systems are able to generate zk-SNARKS therefore have the zero-knowledge property, are able to generate proofs that require less space than the original witness and require no interaction between prover and verifier, other than transmitting the zk-SNARK itself. However, those systems are only sound under the assumption that the prover's computational capabilities are polynomial bound.
 \begin{example}[Constructive Proofs for Algebraic Circuits] We have seen in \ref{circuit-satisfiability} how algebraic circuits give rise to formal languages and constructive proofs for knowledge claims.
 
 To reformulate this notion of constructive proofs for algebraic circuits into a proof system, let $\F$ be a finite field, and let $C(\F)$ be an algebraic circuit over $\F$ with associated language $L_{C(\F)}$. A non-interactive proof system for $L_{C(\F)}$ is given by the following two algorithms:
@@ -90,7 +90,7 @@ It should be noted that our choice is not unique. Every pair of finite cyclic gr
 \begin{example}[The 3-Factorization Problem in Circom and Snarkjs]
 \label{ex:3-fac-groth-16-params-circom} Snark.js is a JavaScript library that facilitates the development of systems incorporating zero-knowledge proofs (ZKPs), including the Groth-16 protocol. To showcase a practical example of the 3-factorization problem, we utilize our Circom implementation (see \ref{ex:3-fac-circom}), which compiles into a form that is compatible with snark.js.
 
-As of the time of writing, Snark.js supports the elliptic curves \curvename{alt\_bn128}, \curvename{BLS12-381}, and \curvename{Goldilocks}. For the purposes of this example, we shall utilize \curvename{alt\_bn128}, and it's associated scalar field $\F_{bn128}$ as introduced in \ref{BN128}. The Groth-16 parameters for this curve, as officially defined for the Ethereum blockchain, can be found in \href{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-197.md}{EIP-197}. Snark.js utilizes those parameters.
+As of the time of writing, Snark.js supports the elliptic curves \curvename{alt\_bn128}, \curvename{BLS12-381}, and \curvename{Goldilocks}. For the purposes of this example, we shall utilize \curvename{alt\_bn128}, and its associated scalar field $\F_{bn128}$ as introduced in \ref{BN128}. The Groth-16 parameters for this curve, as officially defined for the Ethereum blockchain, can be found in \href{https://github.com/ethereum/EIPs/blob/master/EIPS/eip-197.md}{EIP-197}. Snark.js utilizes those parameters.
 \end{example}
 \begin{exercise}
 \label{ex:baby-jubjub-circom} Implement the \href{https://github.com/iden3/iden3-docs/blob/master/source/iden3_repos/research/publications/zkproof-standards-workshop-2/baby-jubjub/baby-jubjub.rst}{Baby-JubJub}  twisted Edwards curve equation in Circom and compile it into an R1CS and associated witness generator.
@@ -151,7 +151,7 @@ $$
 \Tau = (6,5,4,3,2)
 $$
 
-We keep this secret in order to simulate proofs later on, but we are careful to hide $\Tau$ from anyone who hasn't read this book. Then we instantiate the \concept{Common Reference String} \ref{def:groth16-crs}from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
+We keep this secret in order to simulate proofs later on, but we are careful to hide $\Tau$ from anyone who hasn't read this book. Then we instantiate the \concept{Common Reference String} \ref{def:groth16-crs} from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
 
 To compute the $\G_1$ part of the \concept{Common Reference String}, we use the logarithmic order of the group $\G_1$ \ref{BLS6-G1-log}, the generator $g_1=(13,15)$, as well as the values from the simulation trapdoor. Since $deg(T)=2$, we get the following:
 \begin{align*}
@@ -267,7 +267,7 @@ Apart from the target polynomial $T$, all other polynomials of the Quadratic Ari
 \end{example}
 
 \begin{example}[The 3-Factorization Problem in Circom and Snark.js]
-\label{ex:3-fac-groth-16-setup-circom} The implementation of the Groth\_16 zk-SNARK setup phase in real world applications can be observed through the examination of our Circom implementation of the $3$-factorization problem \ref{ex:3-fac-circom} and the associated parameter set from Snark.js, as outlined in example \ref{ex:3-fac-groth-16-params-circom}.
+\label{ex:3-fac-groth-16-setup-circom} The implementation of the Groth\_16 zk-SNARK setup phase in real world applications can be observed through the examination of our Circom implementation of the $3$-factorization problem from \ref{ex:3-fac-circom} and the associated parameter set from Snark.js, as outlined in example \ref{ex:3-fac-groth-16-params-circom}.
 
 In accordance with the methodology described in \cite{bowe-17}, the generation of the Common Reference String in Snark.js is comprised of two parts. The first part depends on an upper bound on the number of constraints in the circuit, while the second part is dependent on the circuit itself. This division increases the flexibility of the trusted setup procedure, as protocols with Universal Common Reference Strings, such as PLONK, only require the execution of the first phase, while the Groth\_16 protocol mandates the execution of both phases.
 
