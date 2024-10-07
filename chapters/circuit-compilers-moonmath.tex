@@ -179,8 +179,8 @@ As a demonstration of the generation of circuits in the Circom language, we revi
 \begin{lstlisting}
 template trivial_circuit() {
 
-    signal private input in1 ;
-    signal private input in2 ;
+    signal input in1 ;
+    signal input in2 ;
 
     var outc1 = 0 ;
     var inc1 = 7 ;
@@ -370,7 +370,7 @@ According to \lgname{PAPER}, every occurrence of the instance specifier \texttt{
     }    
     // subgraph connectors
     nin1 -> {nmul1, nadd1} [xlabel="W_1", style=dashed, color=grey] ;  
-    nin2 -> {nmul2, nadd2} [xlabel="I_2 ", style=dashed, color=grey] ;
+    nin2 -> {nmul2, nadd2} [xlabel="I_1 ", style=dashed, color=grey] ;
     nmul4 -> nout1 [headlabel="W_3 ", style=dashed, color=grey] ;    
     nadd4 -> nout2 [headlabel="W_4 ", style=dashed, color=grey] ;    
 }
@@ -393,9 +393,9 @@ In \lgname{PAPER}, we optimize this circuit by collapsing all box nodes that are
 	n6 [label="+"] ;    
 	
     n1 -> {n5, n6} [xlabel="W_1"] ;  
-    n2 -> {n5, n6} [xlabel="I_2 "] ;
-    n5 -> n3 [xlabel="W_3 "] ;    
-    n6 -> n4 [label=" W_4"] ;    
+    n2 -> {n5, n6} [xlabel="I_1 "] ;
+    n5 -> n3 [xlabel="W_2 "] ;
+    n6 -> n4 [label=" W_3"] ;
 }
 \end{center}
 \end{example} 
@@ -796,8 +796,8 @@ The associated Rank-1 Constraint System can be deduced from the general process 
 \end{equation}
 Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\wedge$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\wedge$-operator's circuit:
 \begin{lstlisting}
-fn AND(b_1 : BOOL, b_2 : BOOL) -> BOOL{
-  let AND : BOOL ; 
+fn AND(b_1 : BOOL, b_2 : BOOL) -> BOOL {
+  let AND : BOOL ;
   AND <== MUL( b_1 ,  b_2) ;
   return AND ;
 }
@@ -939,7 +939,7 @@ The associated Rank-1 Constraint System can be deduced from the general process 
 \end{align*}
 Common circuit languages typically provide a gadget or a function to abstract over this circuit such that programers can use the $\lnot$ operator without caring about the associated circuit. In \lgname{PAPER}, we define the following function that compiles to the $\lnot$-operator's circuit:
 \begin{lstlisting}
-fn NOT(b : BOOL -> BOOL{
+fn NOT(b : BOOL) -> BOOL{
   let NOT : BOOL ;
   let const c1 = 1 ;
   let const c2 = -1 ;
@@ -1290,9 +1290,9 @@ I_1:\;\; & (W_1 + W_2 -W_9) \cdot W_{10} = I_1 & \text{AND-operator constraints}
 \end{align*}
 The reason why this R1CS only contains a single constraint for the multiplication gate in the OR-circuit, while the general definition \ref{def:boolean-or} requires two constraints, is that the second constraint in \ref{def:boolean-or_constraints} only appears because the final addition gate is connected to an output node. In this case, however, the final addition gate from the OR-circuit is enforced in the left factor of the $I_{1}$ constraint. Something similar holds true for the negation circuit. 
 
-During a prover-phase, some public instance $I_5$ must be given. To compute a constructive proof for the statement of the associated languages with respect to instance $I_5$, a prover has to find four boolean values $W_1$, $W_2$, $W_3$ and $W_4$ such that 
+During a prover-phase, some public instance $I_1$ must be given. To compute a constructive proof for the statement of the associated languages with respect to instance $I_1$, a prover has to find four boolean values $W_1$, $W_2$, $W_3$ and $W_4$ such that 
 $$
-\left( W_1 \vee W_2 \right) \wedge (W_3 \wedge \lnot W_4) = I_5
+\left( W_1 \vee W_2 \right) \wedge (W_3 \wedge \lnot W_4) = I_1
 $$ 
 holds true. In our case neither the circuit nor the \lgname{PAPER} statement specifies how to find those values, and it is a problem that any prover has to solve outside of the circuit. This might or might not be true for other problems, too. In any case, once the prover found those values, they can execute the circuit to find a valid assignment. 
 
@@ -2025,11 +2025,19 @@ Brain-compiling this code into a circuit, we first draw box nodes for all input 
 \subsection{Binary Field Representations} In applications, it is often necessary to enforce a binary representation of elements from the \texttt{field} type. To derive an appropriate circuit over a prime field $\F_p$, let $m=|p|_2$ be the smallest number of bits necessary to represent the prime modulus $p$. Then a bitstring $<b_0,\ldots,b_{m-1}>\in \{0,1\}^m$ is a binary representation of a field element $x\in\F_p$, if and only if
 \begin{equation}
 \label{def:binary_field_rep}
-x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_m\cdot 2^{m-1}
+x = b_0\cdot 2^0 + b_1\cdot 2^1 + \ldots + b_{m-1}\cdot 2^{m-1}
 \end{equation}
-In this expression, addition and exponentiation is considered to be executed in $\F_p$, which is well defined since all terms $2^j$ for $0\leq j < m$ are elements of $\F_p$. Note, however, that in contrast to the binary representation of unsigned integers $n\in\N$, this representation is not unique in general, since the modular $p$ equivalence class might contain more than one binary representative. 
+In this expression, addition and exponentiation is considered to be
+executed in $\F_p$, which is well defined since all terms $2^j$ for
+$0 \leq j \leq m$ are elements of $\F_p$. Note, however, that in
+contrast to the binary representation of unsigned integers $n\in\N$,
+this representation is not unique in general, since the modular $p$
+equivalence class might contain more than one binary representative.
 
-Considering that the underlying prime field is fixed and the most significant bit of the prime modulus is $m$, the following circuit flattens equation \ref{def:binary_field_rep}, assuming all inputs $b_1$, $\ldots$, $b_m$ are of boolean type.
+Considering that the underlying prime field is fixed and the most
+significant bit of the prime modulus is $m-1$, the following circuit
+flattens equation \ref{def:binary_field_rep}, assuming all inputs
+$b_0$, $\ldots$, $b_{m-1}$ are of boolean type.
 \begin{center}
 \digraph[scale=0.3]{BINARYREP}{
 	forcelabels=true;
