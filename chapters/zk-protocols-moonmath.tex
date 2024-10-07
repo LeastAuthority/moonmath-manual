@@ -60,7 +60,7 @@ The generated zk-SNARK is zero-knowledge, has completeness and soundness in the 
 To be more precise, let $R$ be a Rank-1 Constraint System defined over some finite field $\F_r$. Then \term{Groth\_16 parameters} for $R$ are given by the following set:
 \begin{equation}
 \label{groth16-parameters}
-\mathtt{Groth\_16-Param}(R)=(r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2)
+\mathtt{Groth\_16-Param}(R)= \{ r, \G_1, \G_2, e(\cdot,\cdot), g_1,g_2 \}
 \end{equation}
 
 Here, $\G_1$ and $\G_2$ are finite cyclic groups of order $r$, $g_1$ is a generator of $\G_1$, $g_2$ is a generator of $\G_2$ and $e: \G_1 \times \G_2 \to \G_T$ is an efficiently computable, non-degenerate, bilinear pairing for some target group $\G_T$. In real-world applications, the parameter set is usually agreed on in advance. 
@@ -77,13 +77,13 @@ We will explain these algorithms together with detailed examples in the remainde
 Assuming a trusted third party or the presence of a corresponding multi-party computation for the setup, the protocol is capable of deriving a zk-SNARK from a constructive proof for $R$, provided that the group order $r$ is suitably large, with the requirement being particularly applicable to being larger than the number of constraints in the associated R1CS.
 
 \begin{example}[The 3-Factorization Problem]
-\label{ex:3-fac-groth-16-params} Consider the $3$-factorization problem from \ref{ex:3-factorization} and its associated algebraic circuit \ref{ex:3-fac-zk-circuit} as well the Rank-1 Constraint System from \ref{ex:3-factorization-r1cs}. In this example, we want to agree on a parameter set $(r, \G_1, \G_2, e(\cdot,\cdot), g_1, g_2)$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
+\label{ex:3-fac-groth-16-params} Consider the $3$-factorization problem from \ref{ex:3-factorization} and its associated algebraic circuit \ref{ex:3-fac-zk-circuit} as well the Rank-1 Constraint System from \ref{ex:3-factorization-r1cs}. In this example, we want to agree on a parameter set $\{r, \G_1, \G_2, e(\cdot,\cdot), g_1, g_2\}$ in order to use the Groth\_16 protocol for our $3$-factorization problem. 
 
 To find proper parameters, first observe that the circuit \ref{ex:3-fac-zk-circuit}, as well as its associated R1CS $R_{3.fac\_zk}$ \ref{ex:3-factorization-r1cs} and the derived QAP \ref{ex:3-fac-QAP}, are defined over the field $\F_{13}$. We therefore have to choose pairing groups $\G_1$ and $\G_2$ of order $13$. 
 
 We know from \ref{BLS6} that the moon-math curve \texttt{BLS6\_6} has two subgroups $\G_1[13]$ and $\G_2[13]$, which are both of order $13$. The associated Weil pairing $e(\cdot,\cdot)$ \ref{BLS6-weil-pairing} is efficiently computable, bilinear as well as non-degenerate. We therefore choose those groups and the Weil pairing together with the generators $g_1 = (13,15) $ and $g_2=(7v^2,16v^3)$ of $\G_1[13]$ and $\G_2[13]$, as a parameter set:
 $$
-\mathtt{Groth\_16-Param}(R_{3.fac\_zk})=(13, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3))
+\mathtt{Groth\_16-Param}(R_{3.fac\_zk})= \{ 13, \G_1[13], \G_2[13], e(\cdot,\cdot), (13,15),(7v^2,16v^3) \}
 $$
 It should be noted that our choice is not unique. Every pair of finite cyclic groups of order $13$ that has an efficiently computable, non-degenerate, bilinear pairing qualifies as a Groth\_16 parameter set. The situation is similar to real-world applications, where SNARKs with equivalent behavior are defined over different curves, used in different applications.
 \end{example}
@@ -140,6 +140,7 @@ To ensure the security of the protocol, the setup must be carried out in a way t
 However, finding a trusted third party can be challenging, thus alternative methods have been developed in practical applications. These utilize multi-party computation in the setup phase, which can be publicly verified for proper execution, and the simulation trapdoor is not recoverable if at least one participant destroys their contribution. Each participant holds only a fraction of the trapdoor, making it recoverable only if all participants collaborate and share their parts.
 
 \begin{example}[The $3$-factorization Problem]
+\label{ex:3-fac-groth-16-crs}
 To see how the setup phase of a Groth\_16 zk-SNARK can be computed, consider the $3$-factorization problem from \ref{ex:3-factorization} and the Groth\_16 parameters from \examplename{} \ref{ex:3-fac-groth-16-params}. As we have seen in \ref{ex:3-fac-QAP}, an associated Quadratic Arithmetic Program is given by the following set:
 \begin{multline*}
 QAP(R_{3.fac\_zk}) =\{x^{2}+x+9,\\
@@ -151,7 +152,7 @@ $$
 \Tau = (6,5,4,3,2)
 $$
 
-We keep this secret in order to simulate proofs later on, but we are careful to hide $\Tau$ from anyone who hasn't read this book. Then we instantiate the \concept{Common Reference String} \ref{def:groth16-crs}from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
+We keep this secret in order to simulate proofs later on, but we are careful to hide $\Tau$ from anyone who hasn't read this book. Then we instantiate the \concept{Common Reference String} \ref{def:groth16-crs} from those values. Since our groups are subgroups of the \texttt{BLS6\_6} elliptic curve, we use scalar product notation instead of exponentiation. 
 
 To compute the $\G_1$ part of the \concept{Common Reference String}, we use the logarithmic order of the group $\G_1$ \ref{BLS6-G1-log}, the generator $g_1=(13,15)$, as well as the values from the simulation trapdoor. Since $deg(T)=2$, we get the following:
 \begin{align*}
@@ -200,7 +201,7 @@ To compute the curve points on the right side of these expressions, we need the 
 \end{align*}
 Putting all those values together, we see that the $\mathbb{G}_1$ part of the \concept{Common Reference String} is given by the following set of $12$ points from the \texttt{BLS6\_6} $13$-torsion group $\G_1$: 
 \begin{equation}
-\label{ex:3-fac-groth-16-crs}
+\label{eq:3-fac-groth-16-crs}
 CRS_{\mathbb{G}_{1}}=\left\{ \begin{array}{c}
 (27,34),(26,34),(38,15),\Big((13,15),(33,34)\Big),
 \Big(\mathcal{O}, (33,9)\Big)\\
@@ -240,28 +241,28 @@ We then publish this data to everyone who wants to participate in the generation
 To understand how this \concept{Common Reference String} can be used to evaluate polynomials at the secret evaluation point in the exponent of a generator, let's assume that we have deleted the simulation trapdoor. In that case, assuming that the discrete logarithm problem is hard in our groups, we have no way to know the secret evaluation point anymore, hence, we cannot evaluate polynomials at that point. However, we can evaluate polynomials of smaller degree than the degree of the target polynomial in the exponent of both generators at that point. 
 
 To see that, consider e.g. the polynomials $A_2(x)= 6x +10$ and $A_5(x)=7x+4$ from the QAP of this problem. To evaluate these polynomials in the exponent of $g_1$ and $g_2$ at the secret point $\tau$ without knowing the value of $\tau$ (which is $2$ in our case), we can use the \concept{Common Reference String} and equation \ref{eq:exp_evaluation-poly}. Using the scalar product notation instead of exponentiation, we get the following:
-\begin{align*}
-[A_2(\tau)]g_1 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_1 \\
-     & = [6](33,34) + [10](13,15) & \text{\# } [\tau^0]g_1 = (13,15), [\tau^1]g_1 = (33,34)\\
-     & = [6\cdot 2](13,15) + [10](13,15) = [9](13,15) & \text{\# logarithmic order on } \G_1 \\   
-     & = (35,15)\\
-[A_5(\tau)]g_1 & = [7\cdot \tau^1 + 4\cdot \tau^0] g_1 \\
-     & = [7](33,34) + [4](13,15) \\
-     & = [7\cdot 2](13,15) + [4](13,15) = [5](13,15)\\
-     & = (26,34)     
-\end{align*}
+\begin{align}
+[A_2(\tau)]g_1 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_1 \nonumber \\
+     & = [6](33,34) + [10](13,15) & \text{\# } [\tau^0]g_1 = (13,15), [\tau^1]g_1 = (33,34) \nonumber \\
+     & = [6\cdot 2](13,15) + [10](13,15) = [9](13,15) & \text{\# logarithmic order on } \G_1 \nonumber \\
+     & = (35,15) \label{eq:3-fac-A2-g1} \\
+[A_5(\tau)]g_1 & = [7\cdot \tau^1 + 4\cdot \tau^0] g_1 \nonumber \\
+     & = [7](33,34) + [4](13,15) \nonumber \\
+     & = [7\cdot 2](13,15) + [4](13,15) = [5](13,15) \nonumber \\
+     & = (26,34) \label{eq:3-fac-A5-g1}
+\end{align}
 
 Indeed, we are able to evaluate the polynomials in the exponent at a secret evaluation point, because that point is encrypted in the curve point $(33,34)$ and its secrecy is protected by the discrete logarithm assumption. Of course, in our computation, we recovered the secret point $\tau=2$, but that was only possible because we know the logarithmic order of our groups with respect to the generators. Such an order is infeasible in cryptographically secure curves. We can do the same computation on $\G_2$ and get the following:
-\begin{align*}
-[A_2(\tau)]g_2 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_2 \\
-     & = [6](10v^2,28v^3) + [10](7v^2,16v^3) \\
-     & = [6\cdot 2](7v^2,16v^3) + [10](7v^2,16v^3) = [9](7v^2,16v^3) \\   
-     & = (37v^2,16v^3)\\
-[A_5(\tau)]g_2 & = [7\cdot \tau^1 + 4\cdot \tau^0] g_1 \\
-     & = [7](10v^2,28v^3) + [4](7v^2,16v^3) \\
-     & = [7\cdot 2](7v^2,16v^3) + [4](7v^2,16v^3) = [5](7v^2,16v^3)\\
-     & = (16v^2,28v^3)     
-\end{align*}
+\begin{align}
+[A_2(\tau)]g_2 & = [6\cdot \tau^1 + 10\cdot \tau^0] g_2 \nonumber \\
+     & = [6](10v^2,28v^3) + [10](7v^2,16v^3) \nonumber \\
+     & = [6\cdot 2](7v^2,16v^3) + [10](7v^2,16v^3) = [9](7v^2,16v^3) \nonumber \\
+     & = (37v^2,16v^3) \label{eq:3-fac-A2-g2} \\
+[A_5(\tau)]g_2 & = [7\cdot \tau^1 + 4\cdot \tau^0] g_1 \nonumber \\
+     & = [7](10v^2,28v^3) + [4](7v^2,16v^3) \nonumber \\
+     & = [7\cdot 2](7v^2,16v^3) + [4](7v^2,16v^3) = [5](7v^2,16v^3) \nonumber \\
+     & = (16v^2,28v^3)  \label{eq:3-fac-A5-g2}
+\end{align}
 
 Apart from the target polynomial $T$, all other polynomials of the Quadratic Arithmetic Program can be evaluated in the exponent this way.
 \end{example}
@@ -370,13 +371,13 @@ g_1^{\frac{H(\tau)\cdot T(\tau)}{\delta}}
 \end{align*}
 
 After this has been done, the prover samples two random field elements $r,t\in \F_r$, and uses the \concept{Common Reference String}, the instance variables $I_1$, $\ldots$, $I_n$ and the witness variables $W_1$, $\ldots$, $W_m$ to compute the following curve points:
-\begin{align*}
-g_1^W & = \Big( g_1^{\frac{\beta\cdot A_{1+n}(\tau)+\alpha\cdot B_{1+n}(\tau)+C_{1+n}(\tau)}{\delta}}\Big)^{W_1}\cdots \Big(g_1^{\frac{\beta\cdot A_{m+n}(\tau)+\alpha\cdot B_{m+n}(\tau)+C_{m+n}(\tau)}{\delta}}\Big)^{W_m}\\
-g_1^A & = g_1^\alpha \cdot g_1^{A_0(\tau)} \cdot \Big(g_1^{A_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{A_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{A_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{A_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^r \\
-g_1^B & = g_1^\beta \cdot g_1^{B_0(\tau)} \cdot \Big(g_1^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^t\\
-g_2^B & = g_2^\beta \cdot g_2^{B_0(\tau)} \cdot \Big(g_2^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_2^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_2^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_2^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_2^\delta\Big)^t \\
-g_1^C & = g_1^W\cdot g_1^{\frac{H(\tau)\cdot T(\tau)}{\delta}} \cdot \Big(g_1^A\Big)^t \cdot \Big(g_1^B\Big)^r \cdot \Big(g_1^\delta\Big)^{-r\cdot t}
-\end{align*}
+\begin{align}
+g_1^W & = \Big( g_1^{\frac{\beta\cdot A_{1+n}(\tau)+\alpha\cdot B_{1+n}(\tau)+C_{1+n}(\tau)}{\delta}}\Big)^{W_1}\cdots \Big(g_1^{\frac{\beta\cdot A_{m+n}(\tau)+\alpha\cdot B_{m+n}(\tau)+C_{m+n}(\tau)}{\delta}}\Big)^{W_m} \label{eq:groth16_prover:g1W} \\
+g_1^A & = g_1^\alpha \cdot g_1^{A_0(\tau)} \cdot \Big(g_1^{A_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{A_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{A_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{A_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^r \label{eq:groth16_prover:g1A} \\
+g_1^B & = g_1^\beta \cdot g_1^{B_0(\tau)} \cdot \Big(g_1^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_1^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_1^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_1^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_1^\delta\Big)^t \label{eq:groth16_prover:g1B} \\
+g_2^B & = g_2^\beta \cdot g_2^{B_0(\tau)} \cdot \Big(g_2^{B_1(\tau)}\Big)^{I_1}\cdots \Big(g_2^{B_n(\tau)}\Big)^{I_n} \cdot \Big(g_2^{B_{n+1}(\tau)}\Big)^{W_1}\cdots \Big(g_2^{B_{n+m}(\tau)}\Big)^{W_m} \cdot \Big(g_2^\delta\Big)^t \label{eq:groth16_prover:g2B}\\
+g_1^C & = g_1^W\cdot g_1^{\frac{H(\tau)\cdot T(\tau)}{\delta}} \cdot \Big(g_1^A\Big)^t \cdot \Big(g_1^B\Big)^r \cdot \Big(g_1^\delta\Big)^{-r\cdot t} \label{eq:groth16_prover:g1C}
+\end{align}
 
 During this calculation, the group elements $g_1^{A_j(\tau)}$, $g_1^{B_j(\tau)}$, and $g_2^{B_j(\tau)}$ can be obtained from the Common Reference String and the Quadratic Arithmetic Program associated with the problem, as demonstrated in \ref{eq:exp_evaluation-poly}. These points only need to be computed once, and can be made public and reused for multiple proof generations as they are consistent across all instances and witnesses. The remaining group elements are part of the Common Reference String.
 
@@ -392,7 +393,7 @@ It can be observed that a Groth\_16 zk-SNARK comprises of three curve points, wi
 The witness in a zk-SNARK is encoded in the exponent of a generator of a secure elliptic curve, making it invisible to anyone except the prover. Additionally, the presence of random field elements $r$ and $t$ randomizes each proof, ensuring that no two proofs correspond to the same witness.
 
 \begin{example}[The $3$-factorization Problem]\label{3-fac-snark-compute} To see how a prover might compute 
-a zk-SNARK, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params} as well as the \concept{Common Reference String} from \eqref{ex:3-fac-groth-16-crs}.
+a zk-SNARK, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params} as well as the \concept{Common Reference String} from \eqref{eq:3-fac-groth-16-crs}.
 
 Our task is to compute a zk-SNARK for the instance $I_1=<11>$ and its constructive proof $<W_1,W_2,W_3,W_4>=<2,3,4,6>$ as computed in \examplename{} \ref{ex:3-fac-R1CS-constr-proof}. As we know from \examplename{} \ref{ex:3-fac-QAP}, the associated polynomial $P_{(I;W)}$ of the Quadratic Arithmetic Program from \examplename{} \ref{ex:3-fac-QAP} is given as follows:
 $$
@@ -402,13 +403,13 @@ Since $P_{(I;W)}$ is identical to the target polynomial $T(x)=x^2+x + 9$ in this
 $$
 H(x)= H_0 \cdot x^0 = 1 \cdot x^0
 $$
-We therefore use $[\frac{\tau^0\cdot T(\tau)}{\delta}]g_1=(26,34)$ from our \concept{Common Reference String} \eqref{ex:3-fac-groth-16-crs} of the $3$-factorization problem and compute as follows:
+We therefore use $[\frac{\tau^0\cdot T(\tau)}{\delta}]g_1=(26,34)$ from our \concept{Common Reference String} \eqref{eq:3-fac-groth-16-crs} of the $3$-factorization problem and compute as follows:
 \begin{align*}
 [\frac{H(\tau)\cdot T(\tau)}{\delta}]g_1 &= [H_0](26,34)=[1](26,34)\\
                                    &= (26,34)
 \end{align*}
 
-In the next step, we have to compute all group elements required for a proper Groth16 zk-SNARK \eqref{def:groth16-snark}. We start with $g_1^W$. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \curvename{BLS6\_6} curve, we have to compute the point $[W]g_1$:
+In the next step, we have to compute all group elements required for a proper Groth16 zk-SNARK \eqref{def:groth16-snark}. We start with $g_1^W$ \eqref{eq:groth16_prover:g1W}. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \curvename{BLS6\_6} curve, we have to compute the point $[W]g_1$:
 \begin{align*}
 [W]g_1 = & \phantom{\oplus} [W_1] g_1^{\frac{\beta\cdot A_{2}(\tau)+\alpha\cdot B_{2}(\tau)+C_{2}(\tau)}{\delta}}
         \oplus [W_2] g_1^{\frac{\beta\cdot A_{3}(\tau)+\alpha\cdot B_{3}(\tau)+C_{3}(\tau)}{\delta}}        
@@ -425,14 +426,14 @@ To compute this point, we have to remember that a prover should not be in posses
       & = (38,28)
 \end{align*} 
 
-In a next step, we compute $g_1^A$. We sample the random point $r=11$ from $\F_{13}$, using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve. We then have to compute the following expression:
+In a next step, we compute $g_1^A$ \eqref{eq:groth16_prover:g1A}. We sample the random point $r=11$ from $\F_{13}$, using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve. We then have to compute the following expression:
 
 \begin{align*}
 [A]g_1 = &\phantom{\oplus} [\alpha]g_1 \oplus [A_0(\tau)]g_1 \oplus [I_1][A_1(\tau)]g_1\oplus [W_1][A_2(\tau)]g_1 \oplus [W_2][A_3(\tau)]g_1\\ 
        & \oplus [W_3][A_4(\tau)]g_1\oplus [W_4][A_5(\tau)]g_1\oplus [r][\delta]g_1
 \end{align*}
 
-Since we don't know what $\alpha$, $\delta$ and $\tau$ are, we look up $[\alpha]g_1$ and $[\delta]g_1$ from the \concept{Common Reference String}. According to \examplename{} \ref{ex:3-fac-groth-16-crs}, we have $[A_2(\tau)]g_1=(35,15)$, $[A_5(\tau)]g_1=(26,34)$ and $[A_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
+Since we don't know what $\alpha$, $\delta$ and $\tau$ are, we look up $[\alpha]g_1$ and $[\delta]g_1$ from the \concept{Common Reference String}. According to \examplename{} \ref{ex:3-fac-groth-16-crs} we have $[A_2(\tau)]g_1=(35,15)$ \eqref{eq:3-fac-A2-g1}, $[A_5(\tau)]g_1=(26,34)$ \eqref{eq:3-fac-A5-g1} and $[A_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
 \begin{align*}
 [A]g_1 &= (27,34) \oplus \mathcal{O} \oplus [11]\mathcal{O}\oplus [2](35,15) \oplus [3]\mathcal{O} \oplus [4]\mathcal{O}\oplus [6](26,34)\oplus [11](38,15)\\
  &=  (27,34)\oplus [2](35,15)\oplus [6](26,34)\oplus [11](38,15)\\
@@ -441,7 +442,7 @@ Since we don't know what $\alpha$, $\delta$ and $\tau$ are, we look up $[\alpha]
  &= (35,15)
 \end{align*}
 
-In order to compute the two curve points $[B]g_1$ and $[B]g_2$, we sample another random element $t=4$ from $\F_{13}$. Using the scalar product instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we  have to compute the following expressions:
+In order to compute the two curve points $[B]g_1$ \eqref{eq:groth16_prover:g1B} and $[B]g_2$ \eqref{eq:groth16_prover:g2B}, we sample another random element $t=4$ from $\F_{13}$. Using the scalar product instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the following expressions:
 
 \begin{align*}
 [B]g_1 = &\phantom{\oplus} [\beta]g_1 \oplus [B_0(\tau)]g_1 \oplus [I_1][B_1(\tau)]g_1\oplus [W_1][B_2(\tau)]g_1 \oplus [W_2][B_3(\tau)]g_1\\ 
@@ -450,16 +451,13 @@ In order to compute the two curve points $[B]g_1$ and $[B]g_2$, we sample anothe
        & \oplus [W_3][B_4(\tau)]g_2\oplus [W_4][B_5(\tau)]g_2\oplus [t][\delta]g_2\\       
 \end{align*}
 
-Since we don't know what $\beta$, $\delta$ and $\tau$ are, we look up the associated group elements from the \concept{Common Reference String}. Recall from \ref{ex:3-fac-groth-16-crs} that we can evaluate $[B_j(\tau)]g_1$ without knowing the secret evaluation point $\tau$. Since $B_3=A_2$ and $B_4=A_5$, we have $[B_3(\tau)]g_1=(35,15)$, $[B_4(\tau)]g_1=(26,34)$ according to the computation in \ref{ex:3-fac-groth-16-crs}, and $[B_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
+Since we don't know what $\beta$, $\delta$ and $\tau$ are, we look up the associated group elements from the \concept{Common Reference String}. Recall from \examplename{} \ref{ex:3-fac-groth-16-crs} that we can evaluate $[B_j(\tau)]g_1$ without knowing the secret evaluation point $\tau$. Since $B_3=A_2$ and $B_4=A_5$, we have $[B_3(\tau)]g_1=(35,15)$, $[B_4(\tau)]g_1=(26,34)$ according to the computation in eq. \eqref{eq:3-fac-A2-g1} and \eqref{eq:3-fac-A5-g1}, and $[B_j(\tau)]g_1=\mathcal{O}$ for all other indices $0\leq j\leq 5$. Since $\mathcal{O}$ is the neutral element on $\G_1$, we get the following:
 \begin{align*}
 [B]g_1 &= (26,34) \oplus \mathcal{O}\oplus [11]\mathcal{O}\oplus [2]\mathcal{O} \oplus [3](35,15) \oplus [4](26,34)\oplus [6]\mathcal{O}\oplus [4](38,15)\\    
        &= (26,34)\oplus [3](35,15) \oplus [4](26,34)\oplus [4](38,15)\\  
        &= [5](13,15)\oplus [3\cdot 9](13,15) \oplus [4\cdot 5](13,15)\oplus [4\cdot 3](13,15)\\        
        &= [5+3\cdot 9+4\cdot 5+4\cdot 3](13,15) = [12](13,15) \\
-       &= (13,28)
-\end{align*}
-
-\begin{align*}
+       &= (13,28) \\ \\
 [B]g_2 &=(16v^2,28v^3) \oplus \mathcal{O} \oplus [11]\mathcal{O}\oplus [2]\mathcal{O} \oplus [3](37v^2,16v^3)\oplus [4](16v^2,28v^3)\oplus [6]\mathcal{O}\oplus [4](42v^2,16v^3)\\    
          &=(16v^2,28v^3)\oplus [3](37v^2,16v^3)\oplus [4](16v^2,28v^3)\oplus [4](42v^2,16v^3)\\
          &=[5](7v^2,16v^3)\oplus [3\cdot 9](7v^2,16v^3)\oplus [4\cdot 5](7v^2,16v^3)\oplus [4\cdot 3](7v^2,16v^3)\\          
@@ -467,7 +465,7 @@ Since we don't know what $\beta$, $\delta$ and $\tau$ are, we look up the associ
          &= (7v^2,27v^3)     
 \end{align*}
 
-In a last step, we combine the previous computations to compute the point $[C]g_1$ in the group $\G_1$ as follows:
+In a last step, we combine the previous computations to compute the point $[C]g_1$ \eqref{eq:groth16_prover:g1C} in the group $\G_1$ as follows:
 \begin{align*}
 [C]g_1 & = [W]g_1\oplus [\frac{H(s)\cdot T(\tau)}{\delta}]g_1 \oplus [t][A]g_1 \oplus [r][B]g_1 \oplus [-r\cdot t][\delta]g_1\\
        & = (38,28)\oplus (26,34) \oplus [4](35,15) \oplus [11](13,28) \oplus [-11\cdot 4](38,15)\\       
@@ -535,9 +533,9 @@ Consider exercise \ref{ex:baby-jubjub-circom} and the CRS from exercise \ref{ex:
 The objective of the verification phase in a Groth\_16 zk-SNARK, given a Rank-1 Constraint System $R$, an instance $I = <I_1, \ldots, I_n>$, and a zk-SNARK $\pi$ (as defined in \ref{def:groth16-snark}), is to confirm that $\pi$ constitutes a valid proof. If the simulation trapdoor is no longer present and the proof passes the verification checks, the verifier can be convinced that there exists a witness $W = <W_1, \ldots, W_m>$ such that $(I;W)$ belongs to the language of $R$. 
 
 To achieve this in the Groth\_16 protocol, we assume that any verifier is able to compute the pairing map $e(\cdot,\cdot)$ efficiently, and has access to the \concept{Common Reference String} used to produce the zk-SNARK $\pi$. In order to verify the zk-SNARK with respect to the instance $<I_1,\ldots, I_n>$, the verifier computes the following curve point:
-\begin{align*}
-g_1^I & = \Big(g_1^{\frac{\beta\cdot A_{0}(\tau)+\alpha\cdot B_{0}(\tau)+C_{0}(\tau)}{\gamma}}\Big)\cdot \Big(g_1^{\frac{\beta\cdot A_{1}(\tau)+\alpha\cdot B_{1}(\tau)+C_{1}(\tau)}{\gamma}}\Big)^{I_1} \cdots \Big(g_1^{\frac{\beta\cdot A_{n}(\tau)+\alpha\cdot B_{n}(\tau)+C_{n}(\tau)}{\gamma}}\Big)^{I_n}\\
-\end{align*}
+\begin{align}\label{eq:groth16_verify}
+g_1^I & = \Big(g_1^{\frac{\beta\cdot A_{0}(\tau)+\alpha\cdot B_{0}(\tau)+C_{0}(\tau)}{\gamma}}\Big)\cdot \Big(g_1^{\frac{\beta\cdot A_{1}(\tau)+\alpha\cdot B_{1}(\tau)+C_{1}(\tau)}{\gamma}}\Big)^{I_1} \cdots \Big(g_1^{\frac{\beta\cdot A_{n}(\tau)+\alpha\cdot B_{n}(\tau)+C_{n}(\tau)}{\gamma}}\Big)^{I_n}
+\end{align}
 With this group element, the verifier is able to verify the zk-SNARK $\pi=(g_1^A,g_1^C,g_2^B)$ by checking the following equation using the pairing map:
 \begin{equation}
 \label{def:groth16-verifier-equation}
@@ -556,13 +554,13 @@ According to \cite{Groth16}, the minimum number of pairings required for any pro
 \label{3-fac-snark-verifier} To see how a verifier might verify  
 a zk-SNARK for some given instance $I$, consider the $3$-factorization problem from \examplename{} \ref{ex:3-factorization}, our protocol parameters from \examplename{} \ref{ex:3-fac-groth-16-params}, the \concept{Common Reference String} from \eqref{ex:3-fac-groth-16-crs} as well as the zk-SNARK $\pi=((35,15),(27,9),(7v^2,27v^3))$ from \examplename{}  \eqref{ex:3-fac-groth-16-snark}, which claims to be an argument of knowledge for a witness for the instance $I_1=<11>$.
 
-In order to verify the zk-SNARK for that instance, we first compute the curve point $g_1^I$. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[I]g_1$ as follows:
+In order to verify the zk-SNARK for that instance, we first compute the curve point $g_1^I$ \eqref{eq:groth16_verify}. Using scalar products instead of the exponential notation, and $\oplus$ for the group law on the \texttt{BLS6\_6} curve, we have to compute the point $[I]g_1$ as follows:
 
 \begin{align*}
 [I]g_1 = & [\frac{\beta\cdot A_{0}(\tau)+\alpha\cdot B_{0}(\tau)+C_{0}(\tau)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(\tau)+\alpha\cdot B_{1}(\tau)+C_{1}(\tau)}{\gamma}]g_1
 \end{align*}
 
-To compute this point, we have to remember that a verifier should not be in possession of the simulation trapdoor, which means that they should not know what $\alpha$, $\beta$, $\gamma$ and $\tau$ are. In order to compute this group element, the verifier therefore needs the \concept{Common Reference String}. Using the logarithmic order from \eqref{BLS6-G1-log} and instance $I_1$, we get the following:
+To compute this point, we have to remember that a verifier should not be in possession of the simulation trapdoor, which means that they should not know what $\alpha$, $\beta$, $\gamma$ and $\tau$ are. In order to compute this group element, the verifier therefore needs the \concept{Common Reference String} (\eqref{eq:3-fac-groth-16-crs}). Using the logarithmic order from \eqref{BLS6-G1-log} and instance $I_1$, we get the following:
 
 \begin{align*}
 [I]g_1 & = [\frac{\beta\cdot A_{0}(\tau)+\alpha\cdot B_{0}(\tau)+C_{0}(\tau)}{\gamma}]g_1 \oplus [I_1][\frac{\beta\cdot A_{1}(\tau)+\alpha\cdot B_{1}(\tau)+C_{1}(\tau)}{\gamma}]g_1\\
@@ -647,10 +645,10 @@ Given some instance $I$, the forger's task is to generate a zk-SNARK for this in
 
 To achieve this in the Groth\_16 protocol, the forger can use the simulation trapdoor in combination with the QAP and two arbitrary field elements $A$ and $B$ from the scalar field $\F_r$ of the pairing groups to compute $g_1^C$ for the instance $<I_1,\ldots,I_n>$ as follows:
 
-\begin{align}
+\begin{equation}
 \label{def:groth16-simulated-proof}
-g_1^{\frac{A\cdot B}{\delta}}\cdot g_1^{-\frac{\alpha\cdot \beta}{\delta}}\cdot g_1^{-\frac{\beta A_0(\tau) + \alpha B_0(\tau)+ C_0(\tau)}{\delta}}\cdot \Big(g_1^{-\frac{\beta A_1(\tau) + \alpha B_1(\tau)+ C_1(\tau)}{\delta}}\Big)^{I_1}\cdots \Big(g_1^{-\frac{\beta A_n(\tau) + \alpha B_n(\tau)+ C_n(\tau)}{\delta}}\Big)^{I_n}\
-\end{align} 
+g_1^C = g_1^{\frac{A\cdot B}{\delta}}\cdot g_1^{-\frac{\alpha\cdot \beta}{\delta}}\cdot g_1^{-\frac{\beta A_0(\tau) + \alpha B_0(\tau)+ C_0(\tau)}{\delta}}\cdot \Big(g_1^{-\frac{\beta A_1(\tau) + \alpha B_1(\tau)+ C_1(\tau)}{\delta}}\Big)^{I_1}\cdots \Big(g_1^{-\frac{\beta A_n(\tau) + \alpha B_n(\tau)+ C_n(\tau)}{\delta}}\Big)^{I_n}
+\end{equation}
 
 The forger then publishes the zk-SNARK $\pi_{forged} = (g_1^A, g_1^C, g_2^B)$, which will pass the verification process and is computable without the existence of a witness $<W_1,\ldots,W_m>$.
 
