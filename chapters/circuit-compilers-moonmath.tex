@@ -91,7 +91,7 @@ For every function that we currently compile, we draw a box-node for every input
 
 After this is done, we have to do a consistency and type check for every occurrence of the assignment operator \texttt{<==}. We have to ensure that the expression on the right side of the operator is well defined and that the types of both side match.
 
-Then we compile the right side of every occurrence of the assignment operator \texttt{<==}. If the right side is a constant or variable defined in this function, we draw a dotted line from the box-node that represents the left side of \texttt{<==} to the box node that represents the right side of the same operator. If the right side represents an argument of that function we draw a line from the box-node that represents the left side of \texttt{<==} to the box node that represents the right side of the same operator. 
+Then we compile the right side of every occurrence of the assignment operator \texttt{<==}. If the right side is a constant or variable defined in this function, we draw a dotted line from the box-node that represents the right side of \texttt{<==} to the box node that represents the left side of the same operator. If the right side represents an argument of that function we draw a line from the box-node that represents the left side of \texttt{<==} to the box node that represents the right side of the same operator. 
 
 If the right side of the \texttt{<==} operator is a function, we look into our database, find its associated circuit and draw it. If no circuit is  associated to that function yet, we repeat the compilation process for that function, drawing edges from the function's argument to its input nodes and from the functions output nodes to the nodes on the right side of \texttt{<==}.
 
@@ -162,9 +162,9 @@ Programming languages that compile to rank-1 constraint systems are becoming inc
 \subsection{Circom}
 Circom is a domain-specific programming language for designing arithmetic circuits. It is used to build circuits that can be compiled to rank-1 constraint systems and outputted as WebAssembly and C++ programs for efficient evaluation.
 
-In this section, we will gives examples of how to write basic circuits in Circom. We will use those examples then later to compute associated proof in snarkjs. 
+In this section, we will gives examples of how to write basic circuits in Circom. We will use those examples later to compute associated proof in snarkjs. 
 
-To understand circom, we first have to provide definitions for the terms \hilight{signals},\hilight{templates}, and \hilight{components} to facilitate a better understanding of the examples discussed.
+To understand Circom, we first have to provide definitions for the terms \hilight{signals},\hilight{templates}, and \hilight{components} to facilitate a better understanding of the examples discussed.
 
 A \term{signal} refers to an element in the underlying finite field $\F$ of a circuit. The arithmetic circuits created using Circom operate on signals, which are immutable and can be defined as inputs or outputs. Input signals are private, unless specified as public, and all output signals are publicly accessible. The remaining signals are private and cannot be made public. Public signals are part of the instance and private signals are part of the witness in any valid assignment of a circuit.
 
@@ -205,7 +205,7 @@ The Circom compiler generates three distinct files. The first file, \fname{trivi
 
 \begin{example}[The 3-factorization problem in Circom]
 \label{ex:3-fac-circom}
-In this example we implement the 3-factorization problem \ref{ex:3-factorization} in Circom's language and compile into an R1CS and statement generator. In order to show, how Circom handles modularity \ref{modularity}, we write the code as follows:
+In this example we implement the 3-factorization problem \ref{ex:3-factorization} in Circom's language and compile into an R1CS and statement generator. In order to show how Circom handles modularity \ref{modularity}, we write the code as follows:
 \begin{lstlisting}
 template Multiplier() {
     signal input a ;
@@ -255,7 +255,7 @@ In this section, we cover concepts that appear in almost every programming langu
 % https://zeroknowledge.fm/172-2/ reference for all the languages
 Primitive data types like booleans, (unsigned) integers, or strings are the most basic building blocks one can expect to find in every general high-level programing language. In order to write statements as computer programs that compile into circuits, it is therefore necessary to implement primitive types as constraint systems, and define their associated operations as circuits.
 
-In this section, we look at some common ways to achieve this. After a recapitulation of the atomic type for the base field where the circuit is defined on, we start with an implementation of the boolean type and its associated boolean algebra as circuits. After that, we define unsigned integers based on the boolean type, and leave the implementation of signed integers as an exercise to the reader. 
+In this section, we look at some common ways to achieve this. After a review of the atomic type for the base field where the circuit is defined on, we start with an implementation of the boolean type and its associated boolean algebra as circuits. After that, we define unsigned integers based on the boolean type, and leave the implementation of signed integers as an exercise to the reader. 
 
 \subsubsection{The base-field type} 
 \label{def:base_field_type}
@@ -399,7 +399,7 @@ In \lgname{PAPER}, we optimize this circuit by collapsing all box nodes that are
 }
 \end{center}
 \end{example} 
-\begin{example}[$3$-factorization] Consider our $3$-factorization problem from \examplename{} \ref{ex:3-factorization} and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in \examplename{} \ref{ex:TJJ-circuit_1}. To understand the process of replacing high-level functions by their associated circuits inductively, we want define a \lgname{PAPER} statement that we brain-compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$:
+\begin{example}[$3$-factorization] Consider our $3$-factorization problem from \examplename{} \ref{ex:3-factorization} and the associated circuit $C_{3.fac\_zk}(\F_{13})$ we provided in \examplename{} \ref{ex:TJJ-circuit_1}. To understand the process of replacing high-level functions by their associated circuits inductively, we want to define a \lgname{PAPER} statement that we brain-compile into an algebraic circuit equivalent to $C_{3.fac\_zk}(\F_{13})$:
 \begin{lstlisting}
 statement 3_fac_zk {F:F_13} {
   fn main(x_1 : F, x_2 : F, x_3 : F) -> F{
@@ -1283,7 +1283,7 @@ To compute the associated R1CS, we can use the general method from \ref{sec:circ
 W_5:\;\; & W_1 \cdot (1- W_1) = 0  & \text{boolean constraints}\\
 W_6:\;\; & W_2 \cdot (1- W_2) = 0 \\
 W_7:\;\; & W_3 \cdot (1- W_3) = 0 \\
-W_8:\;\; & W_4 \cdot (1- w_4) = 0 \\
+W_8:\;\; & W_4 \cdot (1- W_4) = 0 \\
 W_9:\;\; & W_1 \cdot W_2 = W_9 & \text{ first OR-operator constraint}\\
 W_{10}:\;\; & W_3 \cdot (1-W_4) = W_{10} & \text{AND(.,NOT(.))-operator constraints}\\
 I_1:\;\; & (W_1 + W_2 -W_9) \cdot W_{10} = I_1 & \text{AND-operator constraints}\\
@@ -1718,7 +1718,7 @@ statement MASK_MERGE {F:F_5, N=4} {
 \end{lstlisting}
 Let $L_{mask\_merge}$ be the language defined by the circuit. Provide a constructive knowledge proof in $L_{mask\_merge}$ for the instance $I=(I_a, I_b) = (14, 7)$.
 \end{exercise}
-\subsection{Control Flow} Most programming languages of the imperative of functional style have some notion of basic control structures to direct the order in which instructions are evaluated. Contemporary circuit compilers usually provide a single thread of execution and provide basic flow constructs that implement control flow in circuits. In this part we look at some basic control flow constructions and their implementation in circuits.
+\subsection{Control Flow} Most programming languages of the imperative or functional style have some notion of basic control structures to direct the order in which instructions are evaluated. Contemporary circuit compilers usually provide a single thread of execution and provide basic flow constructs that implement control flow in circuits. In this part we look at some basic control flow constructions and their implementation in circuits.
 \subsubsection{The Conditional Assignment} Writing high-level code that compiles to circuits, it is often necessary to have a way for conditional assignment of values or computational output to variables. One way to realize this in many programming languages is in terms of the conditional ternary assignment operator $?:$ that branches the control flow of a program according to some condition and then assigns the output of the computed branch to some variable: 
 \begin{lstlisting}
 variable = condition ? value_if_true : value_if_false  
@@ -2135,7 +2135,7 @@ $$
 $$
 This is because the unsigned integers $2$ and $15$ are both in the modular $13$ remainder class of $2$ and hence are both representatives of $2$ in $\F_{13}$.
 
-To see how circuit the associated circuit works, we want to enforce the binary representation of $7\in \F_{13}$. Since $m=4$ we have to enforce a $4$-bit representation for $7$, which is $<1,1,1,0>$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$. A valid circuit assignment is therefore given by $<S_0,S_1,S_2,S_3,S_4>=<1,1,1,0,7>$ and, indeed, the assignment satisfies the required $5$ constraints including the $4$ boolean constraints for $S_0$, $\ldots$, $S_3$: 
+To see how the associated circuit works, we want to enforce the binary representation of $7\in \F_{13}$. Since $m=4$ we have to enforce a $4$-bit representation for $7$, which is $<1,1,1,0>$, since $7= 1\cdot 2^0 + 1\cdot 2^1 + 1\cdot 2^2 + 0\cdot 2^3$. A valid circuit assignment is therefore given by $<S_0,S_1,S_2,S_3,S_4>=<1,1,1,0,7>$ and, indeed, the assignment satisfies the required $5$ constraints including the $4$ boolean constraints for $S_0$, $\ldots$, $S_3$: 
 \begin{align*}
 1\cdot (1-1) &= 0 & \text{// boolean constraints}\\
 1\cdot (1-1) &= 0 \\
