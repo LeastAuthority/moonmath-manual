@@ -386,7 +386,7 @@ We can formalize this intuition of what congruence should be into a proper defin
 
 If, on the other hand, two numbers are not congruent with respect to a given modulus $n$, we call them \term{incongruent} w.r.t. $n$.
 
-In other words, \term{congruence} is an equation ``up to congruence'', which means that the equation only needs to hold if we take the modulus of both sides. This is expressed with the following notation:
+In other words, \term{congruence} is an equation ``up to modulus'', which means that the equation only needs to hold if we take the modulus of both sides. This is expressed with the following notation:
 \footnote{A more in-depth introduction to the notion of congruency and its basic properties and
 application in number theory can be found in \chaptname{} 5 of \cite{hardy-2008}.}
 \begin{equation}
@@ -507,13 +507,15 @@ The solution set is computed by \algname{} \ref{chinese-remainder-theorem} below
 \begin{algorithm}\caption{Chinese Remainder Theorem}
 \label{chinese-remainder-theorem}
 \begin{algorithmic}[0]
-\Require , $k\in \Z$, $j\in \NN$ and $n_0,\ldots,n_{k-1} \in \N$ coprime
+\Require $k\in \N$, $a_0,\ldots,a_{k-1} \in \Z$ and $n_0,\ldots,n_{k-1} \in \N$ coprime
 \Procedure{Congruence-Systems-Solver}{$a_{0},\ldots,a_{k-1}$}
 \State $N\gets n_0\cdot \ldots \cdot n_{k-1}$
+\State $j\gets 0$
 \While{$j< k $}
 \State $N_j\gets N/n_j$
 \State $(\_,s_j,t_j)\gets EXT-EUCLID (N_j,n_j)$
   \Comment{$1 = s_j\cdot N_j + t_j\cdot n_j$}
+\State $j\gets j+1$
 \EndWhile
 \State $x'\gets \sum_{j=0}^{k-1}a_j\cdot s_j\cdot N_j$
 \State $x\gets \Zmod{x'}{N}$
